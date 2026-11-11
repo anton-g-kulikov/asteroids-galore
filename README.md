@@ -25,7 +25,7 @@ python3 -m http.server 8000
 
 There are 4 levels; finishing the fourth completes the mission.
 
-A level ends once you have earned its points target (350 on level 1, +150 per level) **and** survived at least 20 seconds of it. The bar under the score shows points progress.
+Once you have earned a level's points target (350 on level 1, +150 per level) **and** survived at least 20 seconds of it, a wormhole drifts down the screen. Fly into it to travel to the next level. If you miss it, the next one appears 15–30 seconds later and the level carries on getting faster in the meantime. The bar under the score shows points progress.
 
 Each new level:
 
