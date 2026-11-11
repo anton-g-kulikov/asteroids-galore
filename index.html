@@ -34,7 +34,7 @@
   const POINTS_PER_PERSON = 25;
   const LEVEL_MIN_TIME = 20;     // seconds of dodging before a level can end
   const levelTarget = l => 350 + 150 * (l - 1);          // points to earn within the level
-  const levelCapacity = l => 6 + 2 * (l - 1);            // seats for rescued crew
+  const levelCapacity = l => l < 2 ? 0 : Math.min(32, 4 * 2 ** (l - 2));   // seats: 0, 4, 8, 16, 32
   const levelHandling = l => Math.max(0.5, 0.92 ** (l - 1));   // bigger ship steers slower
   const DILEMMA_EVERY = 3;       // every Nth rescue is a "save these or those" choice
 
@@ -278,7 +278,7 @@
         spawnTimer = rand(0.4, 0.8) * (400 * U / W) / (0.75 + speed * 0.25);
       }
 
-      rescueTimer -= dt;
+      if (levelCapacity(level)) rescueTimer -= dt;   // level 1 is asteroids only
       if (rescueTimer <= 0) {
         rescueCount++;
         if (rescueCount % DILEMMA_EVERY === 0) spawnDilemma(); else spawnRescue();
@@ -491,12 +491,12 @@
       const cap = levelCapacity(level);
       const step = Math.min(14 * U, (W - 40) / cap), pw = step * 0.68, ph = 9 * U;
       const px = W / 2 - (cap * step - (step - pw)) / 2, py = by + bh + 9 * U;
+      if (cap) text(`CREW ${onboard}/${cap}`, W / 2, py + ph + 14 * U, 11 * U, onboard >= cap ? '#ffd166' : 'rgba(93,255,160,.85)', 'center', 700);
       for (let i = 0; i < cap; i++) {
         ctx.beginPath(); ctx.roundRect(px + i * step, py, pw, ph, pw * 0.3);
         if (i < onboard) { ctx.fillStyle = '#5dffa0'; ctx.fill(); }
         else { ctx.strokeStyle = 'rgba(93,255,160,.55)'; ctx.lineWidth = 1.2 * U; ctx.stroke(); }
       }
-      text(`CREW ${onboard}/${cap}`, W / 2, py + ph + 14 * U, 11 * U, onboard >= cap ? '#ffd166' : 'rgba(93,255,160,.85)', 'center', 700);
 
       if (levelScore >= target && levelTime < LEVEL_MIN_TIME) {
         text(`HOLD ON ${Math.ceil(LEVEL_MIN_TIME - levelTime)}s`, W / 2, py + ph + 34 * U, 13 * U, '#7fdcff');
@@ -509,7 +509,7 @@
       if (levelBanner > 0) {
         ctx.globalAlpha = Math.min(1, levelBanner * 2);
         text(`LEVEL ${level}`, W / 2, H * 0.4, 44 * U, '#ffffff', 'center', 800);
-        text(level === 1 ? `Room for ${cap} crew` : `Crew delivered · room for ${cap} · heavier ship`,
+        text(level === 1 ? 'Dodge the asteroids' : level === 2 ? `Rescue stranded crews · room for ${cap}` : `Crew delivered · room for ${cap} · heavier ship`,
           W / 2, H * 0.4 + 28 * U, 15 * U, '#7fdcff', 'center', 600);
         ctx.globalAlpha = 1;
       }
@@ -518,7 +518,7 @@
       text('ASTEROIDS', W / 2, H * 0.3, 46 * U, '#ffffff', 'center', 800);
       text('GALORE', W / 2, H * 0.3 + 44 * U, 46 * U, '#7fdcff', 'center', 800);
       text('Dodge the rocks. No guns, just flying.', W / 2, H * 0.3 + 84 * U, 15 * U, 'rgba(255,255,255,.7)', 'center', 500);
-      text('Fly close to stranded crews to rescue them.', W / 2, H * 0.3 + 106 * U, 15 * U, '#5dffa0', 'center', 500);
+      text('Later levels: fly close to stranded crews to rescue them.', W / 2, H * 0.3 + 106 * U, 15 * U, '#5dffa0', 'center', 500);
       if (best) text(`BEST ${best}`, W / 2, H * 0.3 + 138 * U, 15 * U, '#ffd166', 'center', 700);
       drawTouchHints(0.55);
       text('hold left', W / 2 - W * 0.3, H * 0.8 + 62 * U, 13 * U, 'rgba(255,255,255,.7)', 'center', 600);
