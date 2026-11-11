@@ -50,6 +50,7 @@
   let time = 0, speed = 1, score = 0, spawnTimer = 0, shake = 0;
   let level = 1, levelTime = 0, levelScore = 0, onboard = 0, levelBanner = 0;
   let wormhole = null, wormTimer = 0, flash = 0;   // exit to the next level, once the level's goals are met
+  let missed = 0;                // crew that drifted past without being picked up
   let rescued = 0, rescueTimer = 0, rescueCount = 0, banner = 0, clock = 0;
   let best = 0, newBest = false;
   try { best = +localStorage.getItem(BEST_KEY) || 0; } catch (e) {}
@@ -133,6 +134,7 @@
     time = 0; speed = 1; score = 0; spawnTimer = 0.6; shake = 0; newBest = false;
     level = 1; ship.r = shipRadius(1); levelTime = 0; levelScore = 0; onboard = 0; levelBanner = 2.5;
     wormhole = null; wormTimer = 0; flash = 0;
+    missed = 0;
     rescued = 0; rescueTimer = 4; rescueCount = 0; banner = 0;
     ship.x = W / 2; ship.vx = 0;
     setState('play');
@@ -350,7 +352,11 @@
         if (dx * dx + dy * dy < hit * hit) { gameOver(); }
       }
     }
-    asteroids = asteroids.filter(a => a.y - a.r < H + 10);
+    asteroids = asteroids.filter(a => {
+      if (a.y - a.r < H + 10) return true;
+      if (state === 'play') missed += a.people;
+      return false;
+    });
 
     if (state === 'play' && Math.random() < dt * 60) {
       particles.push({
@@ -456,7 +462,6 @@
       }
     }
     ctx.restore();
-    text('WORMHOLE', w.x, w.y - w.r * 1.25 - 8 * U, 14 * U, '#c9a8ff');
   }
 
   function drawShip() {
@@ -568,6 +573,10 @@
       text(String(Math.floor(score)), W / 2, top, 34 * U, '#ffffff');
       text(`BEST ${best}`, W - 14, top - 8 * U, 13 * U, 'rgba(255,255,255,.55)', 'right', 600);
       text(`LEVEL ${level}/${LAST_LEVEL}`, 14, top - 8 * U, 13 * U, 'rgba(127,220,255,.9)', 'left', 700);
+      if (levelCapacity(level)) {
+        text(`RESCUED ${rescued}`, 14, top + 12 * U, 11 * U, '#5dffa0', 'left', 700);
+        text(`MISSED ${missed}`, 14, top + 28 * U, 11 * U, '#ff7b54', 'left', 700);
+      }
 
       // level progress: points bar, then "hold on" if the minimum time isn't up yet
       const target = levelTarget(level), bw = 150 * U, bh = 5 * U, bx = W / 2 - bw / 2, by = top + 10 * U;
@@ -588,11 +597,6 @@
         else { ctx.strokeStyle = 'rgba(93,255,160,.55)'; ctx.lineWidth = 1.2 * U; ctx.stroke(); }
       }
 
-      if (levelScore >= target) {
-        const msg = levelTime < LEVEL_MIN_TIME ? `HOLD ON ${Math.ceil(LEVEL_MIN_TIME - levelTime)}s`
-          : wormhole ? 'FLY INTO THE WORMHOLE' : '';
-        text(msg, W / 2, py + ph + 34 * U, 13 * U, levelTime < LEVEL_MIN_TIME ? '#7fdcff' : '#c9a8ff');
-      }
       if (banner > 0) {
         ctx.globalAlpha = Math.min(1, banner * 2);
         text('TWO CREWS — TIME FOR ONLY ONE', W / 2, py + ph + 54 * U, 13 * U, '#ffd166');
@@ -623,7 +627,7 @@
       text('COMPLETE', W / 2, H * 0.28 + 40 * U, 40 * U, '#5dffa0', 'center', 800);
       text(String(Math.floor(score)), W / 2, H * 0.28 + 112 * U, 62 * U, '#ffffff', 'center', 800);
       text(newBest ? 'NEW BEST!' : `BEST ${best}`, W / 2, H * 0.28 + 144 * U, 16 * U, '#ffd166');
-      text(`All ${LAST_LEVEL} levels cleared · ${rescued} rescued`, W / 2, H * 0.28 + 172 * U, 16 * U, '#7fdcff');
+      text(`${rescued} rescued · ${missed} missed`, W / 2, H * 0.28 + 172 * U, 16 * U, '#7fdcff');
       if (stateTime > 0.7) {
         ctx.globalAlpha = 0.6 + 0.4 * Math.sin(stateTime * 4);
         text('TAP TO PLAY AGAIN', W / 2, H * 0.66, 20 * U, '#ffffff');
@@ -635,7 +639,7 @@
       text('GAME OVER', W / 2, H * 0.32, 38 * U, '#ff7b54', 'center', 800);
       text(String(Math.floor(score)), W / 2, H * 0.32 + 70 * U, 62 * U, '#ffffff', 'center', 800);
       text(newBest ? 'NEW BEST!' : `BEST ${best}`, W / 2, H * 0.32 + 102 * U, 16 * U, '#ffd166');
-      text(`Level ${level} · ${rescued} rescued`, W / 2, H * 0.32 + 130 * U, 16 * U, '#5dffa0');
+      text(`Level ${level} · ${rescued} rescued · ${missed} missed`, W / 2, H * 0.32 + 130 * U, 16 * U, '#5dffa0');
       if (stateTime > 0.7) {
         ctx.globalAlpha = 0.6 + 0.4 * Math.sin(stateTime * 4);
         text('TAP TO RETRY', W / 2, H * 0.62, 20 * U, '#ffffff');
@@ -657,7 +661,7 @@
 
   // Test/debug hook.
   window.__game = { get state() { return state; }, get score() { return score; }, get speed() { return speed; },
-    get asteroids() { return asteroids; }, get rescued() { return rescued; }, get level() { return level; }, get onboard() { return onboard; }, get wormhole() { return wormhole; }, get wormTimer() { return wormTimer; }, skipLevel() { levelScore = 1e9; levelTime = 1e9; }, fill(n) { onboard = n; }, ship, spawnRescue, spawnDilemma };
+    get asteroids() { return asteroids; }, get rescued() { return rescued; }, get missed() { return missed; }, get level() { return level; }, get onboard() { return onboard; }, get wormhole() { return wormhole; }, get wormTimer() { return wormTimer; }, skipLevel() { levelScore = 1e9; levelTime = 1e9; }, fill(n) { onboard = n; }, ship, spawnRescue, spawnDilemma };
 })();
 </script>
 </body>

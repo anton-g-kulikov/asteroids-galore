@@ -21,6 +21,8 @@ It's a single file with no dependencies — open `index.html`, or serve the fold
 python3 -m http.server 8000
 ```
 
+The HUD counts crew rescued and crew missed (those that drifted off screen unrescued).
+
 ## Levels
 
 There are 4 levels; finishing the fourth completes the mission.
