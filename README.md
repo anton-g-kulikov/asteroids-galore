@@ -15,7 +15,7 @@ Every so often two crews appear on screen together, in different columns, one fo
 
 ## Gravity
 
-A faint grid in the background shows spacetime. Parking the ship in one spot bends it: the grid brightens and pinches towards the ship, and asteroids start falling into the well, reaching full depth after 6 seconds. A heavier ship (later levels, more crew aboard) and higher flight speed pull harder. Moving away flattens it again within a couple of seconds.
+A faint grid in the background shows spacetime. Parking the ship in one spot bends it: the grid brightens and pinches towards the ship, and asteroids start falling into the well, reaching full depth after 6 seconds. A heavier ship (later levels, more crew aboard) and higher flight speed pull harder. The well has inertia: when the ship moves off, the well lingers where it was dug, drifts after the ship and relaxes over several seconds.
 
 ## Run
 

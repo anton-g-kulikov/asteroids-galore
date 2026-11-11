@@ -51,8 +51,10 @@
   let level = 1, levelTime = 0, levelScore = 0, onboard = 0, levelBanner = 0;
   let wormhole = null, wormTimer = 0, flash = 0;   // exit to the next level, once the level's goals are met
   // Gravity: the longer the ship sits in one place, the deeper the well it digs.
-  let dwell = 0, anchor = 0, gridOff = 0;
-  const curvature = () => dwell / WELL_TIME;                                   // 0..1
+  // The well has inertia: its centre trails the ship on a soft spring and its
+  // depth lags behind the time parked, so it lingers where it was dug.
+  let dwell = 0, depth = 0, wellX = 0, wellV = 0, gridOff = 0;
+  const curvature = () => depth;                                               // 0..1
   const shipMass = () => shipRadius(level) / (13 * U) + onboard * 0.02;        // bigger, fuller ship = heavier
   let missed = 0;                // crew that drifted past without being picked up
   let rescued = 0, rescueTimer = 0, rescueCount = 0, banner = 0, clock = 0;
@@ -141,7 +143,7 @@
     missed = 0;
     rescued = 0; rescueTimer = 4; rescueCount = 0; banner = 0;
     ship.x = W / 2; ship.vx = 0;
-    dwell = 0; anchor = ship.x;
+    dwell = 0; depth = 0; wellX = ship.x; wellV = 0;
     setState('play');
   }
 
@@ -327,10 +329,11 @@
       if (ship.x < margin) { ship.x = margin; ship.vx = 0; }
       if (ship.x > W - margin) { ship.x = W - margin; ship.vx = 0; }
 
-      // "Same place" = within a small radius of a point that trails the ship slowly.
-      anchor += (ship.x - anchor) * Math.min(1, dt * 1.2);
-      if (Math.abs(ship.x - anchor) < 26 * U) dwell = Math.min(WELL_TIME, dwell + dt);
-      else dwell = Math.max(0, dwell - dt * 3);
+      // "Same place" = still sitting in the well, whose centre trails the ship.
+      wellV += ((ship.x - wellX) * 3 - wellV * 3) * dt;
+      wellX += wellV * dt;
+      if (Math.abs(ship.x - wellX) < 26 * U) dwell = Math.min(WELL_TIME, dwell + dt);
+      else dwell = Math.max(0, dwell - dt * 1.5);
 
       spawnTimer -= dt;
       if (spawnTimer <= 0) {
@@ -347,7 +350,9 @@
       }
     }
 
-    if (state !== 'play') dwell = Math.max(0, dwell - dt * 3);
+    if (state !== 'play') dwell = Math.max(0, dwell - dt * 1.5);
+    const want = dwell / WELL_TIME;
+    depth += (want - depth) * Math.min(1, dt * (want > depth ? 4 : 1.1));   // quick to deepen, slow to relax
     gridOff = (gridOff + scroll * 0.5 * dt) % (40 * U);
     // Pull grows with time parked, ship mass and flight speed.
     const pull = state === 'play' ? curvature() * 260 * U * shipMass() * (0.6 + 0.4 * speed) : 0;
@@ -355,7 +360,7 @@
     for (const a of asteroids) {
       if (pull > 0) {
         // fall towards the ship; strongest nearby, fading with distance
-        const gx = ship.x - a.x, gy = ship.y - a.y, d2 = gx * gx + gy * gy;
+        const gx = wellX - a.x, gy = ship.y - a.y, d2 = gx * gx + gy * gy;
         const f = pull / (1 + d2 / (wellR * wellR)) / (Math.sqrt(d2) + 1) * dt;
         a.vx = Math.max(-420 * U, Math.min(420 * U, a.vx + gx * f));
         a.gy += gy * f;
@@ -562,7 +567,7 @@
     const k = c * 0.62 * Math.min(1.4, shipMass());
     const warp = (x, y) => {
       if (k <= 0) return [x, y];
-      const dx = ship.x - x, dy = ship.y - y, s = k / (1 + (dx * dx + dy * dy) / R2);
+      const dx = wellX - x, dy = ship.y - y, s = k / (1 + (dx * dx + dy * dy) / R2);
       return [x + dx * s, y + dy * s];
     };
     ctx.beginPath();
@@ -720,7 +725,7 @@
 
   // Test/debug hook.
   window.__game = { get state() { return state; }, get score() { return score; }, get speed() { return speed; },
-    get asteroids() { return asteroids; }, get rescued() { return rescued; }, get missed() { return missed; }, get dwell() { return dwell; }, get level() { return level; }, get onboard() { return onboard; }, get wormhole() { return wormhole; }, get wormTimer() { return wormTimer; }, skipLevel() { levelScore = 1e9; levelTime = 1e9; }, fill(n) { onboard = n; }, ship, spawnRescue, spawnDilemma };
+    get asteroids() { return asteroids; }, get rescued() { return rescued; }, get missed() { return missed; }, get dwell() { return dwell; }, get depth() { return depth; }, get wellX() { return wellX; }, get level() { return level; }, get onboard() { return onboard; }, get wormhole() { return wormhole; }, get wormTimer() { return wormTimer; }, skipLevel() { levelScore = 1e9; levelTime = 1e9; }, fill(n) { onboard = n; }, ship, spawnRescue, spawnDilemma };
 })();
 </script>
 </body>
