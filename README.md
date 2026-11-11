@@ -11,7 +11,7 @@ Score grows with distance flown; your best is saved on the device.
 
 Some asteroids carry stranded crew, marked with a green `SOS` ring. Fly inside the ring — without hitting the rock — to pick them up for 25 points per person.
 
-Every so often two crews appear at once: 2 people on an open rock, or 4 on a rock wedged between two others. Picking up one loses the other.
+Every so often two crews appear on screen together, in different columns, one following just above the other: 2 people on an open rock, or 4 on a rock wedged between two others. Nothing forbids saving both, but the gap is sized so the dash from one to the other falls just short.
 
 ## Run
 
@@ -25,7 +25,7 @@ python3 -m http.server 8000
 
 There are 4 levels; finishing the fourth completes the mission.
 
-Once you have earned a level's points target (350 on level 1, +150 per level) **and** survived at least 20 seconds of it, a wormhole drifts down the screen. Fly into it to travel to the next level. If you miss it, the next one appears 15–30 seconds later and the level carries on getting faster in the meantime. The bar under the score shows points progress.
+Once you have earned a level's points target (350 on level 1, +150 per level) **and** survived at least 20 seconds of it, a wormhole drifts down the screen. Fly into it to travel to the next level. If you miss it, the next one appears 15–30 seconds later, unannounced and the level carries on getting faster in the meantime. The bar under the score shows points progress.
 
 Each new level:
 

@@ -153,8 +153,6 @@
       rot: rand(0, 6.283), spin: rand(-1.4, 1.4),
       shade: Math.floor(rand(0, 3)),
       people: 0,      // stranded crew waiting for pickup
-      link: null,     // the other asteroid of a "choose one" pair
-      lost: false,    // crew can no longer be reached (the other option was taken)
     }, o);
   }
 
@@ -173,24 +171,40 @@
       Object.assign(RESCUE(), { people: 1 + Math.floor(rand(0, 3)) })));
   }
 
-  // Two crews at once, on opposite sides: 2 people in the open, or 4 wedged
-  // between escort rocks. Picking up one side loses the other.
+  // Pickup range: a ring around the rock that widens a little as things speed up.
+  const ringRadius = a => a.r + (30 + 8 * speed) * U;
+  const reachOf = a => ringRadius(a) + ship.r * 0.5;
+
+  // Two crews on screen at once, in different columns, one following just
+  // above the other: 2 people on an open rock, or 4 on a rock flanked by
+  // escorts. Nothing forbids taking both, but the gap between them is sized
+  // from the ship's current top speed so that the dash across falls just short.
   function spawnDilemma() {
-    const side = Math.random() < 0.5 ? -1 : 1;
-    const y = -70 * U;
-    const easy = makeAsteroid(W / 2 - side * W * 0.28, 24 * U, Object.assign(RESCUE(), { people: 2, y }));
-    const hard = makeAsteroid(W / 2 + side * W * 0.28, 26 * U, Object.assign(RESCUE(), { people: 4, y }));
-    easy.link = hard; hard.link = easy;
+    const side = Math.random() < 0.5 ? -1 : 1;          // which side the 4-crew rock is on
+    const fast = { vy: 1.25 };
+    const easy = makeAsteroid(W / 2 - side * W * 0.36, 24 * U, Object.assign(RESCUE(), fast, { people: 2 }));
+    const hard = makeAsteroid(W / 2 + side * (W / 2 - 100 * U), 26 * U, Object.assign(RESCUE(), fast, { people: 4 }));
+    const escortR = 14 * U, escortDist = hard.r + 52 * U;
+    const escortHit = escortR * 0.86 + ship.r * 0.7;
+
+    const [first, second] = Math.random() < 0.5 ? [easy, hard] : [hard, easy];
+    const fall = fast.vy * H * 0.34 * speed;                              // px/s
+    const top = W * (1.25 + speed * 0.18) * levelHandling(level);         // ship px/s
+    const reach = reachOf(first);
+    // Best case for the player: grab the first crew early from its near edge,
+    // then sprint to the other rock's corridor before its row arrives.
+    const dash = (Math.abs(hard.x - easy.x) - reach * 0.5 - (escortDist - escortHit)) / top + 0.11;
+    const gap = Math.max(40 * U, Math.min(240 * U, 0.78 * fall * dash - reach * 0.866 + escortHit));
+
+    first.y = -90 * U;
+    second.y = first.y - gap;
     asteroids.push(easy, hard);
     for (const d of [-1, 1]) {
-      asteroids.push(makeAsteroid(hard.x + d * (hard.r + 52 * U), 14 * U, Object.assign(RESCUE(), { y })));
+      asteroids.push(makeAsteroid(hard.x + d * escortDist, escortR, Object.assign(RESCUE(), fast, { y: hard.y })));
     }
     banner = 2.5;
     spawnTimer = Math.max(spawnTimer, 0.9);   // brief lull so the choice is readable
   }
-
-  // Pickup range: a ring around the rock that widens a little as things speed up.
-  const ringRadius = a => a.r + (30 + 8 * speed) * U;
 
   // Each level restarts the asteroid speed ramp, but the ship carries more and steers slower.
   function nextLevel() {
@@ -222,7 +236,6 @@
       });
     }
     a.people -= n;
-    if (a.link) { a.link.lost = true; a.link.link = null; a.link = null; }
     if (navigator.vibrate) navigator.vibrate(30);
   }
 
@@ -329,8 +342,8 @@
       a.rot += a.spin * dt;
       if (state === 'play') {
         const dx = a.x - ship.x, dy = a.y - ship.y;
-        if (a.people && !a.lost && onboard < levelCapacity(level)) {
-          const reach = ringRadius(a) + ship.r * 0.5;
+        if (a.people && onboard < levelCapacity(level)) {
+          const reach = reachOf(a);
           if (dx * dx + dy * dy < reach * reach) rescue(a);
         }
         const hit = a.r * 0.86 + ship.r * 0.7;   // forgiving hitbox
@@ -388,10 +401,10 @@
       ctx.save();
       ctx.rotate((i / a.people) * Math.PI * 2 + 0.4);
       ctx.translate(0, -a.r * 0.92);
-      ctx.strokeStyle = ctx.fillStyle = a.lost ? '#6b6f7a' : '#ffb347';
+      ctx.strokeStyle = ctx.fillStyle = '#ffb347';
       ctx.lineWidth = 1.6 * U;
       ctx.lineCap = 'round';
-      const wave = a.lost ? 0.3 : Math.sin(clock * 9 + i * 2) * 0.5;
+      const wave = Math.sin(clock * 9 + i * 2) * 0.5;
       for (const d of [-1, 1]) {
         ctx.beginPath();
         ctx.moveTo(d * s * 0.5, -s * 0.9);
@@ -401,13 +414,13 @@
       ctx.beginPath();
       ctx.roundRect(-s * 0.6, -s * 1.5, s * 1.2, s * 1.7, s * 0.4);
       ctx.fill();
-      ctx.fillStyle = a.lost ? '#9a9da6' : '#ffffff';
+      ctx.fillStyle = '#ffffff';
       ctx.beginPath(); ctx.arc(0, -s * 2.1, s * 0.75, 0, Math.PI * 2); ctx.fill();
       ctx.restore();
     }
     ctx.restore();
 
-    if (a.people && !a.lost) {
+    if (a.people) {
       const R = ringRadius(a);
       ctx.save();
       const full = onboard >= levelCapacity(level);
@@ -532,9 +545,6 @@
 
     if (wormhole) drawWormhole(wormhole);
     for (const a of asteroids) drawAsteroid(a);
-    for (const a of asteroids) {
-      if (a.link && a.x < a.link.x) text('OR', (a.x + a.link.x) / 2, a.y + 6 * U, 18 * U, '#ffd166', 'center', 800);
-    }
     for (const p of particles) {
       ctx.globalAlpha = Math.max(0, p.life / p.max);
       ctx.fillStyle = p.color;
@@ -580,13 +590,12 @@
 
       if (levelScore >= target) {
         const msg = levelTime < LEVEL_MIN_TIME ? `HOLD ON ${Math.ceil(LEVEL_MIN_TIME - levelTime)}s`
-          : wormhole ? 'FLY INTO THE WORMHOLE'
-          : `NEXT WORMHOLE IN ${Math.ceil(Math.max(0, wormTimer))}s`;
+          : wormhole ? 'FLY INTO THE WORMHOLE' : '';
         text(msg, W / 2, py + ph + 34 * U, 13 * U, levelTime < LEVEL_MIN_TIME ? '#7fdcff' : '#c9a8ff');
       }
       if (banner > 0) {
         ctx.globalAlpha = Math.min(1, banner * 2);
-        text('TWO CREWS — YOU CAN ONLY SAVE ONE', W / 2, py + ph + 54 * U, 13 * U, '#ffd166');
+        text('TWO CREWS — TIME FOR ONLY ONE', W / 2, py + ph + 54 * U, 13 * U, '#ffd166');
         ctx.globalAlpha = 1;
       }
       if (levelBanner > 0) {
