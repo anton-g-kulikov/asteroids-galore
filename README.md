@@ -28,5 +28,6 @@ A level ends once you have earned its points target (350 on level 1, +150 per le
 Each new level:
 
 - delivers the crew on board and grows the ship — level 1 is asteroids only, then 4 seats on level 2, 8 on level 3, 16 on level 4 (doubling up to 32). The pips under the bar fill as people are rescued, and a full ship can't pick up more;
+- draws the seats on the ship itself, as dots on the hull that turn green as they fill — the ship (and its hitbox) grows to fit them;
 - makes the ship 8% slower to steer (down to half speed at most);
 - restarts the asteroid speed ramp, so the rocks behave the same every level while the ship gets heavier.
