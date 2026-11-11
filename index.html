@@ -31,6 +31,8 @@
   const SPEED_RAMP = 0.03;       // speed multiplier gained per second
   const MAX_SPEED = 4.5;
   const BEST_KEY = 'asteroids-galore-best';
+  const POINTS_PER_PERSON = 25;
+  const DILEMMA_EVERY = 3;       // every Nth rescue is a "save these or those" choice
 
   const canvas = document.getElementById('game');
   const ctx = canvas.getContext('2d');
@@ -40,11 +42,12 @@
   let state = 'menu';            // 'menu' | 'play' | 'over'
   let stateTime = 0;             // seconds since the state began
   let time = 0, speed = 1, score = 0, spawnTimer = 0, shake = 0;
+  let rescued = 0, rescueTimer = 0, rescueCount = 0, banner = 0, clock = 0;
   let best = 0, newBest = false;
   try { best = +localStorage.getItem(BEST_KEY) || 0; } catch (e) {}
 
   const ship = { x: 0, y: 0, vx: 0, r: 0 };
-  let asteroids = [], particles = [], stars = [];
+  let asteroids = [], particles = [], floaters = [], stars = [];
 
   const rand = (a, b) => a + Math.random() * (b - a);
 
@@ -118,29 +121,83 @@
   function setState(s) { state = s; stateTime = 0; }
 
   function startGame() {
-    asteroids = []; particles = [];
+    asteroids = []; particles = []; floaters = [];
     time = 0; speed = 1; score = 0; spawnTimer = 0.6; shake = 0; newBest = false;
+    rescued = 0; rescueTimer = 4; rescueCount = 0; banner = 0;
     ship.x = W / 2; ship.vx = 0;
     setState('play');
+  }
+
+  function makeAsteroid(x, r, o) {
+    const n = Math.floor(rand(8, 13));
+    const shape = [];
+    for (let i = 0; i < n; i++) shape.push(rand(0.72, 1.08));
+    const craters = [];
+    for (let i = 0, c = r > 32 * U ? 3 : Math.floor(rand(1, 3)); i < c; i++) {
+      craters.push({ a: rand(0, 6.283), d: rand(0.15, 0.55), r: rand(0.12, 0.24) });
+    }
+    return Object.assign({
+      x, y: -r - 4, r, shape, craters,
+      vx: rand(-26, 26) * U,
+      vy: rand(0.8, 1.3),                      // multiplied by the scroll speed
+      rot: rand(0, 6.283), spin: rand(-1.4, 1.4),
+      shade: Math.floor(rand(0, 3)),
+      people: 0,      // stranded crew waiting for pickup
+      link: null,     // the other asteroid of a "choose one" pair
+      lost: false,    // crew can no longer be reached (the other option was taken)
+    }, o);
   }
 
   function spawnAsteroid() {
     const big = Math.random() < 0.18;
     const r = (big ? rand(34, 50) : rand(14, 30)) * U;
-    const n = Math.floor(rand(8, 13));
-    const shape = [];
-    for (let i = 0; i < n; i++) shape.push(rand(0.72, 1.08));
-    const craters = [];
-    for (let i = 0, c = big ? 3 : Math.floor(rand(1, 3)); i < c; i++) {
-      craters.push({ a: rand(0, 6.283), d: rand(0.15, 0.55), r: rand(0.12, 0.24) });
+    asteroids.push(makeAsteroid(rand(r * 0.4, W - r * 0.4), r, big ? { vy: rand(0.7, 1.1) } : null));
+  }
+
+  // Rescue asteroids fall straight and steady so the approach is readable.
+  const RESCUE = () => ({ vx: 0, vy: 0.9, spin: rand(-0.5, 0.5) });
+
+  function spawnRescue() {
+    const r = rand(22, 28) * U;
+    asteroids.push(makeAsteroid(rand(W * 0.15, W * 0.85), r,
+      Object.assign(RESCUE(), { people: 1 + Math.floor(rand(0, 3)) })));
+  }
+
+  // Two crews at once, on opposite sides: 2 people in the open, or 4 wedged
+  // between escort rocks. Picking up one side loses the other.
+  function spawnDilemma() {
+    const side = Math.random() < 0.5 ? -1 : 1;
+    const y = -70 * U;
+    const easy = makeAsteroid(W / 2 - side * W * 0.28, 24 * U, Object.assign(RESCUE(), { people: 2, y }));
+    const hard = makeAsteroid(W / 2 + side * W * 0.28, 26 * U, Object.assign(RESCUE(), { people: 4, y }));
+    easy.link = hard; hard.link = easy;
+    asteroids.push(easy, hard);
+    for (const d of [-1, 1]) {
+      asteroids.push(makeAsteroid(hard.x + d * (hard.r + 52 * U), 14 * U, Object.assign(RESCUE(), { y })));
     }
-    asteroids.push({
-      x: rand(r * 0.4, W - r * 0.4), y: -r - 4, r, shape, craters,
-      vx: rand(-26, 26) * U,
-      vy: rand(0.8, 1.3) * (big ? 0.85 : 1),   // multiplied by the scroll speed
-      rot: rand(0, 6.283), spin: rand(-1.4, 1.4),
-      shade: Math.floor(rand(0, 3)),
-    });
+    banner = 2.5;
+    spawnTimer = Math.max(spawnTimer, 0.9);   // brief lull so the choice is readable
+  }
+
+  // Pickup range: a ring around the rock that widens a little as things speed up.
+  const ringRadius = a => a.r + (30 + 8 * speed) * U;
+
+  function rescue(a) {
+    const pts = a.people * POINTS_PER_PERSON;
+    score += pts;
+    rescued += a.people;
+    floaters.push({ x: a.x, y: a.y - a.r, str: `+${pts}`, life: 1.2 });
+    for (let i = 0; i < 14; i++) {
+      const t = rand(0.2, 0.45);   // crew "beam" towards the ship
+      particles.push({
+        x: a.x + rand(-1, 1) * a.r, y: a.y + rand(-1, 1) * a.r,
+        vx: (ship.x - a.x) / t, vy: (ship.y - a.y) / t,
+        life: t, max: t, size: rand(1.5, 3) * U, color: '#5dffa0',
+      });
+    }
+    a.people = 0;
+    if (a.link) { a.link.lost = true; a.link.link = null; a.link = null; }
+    if (navigator.vibrate) navigator.vibrate(30);
   }
 
   function explode(x, y) {
@@ -168,6 +225,8 @@
 
   function update(dt) {
     stateTime += dt;
+    clock += dt;
+    banner = Math.max(0, banner - dt);
     const scroll = H * 0.34 * (state === 'play' ? speed : state === 'over' ? 0.25 : 0.6);
 
     for (const s of stars) {
@@ -195,6 +254,13 @@
         // Slightly denser over time, and scaled so wide fields aren't sparse.
         spawnTimer = rand(0.4, 0.8) * (400 * U / W) / (0.75 + speed * 0.25);
       }
+
+      rescueTimer -= dt;
+      if (rescueTimer <= 0) {
+        rescueCount++;
+        if (rescueCount % DILEMMA_EVERY === 0) spawnDilemma(); else spawnRescue();
+        rescueTimer = rand(5, 8);
+      }
     }
 
     for (const a of asteroids) {
@@ -203,6 +269,10 @@
       a.rot += a.spin * dt;
       if (state === 'play') {
         const dx = a.x - ship.x, dy = a.y - ship.y;
+        if (a.people && !a.lost) {
+          const reach = ringRadius(a) + ship.r * 0.5;
+          if (dx * dx + dy * dy < reach * reach) rescue(a);
+        }
         const hit = a.r * 0.86 + ship.r * 0.7;   // forgiving hitbox
         if (dx * dx + dy * dy < hit * hit) { gameOver(); }
       }
@@ -219,6 +289,8 @@
     }
     for (const p of particles) { p.x += p.vx * dt; p.y += p.vy * dt; p.life -= dt; }
     particles = particles.filter(p => p.life > 0);
+    for (const f of floaters) { f.y -= 45 * U * dt; f.life -= dt; }
+    floaters = floaters.filter(f => f.life > 0);
     shake = Math.max(0, shake - dt);
   }
 
@@ -249,7 +321,43 @@
       ctx.arc(Math.cos(c.a) * c.d * a.r, Math.sin(c.a) * c.d * a.r, c.r * a.r, 0, Math.PI * 2);
       ctx.fill();
     }
+    // stranded crew, standing around the rim and waving
+    for (let i = 0; i < a.people; i++) {
+      const s = 4.6 * U;
+      ctx.save();
+      ctx.rotate((i / a.people) * Math.PI * 2 + 0.4);
+      ctx.translate(0, -a.r * 0.92);
+      ctx.strokeStyle = ctx.fillStyle = a.lost ? '#6b6f7a' : '#ffb347';
+      ctx.lineWidth = 1.6 * U;
+      ctx.lineCap = 'round';
+      const wave = a.lost ? 0.3 : Math.sin(clock * 9 + i * 2) * 0.5;
+      for (const d of [-1, 1]) {
+        ctx.beginPath();
+        ctx.moveTo(d * s * 0.5, -s * 0.9);
+        ctx.lineTo(d * s * (1.3 + wave * d * 0.5), -s * (1.9 + wave * d));
+        ctx.stroke();
+      }
+      ctx.beginPath();
+      ctx.roundRect(-s * 0.6, -s * 1.5, s * 1.2, s * 1.7, s * 0.4);
+      ctx.fill();
+      ctx.fillStyle = a.lost ? '#9a9da6' : '#ffffff';
+      ctx.beginPath(); ctx.arc(0, -s * 2.1, s * 0.75, 0, Math.PI * 2); ctx.fill();
+      ctx.restore();
+    }
     ctx.restore();
+
+    if (a.people && !a.lost) {
+      const R = ringRadius(a);
+      ctx.save();
+      ctx.strokeStyle = '#5dffa0';
+      ctx.globalAlpha = 0.55 + 0.3 * Math.sin(clock * 6);
+      ctx.lineWidth = 2 * U;
+      ctx.setLineDash([8 * U, 7 * U]);
+      ctx.lineDashOffset = -clock * 30 * U;
+      ctx.beginPath(); ctx.arc(a.x, a.y, R, 0, Math.PI * 2); ctx.stroke();
+      ctx.restore();
+      text(`SOS ×${a.people}`, a.x, a.y - R - 8 * U, 14 * U, '#5dffa0');
+    }
   }
 
   function drawShip() {
@@ -324,10 +432,17 @@
     ctx.globalAlpha = 1;
 
     for (const a of asteroids) drawAsteroid(a);
+    for (const a of asteroids) {
+      if (a.link && a.x < a.link.x) text('OR', (a.x + a.link.x) / 2, a.y + 6 * U, 18 * U, '#ffd166', 'center', 800);
+    }
     for (const p of particles) {
       ctx.globalAlpha = Math.max(0, p.life / p.max);
       ctx.fillStyle = p.color;
       ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2); ctx.fill();
+    }
+    for (const f of floaters) {
+      ctx.globalAlpha = Math.min(1, f.life * 2);
+      text(f.str, f.x, f.y, 20 * U, '#5dffa0', 'center', 800);
     }
     ctx.globalAlpha = 1;
     if (state !== 'over') drawShip();
@@ -338,12 +453,19 @@
       text(String(Math.floor(score)), W / 2, top, 34 * U, '#ffffff');
       text(`BEST ${best}`, W - 14, top - 8 * U, 13 * U, 'rgba(255,255,255,.55)', 'right', 600);
       text(`×${speed.toFixed(1)}`, 14, top - 8 * U, 13 * U, 'rgba(127,220,255,.8)', 'left', 600);
+      if (rescued) text(`${rescued} RESCUED`, W / 2, top + 20 * U, 12 * U, '#5dffa0', 'center', 700);
+      if (banner > 0) {
+        ctx.globalAlpha = Math.min(1, banner * 2);
+        text('TWO CREWS — YOU CAN ONLY SAVE ONE', W / 2, top + 48 * U, 13 * U, '#ffd166');
+        ctx.globalAlpha = 1;
+      }
       if (time < 3.5) drawTouchHints(0.35 * Math.min(1, 3.5 - time));
     } else if (state === 'menu') {
       text('ASTEROIDS', W / 2, H * 0.3, 46 * U, '#ffffff', 'center', 800);
       text('GALORE', W / 2, H * 0.3 + 44 * U, 46 * U, '#7fdcff', 'center', 800);
       text('Dodge the rocks. No guns, just flying.', W / 2, H * 0.3 + 84 * U, 15 * U, 'rgba(255,255,255,.7)', 'center', 500);
-      if (best) text(`BEST ${best}`, W / 2, H * 0.3 + 116 * U, 15 * U, '#ffd166', 'center', 700);
+      text('Fly close to stranded crews to rescue them.', W / 2, H * 0.3 + 106 * U, 15 * U, '#5dffa0', 'center', 500);
+      if (best) text(`BEST ${best}`, W / 2, H * 0.3 + 138 * U, 15 * U, '#ffd166', 'center', 700);
       drawTouchHints(0.55);
       text('hold left', W / 2 - W * 0.3, H * 0.8 + 62 * U, 13 * U, 'rgba(255,255,255,.7)', 'center', 600);
       text('hold right', W / 2 + W * 0.3, H * 0.8 + 62 * U, 13 * U, 'rgba(255,255,255,.7)', 'center', 600);
@@ -356,6 +478,7 @@
       text('GAME OVER', W / 2, H * 0.32, 38 * U, '#ff7b54', 'center', 800);
       text(String(Math.floor(score)), W / 2, H * 0.32 + 70 * U, 62 * U, '#ffffff', 'center', 800);
       text(newBest ? 'NEW BEST!' : `BEST ${best}`, W / 2, H * 0.32 + 102 * U, 16 * U, '#ffd166');
+      text(`${rescued} rescued`, W / 2, H * 0.32 + 130 * U, 16 * U, '#5dffa0');
       if (stateTime > 0.7) {
         ctx.globalAlpha = 0.6 + 0.4 * Math.sin(stateTime * 4);
         text('TAP TO RETRY', W / 2, H * 0.62, 20 * U, '#ffffff');
@@ -377,7 +500,7 @@
 
   // Test/debug hook.
   window.__game = { get state() { return state; }, get score() { return score; }, get speed() { return speed; },
-    get asteroids() { return asteroids; }, ship };
+    get asteroids() { return asteroids; }, get rescued() { return rescued; }, ship, spawnRescue, spawnDilemma };
 })();
 </script>
 </body>
