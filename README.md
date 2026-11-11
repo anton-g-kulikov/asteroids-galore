@@ -13,6 +13,10 @@ Some asteroids carry stranded crew, marked with a green `SOS` ring. Fly inside t
 
 Every so often two crews appear on screen together, in different columns, one following just above the other: 2 people on an open rock, or 4 on a rock wedged between two others. Nothing forbids saving both, but the gap is sized so the dash from one to the other falls just short.
 
+## Gravity
+
+A faint grid in the background shows spacetime. Parking the ship in one spot bends it: the grid brightens and pinches towards the ship, and asteroids start falling into the well, reaching full depth after 6 seconds. A heavier ship (later levels, more crew aboard) and higher flight speed pull harder. Moving away flattens it again within a couple of seconds.
+
 ## Run
 
 It's a single file with no dependencies — open `index.html`, or serve the folder:
