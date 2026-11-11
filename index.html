@@ -228,7 +228,7 @@
     const pts = n * POINTS_PER_PERSON;
     score += pts; levelScore += pts;
     rescued += n; onboard += n;
-    floaters.push({ x: a.x, y: a.y - a.r, str: `+${pts}`, life: 1.2 });
+    floaters.push({ x: a.x, y: a.y - a.r, str: `+${pts} pc`, life: 1.2 });
     for (let i = 0; i < 14; i++) {
       const t = rand(0.2, 0.45);   // crew "beam" towards the ship
       particles.push({
@@ -570,8 +570,8 @@
 
     const top = 44 * U + 8;
     if (state === 'play') {
-      text(String(Math.floor(score)), W / 2, top, 34 * U, '#ffffff');
-      text(`BEST ${best}`, W - 14, top - 8 * U, 13 * U, 'rgba(255,255,255,.55)', 'right', 600);
+      text(`${Math.floor(score)} pc`, W / 2, top, 34 * U, '#ffffff');
+      text(`BEST ${best} pc`, W - 14, top - 8 * U, 13 * U, 'rgba(255,255,255,.55)', 'right', 600);
       text(`LEVEL ${level}/${LAST_LEVEL}`, 14, top - 8 * U, 13 * U, 'rgba(127,220,255,.9)', 'left', 700);
       if (levelCapacity(level)) {
         text(`RESCUED ${rescued}`, 14, top + 12 * U, 11 * U, '#5dffa0', 'left', 700);
@@ -584,7 +584,7 @@
       ctx.beginPath(); ctx.roundRect(bx, by, bw, bh, bh / 2); ctx.fill();
       ctx.fillStyle = '#7fdcff';
       ctx.beginPath(); ctx.roundRect(bx, by, bw * Math.min(1, levelScore / target), bh, bh / 2); ctx.fill();
-      text(`${Math.min(target, Math.floor(levelScore))} / ${target}`, bx + bw + 8 * U, by + bh + 1 * U, 11 * U, 'rgba(255,255,255,.6)', 'left', 600);
+      text(`${Math.min(target, Math.floor(levelScore))} / ${target} pc`, bx + bw + 8 * U, by + bh + 1 * U, 11 * U, 'rgba(255,255,255,.6)', 'left', 600);
 
       // ship capacity: one seat per pip, filled as crew come aboard
       const cap = levelCapacity(level);
@@ -615,7 +615,7 @@
       text('GALORE', W / 2, H * 0.3 + 44 * U, 46 * U, '#7fdcff', 'center', 800);
       text('Dodge the rocks. No guns, just flying.', W / 2, H * 0.3 + 84 * U, 15 * U, 'rgba(255,255,255,.7)', 'center', 500);
       text('Later levels: fly close to stranded crews to rescue them.', W / 2, H * 0.3 + 106 * U, 15 * U, '#5dffa0', 'center', 500);
-      if (best) text(`BEST ${best}`, W / 2, H * 0.3 + 138 * U, 15 * U, '#ffd166', 'center', 700);
+      if (best) text(`BEST ${best} pc`, W / 2, H * 0.3 + 138 * U, 15 * U, '#ffd166', 'center', 700);
       drawTouchHints(0.55);
       text('hold left', W / 2 - W * 0.3, H * 0.8 + 62 * U, 13 * U, 'rgba(255,255,255,.7)', 'center', 600);
       text('hold right', W / 2 + W * 0.3, H * 0.8 + 62 * U, 13 * U, 'rgba(255,255,255,.7)', 'center', 600);
@@ -625,8 +625,8 @@
     } else if (state === 'won') {
       text('MISSION', W / 2, H * 0.28, 40 * U, '#5dffa0', 'center', 800);
       text('COMPLETE', W / 2, H * 0.28 + 40 * U, 40 * U, '#5dffa0', 'center', 800);
-      text(String(Math.floor(score)), W / 2, H * 0.28 + 112 * U, 62 * U, '#ffffff', 'center', 800);
-      text(newBest ? 'NEW BEST!' : `BEST ${best}`, W / 2, H * 0.28 + 144 * U, 16 * U, '#ffd166');
+      text(`${Math.floor(score)} pc`, W / 2, H * 0.28 + 112 * U, 62 * U, '#ffffff', 'center', 800);
+      text(newBest ? 'NEW BEST!' : `BEST ${best} pc`, W / 2, H * 0.28 + 144 * U, 16 * U, '#ffd166');
       text(`${rescued} rescued · ${missed} missed`, W / 2, H * 0.28 + 172 * U, 16 * U, '#7fdcff');
       if (stateTime > 0.7) {
         ctx.globalAlpha = 0.6 + 0.4 * Math.sin(stateTime * 4);
@@ -637,8 +637,8 @@
       ctx.fillStyle = `rgba(5,6,13,${Math.min(0.55, stateTime * 1.2)})`;
       ctx.fillRect(0, 0, W, H);
       text('GAME OVER', W / 2, H * 0.32, 38 * U, '#ff7b54', 'center', 800);
-      text(String(Math.floor(score)), W / 2, H * 0.32 + 70 * U, 62 * U, '#ffffff', 'center', 800);
-      text(newBest ? 'NEW BEST!' : `BEST ${best}`, W / 2, H * 0.32 + 102 * U, 16 * U, '#ffd166');
+      text(`${Math.floor(score)} pc`, W / 2, H * 0.32 + 70 * U, 62 * U, '#ffffff', 'center', 800);
+      text(newBest ? 'NEW BEST!' : `BEST ${best} pc`, W / 2, H * 0.32 + 102 * U, 16 * U, '#ffd166');
       text(`Level ${level} · ${rescued} rescued · ${missed} missed`, W / 2, H * 0.32 + 130 * U, 16 * U, '#5dffa0');
       if (stateTime > 0.7) {
         ctx.globalAlpha = 0.6 + 0.4 * Math.sin(stateTime * 4);
