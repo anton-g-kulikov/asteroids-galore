@@ -361,15 +361,15 @@
     }
     gridOff = (gridOff + scroll * 0.5 * dt) % (40 * U);
     // Pull grows with time parked, ship mass and flight speed.
-    const pull = state === 'play' ? 260 * U * shipMass() * (0.6 + 0.4 * speed) : 0;
+    const pull = state === 'play' ? 520 * U * shipMass() * (0.6 + 0.4 * speed) : 0;
     const wellR = 170 * U;
     for (const a of asteroids) {
       for (const w of wells) {
         if (pull <= 0 || w.depth <= 0) continue;
         // fall towards the well; strongest nearby, fading with distance
         const gx = w.x - a.x, gy = ship.y - a.y, d2 = gx * gx + gy * gy;
-        const f = pull * w.depth / (1 + d2 / (wellR * wellR)) / (Math.sqrt(d2) + 1) * dt;
-        a.vx = Math.max(-420 * U, Math.min(420 * U, a.vx + gx * f));
+        const f = pull * w.depth ** 0.7 / (1 + d2 / (wellR * wellR)) / (Math.sqrt(d2) + 1) * dt;
+        a.vx = Math.max(-600 * U, Math.min(600 * U, a.vx + gx * f));
         a.gy += gy * f;
       }
       a.y += (a.vy * scroll + a.gy) * dt;
