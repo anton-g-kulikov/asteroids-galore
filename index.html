@@ -680,9 +680,7 @@
     } else if (state === 'menu') {
       text('ASTEROIDS', W / 2, H * 0.3, 46 * U, '#ffffff', 'center', 800);
       text('GALORE', W / 2, H * 0.3 + 44 * U, 46 * U, '#7fdcff', 'center', 800);
-      text('Dodge the rocks. No guns, just flying.', W / 2, H * 0.3 + 84 * U, 15 * U, 'rgba(255,255,255,.7)', 'center', 500);
-      text('Later levels: fly close to stranded crews to rescue them.', W / 2, H * 0.3 + 106 * U, 15 * U, '#5dffa0', 'center', 500);
-      if (best) text(`BEST ${best} pc`, W / 2, H * 0.3 + 138 * U, 15 * U, '#ffd166', 'center', 700);
+      if (best) text(`BEST ${best} pc`, W / 2, H * 0.3 + 84 * U, 15 * U, '#ffd166', 'center', 700);
       drawTouchHints(0.55);
       text('hold left', W / 2 - W * 0.3, H * 0.8 + 62 * U, 13 * U, 'rgba(255,255,255,.7)', 'center', 600);
       text('hold right', W / 2 + W * 0.3, H * 0.8 + 62 * U, 13 * U, 'rgba(255,255,255,.7)', 'center', 600);
