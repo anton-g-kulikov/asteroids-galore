@@ -5,11 +5,11 @@ A tiny top-down space dodger. No shooting — just steer through a field of rand
 - **Touch:** hold the left side of the screen to fly left, the right side to fly right.
 - **Keyboard:** arrow keys or A / D.
 
-Distance is measured in parsecs (pc) and is your score; your best is saved on the device.
+Distance flown is measured in parsecs (pc); your best distance is saved on the device. Rescues are counted separately.
 
 ## Rescue missions
 
-Some asteroids carry stranded crew, marked with a green `SOS` ring. Fly inside the ring — without hitting the rock — to pick them up for 25 pc per person.
+Some asteroids carry stranded crew, marked with a green `SOS` ring. Fly inside the ring — without hitting the rock — to pick them up.
 
 Every so often two crews appear on screen together, in different columns, one following just above the other: 2 people on an open rock, or 4 on a rock wedged between two others. Nothing forbids saving both, but the gap is sized so the dash from one to the other falls just short.
 
@@ -27,7 +27,7 @@ The HUD counts crew rescued and crew missed (those that drifted off screen unres
 
 There are 4 levels; finishing the fourth completes the mission.
 
-Once you have covered a level's parsec target (350 pc on level 1, +150 pc per level) **and** survived at least 20 seconds of it, a wormhole drifts down the screen. Fly into it to travel to the next level. If you miss it, the next one appears 15–30 seconds later, unannounced, and the level carries on getting faster in the meantime. The bar under the parsec count shows progress.
+Once you have covered a level's parsec target (350 pc on level 1, +100 pc per level) **and** survived at least 20 seconds of it, a wormhole drifts down the screen. Fly into it to travel to the next level. If you miss it, the next one appears 15–30 seconds later, unannounced, and the level carries on getting faster in the meantime. The bar under the parsec count shows progress.
 
 Each new level:
 

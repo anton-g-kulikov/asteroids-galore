@@ -31,9 +31,8 @@
   const SPEED_RAMP = 0.03;       // speed multiplier gained per second
   const MAX_SPEED = 4.5;
   const BEST_KEY = 'asteroids-galore-best';
-  const POINTS_PER_PERSON = 25;
   const LEVEL_MIN_TIME = 20;     // seconds of dodging before a level can end
-  const levelTarget = l => 350 + 150 * (l - 1);          // points to earn within the level
+  const levelTarget = l => 350 + 100 * (l - 1);          // parsecs to fly within the level
   const levelCapacity = l => l < 2 ? 0 : Math.min(32, 4 * 2 ** (l - 2));   // seats: 0, 4, 8, 16, 32
   const levelHandling = l => Math.max(0.5, 0.92 ** (l - 1));   // bigger ship steers slower
   const shipRadius = l => [13, 15, 17, 20, 22][Math.min(l, 5) - 1] * U;   // the ship grows with its seat count
@@ -225,10 +224,8 @@
   // Takes as many people as there are free seats; the rest stay behind.
   function rescue(a) {
     const n = Math.min(a.people, levelCapacity(level) - onboard);
-    const pts = n * POINTS_PER_PERSON;
-    score += pts; levelScore += pts;
     rescued += n; onboard += n;
-    floaters.push({ x: a.x, y: a.y - a.r, str: `+${pts} pc`, life: 1.2 });
+    floaters.push({ x: a.x, y: a.y - a.r, str: `+${n} RESCUED`, life: 1.2 });
     for (let i = 0; i < 14; i++) {
       const t = rand(0.2, 0.45);   // crew "beam" towards the ship
       particles.push({
@@ -623,29 +620,37 @@
       text('TAP TO START', W / 2, H * 0.58, 20 * U, '#ffffff');
       ctx.globalAlpha = 1;
     } else if (state === 'won') {
-      text('MISSION', W / 2, H * 0.28, 40 * U, '#5dffa0', 'center', 800);
-      text('COMPLETE', W / 2, H * 0.28 + 40 * U, 40 * U, '#5dffa0', 'center', 800);
-      text(`${Math.floor(score)} pc`, W / 2, H * 0.28 + 112 * U, 62 * U, '#ffffff', 'center', 800);
-      text(newBest ? 'NEW BEST!' : `BEST ${best} pc`, W / 2, H * 0.28 + 144 * U, 16 * U, '#ffd166');
-      text(`${rescued} rescued · ${missed} missed`, W / 2, H * 0.28 + 172 * U, 16 * U, '#7fdcff');
+      text('MISSION', W / 2, H * 0.22, 40 * U, '#5dffa0', 'center', 800);
+      text('COMPLETE', W / 2, H * 0.22 + 40 * U, 40 * U, '#5dffa0', 'center', 800);
+      drawSummary(H * 0.22 + 112 * U);
       if (stateTime > 0.7) {
         ctx.globalAlpha = 0.6 + 0.4 * Math.sin(stateTime * 4);
-        text('TAP TO PLAY AGAIN', W / 2, H * 0.66, 20 * U, '#ffffff');
+        text('TAP TO PLAY AGAIN', W / 2, H * 0.22 + 298 * U, 20 * U, '#ffffff');
         ctx.globalAlpha = 1;
       }
     } else {
       ctx.fillStyle = `rgba(5,6,13,${Math.min(0.55, stateTime * 1.2)})`;
       ctx.fillRect(0, 0, W, H);
-      text('GAME OVER', W / 2, H * 0.32, 38 * U, '#ff7b54', 'center', 800);
-      text(`${Math.floor(score)} pc`, W / 2, H * 0.32 + 70 * U, 62 * U, '#ffffff', 'center', 800);
-      text(newBest ? 'NEW BEST!' : `BEST ${best} pc`, W / 2, H * 0.32 + 102 * U, 16 * U, '#ffd166');
-      text(`Level ${level} · ${rescued} rescued · ${missed} missed`, W / 2, H * 0.32 + 130 * U, 16 * U, '#5dffa0');
+      text('GAME OVER', W / 2, H * 0.26, 38 * U, '#ff7b54', 'center', 800);
+      drawSummary(H * 0.26 + 72 * U);
       if (stateTime > 0.7) {
         ctx.globalAlpha = 0.6 + 0.4 * Math.sin(stateTime * 4);
-        text('TAP TO RETRY', W / 2, H * 0.62, 20 * U, '#ffffff');
+        text('TAP TO RETRY', W / 2, H * 0.26 + 258 * U, 20 * U, '#ffffff');
         ctx.globalAlpha = 1;
       }
     }
+  }
+
+  // End-of-run summary: the two results, each with a line saying what it means.
+  function drawSummary(y) {
+    const pc = Math.floor(score), grey = 'rgba(255,255,255,.65)';
+    text(`${pc} pc`, W / 2, y, 58 * U, '#ffffff', 'center', 800);
+    text(`parsecs: the distance you flew (≈ ${Math.round(pc * 3.26)} light-years)`, W / 2, y + 29 * U, 12 * U, grey, 'center', 500);
+    text(newBest ? 'NEW BEST!' : `BEST ${best} pc`, W / 2, y + 51 * U, 14 * U, '#ffd166');
+    text(`${rescued} RESCUED`, W / 2, y + 103 * U, 34 * U, '#5dffa0', 'center', 800);
+    text(`stranded crew you picked up · ${missed} left behind`, W / 2, y + 124 * U, 12 * U, grey, 'center', 500);
+    text(state === 'won' ? `All ${LAST_LEVEL} levels cleared` : `Reached level ${level} of ${LAST_LEVEL}`,
+      W / 2, y + 149 * U, 13 * U, '#7fdcff', 'center', 600);
   }
 
   // ---------- Loop ----------
