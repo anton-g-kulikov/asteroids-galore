@@ -12,10 +12,10 @@ Deliberately very little. The start screen shows only the title, the best distan
 
 ## Parsecs and rescues
 
-There are two separate results on the end screen:
+The end screen shows two groups, titled `DISTANCE` and `CREW`. Each keeps its own best, saved on the device, and shows `NEW BEST!` when it is beaten.
 
-- **Parsecs (pc)** — pure distance flown. It grows faster as the level speeds up. The best distance is saved on the device.
-- **Rescued / missed** — crew picked up, and crew that drifted off the bottom of the screen unrescued (including anyone left behind because the ship was full). Rescues add nothing to the parsec count.
+- **Parsecs (pc)** — pure distance flown, with the same figure in light-years below it. It grows faster as the level speeds up. The best distance counts on any run, finished or not.
+- **Rescued / missed** — crew picked up, and crew that drifted off the bottom of the screen unrescued (including anyone left behind because the ship was full). Rescues add nothing to the parsec count. The crew best is the most people rescued in a finished mission; a run that ends in a crash never sets it.
 
 ### The twist on the end screen
 
