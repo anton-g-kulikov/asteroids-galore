@@ -39,8 +39,11 @@
   const LAST_LEVEL = 4;          // finishing this level wins the game
   const WELL_TIME = 6;           // seconds parked in one spot for the deepest gravity well
   const WELL_AHEAD = 3;          // well centre sits this many ship radii above the ship's centre
+  // Seconds between stranded crews, [min, max] per level. Kept sparse so the seats
+  // fill over the whole level instead of in its first moments.
+  const rescueGap = l => l <= 2 ? [11, 15] : l === 3 ? [9, 13] : [8, 11];
   const DILEMMA_EVERY = 3;       // every Nth rescue is a "save these or those" choice
-  const LIVES = 3;               // hits the ship survives in one run, counting the last
+  const LIVES = 3;               // hits the ship survives per level, counting the last
   const GRACE = 2;               // seconds the ship cannot be hit after losing a life
   const SLOW_TIME = 1.4;         // real seconds of slow motion when a two-crew pair comes into view
   const SLOW_SCALE = 0.3;        // game speed at the depth of the slow motion
@@ -236,6 +239,7 @@
     ship.r = shipRadius(level);
     asteroids = []; wormhole = null; wormTimer = 0; flash = 1;   // arrive somewhere new
     slowmo = 0; slowWatch = null;
+    lives = LIVES;                            // every level starts with a full set
     levelTime = 0; levelScore = 0;
     onboard = 0;                              // crew delivered
     spawnTimer = Math.max(spawnTimer, 1.2);   // short breather
@@ -381,7 +385,7 @@
       if (rescueTimer <= 0) {
         rescueCount++;
         if (rescueCount % DILEMMA_EVERY === 0) spawnDilemma(); else spawnRescue();
-        rescueTimer = rand(5, 8);
+        rescueTimer = rand(...rescueGap(level));
       }
     }
 
@@ -741,14 +745,20 @@
     }
   }
 
-  // End-of-run summary: the two results, each with a line saying what it means.
+  // End-of-run summary: distance, then what became of the crew.
   function drawSummary(y) {
     const pc = Math.floor(score), grey = 'rgba(255,255,255,.65)';
     text(`${pc} pc`, W / 2, y, 58 * U, '#ffffff', 'center', 800);
     text(`parsecs: the distance you flew (≈ ${Math.round(pc * 3.26)} light-years)`, W / 2, y + 29 * U, 12 * U, grey, 'center', 500);
     text(newBest ? 'NEW BEST!' : `BEST ${best} pc`, W / 2, y + 51 * U, 14 * U, '#ffd166');
-    text(`${rescued} RESCUED`, W / 2, y + 103 * U, 34 * U, '#5dffa0', 'center', 800);
-    text(`stranded crew you picked up · ${missed} left behind`, W / 2, y + 124 * U, 12 * U, grey, 'center', 500);
+    // Only a finished mission counts as a rescue: crew aboard a ship that is lost are lost with it.
+    if (state === 'won') {
+      text(`${rescued} RESCUED`, W / 2, y + 103 * U, 34 * U, '#5dffa0', 'center', 800);
+      text(`${missed} MISSED`, W / 2, y + 126 * U, 15 * U, '#ff5a4d', 'center', 700);
+    } else {
+      text(`${rescued} WENT DOWN WITH THE SHIP`, W / 2, y + 100 * U, 20 * U, '#ff9a3c', 'center', 800);
+      text(`${missed} MISSED`, W / 2, y + 126 * U, 15 * U, 'rgba(255,255,255,.5)', 'center', 700);
+    }
     text(state === 'won' ? `All ${LAST_LEVEL} levels cleared` : `Reached level ${level} of ${LAST_LEVEL}`,
       W / 2, y + 149 * U, 13 * U, '#7fdcff', 'center', 600);
   }

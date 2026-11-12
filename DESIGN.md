@@ -12,18 +12,28 @@ Deliberately very little. The start screen shows only the title, the best distan
 
 ## Parsecs and rescues
 
-There are two separate results, both explained on the end screen:
+There are two separate results on the end screen:
 
 - **Parsecs (pc)** — pure distance flown. It grows faster as the level speeds up. The best distance is saved on the device.
 - **Rescued / missed** — crew picked up, and crew that drifted off the bottom of the screen unrescued (including anyone left behind because the ship was full). Rescues add nothing to the parsec count.
 
+### The twist on the end screen
+
+Crew only count as rescued if the mission is finished.
+
+- **All four levels cleared:** `N RESCUED` in green, `N MISSED` in red.
+- **Out of lives:** the same number is shown as `N WENT DOWN WITH THE SHIP` in orange, with `N MISSED` in grey — everyone picked up during the run was lost with the ship.
+
+During play the counters still read `RESCUED` and `MISSED`; the player only learns this by crashing.
+
 ## Lives
 
-A run has 3 lives (`LIVES`), drawn as small ships under the best distance; spent ones turn hollow. There is no caption.
+Each level starts with 3 lives (`LIVES`), drawn as small ships under the best distance; spent ones turn hollow. There is no caption.
 
 - **Losing one:** hitting a rock costs a life. The run carries on where it is — same level, same parsecs, same crew on board, same speed.
 - **The rock that hit** is destroyed. Any crew on it count as missed.
 - **Getting clear:** the ship blinks and cannot be hit for 2 seconds (`GRACE`). It can still pick up crew and enter the wormhole.
+- **Refill:** entering a new level through the wormhole restores all 3.
 - **The last life:** losing it ends the run with the game-over screen.
 
 ## Levels
@@ -47,7 +57,16 @@ Levels do not end on their own. When the goals are met, an unlabelled wormhole d
 
 ## Rescue missions
 
-From level 2, some asteroids carry 1–3 stranded crew inside a pulsing green `SOS` ring. Flying inside the ring without touching the rock picks them up. One appears every 5–8 seconds.
+From level 2, some asteroids carry 1–3 stranded crew inside a pulsing green `SOS` ring. Flying inside the ring without touching the rock picks them up.
+
+They are deliberately sparse, so the seats fill over the whole level and not in its first moments. The first appears 4 seconds into a level, then:
+
+| Level | Seconds between crews | Roughly how many per level |
+|---|---|---|
+| 2 | 11–15 | 3 |
+| 3 | 9–13 | 3–4 |
+| 4 | 8–11 | 4–5 |
+
 
 - **Capacity:** the ship takes only as many people as it has free seats; the rest stay on the rock. When the ship is full the rings turn grey and lose their `SOS` label; nothing spells out why.
 - **Showing capacity:** seats are drawn on the ship's hull as dots that turn green as they fill, and repeated as a row of pips with a `CREW n/N` count under the progress bar.
@@ -86,7 +105,8 @@ The main numbers sit in the `Tuning` block at the top of the script in `index.ht
 | `LAST_LEVEL` | Number of levels |
 | `WELL_TIME` | Seconds parked for the deepest gravity well |
 | `WELL_AHEAD` | How far above the ship the well's centre sits, in ship radii |
-| `LIVES`, `GRACE` | Lives per run, and seconds of protection after losing one |
+| `LIVES`, `GRACE` | Lives per level, and seconds of protection after losing one |
+| `rescueGap` | Seconds between stranded crews, per level |
 | `DILEMMA_EVERY` | Every Nth rescue is a two-crew pair |
 | `SLOW_TIME`, `SLOW_SCALE` | Length and depth of the slow motion when a two-crew pair appears |
 
