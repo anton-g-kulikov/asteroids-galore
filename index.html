@@ -40,6 +40,8 @@
   const WELL_TIME = 6;           // seconds parked in one spot for the deepest gravity well
   const WELL_AHEAD = 3;          // well centre sits this many ship radii above the ship's centre
   const DILEMMA_EVERY = 3;       // every Nth rescue is a "save these or those" choice
+  const SLOW_TIME = 1.7;         // real seconds of slow motion when a two-crew pair comes into view
+  const SLOW_SCALE = 0.3;        // game speed at the depth of the slow motion
 
   const canvas = document.getElementById('game');
   const ctx = canvas.getContext('2d');
@@ -63,7 +65,8 @@
   const curvature = () => Math.max(...wells.map(w => w.depth));                // 0..1
   const shipMass = () => shipRadius(level) / (13 * U) + onboard * 0.02;        // bigger, fuller ship = heavier
   let missed = 0;                // crew that drifted past without being picked up
-  let rescued = 0, rescueTimer = 0, rescueCount = 0, banner = 0, clock = 0;
+  let rescued = 0, rescueTimer = 0, rescueCount = 0, clock = 0;
+  let slowmo = 0, slowWatch = null;   // slow-motion seconds left; the rock whose arrival triggers it
   let best = 0, newBest = false;
   try { best = +localStorage.getItem(BEST_KEY) || 0; } catch (e) {}
 
@@ -147,7 +150,7 @@
     level = 1; ship.r = shipRadius(1); levelTime = 0; levelScore = 0; onboard = 0; levelBanner = 2.5;
     wormhole = null; wormTimer = 0; flash = 0;
     missed = 0;
-    rescued = 0; rescueTimer = 4; rescueCount = 0; banner = 0;
+    rescued = 0; rescueTimer = 4; rescueCount = 0; slowmo = 0; slowWatch = null;
     ship.x = W / 2; ship.vx = 0;
     wells = [newWell(ship.x)];
     setState('play');
@@ -218,7 +221,7 @@
     for (const d of [-1, 1]) {
       asteroids.push(makeAsteroid(hard.x + d * escortDist, escortR, Object.assign(RESCUE(), fast, { y: hard.y })));
     }
-    banner = 2.5;
+    slowWatch = second;                       // time slows once both crews are in view
     spawnTimer = Math.max(spawnTimer, 0.9);   // brief lull so the choice is readable
   }
 
@@ -228,6 +231,7 @@
     level++;
     ship.r = shipRadius(level);
     asteroids = []; wormhole = null; wormTimer = 0; flash = 1;   // arrive somewhere new
+    slowmo = 0; slowWatch = null;
     levelTime = 0; levelScore = 0;
     onboard = 0;                              // crew delivered
     levelBanner = 3;
@@ -290,7 +294,6 @@
   function update(dt) {
     stateTime += dt;
     clock += dt;
-    banner = Math.max(0, banner - dt);
     levelBanner = Math.max(0, levelBanner - dt);
     const scroll = H * 0.34 * (state === 'play' ? speed : state === 'over' ? 0.25 : 0.6);
 
@@ -351,6 +354,10 @@
         // Slightly denser over time, and scaled so wide fields aren't sparse.
         spawnTimer = rand(0.4, 0.8) * (400 * U / W) / (0.75 + speed * 0.25);
       }
+
+      // Show, don't tell: when the upper of two crews has come into view, time
+      // slows for a moment so the player can take in that there are two.
+      if (slowWatch && slowWatch.y > slowWatch.r + 30 * U) { slowmo = SLOW_TIME; slowWatch = null; }
 
       if (levelCapacity(level)) rescueTimer -= dt;   // level 1 is asteroids only
       if (rescueTimer <= 0) {
@@ -672,11 +679,6 @@
         else { ctx.strokeStyle = 'rgba(93,255,160,.55)'; ctx.lineWidth = 1.2 * U; ctx.stroke(); }
       }
 
-      if (banner > 0) {
-        ctx.globalAlpha = Math.min(1, banner * 2);
-        text('TWO CREWS — TIME FOR ONLY ONE', W / 2, py + ph + 54 * U, 13 * U, '#ffd166');
-        ctx.globalAlpha = 1;
-      }
       if (levelBanner > 0) {
         ctx.globalAlpha = Math.min(1, levelBanner * 2);
         text(`LEVEL ${level}`, W / 2, H * 0.4, 44 * U, '#ffffff', 'center', 800);
@@ -734,7 +736,13 @@
   function frame(now) {
     const dt = Math.min(0.05, (now - last) / 1000);   // clamp: no jumps after tab switch
     last = now;
-    update(dt);
+    // Slow motion eases in quickly and back out a little more gently.
+    let scale = 1;
+    if (slowmo > 0 && state === 'play') {
+      scale = 1 - (1 - SLOW_SCALE) * Math.min(1, (SLOW_TIME - slowmo) / 0.2, slowmo / 0.45);
+      slowmo -= dt;
+    }
+    update(dt * scale);
     render();
     requestAnimationFrame(frame);
   }
@@ -742,7 +750,7 @@
 
   // Test/debug hook.
   window.__game = { get state() { return state; }, get score() { return score; }, get speed() { return speed; },
-    get asteroids() { return asteroids; }, get rescued() { return rescued; }, get missed() { return missed; }, get wells() { return wells; }, get level() { return level; }, get onboard() { return onboard; }, get wormhole() { return wormhole; }, get wormTimer() { return wormTimer; }, skipLevel() { levelScore = 1e9; levelTime = 1e9; }, fill(n) { onboard = n; }, ship, spawnRescue, spawnDilemma };
+    get asteroids() { return asteroids; }, get rescued() { return rescued; }, get missed() { return missed; }, get wells() { return wells; }, get level() { return level; }, get onboard() { return onboard; }, get wormhole() { return wormhole; }, get wormTimer() { return wormTimer; }, get slowmo() { return slowmo; }, skipLevel() { levelScore = 1e9; levelTime = 1e9; }, fill(n) { onboard = n; }, ship, spawnRescue, spawnDilemma };
 })();
 </script>
 </body>
