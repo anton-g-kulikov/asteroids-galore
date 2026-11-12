@@ -8,7 +8,7 @@ The game teaches through what happens on screen, not through text. When the play
 
 ## What the player is told
 
-Deliberately very little. The start screen shows only the title, the best distance and the two control arrows. Rescues, the level exit and gravity are left for the player to discover. This file describes how they work.
+Deliberately very little. The start screen shows only the title, the best distance and the two control arrows. Levels start without a banner — the only sign is the level counter in the corner and a flash on arrival. Rescues, the level exit and gravity are left for the player to discover. This file describes how they work.
 
 ## Parsecs and rescues
 
@@ -40,7 +40,7 @@ Levels do not end on their own. When the goals are met, an unlabelled wormhole d
 
 From level 2, some asteroids carry 1–3 stranded crew inside a pulsing green `SOS` ring. Flying inside the ring without touching the rock picks them up. One appears every 5–8 seconds.
 
-- **Capacity:** the ship takes only as many people as it has free seats; the rest stay on the rock. When the ship is full the rings turn grey and read `SHIP FULL`.
+- **Capacity:** the ship takes only as many people as it has free seats; the rest stay on the rock. When the ship is full the rings turn grey and lose their `SOS` label; nothing spells out why.
 - **Showing capacity:** seats are drawn on the ship's hull as dots that turn green as they fill, and repeated as a row of pips with a `CREW n/N` count under the progress bar.
 
 ### Two crews at once
