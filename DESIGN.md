@@ -56,7 +56,7 @@ From level 2, some asteroids carry 1–3 stranded crew inside a pulsing green `S
 
 Every third rescue is a pair on screen together, in different columns, one following just above the other: 2 people on an open rock, or 4 on a rock with a small rock on each side. Which comes first and which side each is on are random.
 
-There is no caption for this. When the upper crew has come into view, the whole game drops into slow motion for a moment (`SLOW_TIME` real seconds, down to `SLOW_SCALE` of normal speed) so the player has time to see that there are two crews. The ship slows with everything else, so the slow motion gives time to look, not extra time to fly.
+There is no caption for this. As the first crew comes into view at the top of the screen, the whole game drops into slow motion for a moment (`SLOW_TIME` real seconds, down to `SLOW_SCALE` of normal speed) so the player has time to see that there are two crews. The ship slows with everything else, so the slow motion gives time to look, not extra time to fly.
 
 Nothing forbids saving both. The vertical gap between them is calculated from the ship's current top speed so that the dash from the first to the second falls just short, and these rocks fall faster than ordinary rescue rocks.
 

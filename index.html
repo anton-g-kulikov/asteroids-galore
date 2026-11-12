@@ -42,7 +42,7 @@
   const DILEMMA_EVERY = 3;       // every Nth rescue is a "save these or those" choice
   const LIVES = 3;               // hits the ship survives in one run, counting the last
   const GRACE = 2;               // seconds the ship cannot be hit after losing a life
-  const SLOW_TIME = 1.7;         // real seconds of slow motion when a two-crew pair comes into view
+  const SLOW_TIME = 1.4;         // real seconds of slow motion when a two-crew pair comes into view
   const SLOW_SCALE = 0.3;        // game speed at the depth of the slow motion
 
   const canvas = document.getElementById('game');
@@ -225,7 +225,7 @@
     for (const d of [-1, 1]) {
       asteroids.push(makeAsteroid(hard.x + d * escortDist, escortR, Object.assign(RESCUE(), fast, { y: hard.y })));
     }
-    slowWatch = second;                       // time slows once both crews are in view
+    slowWatch = first;                        // time slows as the first crew comes into view
     spawnTimer = Math.max(spawnTimer, 0.9);   // brief lull so the choice is readable
   }
 
@@ -371,9 +371,9 @@
         spawnTimer = rand(0.4, 0.8) * (400 * U / W) / (0.75 + speed * 0.25);
       }
 
-      // Show, don't tell: when the upper of two crews has come into view, time
-      // slows for a moment so the player can take in that there are two.
-      if (slowWatch && slowWatch.y > slowWatch.r + 30 * U) { slowmo = SLOW_TIME; slowWatch = null; }
+      // Show, don't tell: as the first of two crews comes into view, time slows
+      // for a moment so the player can take in that a second one follows.
+      if (slowWatch && slowWatch.y > 0) { slowmo = SLOW_TIME; slowWatch = null; }
 
       grace = Math.max(0, grace - dt);
 
