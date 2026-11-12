@@ -57,7 +57,9 @@ Levels do not end on their own. When the goals are met, an unlabelled wormhole d
 
 ## Rescue missions
 
-From level 2, some asteroids carry 1–3 stranded crew inside a pulsing green `SOS` ring. Flying inside the ring without touching the rock picks them up.
+From level 2, some asteroids carry stranded crew inside a pulsing green `SOS` ring. Flying inside the ring without touching the rock picks them up.
+
+Most rocks carry one person (60%), some carry two (32%), and three is a rarity (8%) — set by `crewSize` in `index.html`.
 
 They are deliberately sparse, so the seats fill over the whole level and not in its first moments. The first appears 4 seconds into a level, then:
 
@@ -73,7 +75,7 @@ They are deliberately sparse, so the seats fill over the whole level and not in 
 
 ### Two crews at once
 
-Every third rescue is a pair on screen together, in different columns, one following just above the other: 2 people on an open rock, or 4 on a rock with a small rock on each side. Which comes first and which side each is on are random.
+Every third rescue is a pair on screen together, in different columns, one following just above the other: 1 person on an open rock, or 2 on a rock with a small rock on each side. Which comes first and which side each is on are random.
 
 There is no caption for this. As the first crew comes into view at the top of the screen, the whole game drops into slow motion for a moment (`SLOW_TIME` real seconds, down to `SLOW_SCALE` of normal speed) so the player has time to see that there are two crews. The ship slows with everything else, so the slow motion gives time to look, not extra time to fly.
 
