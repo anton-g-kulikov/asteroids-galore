@@ -11,7 +11,7 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "preview": "vite preview",
-    "deploy": "npm run lint && npm test && npm run test:rules && npm run build && firebase deploy --only hosting,firestore:rules",
+    "deploy": "npm run lint && npm test && npm run test:rules && npm run build && firebase deploy --only hosting,firestore:rules,auth",
     "test:rules": "firebase emulators:exec --only firestore --project demo-asteroids-galore \"vitest run --config vitest.rules.config.ts\"",
     "emulators": "firebase emulators:start --only auth,firestore --project demo-asteroids-galore"
   },

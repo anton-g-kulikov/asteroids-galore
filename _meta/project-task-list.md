@@ -2,14 +2,11 @@
 
 ## Current status
 
-The game is built from typed modules with Vite, has automated tests and Firebase Hosting config, saves finished runs to Firestore under an anonymous account, shows leaderboards with generated callsigns, and shares runs as links. This works against the local emulators. It is not deployed to Firebase yet: the Firebase project does not exist (the Google account is at its project quota).
+The game is built from typed modules with Vite, has automated tests and Firebase Hosting config, saves finished runs to Firestore under an anonymous account, shows leaderboards with generated callsigns, and shares runs as links. This works against the local emulators. It is live at https://asteroids-galore.web.app, deployed by hand; deploying from GitHub is not set up yet.
 
-## Before the first Firebase deploy
+## Before publishing from GitHub
 
-- Create the Firebase project and add `.firebaserc`
-- Enable Anonymous sign-in and create the Firestore database in the Firebase console; deploy the rules (`firebase deploy --only firestore:rules`)
-- Add the `FIREBASE_SERVICE_ACCOUNT`, `FIREBASE_PROJECT_ID` and `VITE_FIREBASE_*` secrets to the GitHub repository
-- Turn off GitHub Pages: the repository root is no longer a playable page, so the old link breaks as soon as this is pushed to `main`
+- Add the repository secrets the deploy workflow needs: `FIREBASE_SERVICE_ACCOUNT`, `FIREBASE_PROJECT_ID`, and the six `VITE_FIREBASE_*` values (the same values as the local `.env.production.local`)
 
 ## Next
 
@@ -25,6 +22,7 @@ The game is built from typed modules with Vite, has automated tests and Firebase
 
 ## Done
 
+- First Firebase deploy (2026-11-12): project `asteroids-galore`, Firestore in `nam5` with the rules, anonymous sign-in, Hosting at https://asteroids-galore.web.app. Checked live: a run is saved, appears on the board, and its share link opens the game showing it.
 - Sharing a result as a link: `SHARE` button on the end screens, `/s/{runId}` links that open the game with the run on the start screen. Checked in a browser against the emulators, with the clipboard path; the phone share sheet has not been tried on a real device.
 - Leaderboard with generated callsigns: top 5 by distance on the game-over screen and by crew on the mission-complete screen, own row highlighted and ranked. Checked in a browser against the emulators with seeded players.
 - Anonymous login and saved results: silent sign-in on load, one `runs` document per finished run, bests in `users/{uid}` and restored from there, Firestore rules with emulator tests, local development against the emulators. Checked in a browser against the emulators.

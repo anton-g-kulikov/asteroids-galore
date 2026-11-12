@@ -2,6 +2,8 @@
 
 A small top-down space dodger for phones. No shooting — just flying.
 
+**Play:** https://asteroids-galore.web.app
+
 The game is drawn on a single canvas. It is written in TypeScript, built with Vite, tested with Vitest, and hosted on Firebase Hosting. Finished runs are saved to Firestore under an anonymous Firebase account, the end screens show a leaderboard, and a run can be shared as a link; there is no login screen and no name to type.
 
 ## Controls
@@ -30,7 +32,7 @@ npm run dev
 | `npm run lint` | ESLint |
 | `npm run build` | Type-checks, then builds to `dist/` |
 | `npm run preview` | Serves the built `dist/` |
-| `npm run deploy` | Lint, all tests, build, then deploy Hosting and the Firestore rules |
+| `npm run deploy` | Lint, all tests, build, then deploy Hosting, the Firestore rules and the auth providers |
 
 ## Layout
 
@@ -73,11 +75,12 @@ Chat apps show the same generic preview for every link; a preview per result wou
 
 The game is served by Firebase Hosting from `dist/` (see `firebase.json`).
 
-- **Config:** a production build reads the `VITE_FIREBASE_*` values listed in `.env.example`. Put them in `.env.production.local` for a build by hand.
+- **Project:** `asteroids-galore` (see `.firebaserc`). Firestore lives in `nam5`. Anonymous sign-in is switched on from `firebase.json` (`auth.providers`), so `firebase deploy --only auth` restores it.
+- **Config:** a production build reads the `VITE_FIREBASE_*` values listed in `.env.example`. Put them in `.env.production.local` for a build by hand; `firebase apps:sdkconfig WEB` prints them.
 - **By hand:** `npm run deploy`. This needs a `.firebaserc` naming the Firebase project, and `firebase login`.
 - **From GitHub:** `.github/workflows/deploy.yml` lints, tests and builds on every pull request, and also deploys Hosting on every push to `main`. It needs these repository secrets: `FIREBASE_SERVICE_ACCOUNT`, `FIREBASE_PROJECT_ID`, and the six `VITE_FIREBASE_*` values. It does not deploy the Firestore rules; do that with `firebase deploy --only firestore:rules`.
 
-The Firebase project has not been created yet; the steps left are listed in [_meta/project-task-list.md](_meta/project-task-list.md).
+The steps left before GitHub can deploy are listed in [_meta/project-task-list.md](_meta/project-task-list.md).
 
 ## Design notes
 
