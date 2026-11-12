@@ -51,7 +51,8 @@ A faint grid behind the stars shows spacetime.
 
 - **Digging a well:** keeping the ship in one spot bends the grid towards it — the lines pinch in, brighten and turn purple — and asteroids start falling into the well. It reaches full depth after 6 seconds.
 - **What pulls harder:** more time parked, a heavier ship (later levels, more crew aboard) and higher flight speed.
-- **Wells stay where they were dug:** moving away leaves the well behind. It keeps drawing asteroids towards the old spot while it relaxes over about 4 seconds, and a fresh well starts from zero under the ship.
+- **Where the centre is:** just ahead of the ship's nose (`WELL_AHEAD` ship radii above its centre), not under it. Rocks pulled in gather in front of the ship and then sweep down through it, so sitting in a deep well is dangerous.
+- **Wells stay where they were dug:** moving away leaves the well behind. It keeps drawing asteroids towards the old spot while it relaxes over about 4 seconds, and a fresh well starts from zero at the ship.
 
 The intended use is as a tool: park to gather rocks, then dart away so they fall into the place you left. Rescue rocks are pulled like any other; the wormhole is not affected.
 
@@ -69,6 +70,7 @@ The main numbers sit in the `Tuning` block at the top of the script in `index.ht
 | `shipRadius` | Ship size per level |
 | `LAST_LEVEL` | Number of levels |
 | `WELL_TIME` | Seconds parked for the deepest gravity well |
+| `WELL_AHEAD` | How far above the ship the well's centre sits, in ship radii |
 | `DILEMMA_EVERY` | Every Nth rescue is a two-crew pair |
 
 A few more live next to the code they affect:
@@ -83,8 +85,4 @@ A few more live next to the code they affect:
 
 ## Status
 
-Built and checked with scripted browser runs on an emulated phone; difficulty and feel are still being tuned by hand. Ideas discussed but not built:
-
-- letting gravity wells pull the wormhole;
-- asteroids destroying each other when they collide inside a well;
-- a bonus for rocks that fall into an abandoned well.
+Built and checked with scripted browser runs on an emulated phone; difficulty and feel are still being tuned by hand.

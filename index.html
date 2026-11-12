@@ -38,6 +38,7 @@
   const shipRadius = l => [13, 15, 17, 20, 22][Math.min(l, 5) - 1] * U;   // the ship grows with its seat count
   const LAST_LEVEL = 4;          // finishing this level wins the game
   const WELL_TIME = 6;           // seconds parked in one spot for the deepest gravity well
+  const WELL_AHEAD = 3;          // well centre sits this many ship radii above the ship's centre
   const DILEMMA_EVERY = 3;       // every Nth rescue is a "save these or those" choice
 
   const canvas = document.getElementById('game');
@@ -53,9 +54,12 @@
   // Gravity: the longer the ship sits in one place, the deeper the well it digs.
   // Wells stay where they were dug. When the ship leaves one it is left behind,
   // still pulling asteroids in while it slowly relaxes, and a fresh well starts
-  // under the ship. wells[0] is always the one the ship is sitting in.
-  const newWell = x => ({ x, dwell: 0, depth: 0 });
-  let wells = [newWell(0)], gridOff = 0;
+  // at the ship. wells[0] is always the one the ship is sitting in.
+  // The centre sits just ahead of the ship's nose, so rocks that fall into the
+  // well come together in front of the ship and then sweep down through it.
+  const wellY = () => ship.y - ship.r * WELL_AHEAD;
+  const newWell = x => ({ x, y: wellY(), dwell: 0, depth: 0 });
+  let wells = [{ x: 0, y: 0, dwell: 0, depth: 0 }], gridOff = 0;   // placed properly when a run starts
   const curvature = () => Math.max(...wells.map(w => w.depth));                // 0..1
   const shipMass = () => shipRadius(level) / (13 * U) + onboard * 0.02;        // bigger, fuller ship = heavier
   let missed = 0;                // crew that drifted past without being picked up
@@ -333,7 +337,11 @@
 
       // "Same place" = within a small radius of where the current well was started.
       const cur = wells[0];
-      if (Math.abs(ship.x - cur.x) < 26 * U) cur.dwell = Math.min(WELL_TIME, cur.dwell + dt);
+      cur.y = wellY();
+      if (Math.abs(ship.x - cur.x) < 26 * U) {
+        cur.dwell = Math.min(WELL_TIME, cur.dwell + dt);
+        cur.x += (ship.x - cur.x) * Math.min(1, dt * 3);          // settle onto the ship, not beside it
+      }
       else if (cur.dwell > 0.3) wells.unshift(newWell(ship.x));   // leave the old well behind
       else { cur.x = ship.x; cur.dwell = 0; }                     // nothing dug yet: just follow the ship
 
@@ -367,7 +375,7 @@
       for (const w of wells) {
         if (pull <= 0 || w.depth <= 0) continue;
         // fall towards the well; strongest nearby, fading with distance
-        const gx = w.x - a.x, gy = ship.y - a.y, d2 = gx * gx + gy * gy;
+        const gx = w.x - a.x, gy = w.y - a.y, d2 = gx * gx + gy * gy;
         const f = pull * w.depth ** 0.7 / (1 + d2 / (wellR * wellR)) / (Math.sqrt(d2) + 1) * dt;
         a.vx = Math.max(-600 * U, Math.min(600 * U, a.vx + gx * f));
         a.gy += gy * f;
@@ -576,7 +584,7 @@
     const warp = (x, y) => {
       let ox = 0, oy = 0;
       for (const w of live) {
-        const dx = w.x - x, dy = ship.y - y, s = k * w.depth / (1 + (dx * dx + dy * dy) / R2);
+        const dx = w.x - x, dy = w.y - y, s = k * w.depth / (1 + (dx * dx + dy * dy) / R2);
         ox += dx * s; oy += dy * s;
       }
       return [x + ox, y + oy];
