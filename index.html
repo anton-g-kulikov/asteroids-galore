@@ -40,6 +40,8 @@
   const WELL_TIME = 6;           // seconds parked in one spot for the deepest gravity well
   const WELL_AHEAD = 3;          // well centre sits this many ship radii above the ship's centre
   const DILEMMA_EVERY = 3;       // every Nth rescue is a "save these or those" choice
+  const LIVES = 3;               // hits the ship survives in one run, counting the last
+  const GRACE = 2;               // seconds the ship cannot be hit after losing a life
   const SLOW_TIME = 1.7;         // real seconds of slow motion when a two-crew pair comes into view
   const SLOW_SCALE = 0.3;        // game speed at the depth of the slow motion
 
@@ -66,6 +68,7 @@
   const shipMass = () => shipRadius(level) / (13 * U) + onboard * 0.02;        // bigger, fuller ship = heavier
   let missed = 0;                // crew that drifted past without being picked up
   let rescued = 0, rescueTimer = 0, rescueCount = 0, clock = 0;
+  let lives = LIVES, grace = 0;       // lives left; seconds of protection left after a hit
   let slowmo = 0, slowWatch = null;   // slow-motion seconds left; the rock whose arrival triggers it
   let best = 0, newBest = false;
   try { best = +localStorage.getItem(BEST_KEY) || 0; } catch (e) {}
@@ -151,6 +154,7 @@
     wormhole = null; wormTimer = 0; flash = 0;
     missed = 0;
     rescued = 0; rescueTimer = 4; rescueCount = 0; slowmo = 0; slowWatch = null;
+    lives = LIVES; grace = 0;
     ship.x = W / 2; ship.vx = 0;
     wells = [newWell(ship.x)];
     setState('play');
@@ -275,6 +279,20 @@
     }
   }
 
+  // A hit costs a life. With lives left the run carries on where it is: same
+  // level, same distance, same crew. The rock that hit is destroyed and the
+  // ship is untouchable for a moment so the player can get clear.
+  function loseLife(a) {
+    lives--;
+    if (lives <= 0) { gameOver(); return; }
+    explode(ship.x, ship.y);
+    shake = 0.4;
+    a.dead = true;
+    missed += a.people;           // anyone on that rock is lost
+    grace = GRACE;
+    if (navigator.vibrate) navigator.vibrate([60, 40, 60]);
+  }
+
   function gameOver() {
     explode(ship.x, ship.y);
     shake = 0.5;
@@ -357,6 +375,8 @@
       // slows for a moment so the player can take in that there are two.
       if (slowWatch && slowWatch.y > slowWatch.r + 30 * U) { slowmo = SLOW_TIME; slowWatch = null; }
 
+      grace = Math.max(0, grace - dt);
+
       if (levelCapacity(level)) rescueTimer -= dt;   // level 1 is asteroids only
       if (rescueTimer <= 0) {
         rescueCount++;
@@ -395,10 +415,11 @@
           if (dx * dx + dy * dy < reach * reach) rescue(a);
         }
         const hit = a.r * 0.86 + ship.r * 0.7;   // forgiving hitbox
-        if (dx * dx + dy * dy < hit * hit) { gameOver(); }
+        if (grace <= 0 && dx * dx + dy * dy < hit * hit) loseLife(a);
       }
     }
     asteroids = asteroids.filter(a => {
+      if (a.dead) return false;
       if (a.y - a.r < H + 10) return true;
       if (state === 'play') missed += a.people;
       return false;
@@ -513,6 +534,7 @@
   function drawShip() {
     const r = ship.r;
     ctx.save();
+    if (grace > 0 && state === 'play') ctx.globalAlpha = Math.sin(clock * 28) > 0 ? 0.9 : 0.25;   // blinking: can't be hit
     ctx.translate(ship.x, ship.y);
     ctx.rotate(Math.max(-0.45, Math.min(0.45, ship.vx / (W * 1.4) * 0.45)));
     // engine flame
@@ -653,6 +675,15 @@
       text(`${Math.floor(score)} pc`, W / 2, top, 34 * U, '#ffffff');
       text(`BEST ${best} pc`, W - 14, top - 8 * U, 13 * U, 'rgba(255,255,255,.55)', 'right', 600);
       text(`LEVEL ${level}/${LAST_LEVEL}`, 14, top - 8 * U, 13 * U, 'rgba(127,220,255,.9)', 'left', 700);
+      // lives: one small ship each, under the best distance; spent ones are hollow
+      for (let i = 0; i < LIVES; i++) {
+        const lr = 6 * U, lx = W - 14 - lr - i * lr * 2.6, ly = top + 34 * U;
+        ctx.beginPath();
+        ctx.moveTo(lx, ly - lr * 1.3); ctx.lineTo(lx + lr, ly + lr); ctx.lineTo(lx, ly + lr * 0.55); ctx.lineTo(lx - lr, ly + lr);
+        ctx.closePath();
+        if (i < lives) { ctx.fillStyle = '#e8eefc'; ctx.fill(); }
+        else { ctx.strokeStyle = 'rgba(232,238,252,.35)'; ctx.lineWidth = 1.2 * U; ctx.stroke(); }
+      }
       if (levelCapacity(level)) {
         text(`RESCUED ${rescued}`, 14, top + 12 * U, 11 * U, '#5dffa0', 'left', 700);
         text(`MISSED ${missed}`, 14, top + 28 * U, 11 * U, '#ff7b54', 'left', 700);
@@ -741,7 +772,7 @@
 
   // Test/debug hook.
   window.__game = { get state() { return state; }, get score() { return score; }, get speed() { return speed; },
-    get asteroids() { return asteroids; }, get rescued() { return rescued; }, get missed() { return missed; }, get wells() { return wells; }, get level() { return level; }, get onboard() { return onboard; }, get wormhole() { return wormhole; }, get wormTimer() { return wormTimer; }, get slowmo() { return slowmo; }, skipLevel() { levelScore = 1e9; levelTime = 1e9; }, fill(n) { onboard = n; }, ship, spawnRescue, spawnDilemma };
+    get asteroids() { return asteroids; }, get rescued() { return rescued; }, get missed() { return missed; }, get wells() { return wells; }, get level() { return level; }, get onboard() { return onboard; }, get wormhole() { return wormhole; }, get wormTimer() { return wormTimer; }, get slowmo() { return slowmo; }, get lives() { return lives; }, get grace() { return grace; }, skipLevel() { levelScore = 1e9; levelTime = 1e9; }, fill(n) { onboard = n; }, ship, spawnRescue, spawnDilemma };
 })();
 </script>
 </body>

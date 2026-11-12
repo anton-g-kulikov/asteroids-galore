@@ -17,6 +17,15 @@ There are two separate results, both explained on the end screen:
 - **Parsecs (pc)** — pure distance flown. It grows faster as the level speeds up. The best distance is saved on the device.
 - **Rescued / missed** — crew picked up, and crew that drifted off the bottom of the screen unrescued (including anyone left behind because the ship was full). Rescues add nothing to the parsec count.
 
+## Lives
+
+A run has 3 lives (`LIVES`), drawn as small ships under the best distance; spent ones turn hollow. There is no caption.
+
+- **Losing one:** hitting a rock costs a life. The run carries on where it is — same level, same parsecs, same crew on board, same speed.
+- **The rock that hit** is destroyed. Any crew on it count as missed.
+- **Getting clear:** the ship blinks and cannot be hit for 2 seconds (`GRACE`). It can still pick up crew and enter the wormhole.
+- **The last life:** losing it ends the run with the game-over screen.
+
 ## Levels
 
 There are 4 levels; finishing the fourth shows the mission-complete screen.
@@ -77,6 +86,7 @@ The main numbers sit in the `Tuning` block at the top of the script in `index.ht
 | `LAST_LEVEL` | Number of levels |
 | `WELL_TIME` | Seconds parked for the deepest gravity well |
 | `WELL_AHEAD` | How far above the ship the well's centre sits, in ship radii |
+| `LIVES`, `GRACE` | Lives per run, and seconds of protection after losing one |
 | `DILEMMA_EVERY` | Every Nth rescue is a two-crew pair |
 | `SLOW_TIME`, `SLOW_SCALE` | Length and depth of the slow motion when a two-crew pair appears |
 
@@ -88,7 +98,7 @@ A few more live next to the code they affect:
 
 ## Debug hook
 
-`window.__game` exposes read-only state (`state`, `level`, `score`, `rescued`, `missed`, `onboard`, `wells`, `wormhole`, `slowmo`, `asteroids`, `ship`) and a few helpers used by the automated checks: `skipLevel()` meets the current level's goals immediately, `fill(n)` sets the crew on board, and `spawnRescue()` / `spawnDilemma()` spawn rescue rocks on demand.
+`window.__game` exposes read-only state (`state`, `level`, `score`, `rescued`, `missed`, `onboard`, `wells`, `wormhole`, `slowmo`, `lives`, `grace`, `asteroids`, `ship`) and a few helpers used by the automated checks: `skipLevel()` meets the current level's goals immediately, `fill(n)` sets the crew on board, and `spawnRescue()` / `spawnDilemma()` spawn rescue rocks on demand.
 
 ## Status
 
