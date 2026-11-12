@@ -1,6 +1,6 @@
 # Asteroids Galore — design notes
 
-**Spoilers.** The game explains almost nothing on purpose. If you want to discover it by playing, stop here: https://anton-g-kulikov.github.io/asteroids-galore/
+**Spoilers.** The game explains almost nothing on purpose. If you want to discover it by playing, stop here and play first.
 
 ## Principle: show, don't tell
 
@@ -25,6 +25,23 @@ Crew only count as rescued if the mission is finished.
 - **Out of lives:** the same number is shown as `N WENT DOWN WITH THE SHIP` in orange, with `N MISSED` in grey — everyone picked up during the run was lost with the ship.
 
 During play the counters still read `RESCUED` and `MISSED`; the player only learns this by crashing.
+
+### Leaderboards
+
+Below the summary, each end screen shows one board, when the game is connected to the cloud:
+
+- **Out of lives:** `TOP DISTANCE` — the five longest best distances.
+- **All four levels cleared:** `TOP CREW` — the five highest crew bests. This follows the twist above: crew only count in a finished mission, so the crew board only appears after one.
+
+Players are listed by callsign: two words and a number, generated from the player's anonymous account, so nobody types a name and the same account always keeps the same one. The player's own row is gold, which is also how they learn their callsign. A player outside the top five gets a sixth row with their rank. A player with no best on that board is not listed.
+
+The board is refreshed when a run ends, and the player's row always uses the best the game holds right now. Offline, or before the first board has loaded, the end screen simply has no board.
+
+### Sharing a run
+
+Once the run on an end screen has been saved, a `SHARE` pill appears in the top right corner. A tap on it shares a link and does not start a new run; a tap anywhere else restarts as before. Where the device has no share sheet the link is copied and the pill reads `COPIED` for two seconds. Offline, or without the cloud, there is no pill.
+
+Whoever opens the link gets the ordinary start screen with the shared run under the title: the callsign in gold, the distance, and one line for how it ended — `MISSION COMPLETE · N RESCUED` for a finished mission, `REACHED LEVEL N` for a lost one. A lost run deliberately says nothing about crew, so the twist on the end screen is not given away. The message that travels with the link follows the same rule.
 
 ## Lives
 
@@ -59,7 +76,7 @@ Levels do not end on their own. When the goals are met, an unlabelled wormhole d
 
 From level 2, some asteroids carry stranded crew inside a pulsing green `SOS` ring. Flying inside the ring without touching the rock picks them up.
 
-Most rocks carry one person (60%), some carry two (32%), and three is a rarity (8%) — set by `crewSize` in `index.html`.
+Most rocks carry one person (60%), some carry two (32%), and three is a rarity (8%) — set by `crewSize` in `src/game/spawn.ts`.
 
 They are deliberately sparse, so the seats fill over the whole level and not in its first moments. The first appears 4 seconds into a level, then:
 
@@ -94,7 +111,7 @@ The intended use is as a tool: park to gather rocks, then dart away so they fall
 
 ## Tuning
 
-The main numbers sit in the `Tuning` block at the top of the script in `index.html`:
+The main numbers sit in `src/game/tuning.ts`:
 
 | Constant | Meaning |
 |---|---|
@@ -114,14 +131,14 @@ The main numbers sit in the `Tuning` block at the top of the script in `index.ht
 
 A few more live next to the code they affect:
 
-- **Gravity strength:** the `520` and the `0.7` exponent in the pull calculation in `update` (overall strength, and how soon a shallow well bites).
-- **Two-crew difficulty:** the `0.78` in `spawnDilemma` (lower makes saving both harder).
-- **Wormhole wait after a miss:** `rand(15, 30)` in `update`.
+- **Gravity strength:** the `520` and the `0.7` exponent in the pull calculation in `update` in `src/game/simulation.ts` (overall strength, and how soon a shallow well bites).
+- **Two-crew difficulty:** the `0.78` in `spawnDilemma` in `src/game/spawn.ts` (lower makes saving both harder).
+- **Wormhole wait after a miss:** `rand(15, 30)` in `src/game/simulation.ts`.
 
 ## Debug hook
 
-`window.__game` exposes read-only state (`state`, `level`, `score`, `rescued`, `missed`, `onboard`, `wells`, `wormhole`, `slowmo`, `lives`, `grace`, `asteroids`, `ship`) and a few helpers used by the automated checks: `skipLevel()` meets the current level's goals immediately, `fill(n)` sets the crew on board, and `spawnRescue()` / `spawnDilemma()` spawn rescue rocks on demand.
+`window.__game` (built in `src/debugHook.ts`) exposes read-only state (`state`, `level`, `score`, `rescued`, `missed`, `onboard`, `wells`, `wormhole`, `slowmo`, `lives`, `grace`, `asteroids`, `ship`) and a few helpers used by the automated checks: `skipLevel()` meets the current level's goals immediately, `fill(n)` sets the crew on board, and `spawnRescue()` / `spawnDilemma()` spawn rescue rocks on demand.
 
 ## Status
 
-Built and checked with scripted browser runs on an emulated phone; difficulty and feel are still being tuned by hand.
+Difficulty and feel are still being tuned by hand. What is planned next is tracked in `project-task-list.md`; how the game is tested is in `../test/test-documentation.md`.

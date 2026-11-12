@@ -1,0 +1,33 @@
+{
+  "name": "asteroids-galore",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "A small top-down space dodger for phones",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "lint": "eslint . --max-warnings 0",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "preview": "vite preview",
+    "deploy": "npm run lint && npm test && npm run test:rules && npm run build && firebase deploy --only hosting,firestore:rules",
+    "test:rules": "firebase emulators:exec --only firestore --project demo-asteroids-galore \"vitest run --config vitest.rules.config.ts\"",
+    "emulators": "firebase emulators:start --only auth,firestore --project demo-asteroids-galore"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "@firebase/rules-unit-testing": "^6.0.0",
+    "@types/node": "^26.6.6",
+    "eslint": "^10.14.0",
+    "firebase-tools": "^15.36.0",
+    "globals": "^17.14.0",
+    "typescript": "^6.0.3",
+    "typescript-eslint": "^8.72.2",
+    "vite": "^8.3.8",
+    "vitest": "^5.1.0"
+  },
+  "dependencies": {
+    "firebase": "^13.3.0"
+  }
+}

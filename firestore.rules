@@ -1,0 +1,60 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function signedInAs(uid) {
+      return request.auth != null && request.auth.uid == uid;
+    }
+
+    // The same pattern as CALLSIGN_PATTERN in src/cloud/callsign.ts.
+    function validCallsign(value) {
+      return value is string && value.matches('^[A-Z]{3,9} [A-Z]{3,9} [0-9]{2}$');
+    }
+
+    function wholeNumber(value, min, max) {
+      return value is int && value >= min && value <= max;
+    }
+
+    // One document per finished run. Written once by the player; never changed.
+    // Anyone holding a run's ID can read it (that is what a share link is), but
+    // runs cannot be listed.
+    match /runs/{runId} {
+      allow get: if true;
+      allow create: if signedInAs(request.resource.data.userId) && validRun(request.resource.data);
+
+      function validRun(run) {
+        return run.keys().hasOnly(['userId', 'callsign', 'createdAt', 'appVersion', 'outcome', 'distance', 'level', 'rescued', 'missed', 'durationSeconds'])
+          && run.keys().hasAll(['userId', 'callsign', 'createdAt', 'appVersion', 'outcome', 'distance', 'level', 'rescued', 'missed', 'durationSeconds'])
+          && run.createdAt == request.time
+          && validCallsign(run.callsign)
+          && run.appVersion is string && run.appVersion.size() <= 20
+          && run.outcome in ['won', 'over']
+          && wholeNumber(run.distance, 0, 1000000)
+          && wholeNumber(run.level, 1, 4)
+          && (run.outcome != 'won' || run.level == 4)
+          && wholeNumber(run.rescued, 0, 1000)
+          && wholeNumber(run.missed, 0, 10000)
+          && run.durationSeconds is number && run.durationSeconds >= 0 && run.durationSeconds <= 86400;
+      }
+    }
+
+    // A player's leaderboard entry: callsign and bests. Public to read, since
+    // the boards are queries over this collection. Bests only ever go up.
+    match /users/{userId} {
+      allow read: if true;
+      allow create: if signedInAs(userId) && validEntry(request.resource.data);
+      allow update: if signedInAs(userId) && validEntry(request.resource.data)
+        && request.resource.data.bestDistance >= resource.data.bestDistance
+        && request.resource.data.bestCrew >= resource.data.bestCrew;
+
+      function validEntry(user) {
+        return user.keys().hasOnly(['callsign', 'bestDistance', 'bestCrew', 'updatedAt'])
+          && user.keys().hasAll(['callsign', 'bestDistance', 'bestCrew', 'updatedAt'])
+          && validCallsign(user.callsign)
+          && wholeNumber(user.bestDistance, 0, 1000000)
+          && wholeNumber(user.bestCrew, 0, 1000)
+          && user.updatedAt == request.time;
+      }
+    }
+  }
+}
