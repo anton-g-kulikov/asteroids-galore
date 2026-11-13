@@ -18,8 +18,8 @@ export const SLOW_SCALE = 0.3        // game speed at the depth of the slow moti
 /** Parsecs to fly within the level. */
 export const levelTarget = (l: number): number => 350 + 100 * (l - 1)
 
-/** Seats: 0, 4, 8, 16, 32. */
-export const levelCapacity = (l: number): number => l < 2 ? 0 : Math.min(32, 4 * 2 ** (l - 2))
+/** Seats: 2, 4, 8, 16, 32. */
+export const levelCapacity = (l: number): number => Math.min(32, 2 ** l)
 
 /** A bigger ship steers slower. */
 export const levelHandling = (l: number): number => Math.max(0.5, 0.92 ** (l - 1))

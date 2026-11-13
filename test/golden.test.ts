@@ -43,12 +43,13 @@ describe('golden traces', () => {
 
     expect(column(mission, 'state')).toContain('won')
     expect(max(mission, 'level')).toBe(4)
-    expect(max(mission, 'rescued')).toBeGreaterThan(0)
-    expect(mission.storage['asteroids-galore-best-crew']).toBeDefined()
+    expect(max(mission, 'saved')).toBeGreaterThan(0)
+    expect(max(mission, 'score')).toBeGreaterThan(0)
+    expect(Number(mission.storage['asteroids-galore-best-score'])).toBe(max(mission, 'score'))
 
     expect(column(crash, 'state')).toContain('over')
     expect(column(crash, 'state').lastIndexOf('play')).toBeGreaterThan(column(crash, 'state').indexOf('over'))
-    expect(crash.storage['asteroids-galore-best-crew']).toBe('3')   // a crash never sets the crew best
+    expect(crash.storage['asteroids-galore-best-score']).toBe('120')   // nobody saved: the best stands
 
     expect(max(pairs, 'slowmo')).toBeGreaterThan(0)
     expect(max(pairs, 'onboard')).toBe(4)

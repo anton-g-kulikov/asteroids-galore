@@ -8,7 +8,7 @@ import { createRecords, type RecordStore } from './game/records'
 import { runSummary, type RunResult } from './game/runSummary'
 import { tryStart, update } from './game/simulation'
 import { timeScale } from './game/timeScale'
-import { shareButtonRect } from './render/hud'
+import { boardButtonRect, hasBoard, shareButtonRect } from './render/hud'
 import { render } from './render/render'
 
 const canvas = document.getElementById('game') as HTMLCanvasElement
@@ -20,8 +20,8 @@ try { store = localStorage } catch { /* play without saved bests */ }
 
 const records = createRecords(store)
 const game = createGame(records)
-// null when Firebase is not configured; the boards then stay empty and are not drawn
-const cloud = startCloud(records, (kind, rows) => { game.boards[kind] = rows })
+// null when Firebase is not configured; the board then stays empty and is not drawn
+const cloud = startCloud(records, rows => { game.board = rows })
 const input = createInput()
 
 // ---------- Layout ----------
@@ -57,11 +57,25 @@ function runEnded() {
   })
 }
 
-function onShareButton(e: PointerEvent): boolean {
-  if (!game.shareReady || (game.state !== 'over' && game.state !== 'won')) return false
-  const r = shareButtonRect(game)
+function inside(e: PointerEvent, r: { x: number; y: number; w: number; h: number }): boolean {
   const x = e.clientX - (window.innerWidth - game.W) / 2   // the play field is centred
   return x >= r.x && x <= r.x + r.w && e.clientY >= r.y && e.clientY <= r.y + r.h
+}
+
+function onShareButton(e: PointerEvent): boolean {
+  if (!game.shareReady || (game.state !== 'over' && game.state !== 'won')) return false
+  return inside(e, shareButtonRect(game))
+}
+
+// ---------- Leaderboard ----------
+// The link on an end screen opens the leaderboard over it; the next tap or key
+// closes it again. Neither one restarts the game.
+const onBoardButton = (e: PointerEvent): boolean => hasBoard(game) && inside(e, boardButtonRect(game))
+
+function closeBoard(): boolean {
+  if (!game.boardOpen) return false
+  game.boardOpen = false
+  return true
 }
 
 function share() {
@@ -77,6 +91,8 @@ if (sharedId) cloud?.loadShared(sharedId).then(run => { game.shared = run })
 // ---------- Input ----------
 window.addEventListener('pointerdown', e => {
   e.preventDefault()
+  if (closeBoard()) return
+  if (onBoardButton(e)) { game.boardOpen = true; return }
   if (onShareButton(e)) { sharePointer = e.pointerId; return }   // not a steer, not a restart
   input.pointer(e.pointerId, e.clientX, window.innerWidth)
   tryStart(game)
@@ -103,9 +119,10 @@ const sideOf = (key: string) =>
   key === 'ArrowRight' || key === 'd' || key === 'D' ? 'right' : null
 
 window.addEventListener('keydown', e => {
+  if (e.key === 'Escape') { closeBoard(); return }
   const side = sideOf(e.key)
   if (side) input.key(side, true)
-  else if (e.key === ' ' || e.key === 'Enter') { if (!e.repeat) tryStart(game) }
+  else if (e.key === ' ' || e.key === 'Enter') { if (!e.repeat && !closeBoard()) tryStart(game) }   // closing the leaderboard is not a restart
   else return
   e.preventDefault()
   if (!e.repeat && game.state === 'menu') tryStart(game)   // a steering key also starts the first run
@@ -127,7 +144,7 @@ function frame(now: number) {
   }
   const wasPlaying = game.state === 'play'
   update(game, dt * scale, input.steer())
-  if (wasPlaying && game.state !== 'play') runEnded()
+  if (wasPlaying && (game.state === 'over' || game.state === 'won')) runEnded()   // not the stop between levels
   game.shareNote = Math.max(0, game.shareNote - dt)
   render(ctx, game)
   requestAnimationFrame(frame)

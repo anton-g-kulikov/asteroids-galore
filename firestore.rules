@@ -23,8 +23,8 @@ service cloud.firestore {
       allow create: if signedInAs(request.resource.data.userId) && validRun(request.resource.data);
 
       function validRun(run) {
-        return run.keys().hasOnly(['userId', 'callsign', 'createdAt', 'appVersion', 'outcome', 'distance', 'level', 'rescued', 'missed', 'durationSeconds'])
-          && run.keys().hasAll(['userId', 'callsign', 'createdAt', 'appVersion', 'outcome', 'distance', 'level', 'rescued', 'missed', 'durationSeconds'])
+        return run.keys().hasOnly(['userId', 'callsign', 'createdAt', 'appVersion', 'outcome', 'score', 'distance', 'level', 'saved', 'lost', 'missed', 'durationSeconds'])
+          && run.keys().hasAll(['userId', 'callsign', 'createdAt', 'appVersion', 'outcome', 'score', 'distance', 'level', 'saved', 'lost', 'missed', 'durationSeconds'])
           && run.createdAt == request.time
           && validCallsign(run.callsign)
           && run.appVersion is string && run.appVersion.size() <= 20
@@ -32,27 +32,32 @@ service cloud.firestore {
           && wholeNumber(run.distance, 0, 1000000)
           && wholeNumber(run.level, 1, 4)
           && (run.outcome != 'won' || run.level == 4)
-          && wholeNumber(run.rescued, 0, 1000)
+          && wholeNumber(run.saved, 0, 1000)
+          && wholeNumber(run.lost, 0, 1000)
+          && (run.outcome != 'won' || run.lost == 0)
+          // The score is parsecs times the crew counted: saved minus lost, never below zero.
+          && wholeNumber(run.score, 0, 1000000000)
+          && ((run.saved > run.lost && run.score == run.distance * (run.saved - run.lost))
+            || (run.saved <= run.lost && run.score == 0))
           && wholeNumber(run.missed, 0, 10000)
           && run.durationSeconds is number && run.durationSeconds >= 0 && run.durationSeconds <= 86400;
       }
     }
 
-    // A player's leaderboard entry: callsign and bests. Public to read, since
-    // the boards are queries over this collection. Bests only ever go up.
+    // A player's leaderboard entry: callsign and best score. Public to read,
+    // since the board is a query over this collection. The best only ever goes
+    // up. An entry written before scores existed has no bestScore and counts as 0.
     match /users/{userId} {
       allow read: if true;
       allow create: if signedInAs(userId) && validEntry(request.resource.data);
       allow update: if signedInAs(userId) && validEntry(request.resource.data)
-        && request.resource.data.bestDistance >= resource.data.bestDistance
-        && request.resource.data.bestCrew >= resource.data.bestCrew;
+        && request.resource.data.bestScore >= resource.data.get('bestScore', 0);
 
       function validEntry(user) {
-        return user.keys().hasOnly(['callsign', 'bestDistance', 'bestCrew', 'updatedAt'])
-          && user.keys().hasAll(['callsign', 'bestDistance', 'bestCrew', 'updatedAt'])
+        return user.keys().hasOnly(['callsign', 'bestScore', 'updatedAt'])
+          && user.keys().hasAll(['callsign', 'bestScore', 'updatedAt'])
           && validCallsign(user.callsign)
-          && wholeNumber(user.bestDistance, 0, 1000000)
-          && wholeNumber(user.bestCrew, 0, 1000)
+          && wholeNumber(user.bestScore, 0, 1000000000)
           && user.updatedAt == request.time;
       }
     }

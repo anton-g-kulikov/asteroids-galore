@@ -1,3 +1,4 @@
+import { scoreOf } from './game/score'
 import { skipLevel } from './game/simulation'
 import { spawnDilemma, spawnRescue } from './game/spawn'
 import type { Game } from './game/types'
@@ -9,10 +10,12 @@ import type { Game } from './game/types'
 export function createDebugHook(g: Game) {
   return {
     get state() { return g.state },
-    get score() { return g.score },
+    get score() { return scoreOf(g) },
+    get distance() { return g.distance },
     get speed() { return g.speed },
     get asteroids() { return g.asteroids },
-    get rescued() { return g.rescued },
+    get saved() { return g.saved },
+    get lost() { return g.lost },
     get missed() { return g.missed },
     get wells() { return g.wells },
     get level() { return g.level },

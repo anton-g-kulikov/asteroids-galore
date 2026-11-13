@@ -4,12 +4,34 @@ import type { Asteroid, Game, Wormhole } from '../game/types'
 import { text } from './text'
 
 const ROCK = [['#8b8f9c', '#5b5f6b'], ['#9a8a7b', '#62564b'], ['#7d8794', '#4c545f']]
+// Planetoids are round and coloured, so they never read as one of the grey rocks.
+const PLANET = [['#4fb3a5', '#2f7d74'], ['#d2946b', '#935f41'], ['#7f93dc', '#4d5ca0']]
 
-export function drawAsteroid(ctx: CanvasRenderingContext2D, g: Game, a: Asteroid): void {
-  const { U, clock } = g
+// A planetoid: a banded disc with a soft highlight.
+function drawPlanetBody(ctx: CanvasRenderingContext2D, a: Asteroid, U: number): void {
+  const [light, dark] = PLANET[a.shade]
+  const r = a.r
   ctx.save()
-  ctx.translate(a.x, a.y)
-  ctx.rotate(a.rot)
+  ctx.beginPath(); ctx.arc(0, 0, r, 0, Math.PI * 2)
+  ctx.fillStyle = light
+  ctx.fill()
+  ctx.clip()
+  ctx.fillStyle = dark
+  ctx.globalAlpha = 0.55
+  ctx.fillRect(-r, -r * 0.5, r * 2, r * 0.26)
+  ctx.fillRect(-r, r * 0.08, r * 2, r * 0.4)
+  ctx.fillRect(-r, r * 0.72, r * 2, r * 0.3)
+  ctx.globalAlpha = 0.22
+  ctx.fillStyle = '#ffffff'
+  ctx.beginPath(); ctx.arc(-r * 0.35, -r * 0.4, r * 0.55, 0, Math.PI * 2); ctx.fill()
+  ctx.restore()
+  ctx.lineWidth = Math.max(1.5, 2 * U)
+  ctx.strokeStyle = dark
+  ctx.beginPath(); ctx.arc(0, 0, r, 0, Math.PI * 2); ctx.stroke()
+}
+
+// An asteroid: a jagged grey rock with craters.
+function drawRockBody(ctx: CanvasRenderingContext2D, a: Asteroid, U: number): void {
   ctx.beginPath()
   const n = a.shape.length
   for (let i = 0; i < n; i++) {
@@ -30,6 +52,9 @@ export function drawAsteroid(ctx: CanvasRenderingContext2D, g: Game, a: Asteroid
     ctx.arc(Math.cos(c.a) * c.d * a.r, Math.sin(c.a) * c.d * a.r, c.r * a.r, 0, Math.PI * 2)
     ctx.fill()
   }
+}
+
+function drawCrew(ctx: CanvasRenderingContext2D, a: Asteroid, U: number, clock: number): void {
   // stranded crew, standing around the rim and waving
   for (let i = 0; i < a.people; i++) {
     const s = 4.6 * U
@@ -53,8 +78,11 @@ export function drawAsteroid(ctx: CanvasRenderingContext2D, g: Game, a: Asteroid
     ctx.beginPath(); ctx.arc(0, -s * 2.1, s * 0.75, 0, Math.PI * 2); ctx.fill()
     ctx.restore()
   }
-  ctx.restore()
+}
 
+// The pickup ring around a body that still has crew on it.
+function drawRing(ctx: CanvasRenderingContext2D, g: Game, a: Asteroid): void {
+  const { U, clock } = g
   if (a.people) {
     const R = ringRadius(g, a)
     ctx.save()
@@ -69,6 +97,17 @@ export function drawAsteroid(ctx: CanvasRenderingContext2D, g: Game, a: Asteroid
     ctx.restore()
     if (!full) text(ctx, `SOS ×${a.people}`, a.x, a.y - R - 8 * U, 14 * U, col)   // a full ship just sees grey rings
   }
+}
+
+export function drawAsteroid(ctx: CanvasRenderingContext2D, g: Game, a: Asteroid): void {
+  const { U, clock } = g
+  ctx.save()
+  ctx.translate(a.x, a.y)
+  ctx.rotate(a.rot)
+  if (a.planet) drawPlanetBody(ctx, a, U); else drawRockBody(ctx, a, U)
+  drawCrew(ctx, a, U, clock)
+  ctx.restore()
+  drawRing(ctx, g, a)
 }
 
 export function drawWormhole(ctx: CanvasRenderingContext2D, g: Game, w: Wormhole): void {

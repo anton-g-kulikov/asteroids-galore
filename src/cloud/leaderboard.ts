@@ -1,11 +1,9 @@
-import type { BoardKind, BoardRow } from '../game/types'
+import type { BoardRow } from '../game/types'
 
-export type { BoardKind }
+/** How many players the board lists before the player's own row. */
+export const BOARD_SIZE = 10
 
-/** How many players a board lists before the player's own row. */
-export const BOARD_SIZE = 5
-
-/** One player's entry on a board, as the backend returns it. */
+/** One player's entry on the board, as the backend returns it. `value` is their best score. */
 export interface BoardEntry { uid: string; callsign: string; value: number }
 
 /**

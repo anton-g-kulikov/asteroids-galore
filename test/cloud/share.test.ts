@@ -2,8 +2,8 @@ import { expect, test, vi } from 'vitest'
 import { shareIdFromPath, shareMessage, shareResult, shareUrl } from '../../src/cloud/share'
 import type { RunResult } from '../../src/game/runSummary'
 
-const lost: RunResult = { outcome: 'over', distance: 564, level: 3, rescued: 2, missed: 0, durationSeconds: 40 }
-const won: RunResult = { ...lost, outcome: 'won', level: 4, rescued: 14 }
+const lost: RunResult = { outcome: 'over', score: 1128, distance: 564, level: 3, saved: 3, lost: 1, missed: 0, durationSeconds: 40 }
+const won: RunResult = { ...lost, outcome: 'won', level: 4, saved: 14, lost: 0, score: 7896 }
 
 test('SHARE-01 the run ID comes from /s/{id}', () => {
   expect(shareIdFromPath('/s/Ab3dEf6hIj9kLm2nOp5q')).toBe('Ab3dEf6hIj9kLm2nOp5q')
@@ -15,10 +15,12 @@ test('SHARE-01 the run ID comes from /s/{id}', () => {
 
 test('SHARE-02 the link and the message', () => {
   expect(shareUrl('https://example.test', 'abc123')).toBe('https://example.test/s/abc123')
-  expect(shareMessage(lost)).toContain('564 pc')
-  expect(shareMessage(lost)).not.toMatch(/crew|rescued/i)
-  expect(shareMessage(won)).toContain('564 pc')
-  expect(shareMessage(won)).toContain('14')
+  // both messages lead with the crew saved and give the score, not the distance
+  expect(shareMessage(lost)).toContain('3 crew')
+  expect(shareMessage(lost)).toContain('1,128')
+  expect(shareMessage(won)).toContain('14 crew')
+  expect(shareMessage(won)).toContain('7,896')
+  expect(shareMessage(lost) + shareMessage(won)).not.toContain('564')
 })
 
 test('SHARE-03 the share sheet is used when there is one', async () => {

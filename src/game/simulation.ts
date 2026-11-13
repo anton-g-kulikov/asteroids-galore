@@ -1,6 +1,7 @@
 import { newWell, reachOf, setState, shipMass, wellY } from './game'
 import { buzz } from './haptics'
 import { rand } from './random'
+import { scoreOf } from './score'
 import { spawnAsteroid, spawnDilemma, spawnRescue } from './spawn'
 import {
   DILEMMA_EVERY, GRACE, LAST_LEVEL, LEVEL_MIN_TIME, MAX_SPEED, SHIELDS, SLOW_TIME, SPEED_RAMP, WELL_PULL, WELL_TIME,
@@ -10,43 +11,80 @@ import type { Asteroid, Game } from './types'
 
 export function startGame(g: Game): void {
   g.asteroids = []; g.particles = []; g.floaters = []
-  g.time = 0; g.speed = 1; g.score = 0; g.spawnTimer = 0.6; g.shake = 0; g.newBest = false; g.newBestCrew = false
+  g.time = 0; g.speed = 1; g.distance = 0; g.spawnTimer = 0.6; g.shake = 0; g.newBest = false
   g.level = 1; g.ship.r = shipRadius(1, g.U); g.levelTime = 0; g.levelScore = 0; g.onboard = 0
   g.wormhole = null; g.wormTimer = 0; g.flash = 0
-  g.missed = 0
-  g.rescued = 0; g.rescueTimer = 4; g.rescueCount = 0; g.slowmo = 0; g.slowWatch = null
+  g.missed = 0; g.saved = 0; g.lost = 0
+  g.results = []; g.levelFrom = { distance: 0, missed: 0 }
+  g.boardOpen = false
+  g.rescueTimer = 4; g.rescueCount = 0; g.slowmo = 0; g.slowWatch = null
   g.shields = SHIELDS; g.grace = 0
   g.ship.x = g.W / 2; g.ship.vx = 0
   g.wells = [newWell(g, g.ship.x)]
   setState(g, 'play')
 }
 
-/** Starts a run from the menu, or from an end screen once it has been up for a moment. */
+/**
+ * A tap or a key: starts a run from the menu, moves on from the results screen
+ * between levels, or restarts from an end screen. Screens that follow play must
+ * have been up for a moment first, so a frantic tap does not skip them.
+ */
 export function tryStart(g: Game): void {
-  if (g.state === 'menu' || ((g.state === 'over' || g.state === 'won') && g.stateTime > 0.7)) startGame(g)
+  if (g.state === 'menu') startGame(g)
+  else if (g.stateTime <= 0.7) return
+  else if (g.state === 'between') nextLevel(g)
+  else if (g.state === 'over' || g.state === 'won') startGame(g)
 }
 
-// Each level restarts the asteroid speed ramp, but the ship carries more and steers slower.
+// Starts the next level, from the results screen. Each level restarts the asteroid speed ramp, but the ship carries more and steers slower.
 function nextLevel(g: Game): void {
-  if (g.level >= LAST_LEVEL) { win(g); return }
   g.level++
   g.ship.r = shipRadius(g.level, g.U)
-  g.asteroids = []; g.wormhole = null; g.wormTimer = 0; g.flash = 1   // arrive somewhere new
-  g.slowmo = 0; g.slowWatch = null
+  g.wormTimer = 0; g.flash = 1                  // arrive somewhere new
+  g.levelFrom = { distance: g.distance, missed: g.missed }
   g.shields = SHIELDS                           // every level starts with a full set
   g.levelTime = 0; g.levelScore = 0
-  g.onboard = 0                                 // crew delivered
   g.spawnTimer = Math.max(g.spawnTimer, 1.2)    // short breather
   g.rescueTimer = 4
   buzz([40, 60, 40])
+  setState(g, 'play')
+}
+
+// What the current level has added to the run so far, apart from crew saved.
+const levelSoFar = (g: Game) => ({
+  level: g.level,
+  missed: g.missed - g.levelFrom.missed,
+  distance: Math.floor(g.distance) - Math.floor(g.levelFrom.distance),
+})
+
+// Flying into the wormhole ends the level: the crew on board are delivered and
+// the level's result is written down. Then either the mission is complete, or
+// the results screen is shown until the player moves on.
+function enterWormhole(g: Game): void {
+  const saved = g.onboard
+  deliver(g)
+  g.results.push({ ...levelSoFar(g), saved })
+  g.asteroids = []; g.wormhole = null; g.slowmo = 0; g.slowWatch = null
+  if (g.level >= LAST_LEVEL) { win(g); return }
+  g.flash = 1
+  buzz([40, 60, 40])
+  setState(g, 'between')
+}
+
+// Through a wormhole the crew on board are home: saved for good, and only now
+// do they count towards the score.
+function deliver(g: Game): void {
+  if (g.onboard > 0) g.floaters.push({ x: g.ship.x, y: g.ship.y - g.ship.r * 2.4, str: `${g.onboard} SAVED`, life: 1.6 })
+  g.saved += g.onboard
+  g.onboard = 0
 }
 
 // Takes as many people as there are free seats; the rest stay behind.
 function rescue(g: Game, a: Asteroid): void {
   const { ship, U } = g
   const n = Math.min(a.people, levelCapacity(g.level) - g.onboard)
-  g.rescued += n; g.onboard += n
-  g.floaters.push({ x: a.x, y: a.y - a.r, str: `+${n} RESCUED`, life: 1.2 })
+  g.onboard += n
+  g.floaters.push({ x: a.x, y: a.y - a.r, str: `×${n}`, life: 1.2 })   // a multiplier, not points: crew multiply the distance
   for (let i = 0; i < 14; i++) {
     const t = rand(0.2, 0.45)   // crew "beam" towards the ship
     g.particles.push({
@@ -71,12 +109,7 @@ function explode(g: Game, x: number, y: number): void {
 }
 
 function saveBest(g: Game): void {
-  if (g.records.saveBest(g.score)) g.newBest = true
-}
-
-// Crew only count once the mission is finished, so this is called from win() alone.
-function saveBestCrew(g: Game): void {
-  if (g.records.saveBestCrew(g.rescued)) g.newBestCrew = true
+  if (g.records.saveBest(scoreOf(g))) g.newBest = true
 }
 
 // A hit burns a shield, and the run carries on where it is: same level, same
@@ -97,6 +130,8 @@ function takeHit(g: Game, a: Asteroid): void {
 function gameOver(g: Game): void {
   explode(g, g.ship.x, g.ship.y)
   g.shake = 0.5
+  g.lost = g.onboard            // everyone still aboard goes down with the ship, and counts against the score
+  g.results.push({ ...levelSoFar(g), saved: 0, lost: g.lost })   // the level that was never finished
   saveBest(g)
   buzz([60, 40, 140])
   setState(g, 'over')
@@ -104,7 +139,7 @@ function gameOver(g: Game): void {
 
 function win(g: Game): void {
   g.asteroids = []; g.wormhole = null; g.flash = 1
-  saveBest(g); saveBestCrew(g)
+  saveBest(g)
   buzz([40, 60, 40, 60, 120])
   setState(g, 'won')
 }
@@ -155,8 +190,10 @@ export function update(g: Game, dt: number, steer: number): void {
         const reach = reachOf(g, a)
         if (dx * dx + dy * dy < reach * reach) rescue(g, a)
       }
+      // Only rocks are dangerous. A planetoid is safe to fly across: it does not
+      // break and costs no shield.
       const hit = a.r * 0.86 + ship.r * 0.7   // forgiving hitbox
-      if (g.grace <= 0 && dx * dx + dy * dy < hit * hit) takeHit(g, a)
+      if (!a.planet && g.grace <= 0 && dx * dx + dy * dy < hit * hit) takeHit(g, a)
     }
   }
   g.asteroids = g.asteroids.filter(a => {
@@ -189,7 +226,7 @@ function playerAndSpawns(g: Game, dt: number, steer: number, scroll: number): vo
   g.time += dt
   g.levelTime += dt
   g.speed = Math.min(MAX_SPEED, 1 + g.levelTime * SPEED_RAMP)
-  g.score += dt * g.speed * 10
+  g.distance += dt * g.speed * 10
   g.levelScore += dt * g.speed * 10
 
   // Goals met: a wormhole drifts past. Fly into it to move on; miss it and
@@ -205,7 +242,8 @@ function playerAndSpawns(g: Game, dt: number, steer: number, scroll: number): vo
   if (g.wormhole) {
     g.wormhole.y += scroll * 0.75 * dt
     if (Math.hypot(g.wormhole.x - ship.x, g.wormhole.y - ship.y) < g.wormhole.r) {
-      nextLevel(g)
+      enterWormhole(g)
+      return
     } else if (g.wormhole.y - g.wormhole.r > H + 10) {
       g.wormhole = null
       g.wormTimer = rand(15, 30)
@@ -244,10 +282,11 @@ function playerAndSpawns(g: Game, dt: number, steer: number, scroll: number): vo
 
   g.grace = Math.max(0, g.grace - dt)
 
-  if (levelCapacity(g.level)) g.rescueTimer -= dt   // level 1 is asteroids only
+  g.rescueTimer -= dt
   if (g.rescueTimer <= 0) {
     g.rescueCount++
-    if (g.rescueCount % DILEMMA_EVERY === 0) spawnDilemma(g); else spawnRescue(g)
+    // Level 1 only ever shows one crew at a time, one person each.
+    if (g.level > 1 && g.rescueCount % DILEMMA_EVERY === 0) spawnDilemma(g); else spawnRescue(g)
     g.rescueTimer = rand(...rescueGap(g.level))
   }
 }

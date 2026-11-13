@@ -2,11 +2,7 @@
 
 ## Current status
 
-The game is built from typed modules with Vite, has automated tests and Firebase Hosting config, saves finished runs to Firestore under an anonymous account, shows leaderboards with generated callsigns, and shares runs as links. This works against the local emulators. It is live at https://asteroids-galore.web.app, deployed by hand; deploying from GitHub is not set up yet.
-
-## Before publishing from GitHub
-
-- Add the repository secrets the deploy workflow needs: `FIREBASE_SERVICE_ACCOUNT`, `FIREBASE_PROJECT_ID`, and the six `VITE_FIREBASE_*` values (the same values as the local `.env.production.local`)
+The game is built from typed modules with Vite, has automated tests and Firebase Hosting config, saves finished runs to Firestore under an anonymous account, shows leaderboards with generated callsigns, and shares runs as links. This works against the local emulators. It is live at https://asteroids-galore.web.app; every push to `main` deploys Hosting through GitHub Actions.
 
 ## Next
 
@@ -22,6 +18,8 @@ The game is built from typed modules with Vite, has automated tests and Firebase
 
 ## Done
 
+- Score = parsecs × crew saved (2026-11-13): crew are saved when delivered through a wormhole, crew on board when the ship is destroyed are taken off the score, level 1 has 2 seats, one best and one `TOP SCORES` board. The leaderboard starts again: entries hold `bestScore` and the old `bestDistance` / `bestCrew` fields are no longer written or read. **The new Firestore rules must be deployed together with the new client** (`firebase deploy --only firestore:rules`); GitHub Actions deploys Hosting only.
+- Deploys from GitHub (2026-11-12): repository secrets set, with a `github-action-deploy` service account on the Firebase project; CI installs Java 21 for the rules tests.
 - First Firebase deploy (2026-11-12): project `asteroids-galore`, Firestore in `nam5` with the rules, anonymous sign-in, Hosting at https://asteroids-galore.web.app. Checked live: a run is saved, appears on the board, and its share link opens the game showing it.
 - Sharing a result as a link: `SHARE` button on the end screens, `/s/{runId}` links that open the game with the run on the start screen. Checked in a browser against the emulators, with the clipboard path; the phone share sheet has not been tried on a real device.
 - Leaderboard with generated callsigns: top 5 by distance on the game-over screen and by crew on the mission-complete screen, own row highlighted and ranked. Checked in a browser against the emulators with seeded players.

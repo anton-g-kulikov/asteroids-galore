@@ -9,7 +9,7 @@ test('TUNE-01 parsec target per level', () => {
 })
 
 test('TUNE-02 seats per level', () => {
-  expect(levels.map(levelCapacity)).toEqual([0, 4, 8, 16])
+  expect(levels.map(levelCapacity)).toEqual([2, 4, 8, 16])
   expect(levelCapacity(5)).toBe(32)
   expect(levelCapacity(9)).toBe(32)
 })
@@ -26,5 +26,5 @@ test('TUNE-04 ship radius per level', () => {
 })
 
 test('TUNE-05 seconds between crews', () => {
-  expect([2, 3, 4].map(rescueGap)).toEqual([[11, 15], [9, 13], [8, 11]])
+  expect(levels.map(rescueGap)).toEqual([[11, 15], [11, 15], [9, 13], [8, 11]])
 })

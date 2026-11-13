@@ -1,6 +1,6 @@
 import type { Records } from '../game/records'
 import type { RunResult } from '../game/runSummary'
-import type { BoardKind, BoardRow, SharedRun } from '../game/types'
+import type { BoardRow, SharedRun } from '../game/types'
 import { readFirebaseConfig } from './config'
 
 export interface Cloud {
@@ -18,7 +18,7 @@ export interface Cloud {
  * `onBoard` receives the leaderboard rows whenever they have been (re)loaded.
  * The SDK is loaded in the background so it never delays the first frame.
  */
-export function startCloud(records: Records, onBoard: (kind: BoardKind, rows: BoardRow[]) => void): Cloud | null {
+export function startCloud(records: Records, onBoard: (rows: BoardRow[]) => void): Cloud | null {
   const config = readFirebaseConfig(import.meta.env)
   if (!config) return null
 

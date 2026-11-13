@@ -12,11 +12,11 @@ export function shareIdFromPath(pathname: string): string | null {
 
 export const shareUrl = (origin: string, runId: string): string => `${origin}/s/${runId}`
 
-/** The line that goes with the link. A lost run keeps quiet about the crew. */
+/** The line that goes with the link. It leads with the crew: they are what the score is for. */
 export function shareMessage(run: RunResult): string {
   return run.outcome === 'won'
-    ? `Mission complete in Asteroids Galore: ${run.distance} pc flown, ${run.rescued} crew brought home.`
-    : `I flew ${run.distance} pc in Asteroids Galore. Can you get further?`
+    ? `All missions complete in Asteroids Galore: ${run.saved} crew saved, score ${run.score.toLocaleString('en-US')}.`
+    : `I saved ${run.saved} crew in Asteroids Galore and scored ${run.score.toLocaleString('en-US')}. Can you save more?`
 }
 
 /** The parts of `navigator` that sharing needs; either may be missing. */

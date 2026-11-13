@@ -1,53 +1,53 @@
 import { expect, test, vi } from 'vitest'
 import { callsignFor } from '../../src/cloud/callsign'
 import { createResultsSync, type CloudBackend } from '../../src/cloud/resultsSync'
-import { BEST_CREW_KEY, BEST_KEY, createRecords } from '../../src/game/records'
+import { BEST_KEY, createRecords } from '../../src/game/records'
 import type { RunResult } from '../../src/game/runSummary'
 import type { BoardRow } from '../../src/game/types'
 
 const ME = callsignFor('uid-1')
-const SHARED = { callsign: 'COSMIC OTTER 42', outcome: 'won' as const, distance: 2100, level: 4, rescued: 14 }
-const run: RunResult = { outcome: 'over', distance: 150, level: 2, rescued: 1, missed: 0, durationSeconds: 30 }
+const SHARED = { callsign: 'COSMIC OTTER 42', outcome: 'won' as const, score: 29400, saved: 14, distance: 2100 }
+const run: RunResult = { outcome: 'over', score: 150, distance: 150, level: 2, saved: 1, lost: 0, missed: 0, durationSeconds: 30 }
 
-function setup(local: { best?: number; bestCrew?: number } = {}, remote: { best: number; bestCrew: number } | null = null) {
-  const data = new Map<string, string>([[BEST_KEY, String(local.best ?? 0)], [BEST_CREW_KEY, String(local.bestCrew ?? 0)]])
+function setup(localBest = 0, remote: number | null = null) {
+  const data = new Map<string, string>([[BEST_KEY, String(localBest)]])
   const records = createRecords({ getItem: k => data.get(k) ?? null, setItem: (k, v) => void data.set(k, v) })
   const backend = {
     signIn: vi.fn(async () => 'uid-1'),
-    loadBests: vi.fn(async () => remote),
-    saveBests: vi.fn<CloudBackend['saveBests']>(async () => {}),
+    loadBest: vi.fn(async () => remote),
+    saveBest: vi.fn<CloudBackend['saveBest']>(async () => {}),
     saveRun: vi.fn<CloudBackend['saveRun']>(async () => 'run-1'),
     loadRun: vi.fn<CloudBackend['loadRun']>(async () => SHARED),
     loadBoard: vi.fn(async () => [{ uid: 'other', callsign: 'OTHER PILOT 01', value: 120 }]),
     countAbove: vi.fn(async () => 0),
   } satisfies CloudBackend
   const log = vi.fn()
-  const boards: Record<string, BoardRow[]> = {}
-  const onBoard = vi.fn((kind: string, rows: BoardRow[]) => { boards[kind] = rows })
-  return { records, backend, log, boards, onBoard, start: () => createResultsSync(backend, records, { log, onBoard }) }
+  const seen: { board: BoardRow[] } = { board: [] }
+  const onBoard = vi.fn((rows: BoardRow[]) => { seen.board = rows })
+  return { records, backend, log, seen, onBoard, start: () => createResultsSync(backend, records, { log, onBoard }) }
 }
 
-test('SYNC-01 on start, higher cloud bests are absorbed', async () => {
-  const t = setup({ best: 100, bestCrew: 2 }, { best: 400, bestCrew: 2 })
+test('SYNC-01 on start, a higher cloud best is absorbed', async () => {
+  const t = setup(100, 400)
   await t.start().ready
   expect(t.backend.signIn).toHaveBeenCalledOnce()
-  expect(t.backend.loadBests).toHaveBeenCalledWith('uid-1')
+  expect(t.backend.loadBest).toHaveBeenCalledWith('uid-1')
   expect(t.records.best).toBe(400)
-  expect(t.backend.saveBests).not.toHaveBeenCalled()
+  expect(t.backend.saveBest).not.toHaveBeenCalled()
 })
 
-test('SYNC-02 on start, higher local bests are uploaded', async () => {
-  const t = setup({ best: 500, bestCrew: 6 }, { best: 400, bestCrew: 9 })
+test('SYNC-02 on start, a higher local best is uploaded', async () => {
+  const t = setup(500, 400)
   await t.start().ready
-  expect(t.backend.saveBests).toHaveBeenCalledWith('uid-1', { best: 500, bestCrew: 9 }, ME)
+  expect(t.backend.saveBest).toHaveBeenCalledWith('uid-1', 500, ME)
 
-  const fresh = setup({ best: 80 }, null)   // no cloud document yet
+  const fresh = setup(80, null)   // no cloud document yet
   await fresh.start().ready
-  expect(fresh.backend.saveBests).toHaveBeenCalledWith('uid-1', { best: 80, bestCrew: 0 }, ME)
+  expect(fresh.backend.saveBest).toHaveBeenCalledWith('uid-1', 80, ME)
 
-  const empty = setup({}, null)             // nothing to say yet
+  const empty = setup(0, null)    // nothing to say yet
   await empty.start().ready
-  expect(empty.backend.saveBests).not.toHaveBeenCalled()
+  expect(empty.backend.saveBest).not.toHaveBeenCalled()
 })
 
 test('SYNC-03 a finished run is saved under the signed-in user', async () => {
@@ -57,17 +57,17 @@ test('SYNC-03 a finished run is saved under the signed-in user', async () => {
   expect(t.backend.saveRun).toHaveBeenCalledWith('uid-1', run, ME)
 })
 
-test('SYNC-04 bests are uploaded after a run only when they improved', async () => {
-  const t = setup({ best: 100 }, { best: 100, bestCrew: 0 })
+test('SYNC-04 the best is uploaded after a run only when it improved', async () => {
+  const t = setup(100, 100)
   const sync = t.start()
   await sync.submit(run)
-  expect(t.backend.saveBests).not.toHaveBeenCalled()
+  expect(t.backend.saveBest).not.toHaveBeenCalled()
 
   t.records.saveBest(150)
   await sync.submit(run)
-  expect(t.backend.saveBests).toHaveBeenCalledExactlyOnceWith('uid-1', { best: 150, bestCrew: 0 }, ME)
+  expect(t.backend.saveBest).toHaveBeenCalledExactlyOnceWith('uid-1', 150, ME)
   await sync.submit(run)
-  expect(t.backend.saveBests).toHaveBeenCalledOnce()
+  expect(t.backend.saveBest).toHaveBeenCalledOnce()
 })
 
 test('SYNC-05 a failed sign-in is retried at the next run', async () => {
@@ -88,29 +88,27 @@ test('SYNC-06 a failed save is logged and does not throw', async () => {
   expect(t.log).toHaveBeenCalled()
 })
 
-test('SYNC-07 bests are saved together with the callsign', async () => {
-  const t = setup({ best: 80 })
+test('SYNC-07 the best is saved together with the callsign', async () => {
+  const t = setup(80)
   await t.start().ready
-  expect(t.backend.saveBests.mock.calls[0][2]).toBe(ME)
+  expect(t.backend.saveBest.mock.calls[0][2]).toBe(ME)
   expect(ME).toMatch(/^[A-Z]+ [A-Z]+ \d\d$/)
 })
 
-test('SYNC-08 both boards arrive after start, and again after a run', async () => {
-  const t = setup({ best: 100, bestCrew: 0 }, { best: 100, bestCrew: 0 })
+test('SYNC-08 the board arrives after start, and again after a run', async () => {
+  const t = setup(100, 100)
   const sync = t.start()
   await sync.ready
-  expect(t.backend.loadBoard).toHaveBeenCalledWith('distance', 5)
-  expect(t.backend.loadBoard).toHaveBeenCalledWith('crew', 5)
-  expect(t.boards.distance.map(r => [r.rank, r.callsign, r.value, r.me])).toEqual([
+  expect(t.backend.loadBoard).toHaveBeenCalledWith(10)
+  expect(t.seen.board.map(r => [r.rank, r.callsign, r.value, r.me])).toEqual([
     [1, 'OTHER PILOT 01', 120, false],
     [2, ME, 100, true],
   ])
-  expect(t.boards.crew.some(r => r.me)).toBe(false)   // no crew best yet
 
   t.records.saveBest(150)
-  await sync.submit(run)   // resolves when the run is saved; the boards follow
-  await vi.waitFor(() => expect(t.onBoard).toHaveBeenCalledTimes(4))
-  expect(t.boards.distance[0]).toEqual({ rank: 1, callsign: ME, value: 150, me: true })
+  await sync.submit(run)   // resolves when the run is saved; the board follows
+  await vi.waitFor(() => expect(t.onBoard).toHaveBeenCalledTimes(2))
+  expect(t.seen.board[0]).toEqual({ rank: 1, callsign: ME, value: 150, me: true })
 })
 
 test('SYNC-09 a board that fails to load is logged; the run is still saved', async () => {

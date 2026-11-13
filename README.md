@@ -50,16 +50,15 @@ _meta/              game design notes and the task list
 
 ## Saved results
 
-On load the game signs in anonymously in the background. When a run ends it writes one document to `runs` and keeps the player's bests in `users/{uid}`; bests saved there are restored if the device's storage was cleared. The document shapes are enforced by `firestore.rules`.
+On load the game signs in anonymously in the background. When a run ends it writes one document to `runs` and keeps the player's best score in `users/{uid}`; a best saved there is restored if the device's storage was cleared. The document shapes are enforced by `firestore.rules`.
 
 ## Leaderboard
 
 Each account gets a callsign generated from its ID, such as `COSMIC OTTER 42`; nobody types a name. `users/{uid}` doubles as the player's leaderboard entry and is public to read.
 
-- **Game over** shows the top 5 by best distance.
-- **Mission complete** shows the top 5 by most crew brought home.
+Both end screens have a `LEADERBOARD` link that opens `TOP SCORES`: the top 10 by best score. The score is parsecs flown times crew saved, so a long flight with nobody saved scores nothing.
 
-The player's own row is gold. If it is outside the top 5 it is added below with its rank. How the boards behave is described in [_meta/game-design.md](_meta/game-design.md).
+The player's own row is gold. If it is outside the top 10 it is added below with its rank. How the board behaves is described in [_meta/game-design.md](_meta/game-design.md).
 
 The game never waits for the cloud. With no config, no network or a failed sign-in it plays the same and keeps bests on the device.
 
@@ -67,7 +66,7 @@ The game never waits for the cloud. With no config, no network or a failed sign-
 
 Once a run is saved, the end screen shows a `SHARE` button in the top right corner. It opens the device's share sheet with a link, or copies the link where there is no share sheet.
 
-The link is `/s/{runId}`. It opens the game with that run on the start screen: the callsign, the distance, and how the run ended. Firebase Hosting serves `index.html` for `/s/**` (see `firebase.json`), and anyone holding a run's ID can read that run.
+The link is `/s/{runId}`. It opens the game with that run on the start screen: the callsign, the score, and the crew saved. Firebase Hosting serves `index.html` for `/s/**` (see `firebase.json`), and anyone holding a run's ID can read that run.
 
 Chat apps show the same generic preview for every link; a preview per result would need server rendering.
 

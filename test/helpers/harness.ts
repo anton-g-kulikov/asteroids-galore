@@ -3,11 +3,13 @@
 // that hashes every call instead of drawing.
 
 export interface DebugHook {
-  readonly state: 'menu' | 'play' | 'over' | 'won'
+  readonly state: 'menu' | 'play' | 'between' | 'over' | 'won'
   readonly score: number
+  readonly distance: number
   readonly speed: number
   readonly asteroids: { x: number; y: number; r: number; people: number }[]
-  readonly rescued: number
+  readonly saved: number
+  readonly lost: number
   readonly missed: number
   readonly wells: { x: number; y: number; dwell: number; depth: number }[]
   readonly level: number
@@ -48,7 +50,7 @@ export interface Scenario {
 
 export const SAMPLE_EVERY = 20
 export const SAMPLE_KEYS = [
-  'frame', 'state', 'level', 'shields', 'score', 'speed', 'rescued', 'missed', 'onboard',
+  'frame', 'state', 'level', 'shields', 'score', 'distance', 'speed', 'saved', 'lost', 'missed', 'onboard',
   'grace', 'slowmo', 'wormTimer', 'shipX', 'shipVx', 'shipR', 'rocks', 'rocksX', 'rocksY',
   'people', 'wells', 'depth', 'wormX', 'wormY', 'draw',
 ] as const
@@ -181,8 +183,8 @@ export async function runScenario(
       if (frameNo % SAMPLE_EVERY === 0) {
         const sum = (f: (a: DebugHook['asteroids'][number]) => number) => round(game.asteroids.reduce((s, a) => s + f(a), 0))
         samples.push([
-          frameNo, game.state, game.level, game.shields, round(game.score), round(game.speed),
-          game.rescued, game.missed, game.onboard, round(game.grace), round(game.slowmo),
+          frameNo, game.state, game.level, game.shields, game.score, round(game.distance), round(game.speed),
+          game.saved, game.lost, game.missed, game.onboard, round(game.grace), round(game.slowmo),
           round(game.wormTimer), round(game.ship.x), round(game.ship.vx), round(game.ship.r),
           game.asteroids.length, sum(a => a.x), sum(a => a.y), sum(a => a.people),
           game.wells.length, round(game.wells.reduce((s, w) => s + w.depth, 0)),

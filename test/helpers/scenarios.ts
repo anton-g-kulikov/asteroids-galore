@@ -40,10 +40,10 @@ function mission(): Scenario['pilot'] {
   let level = 0, since = 0
   return (f, g, io) => {
     steer ??= keys(io)
-    if (g.state !== 'play') { steer(0); level = 0; tapStart(f, io); return }
+    if (g.state !== 'play') { steer(0); if (g.state !== 'between') level = 0; tapStart(f, io); return }
     if (g.level !== level) { level = g.level; since = 0 }
     since++
-    // Level 1 is skipped quickly; later levels get long enough for a few rescues.
+    // Level 1 is skipped quickly; later levels get long enough for a few pickups.
     if (since === (level === 1 ? 240 : 780)) g.skipLevel()
     steer(dodge(g))
   }
@@ -67,7 +67,8 @@ function pairs(): Scenario['pilot'] {
   let since = 0
   return (f, g, io) => {
     steer ??= keys(io)
-    if (g.state !== 'play') { steer(0); since = 0; tapStart(f, io); return }
+    // The stop between levels is tapped through without restarting the script's clock.
+    if (g.state !== 'play') { steer(0); if (g.state !== 'between') since = 0; tapStart(f, io); return }
     since++
     if (since === 30) g.skipLevel()
     if (g.level >= 2) {
@@ -106,7 +107,7 @@ function touch(): Scenario['pilot'] {
 
 export const scenarios: Scenario[] = [
   { name: 'GOLD-01 mission', seed: 1, frames: 4800, pilot: mission() },
-  { name: 'GOLD-02 crash and retry', seed: 2, frames: 2400, pilot: crash(), storage: { 'asteroids-galore-best': '120', 'asteroids-galore-best-crew': '3' } },
+  { name: 'GOLD-02 crash and retry', seed: 2, frames: 2400, pilot: crash(), storage: { 'asteroids-galore-best-score': '120' } },
   { name: 'GOLD-03 two-crew pairs', seed: 3, frames: 3000, pilot: pairs() },
   { name: 'GOLD-04 touch and resize', seed: 4, frames: 2400, pilot: touch() },
 ]
