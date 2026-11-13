@@ -20,7 +20,7 @@ export function createDebugHook(g: Game) {
     get wormhole() { return g.wormhole },
     get wormTimer() { return g.wormTimer },
     get slowmo() { return g.slowmo },
-    get lives() { return g.lives },
+    get shields() { return g.shields },
     get grace() { return g.grace },
     ship: g.ship,
     skipLevel() { skipLevel(g) },

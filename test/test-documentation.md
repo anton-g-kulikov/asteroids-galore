@@ -11,7 +11,7 @@ The game is a real-time canvas simulation driven by `Math.random`, so most behav
 
 ## Golden traces — `test/golden.test.ts`
 
-- **What is compared:** every 20 frames, the game state read through `window.__game` (state, level, lives, score, crew counts, ship position, asteroid count and positions, wells, wormhole, slow motion) and a hash of every canvas call and property set made since the previous sample.
+- **What is compared:** every 20 frames, the game state read through `window.__game` (state, level, shields, score, crew counts, ship position, asteroid count and positions, wells, wormhole, slow motion) and a hash of every canvas call and property set made since the previous sample.
 - **How a run is driven:** `test/helpers/harness.ts` fakes `window`, `document`, the 2D context, `localStorage`, `performance` and `requestAnimationFrame`, seeds `Math.random`, and steps frames at 60 fps. A scripted pilot presses keys, flies into wormholes, and uses the debug hook to skip levels and spawn rescues so that every level, the two-crew pair, a win and a game over are all reached.
 - **Where the expected values came from:** `test/fixtures/golden-traces.json` was recorded from the single-file prototype at commit `33025ec`, so a match means the refactor changed neither behaviour nor drawing.
 - **When the game changes on purpose:** re-record with `UPDATE_GOLDEN=1 npm test` and review the diff of the fixture.
@@ -19,7 +19,7 @@ The game is a real-time canvas simulation driven by `Math.random`, so most behav
 | ID | Case | Status |
 |---|---|---|
 | GOLD-01 | Seed 1: pilot plays through the levels to a finished mission | passing |
-| GOLD-02 | Seed 2: pilot steers at random, loses lives, game over and retry | passing |
+| GOLD-02 | Seed 2: pilot steers at random, loses shields, game over and retry | passing |
 | GOLD-03 | Seed 3: two-crew pairs spawned on demand, slow motion, full ship | passing |
 | GOLD-04 | Seed 4: touch input instead of keys, with a window resize mid-run | passing |
 | GOLD-05 | Each scenario reaches the states it is meant to cover (guards against a trace that tests nothing) | passing |

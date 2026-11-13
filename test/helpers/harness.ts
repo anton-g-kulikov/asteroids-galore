@@ -15,7 +15,7 @@ export interface DebugHook {
   readonly wormhole: { x: number; y: number; r: number } | null
   readonly wormTimer: number
   readonly slowmo: number
-  readonly lives: number
+  readonly shields: number
   readonly grace: number
   readonly ship: { x: number; y: number; vx: number; r: number }
   skipLevel(): void
@@ -48,7 +48,7 @@ export interface Scenario {
 
 export const SAMPLE_EVERY = 20
 export const SAMPLE_KEYS = [
-  'frame', 'state', 'level', 'lives', 'score', 'speed', 'rescued', 'missed', 'onboard',
+  'frame', 'state', 'level', 'shields', 'score', 'speed', 'rescued', 'missed', 'onboard',
   'grace', 'slowmo', 'wormTimer', 'shipX', 'shipVx', 'shipR', 'rocks', 'rocksX', 'rocksY',
   'people', 'wells', 'depth', 'wormX', 'wormY', 'draw',
 ] as const
@@ -181,7 +181,7 @@ export async function runScenario(
       if (frameNo % SAMPLE_EVERY === 0) {
         const sum = (f: (a: DebugHook['asteroids'][number]) => number) => round(game.asteroids.reduce((s, a) => s + f(a), 0))
         samples.push([
-          frameNo, game.state, game.level, game.lives, round(game.score), round(game.speed),
+          frameNo, game.state, game.level, game.shields, round(game.score), round(game.speed),
           game.rescued, game.missed, game.onboard, round(game.grace), round(game.slowmo),
           round(game.wormTimer), round(game.ship.x), round(game.ship.vx), round(game.ship.r),
           game.asteroids.length, sum(a => a.x), sum(a => a.y), sum(a => a.people),

@@ -1,6 +1,6 @@
 import { rand } from './random'
 import type { Records } from './records'
-import { LIVES, MAX_FIELD_WIDTH, WELL_AHEAD, shipRadius } from './tuning'
+import { SHIELDS, MAX_FIELD_WIDTH, WELL_AHEAD, shipRadius } from './tuning'
 import type { Asteroid, Game, GameState, Well } from './types'
 
 export function createGame(records: Records): Game {
@@ -12,7 +12,7 @@ export function createGame(records: Records): Game {
     rescued: 0, missed: 0, rescueTimer: 0, rescueCount: 0,
     wormhole: null, wormTimer: 0,
     wells: [{ x: 0, y: 0, dwell: 0, depth: 0 }], gridOff: 0,   // placed properly when a run starts
-    lives: LIVES, grace: 0, slowmo: 0, slowWatch: null,
+    shields: SHIELDS, grace: 0, slowmo: 0, slowWatch: null,
     newBest: false, newBestCrew: false, records,
     boards: { distance: null, crew: null },
     shareReady: false, shareNote: 0, shared: null,

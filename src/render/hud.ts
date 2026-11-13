@@ -1,5 +1,6 @@
-import { LAST_LEVEL, LIVES, levelCapacity, levelTarget } from '../game/tuning'
+import { LAST_LEVEL, SHIELDS, levelCapacity, levelTarget } from '../game/tuning'
 import type { BoardRow, Game, SharedRun } from '../game/types'
+import { SHIELD_COLOR, SHIELD_SPREAD } from './sprites'
 import { text } from './text'
 
 function drawTouchHints(ctx: CanvasRenderingContext2D, g: Game, alpha: number): void {
@@ -25,15 +26,17 @@ function drawPlayHud(ctx: CanvasRenderingContext2D, g: Game, top: number): void 
   text(ctx, `${Math.floor(g.score)} pc`, W / 2, top, 34 * U, '#ffffff')
   text(ctx, `BEST ${g.records.best} pc`, W - 14, top - 8 * U, 13 * U, 'rgba(255,255,255,.55)', 'right', 600)
   text(ctx, `LEVEL ${g.level}/${LAST_LEVEL}`, 14, top - 8 * U, 13 * U, 'rgba(127,220,255,.9)', 'left', 700)
-  // lives: one small ship each, under the best distance; spent ones are hollow
-  for (let i = 0; i < LIVES; i++) {
-    const lr = 6 * U, lx = W - 14 - lr - i * lr * 2.6, ly = top + 34 * U
-    ctx.beginPath()
-    ctx.moveTo(lx, ly - lr * 1.3); ctx.lineTo(lx + lr, ly + lr); ctx.lineTo(lx, ly + lr * 0.55); ctx.lineTo(lx - lr, ly + lr)
-    ctx.closePath()
-    if (i < g.lives) { ctx.fillStyle = '#e8eefc'; ctx.fill() }
-    else { ctx.strokeStyle = 'rgba(232,238,252,.35)'; ctx.lineWidth = 1.2 * U; ctx.stroke() }
+  // shields: one arc each, under the best distance, the same shape as the
+  // arcs ahead of the ship; spent ones are faint
+  ctx.lineCap = 'round'
+  for (let i = 0; i < SHIELDS; i++) {
+    const sr = 7 * U, sx = W - 14 - sr - i * sr * 2.5, sy = top + 38 * U
+    ctx.beginPath(); ctx.arc(sx, sy, sr, -Math.PI / 2 - SHIELD_SPREAD, -Math.PI / 2 + SHIELD_SPREAD)
+    ctx.strokeStyle = i < g.shields ? SHIELD_COLOR : 'rgba(127,220,255,.2)'
+    ctx.lineWidth = (i < g.shields ? 2.6 : 1.4) * U
+    ctx.stroke()
   }
+  ctx.lineCap = 'butt'
   if (levelCapacity(g.level)) {
     text(ctx, `RESCUED ${g.rescued}`, 14, top + 12 * U, 11 * U, '#5dffa0', 'left', 700)
     text(ctx, `MISSED ${g.missed}`, 14, top + 28 * U, 11 * U, '#ff7b54', 'left', 700)

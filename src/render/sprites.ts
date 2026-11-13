@@ -1,5 +1,5 @@
 import { curvature, ringRadius, shipMass } from '../game/game'
-import { levelCapacity } from '../game/tuning'
+import { GRACE, levelCapacity } from '../game/tuning'
 import type { Asteroid, Game, Wormhole } from '../game/types'
 import { text } from './text'
 
@@ -94,11 +94,14 @@ export function drawWormhole(ctx: CanvasRenderingContext2D, g: Game, w: Wormhole
   ctx.restore()
 }
 
+/** Shields look the same ahead of the ship and in the HUD. */
+export const SHIELD_COLOR = '#7fdcff'
+export const SHIELD_SPREAD = 0.8   // half-width of a shield arc, in radians
+
 export function drawShip(ctx: CanvasRenderingContext2D, g: Game): void {
   const { ship, W, clock } = g
   const r = ship.r
   ctx.save()
-  if (g.grace > 0 && g.state === 'play') ctx.globalAlpha = Math.sin(clock * 28) > 0 ? 0.9 : 0.25   // blinking: can't be hit
   ctx.translate(ship.x, ship.y)
   ctx.rotate(Math.max(-0.45, Math.min(0.45, ship.vx / (W * 1.4) * 0.45)))
   // engine flame
@@ -138,6 +141,20 @@ export function drawShip(ctx: CanvasRenderingContext2D, g: Game): void {
       ctx.fillStyle = i < g.onboard ? '#16c060' : '#aab4cc'
       ctx.beginPath(); ctx.arc(cx, cy, p * 0.36, 0, Math.PI * 2); ctx.fill()
     }
+  }
+  // shields: one arc per shield left, stacked ahead of the nose
+  ctx.lineCap = 'round'
+  ctx.strokeStyle = SHIELD_COLOR
+  // After a hit the shields blink while the ship cannot be hit, and the arc
+  // that was just burnt flickers out beyond them.
+  const safe = g.grace > 0 && g.state === 'play'
+  const blink = safe ? (Math.sin(clock * 28) > 0 ? 0.95 : 0.25) : 1
+  for (let n = 0; n < g.shields + (safe ? 1 : 0); n++) {
+    ctx.globalAlpha = n < g.shields ? blink : blink * 0.6 * Math.min(1, g.grace / GRACE * 1.5)
+    ctx.lineWidth = r * 0.14
+    ctx.beginPath()
+    ctx.arc(0, -r * 0.2, r * (1.75 + n * 0.34), -Math.PI / 2 - SHIELD_SPREAD, -Math.PI / 2 + SHIELD_SPREAD)
+    ctx.stroke()
   }
   ctx.restore()
 }

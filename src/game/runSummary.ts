@@ -2,7 +2,7 @@ import type { Game } from './types'
 
 /** What is kept of a run once it has ended. */
 export interface RunResult {
-  /** `won`: all levels cleared. `over`: out of lives. */
+  /** `won`: all levels cleared. `over`: ship destroyed. */
   outcome: 'won' | 'over'
   /** Whole parsecs flown. */
   distance: number

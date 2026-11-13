@@ -22,7 +22,7 @@ The end screen shows two groups, titled `DISTANCE` and `CREW`. Each keeps its ow
 Crew only count as rescued if the mission is finished.
 
 - **All four levels cleared:** `N RESCUED` in green, `N MISSED` in red.
-- **Out of lives:** the same number is shown as `N WENT DOWN WITH THE SHIP` in orange, with `N MISSED` in grey — everyone picked up during the run was lost with the ship.
+- **Ship destroyed:** the same number is shown as `N WENT DOWN WITH THE SHIP` in orange, with `N MISSED` in grey — everyone picked up during the run was lost with the ship.
 
 During play the counters still read `RESCUED` and `MISSED`; the player only learns this by crashing.
 
@@ -30,7 +30,7 @@ During play the counters still read `RESCUED` and `MISSED`; the player only lear
 
 Below the summary, each end screen shows one board, when the game is connected to the cloud:
 
-- **Out of lives:** `TOP DISTANCE` — the five longest best distances.
+- **Ship destroyed:** `TOP DISTANCE` — the five longest best distances.
 - **All four levels cleared:** `TOP CREW` — the five highest crew bests. This follows the twist above: crew only count in a finished mission, so the crew board only appears after one.
 
 Players are listed by callsign: two words and a number, generated from the player's anonymous account, so nobody types a name and the same account always keeps the same one. The player's own row is gold, which is also how they learn their callsign. A player outside the top five gets a sixth row with their rank. A player with no best on that board is not listed.
@@ -43,15 +43,15 @@ Once the run on an end screen has been saved, a `SHARE` pill appears in the top 
 
 Whoever opens the link gets the ordinary start screen with the shared run under the title: the callsign in gold, the distance, and one line for how it ended — `MISSION COMPLETE · N RESCUED` for a finished mission, `REACHED LEVEL N` for a lost one. A lost run deliberately says nothing about crew, so the twist on the end screen is not given away. The message that travels with the link follows the same rule.
 
-## Lives
+## Shields
 
-Each level starts with 3 lives (`LIVES`), drawn as small ships under the best distance; spent ones turn hollow. There is no caption.
+Each level starts with 3 shields (`SHIELDS`). They are shown in two places, with the same shape: as arcs stacked ahead of the ship's nose, and as a row of arcs under the best distance, where spent ones turn faint. There is no caption.
 
-- **Losing one:** hitting a rock costs a life. The run carries on where it is — same level, same parsecs, same crew on board, same speed.
+- **Taking a hit:** hitting a rock burns one shield — the outermost arc disappears. The run carries on where it is: same level, same parsecs, same crew on board, same speed.
 - **The rock that hit** is destroyed. Any crew on it count as missed.
-- **Getting clear:** the ship blinks and cannot be hit for 2 seconds (`GRACE`). It can still pick up crew and enter the wormhole.
+- **Getting clear:** the ship cannot be hit for 2 seconds (`GRACE`). The shields blink for that time, not the ship, and the arc that was just burnt flickers out beyond them. It can still pick up crew and enter the wormhole.
 - **Refill:** entering a new level through the wormhole restores all 3.
-- **The last life:** losing it ends the run with the game-over screen.
+- **No shields left:** the ship flies bare, and the next hit destroys it and ends the run with the game-over screen. So a level allows 3 hits and the 4th is fatal.
 
 ## Levels
 
@@ -125,7 +125,7 @@ The main numbers sit in `src/game/tuning.ts`:
 | `WELL_TIME` | Seconds parked for the deepest gravity well |
 | `WELL_AHEAD` | How far above the ship the well's centre sits, in ship radii |
 | `WELL_PULL` | How hard a well pulls rocks in, before ship mass and flight speed are applied |
-| `LIVES`, `GRACE` | Lives per level, and seconds of protection after losing one |
+| `SHIELDS`, `GRACE` | Shields per level, and seconds of protection after losing one |
 | `rescueGap` | Seconds between stranded crews, per level |
 | `DILEMMA_EVERY` | Every Nth rescue is a two-crew pair |
 | `SLOW_TIME`, `SLOW_SCALE` | Length and depth of the slow motion when a two-crew pair appears |
@@ -138,7 +138,7 @@ A few more live next to the code they affect:
 
 ## Debug hook
 
-`window.__game` (built in `src/debugHook.ts`) exposes read-only state (`state`, `level`, `score`, `rescued`, `missed`, `onboard`, `wells`, `wormhole`, `slowmo`, `lives`, `grace`, `asteroids`, `ship`) and a few helpers used by the automated checks: `skipLevel()` meets the current level's goals immediately, `fill(n)` sets the crew on board, and `spawnRescue()` / `spawnDilemma()` spawn rescue rocks on demand.
+`window.__game` (built in `src/debugHook.ts`) exposes read-only state (`state`, `level`, `score`, `rescued`, `missed`, `onboard`, `wells`, `wormhole`, `slowmo`, `shields`, `grace`, `asteroids`, `ship`) and a few helpers used by the automated checks: `skipLevel()` meets the current level's goals immediately, `fill(n)` sets the crew on board, and `spawnRescue()` / `spawnDilemma()` spawn rescue rocks on demand.
 
 ## Status
 

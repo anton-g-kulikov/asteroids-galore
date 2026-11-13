@@ -3,7 +3,7 @@ import { buzz } from './haptics'
 import { rand } from './random'
 import { spawnAsteroid, spawnDilemma, spawnRescue } from './spawn'
 import {
-  DILEMMA_EVERY, GRACE, LAST_LEVEL, LEVEL_MIN_TIME, LIVES, MAX_SPEED, SLOW_TIME, SPEED_RAMP, WELL_PULL, WELL_TIME,
+  DILEMMA_EVERY, GRACE, LAST_LEVEL, LEVEL_MIN_TIME, MAX_SPEED, SHIELDS, SLOW_TIME, SPEED_RAMP, WELL_PULL, WELL_TIME,
   levelCapacity, levelHandling, levelTarget, rescueGap, shipRadius,
 } from './tuning'
 import type { Asteroid, Game } from './types'
@@ -15,7 +15,7 @@ export function startGame(g: Game): void {
   g.wormhole = null; g.wormTimer = 0; g.flash = 0
   g.missed = 0
   g.rescued = 0; g.rescueTimer = 4; g.rescueCount = 0; g.slowmo = 0; g.slowWatch = null
-  g.lives = LIVES; g.grace = 0
+  g.shields = SHIELDS; g.grace = 0
   g.ship.x = g.W / 2; g.ship.vx = 0
   g.wells = [newWell(g, g.ship.x)]
   setState(g, 'play')
@@ -33,7 +33,7 @@ function nextLevel(g: Game): void {
   g.ship.r = shipRadius(g.level, g.U)
   g.asteroids = []; g.wormhole = null; g.wormTimer = 0; g.flash = 1   // arrive somewhere new
   g.slowmo = 0; g.slowWatch = null
-  g.lives = LIVES                               // every level starts with a full set
+  g.shields = SHIELDS                           // every level starts with a full set
   g.levelTime = 0; g.levelScore = 0
   g.onboard = 0                                 // crew delivered
   g.spawnTimer = Math.max(g.spawnTimer, 1.2)    // short breather
@@ -79,12 +79,13 @@ function saveBestCrew(g: Game): void {
   if (g.records.saveBestCrew(g.rescued)) g.newBestCrew = true
 }
 
-// A hit costs a life. With lives left the run carries on where it is: same
-// level, same distance, same crew. The rock that hit is destroyed and the
-// ship is untouchable for a moment so the player can get clear.
-function loseLife(g: Game, a: Asteroid): void {
-  g.lives--
-  if (g.lives <= 0) { gameOver(g); return }
+// A hit burns a shield, and the run carries on where it is: same level, same
+// distance, same crew. The rock that hit is destroyed and the ship is
+// untouchable for a moment so the player can get clear. With no shield left
+// the hit destroys the ship.
+function takeHit(g: Game, a: Asteroid): void {
+  if (g.shields <= 0) { gameOver(g); return }
+  g.shields--
   explode(g, g.ship.x, g.ship.y)
   g.shake = 0.4
   a.dead = true
@@ -155,7 +156,7 @@ export function update(g: Game, dt: number, steer: number): void {
         if (dx * dx + dy * dy < reach * reach) rescue(g, a)
       }
       const hit = a.r * 0.86 + ship.r * 0.7   // forgiving hitbox
-      if (g.grace <= 0 && dx * dx + dy * dy < hit * hit) loseLife(g, a)
+      if (g.grace <= 0 && dx * dx + dy * dy < hit * hit) takeHit(g, a)
     }
   }
   g.asteroids = g.asteroids.filter(a => {

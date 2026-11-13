@@ -85,7 +85,7 @@ export interface Game {
   wells: Well[]
   gridOff: number
 
-  lives: number
+  shields: number             // shields left; a hit with none destroys the ship
   grace: number               // seconds of protection left after a hit
   slowmo: number              // slow-motion seconds left
   slowWatch: Asteroid | null  // the rock whose arrival triggers the slow motion
