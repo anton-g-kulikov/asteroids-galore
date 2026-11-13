@@ -124,6 +124,7 @@ The main numbers sit in `src/game/tuning.ts`:
 | `LAST_LEVEL` | Number of levels |
 | `WELL_TIME` | Seconds parked for the deepest gravity well |
 | `WELL_AHEAD` | How far above the ship the well's centre sits, in ship radii |
+| `WELL_PULL` | How hard a well pulls rocks in, before ship mass and flight speed are applied |
 | `LIVES`, `GRACE` | Lives per level, and seconds of protection after losing one |
 | `rescueGap` | Seconds between stranded crews, per level |
 | `DILEMMA_EVERY` | Every Nth rescue is a two-crew pair |
@@ -131,7 +132,7 @@ The main numbers sit in `src/game/tuning.ts`:
 
 A few more live next to the code they affect:
 
-- **Gravity strength:** the `520` and the `0.7` exponent in the pull calculation in `update` in `src/game/simulation.ts` (overall strength, and how soon a shallow well bites).
+- **How soon a shallow well bites:** the `0.7` exponent in the pull calculation in `update` in `src/game/simulation.ts`. Overall strength is `WELL_PULL`.
 - **Two-crew difficulty:** the `0.78` in `spawnDilemma` in `src/game/spawn.ts` (lower makes saving both harder).
 - **Wormhole wait after a miss:** `rand(15, 30)` in `src/game/simulation.ts`.
 

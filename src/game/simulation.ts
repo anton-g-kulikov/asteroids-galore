@@ -3,7 +3,7 @@ import { buzz } from './haptics'
 import { rand } from './random'
 import { spawnAsteroid, spawnDilemma, spawnRescue } from './spawn'
 import {
-  DILEMMA_EVERY, GRACE, LAST_LEVEL, LEVEL_MIN_TIME, LIVES, MAX_SPEED, SLOW_TIME, SPEED_RAMP, WELL_TIME,
+  DILEMMA_EVERY, GRACE, LAST_LEVEL, LEVEL_MIN_TIME, LIVES, MAX_SPEED, SLOW_TIME, SPEED_RAMP, WELL_PULL, WELL_TIME,
   levelCapacity, levelHandling, levelTarget, rescueGap, shipRadius,
 } from './tuning'
 import type { Asteroid, Game } from './types'
@@ -134,7 +134,7 @@ export function update(g: Game, dt: number, steer: number): void {
   }
   g.gridOff = (g.gridOff + scroll * 0.5 * dt) % (40 * U)
   // Pull grows with time parked, ship mass and flight speed.
-  const pull = g.state === 'play' ? 520 * U * shipMass(g) * (0.6 + 0.4 * g.speed) : 0
+  const pull = g.state === 'play' ? WELL_PULL * U * shipMass(g) * (0.6 + 0.4 * g.speed) : 0
   const wellR = 170 * U
   for (const a of g.asteroids) {
     for (const w of g.wells) {
