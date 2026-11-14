@@ -228,6 +228,23 @@ test('LEVEL-12 the ship is as big as its seats and as heavy as its crew: crew sl
   expect(g.ship.r).toBeCloseTo(shipRadius(10), 1)
 })
 
+test('LEVEL-17 the bigger the crew, the sooner the well forms: full depth in 6 seconds empty, 2.3 with 32 aboard', () => {
+  const parked = (crew: number, seconds: number) => {
+    const g = playing(7)
+    g.wormTimer = 1e9; g.onboard = crew
+    for (let i = 0; i < seconds * 60; i++) { g.spawnTimer = 999; g.rescueTimer = 999; step(g) }
+    return g.wells[0]
+  }
+  const after1 = [0, 8, 16, 32].map(crew => parked(crew, 1).depth)
+  for (let i = 1; i < after1.length; i++) expect(after1[i]).toBeGreaterThan(after1[i - 1] * 1.2)
+  expect(parked(0, 1).dwell).toBeCloseTo(1, 1)
+  expect(parked(32, 1).dwell).toBeCloseTo(2.6, 1)
+  expect(parked(32, 2.2).dwell).toBeLessThan(6)       // not yet
+  expect(parked(32, 2.4).dwell).toBe(6)               // 6 / 2.6 = 2.3 seconds
+  expect(parked(0, 5.9).dwell).toBeLessThan(6)        // an empty ship still takes the full 6
+  expect(parked(0, 6.1).dwell).toBe(6)
+})
+
 test('LEVEL-13 missions 5 to 7 start faster', () => {
   const g = playing(4)
   intoWormhole(g); update(g, 0.8, 0); tryStart(g)

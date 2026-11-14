@@ -20,7 +20,7 @@ The game is a real-time canvas simulation driven by `Math.random`, so most behav
 |---|---|---|
 | GOLD-01 | Seed 1: pilot plays through all seven missions and goes home | passing |
 | GOLD-02 | Seed 2: pilot steers at random, loses shields, game over and retry | passing |
-| GOLD-03 | Seed 3: two-crew pairs spawned on demand, slow motion, full ship | passing |
+| GOLD-03 | Seed 5: two-crew pairs spawned on demand, slow motion, full ship | passing |
 | GOLD-04 | Seed 4: touch input instead of keys, with window resizes mid-run that must not change the game | passing |
 | GOLD-05 | Each scenario reaches the states it is meant to cover (guards against a trace that tests nothing) | passing |
 
@@ -55,6 +55,7 @@ The game is a real-time canvas simulation driven by `Math.random`, so most behav
 | LEVEL-10 | `levels.test.ts` | A shield drop adds a shield, up to 5; spares carry into the next mission, and a ship with fewer than 3 is topped up to 3 | passing |
 | LEVEL-11 | `levels.test.ts` | Mission 5 offers 6 shields and mission 6 offers 4, evenly spaced by distance over the first two-thirds; every second one is a row of 2 crew, 3 crew and the shield between two rocks; missions 4 and 7 have no such drops | passing |
 | LEVEL-12 | `levels.test.ts` | The ship is as big as its seats and as heavy as its crew: crew slow its steering and add mass but do not change its size; every mission's ship is bigger than the last; after a wormhole the ship grows into the next size gradually | passing |
+| LEVEL-17 | `levels.test.ts` | The bigger the crew, the sooner the well forms: time parked counts by the ship's mass, so the well is at full depth after 6 seconds empty and 2.3 seconds with 32 aboard, and is deeper after one second with every step up in crew | passing |
 | LEVEL-13 | `levels.test.ts` | Mission 5 starts at 1.4× | passing |
 | LEVEL-14 | `levels.test.ts` | Crew who drift past a full ship are never counted as missed, before the mission's wormhole or after it; of a crew bigger than the free seats only as many as there were seats for are counted; with free seats they always count | passing |
 | LEVEL-15 | `levels.test.ts` | A full ship is sent no planetoids: no single rescue and no two-crew pair when one is due, and a crew-or-shield row arrives as a plain shield drop; when a seat opens the next planetoid follows after 4 seconds, not at once | passing |
@@ -111,7 +112,7 @@ The game is a real-time canvas simulation driven by `Math.random`, so most behav
 | HUD-04 | `render/hud.test.ts` | The `SHARE` button is drawn on both end screens only when a link is ready; it reads `COPIED` right after a copy | passing |
 | HUD-05 | `render/hud.test.ts` | The button sits inside the play field, in the top right corner | passing |
 | HUD-06 | `render/hud.test.ts` | The start screen shows a shared run: callsign, score, and `MADE IT HOME` with the crew saved for a run that went home, crew saved and distance for a lost one | passing |
-| HUD-07 | `render/hud.test.ts` | The start screen draws the title, the controls, the prompt and, at the foot, the version and the seed of the next run as six characters (`v0.3.0 · SEED 4F2A9C`); no other screen shows the seed | passing |
+| HUD-07 | `render/hud.test.ts` | The start screen draws the title, the controls, the prompt and, at the foot, the version and the seed of the next run as six characters (`v0.3.1 · SEED 4F2A9C`); no other screen shows the seed | passing |
 | HUD-11 | `render/hud.test.ts` | The leaderboard screen replaces the end screen: `TOP SCORES`, every row with rank, callsign, score and how many missions the run finished, with how it ended for a run that reached mission 7 (`FINISHED 7/7 · HOME · 5,400 pc`, `FINISHED 6/7 · LOST · 7,100 pc`, `FINISHED 2/7`, `FINISHED 0/7`), and `TAP TO GO BACK`; a row that does not say how it ended has no such line; with no board the end screen stays | passing |
 | HUD-12 | `render/hud.test.ts` | The leaderboard link sits top left, clear of the share button, and is big enough to tap | passing |
 | HUD-10 | `render/hud.test.ts` | Between levels, under `MISSION N COMPLETE`: the same table as the end screens, a numbered row for every mission flown so far (one after mission 1, six after mission 6) with distance, crew saved as a multiplier, the crew missed with their percentage, and its score; a `TOTAL` row with the run's score so far; then `TAP TO CONTINUE` | passing |

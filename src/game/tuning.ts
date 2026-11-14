@@ -11,7 +11,7 @@ export const MISS_COST = 0.05        // each crew member left behind takes this 
 
 export const LEVEL_MIN_TIME = 20     // seconds of dodging before a level can end
 export const LAST_LEVEL = 7          // the wormhole of this level is the way home
-export const WELL_TIME = 6           // seconds parked in one spot for the deepest gravity well
+export const WELL_TIME = 6           // seconds an empty ship parks in one spot for the deepest gravity well; crew shorten it
 export const WELL_AHEAD = 4          // well centre sits this many ship radii above the ship's centre
 export const WELL_PULL = 780         // how hard a well pulls rocks in, before ship mass and speed
 export const DILEMMA_EVERY = 3       // every Nth rescue is a "save these or those" choice
@@ -61,7 +61,7 @@ export const shipRadius = (seats: number): number => 13 + 9 * load(seats)
 /** Steering speed for the crew on board: 100% empty, 60% full. */
 export const handling = (crew: number): number => 1 - 0.4 * load(crew)
 
-/** How much each crew member on board adds to the ship's mass, which deepens the well dug while parked. */
+/** How much each crew member on board adds to the ship's mass, which deepens the well dug while parked and digs it sooner. */
 export const CREW_MASS = 0.05
 
 /** Parsecs into a run before the first planetoid appears: the opening is rocks alone. */

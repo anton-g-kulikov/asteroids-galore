@@ -19,7 +19,7 @@ All seven missions are built, with starting values that are still to be tuned by
 
 ## What the player is told
 
-Deliberately very little. The start screen shows only the title, the best score, the two control arrows and, small at the foot, the version and the seed of the next run (`v0.3.0 · SEED 4F2A9C`). Levels start without a banner — the only sign is the mission counter in the corner and a flash on arrival; between them a results screen shows what the last one added. Rescues, the level exit and gravity are left for the player to discover. This file describes how they work.
+Deliberately very little. The start screen shows only the title, the best score, the two control arrows and, small at the foot, the version and the seed of the next run (`v0.3.1 · SEED 4F2A9C`). Levels start without a banner — the only sign is the mission counter in the corner and a flash on arrival; between them a results screen shows what the last one added. Rescues, the level exit and gravity are left for the player to discover. This file describes how they work.
 
 ## The score
 
@@ -118,7 +118,7 @@ Missions 1–4 are the game most players play, about five minutes. Missions 5–
 | Steering speed (`handling`) | 100% | 94% | 85% | 75% | 60% |
 
 - Both follow the same curve in `tuning.ts`, `(n / 32)^0.7`: the first seats, and the first crew aboard, are felt the most.
-- **Crew deepen the well.** Each crew member adds 5% (`CREW_MASS`) to the ship's mass, which scales the pull of the well dug while parked: a full ship of 32 pulls 2.6 times as hard as an empty one.
+- **Crew deepen the well and dig it sooner.** Each crew member adds 5% (`CREW_MASS`) to the ship's mass, which scales both the pull of the well dug while parked and how fast it forms: a full ship of 32 pulls 2.6 times as hard as an empty one and reaches full depth in 2.3 seconds, not 6 (see [Gravity](#gravity)).
 - It sharpens the trade the score already makes: more crew multiply the mission's parsecs and make every further parsec harder to fly.
 - Not built, on purpose: a loaded ship pulling asteroids while moving. The parked well is already a gravity effect the player has to learn.
 
@@ -177,7 +177,8 @@ Nothing forbids saving both. The vertical gap between them is calculated from th
 
 A faint grid behind the stars shows spacetime.
 
-- **Digging a well:** keeping the ship in one spot bends the grid towards it — the lines pinch in, brighten and turn purple — and asteroids start falling into the well. It reaches full depth after 6 seconds.
+- **Digging a well:** keeping the ship in one spot bends the grid towards it — the lines pinch in, brighten and turn purple — and asteroids start falling into the well. An empty ship's well reaches full depth after 6 seconds.
+- **Crew dig it sooner:** the well forms faster by the ship's mass, 5% per crew member aboard. With 8 aboard it is at full depth after 4.3 seconds, with 16 after 3.3, with a full 32 after 2.3. A loaded ship that pauses is in a well almost at once.
 - **What pulls harder:** more time parked, more crew aboard (see [Crew make the ship heavy](#crew-make-the-ship-heavy)) and higher flight speed.
 - **Where the centre is:** just ahead of the ship's nose (`WELL_AHEAD` ship radii above its centre), not under it. Rocks pulled in gather in front of the ship and then sweep down through it, so sitting in a deep well is dangerous.
 - **Wells stay where they were dug:** moving away leaves the well behind. It keeps drawing asteroids towards the old spot while it relaxes over about 4 seconds, and a fresh well starts from zero at the ship.
@@ -379,7 +380,7 @@ The main numbers sit in `src/game/tuning.ts`:
 | `levelCapacity` | Seats per level |
 | `shipRadius`, `handling`, `CREW_MASS` | Ship size for its seats; steering speed and extra mass for the crew on board |
 | `LAST_LEVEL` | Number of levels |
-| `WELL_TIME` | Seconds parked for the deepest gravity well |
+| `WELL_TIME` | Seconds an empty ship parks for the deepest gravity well; divided by the ship's mass |
 | `WELL_AHEAD` | How far above the ship the well's centre sits, in ship radii |
 | `WELL_PULL` | How hard a well pulls rocks in, before ship mass and flight speed are applied |
 | `SHIELDS`, `MAX_SHIELDS`, `GRACE` | Shields a level starts with at least, the most a ship holds, and seconds of protection after losing one |

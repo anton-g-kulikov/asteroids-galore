@@ -328,7 +328,8 @@ function playerAndSpawns(g: Game, dt: number, steer: number, scroll: number): vo
   const cur = g.wells[0]
   cur.y = wellY(g)
   if (Math.abs(ship.x - cur.x) < 26 * U) {
-    cur.dwell = Math.min(WELL_TIME, cur.dwell + dt)
+    // a heavier ship digs faster: the time to full depth is WELL_TIME over its mass
+    cur.dwell = Math.min(WELL_TIME, cur.dwell + dt * shipMass(g))
     cur.x += (ship.x - cur.x) * Math.min(1, dt * 3)            // settle onto the ship, not beside it
   }
   else if (cur.dwell > 0.3) g.wells.unshift(newWell(g, ship.x))   // leave the old well behind
