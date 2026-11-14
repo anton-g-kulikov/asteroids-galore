@@ -31,7 +31,8 @@ npm run dev
 | `npm run test:rules` | Runs the Firestore rules tests inside the emulator |
 | `npm run lint` | ESLint |
 | `npm run build` | Type-checks, then builds to `dist/` |
-| `npm run preview` | Serves the built `dist/` |
+| `npm run preview` | Serves the built `dist/`, with the service worker |
+| `npm run icons` | Redraws the app icons in `public/` |
 | `npm run deploy` | Lint, all tests, build, then deploy Hosting, the Firestore rules and the auth providers |
 
 ## Layout
@@ -41,6 +42,9 @@ index.html          page shell; loads src/main.ts
 src/main.ts         wires the canvas, input events and the frame loop
 src/game/           rules and state: tuning, spawning, simulation, input, saved bests
 src/render/         drawing: playfield, sprites, HUD and end screens
+src/pwa/            manifest and service-worker updates
+public/             favicon and app icons
+scripts/            icon generator
 src/cloud/          Firebase: config, anonymous sign-in, saving runs and bests, callsigns, leaderboards, share links
 firestore.rules     who may read and write what
 src/debugHook.ts    window.__game, used by the tests
@@ -51,6 +55,15 @@ _meta/              game design notes and the task list
 ## Saved results
 
 On load the game signs in anonymously in the background. When a run ends it writes one document to `runs` and keeps the player's best score, and how that run ended, in `users/{uid}`; a best saved there is restored if the device's storage was cleared. The document shapes are enforced by `firestore.rules`.
+
+## Installing and offline play
+
+The game is a progressive web app. On a phone it can be added to the home screen (Android offers to install it; on iOS use Share → Add to Home Screen), and it then opens full screen.
+
+- **Offline:** a service worker precaches the whole build, so after one visit the game loads and plays without a network, share links included. Finished runs are saved once the network is back.
+- **Updates:** a new version downloads in the background and is applied on the start screen, never during a run; otherwise it takes over at the next launch. Hosting serves `sw.js` and the manifest uncached, so a deploy reaches players.
+- **Where it lives:** the manifest in `src/pwa/manifest.ts`, the update rule in `src/pwa/updates.ts`, the service worker settings in `vite.config.ts`. The icons are drawn from the game's ship by `scripts/make-icons.mjs` (`npm run icons`, needs ImageMagick).
+- **Development:** `npm run dev` has no service worker. To try it, `npm run build && npm run preview`.
 
 ## Leaderboard
 

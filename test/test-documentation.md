@@ -116,6 +116,13 @@ The game is a real-time canvas simulation driven by `Math.random`, so most behav
 | HUD-09 | `render/hud.test.ts` | During a run only one number shows: what the crew on board are worth (this mission's parsecs × on board, less the share the crew missed in it cost) while anyone is aboard, otherwise the score; no `0` | passing |
 | HUD-08 | `render/hud.test.ts` | During a run the big number is the score (nothing is shown while it is 0 and nobody is on board), with `SAVED` and `MISSED` counts; the distance is not the headline | passing |
 | HUD-13 | `render/hud.test.ts` | The mission counter is out of 7; the shield row shows 3 arcs, or as many as the ship holds when it has spares | passing |
+| PWA-01 | `pwa/manifest.test.ts` | Manifest: name, short name, start URL and scope `/`, full screen, portrait, and the same dark colour as the page's `theme-color` | passing |
+| PWA-02 | `pwa/manifest.test.ts` | Every manifest icon exists in `public/` as a PNG of the stated size; there are 192 and 512 px `any` icons and a 512 px `maskable` one | passing |
+| PWA-03 | `pwa/manifest.test.ts` | `index.html` links an `apple-touch-icon` (180 px PNG) and a favicon, and both files exist | passing |
+| PWA-04 | `pwa/manifest.test.ts` | Hosting serves `sw.js`, `registerSW.js`, `workbox-*.js` and the manifest with `no-cache` | passing |
+| UPD-01 | `pwa/updates.test.ts` | Only the start screen allows an update; play, the stop between missions and the end screens do not | passing |
+| UPD-02 | `pwa/updates.test.ts` | An update found during a run waits, and is applied once, as soon as the game is on the start screen | passing |
+| UPD-03 | `pwa/updates.test.ts` | With no update waiting nothing is applied, on any screen | passing |
 
 ## Firestore rules — `test/rules/firestore.rules.test.ts`
 
@@ -133,6 +140,7 @@ The game is a real-time canvas simulation driven by `Math.random`, so most behav
 
 ## Checked by hand
 
+- The PWA on the production build (`npm run build && npm run preview`, 2026-11-14): the manifest and service worker are found and the page is controlled; with the preview server stopped the game reloads, a run starts, and a share link opens. An update published mid-run waited without reloading; on the start screen a waiting update applied and reloaded into the new version. **Not seen:** a waiting update applying on relaunch with the pane visible, and installing on a real phone.
 - The seven-mission run in a browser against the emulators (2026-11-14), driven by script through the debug hook: shield drops appear on mission 5 and add a shield, the crew-or-shield row arrives with slow motion, the run goes home from mission 7, the run is saved as `won` with its mission-7 parsecs, and the leaderboard entry holds the best and how it ended. Seen by eye: the play screen on missions 1 and 5 and the game-over screen. **Not seen by eye:** the two-row crew pips, the mission-7 offer, the seven-row end screen and the board rows.
 - Anonymous sign-in and the two writes against the emulators in a browser (`npm run emulators`, then `npm run dev`): one `runs` document per finished run, and `users/{uid}` holding the best score and callsign.
 - The board on both end screens at phone size, with seeded players in the emulator: own row highlighted inside the top 5 and added below it when outside.

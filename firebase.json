@@ -32,6 +32,24 @@
         ]
       },
       {
+        "source": "/@(sw.js|registerSW.js|manifest.webmanifest)",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "no-cache"
+          }
+        ]
+      },
+      {
+        "source": "/workbox-*.js",
+        "headers": [
+          {
+            "key": "Cache-Control",
+            "value": "no-cache"
+          }
+        ]
+      },
+      {
         "source": "/assets/**",
         "headers": [
           {

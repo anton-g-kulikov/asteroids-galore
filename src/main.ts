@@ -11,6 +11,7 @@ import { timeScale } from './game/timeScale'
 import { STEP } from './game/tuning'
 import { boardButtonRect, hasBoard, shareButtonRect } from './render/hud'
 import { render } from './render/render'
+import type { Updater } from './pwa/updates'
 
 const canvas = document.getElementById('game') as HTMLCanvasElement
 const ctx = canvas.getContext('2d')!
@@ -24,6 +25,13 @@ const game = createGame(records)
 // null when Firebase is not configured; the board then stays empty and is not drawn
 const cloud = startCloud(records, rows => { game.board = rows })
 const input = createInput()
+
+// Installed or not, the game keeps working offline after one visit. Only in a
+// production build: in development and tests there is no service worker.
+let updater: Updater | null = null
+if (import.meta.env.PROD && 'serviceWorker' in navigator) {
+  import('./pwa/register').then(m => { updater = m.startServiceWorker() })
+}
 
 // ---------- Layout ----------
 // The play field never changes shape: the window only decides how big it is drawn.
@@ -160,6 +168,7 @@ function frame(now: number) {
   owed += dt
   while (owed >= STEP - 1e-9) { owed -= STEP; step() }
   game.shareNote = Math.max(0, game.shareNote - dt)
+  updater?.tick(game.state)
   render(ctx, game)
   requestAnimationFrame(frame)
 }

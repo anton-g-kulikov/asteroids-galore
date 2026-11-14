@@ -13,7 +13,8 @@
     "preview": "vite preview",
     "deploy": "npm run lint && npm test && npm run test:rules && npm run build && firebase deploy --only hosting,firestore:rules,auth",
     "test:rules": "firebase emulators:exec --only firestore --project demo-asteroids-galore \"vitest run --config vitest.rules.config.ts\"",
-    "emulators": "firebase emulators:start --only auth,firestore --project demo-asteroids-galore"
+    "emulators": "firebase emulators:start --only auth,firestore --project demo-asteroids-galore",
+    "icons": "node scripts/make-icons.mjs"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
@@ -25,7 +26,9 @@
     "typescript": "^6.0.3",
     "typescript-eslint": "^8.72.2",
     "vite": "^8.3.8",
-    "vitest": "^5.1.0"
+    "vite-plugin-pwa": "^2.0.0",
+    "vitest": "^5.1.0",
+    "workbox-window": "^7.4.1"
   },
   "dependencies": {
     "firebase": "^13.3.0"
