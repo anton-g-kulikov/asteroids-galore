@@ -10,6 +10,7 @@ import type { Game } from './game/types'
 export function createDebugHook(g: Game) {
   return {
     get state() { return g.state },
+    get seed() { return g.seed },
     get score() { return scoreOf(g) },
     get distance() { return g.distance },
     get speed() { return g.speed },

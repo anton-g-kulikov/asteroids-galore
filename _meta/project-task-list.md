@@ -9,7 +9,7 @@ The game is built from typed modules with Vite, has automated tests and Firebase
 The seven-mission run is built (see `game-design.md`). What is left of that plan, and what is settled only by playing, is listed there under "Still open".
 
 - **Play-test and tune missions 5–7:** their parsecs and starting speeds, the 75% cap on the missed-crew penalty (`MISS_CAP`), the set of wormhole waits, how many shield drops arrive as a choice, and how much each crew member slows the ship and deepens the well.
-- **Scores that can be checked:** seeded randomness, a recording of the inputs, and a server that replays a run before listing its score. Not started. The fixed step and fixed field it depends on are in place.
+- **Scores that can be checked:** saving each run's seed, a recording of the inputs, and a server that replays a run before listing its score. The fixed step, the fixed field and seeded randomness it depends on are in place; the rest is not started.
 - **Tuning aids:** per-run records of where and how runs end and the shields at each wormhole, and a scripted pilot in the tests that sweeps speeds to find where survival collapses. Not started; runs already record how they ended and how far mission 7 went.
 - **New things in missions 5–7:** decided after playing, and only if missions 5–7 feel thin. Candidates: dead stars, failing rescues, wrecked stations, angled asteroids.
 - **Look at the late missions on a real phone:** the 32-seat hull and pip rows, the seven-row end-screen table and the board rows were checked by tests and by a scripted run, not by eye.

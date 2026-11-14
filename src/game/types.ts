@@ -80,6 +80,8 @@ export interface Game {
   state: GameState
   stateTime: number      // seconds since the state began
   clock: number          // seconds since load; drives animations
+  /** What the next run, or the one in flight, is dealt from. Shown on the start screen. */
+  seed: number
 
   time: number
   speed: number

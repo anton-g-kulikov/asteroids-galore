@@ -1,4 +1,3 @@
-import { rand } from '../game/random'
 import type { Game } from '../game/types'
 import { drawHud } from './hud'
 import { drawAsteroid, drawDrop, drawGrid, drawShip, drawWormhole } from './sprites'
@@ -10,7 +9,7 @@ export function render(ctx: CanvasRenderingContext2D, g: Game): void {
   ctx.save()
   ctx.fillStyle = '#05060d'
   ctx.fillRect(0, 0, W, H)
-  if (g.shake > 0) ctx.translate(rand(-1, 1) * g.shake * 16 * U, rand(-1, 1) * g.shake * 16 * U)
+  if (g.shake > 0) ctx.translate((Math.random() * 2 - 1) * g.shake * 16 * U, (Math.random() * 2 - 1) * g.shake * 16 * U)
 
   drawGrid(ctx, g)
   for (const s of g.stars) {

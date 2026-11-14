@@ -1,3 +1,4 @@
+import { seedName } from '../game/random'
 import { missedPercent, missionScore, pendingScore, scoreOf } from '../game/score'
 import { LAST_LEVEL, SHIELDS, levelCapacity, levelTarget } from '../game/tuning'
 import type { BoardRow, Game, LevelResult, RunEnd, SharedRun } from '../game/types'
@@ -84,6 +85,8 @@ function drawMenu(ctx: CanvasRenderingContext2D, g: Game): void {
   drawTouchHints(ctx, g, 0.55)
   text(ctx, 'hold left', W / 2 - W * 0.3, H * 0.8 + 62 * U, 13 * U, 'rgba(255,255,255,.7)', 'center', 600)
   text(ctx, 'hold right', W / 2 + W * 0.3, H * 0.8 + 62 * U, 13 * U, 'rgba(255,255,255,.7)', 'center', 600)
+  // which build this is and what the next run is dealt from, small, at the foot
+  text(ctx, `v${__APP_VERSION__} · SEED ${seedName(g.seed)}`, W / 2, H - 14 * U, 10 * U, 'rgba(255,255,255,.4)', 'center', 600)
   // A shared run sits clear of the player's own best above it, and on short
   // screens pushes the prompt down rather than touching it.
   const sharedY = H * 0.3 + 124 * U

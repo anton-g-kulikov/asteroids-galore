@@ -1,5 +1,5 @@
 import { reachOf } from './game'
-import { rand } from './random'
+import { rand, random } from './random'
 import { handling } from './tuning'
 import type { Asteroid, Game } from './types'
 
@@ -24,7 +24,7 @@ export function makeAsteroid(g: Game, x: number, r: number, o?: Partial<Asteroid
 }
 
 export function spawnAsteroid(g: Game): void {
-  const big = Math.random() < 0.18
+  const big = random() < 0.18
   const r = (big ? rand(34, 50) : rand(14, 30)) * g.U
   g.asteroids.push(makeAsteroid(g, rand(r * 0.4, g.W - r * 0.4), r, big ? { vy: rand(0.7, 1.1) } : null))
 }
@@ -41,7 +41,7 @@ const RESCUE = () => ({ ...STEADY(), planet: true })
 //   level 3: mostly 2–3   level 4 on: 2–4 (levels 5–7 have more seats but
 //   are longer, so the same planetoids nearly fill them)
 export function crewSize(level: number): number {
-  const p = Math.random()
+  const p = random()
   if (level <= 1) return 1
   if (level === 2) return p < 0.6 ? 1 : p < 0.92 ? 2 : 3
   if (level === 3) return p < 0.15 ? 1 : p < 0.65 ? 2 : 3
@@ -60,14 +60,14 @@ export function spawnRescue(g: Game): void {
 // from the ship's current top speed so that the dash across falls just short.
 export function spawnDilemma(g: Game): void {
   const { W, H, U, ship, speed } = g
-  const side = Math.random() < 0.5 ? -1 : 1          // which side the 2-crew planetoid is on
+  const side = random() < 0.5 ? -1 : 1          // which side the 2-crew planetoid is on
   const fast = { vy: 1.25 }
   const easy = makeAsteroid(g, W / 2 - side * W * 0.36, 24 * U, Object.assign(RESCUE(), fast, { people: 1 }))
   const hard = makeAsteroid(g, W / 2 + side * (W / 2 - 100 * U), 26 * U, Object.assign(RESCUE(), fast, { people: 2 }))
   const escortR = 14 * U, escortDist = hard.r + 52 * U
   const escortHit = escortR * 0.86 + ship.r * 0.7
 
-  const [first, second] = Math.random() < 0.5 ? [easy, hard] : [hard, easy]
+  const [first, second] = random() < 0.5 ? [easy, hard] : [hard, easy]
   const fall = fast.vy * H * 0.34 * speed                              // px/s
   const top = W * (1.25 + speed * 0.18) * handling(g.onboard)       // ship px/s
   const reach = reachOf(g, first)
@@ -98,7 +98,7 @@ export function spawnDrop(g: Game): void {
 // two escort rocks, so reaching it means giving up the crew.
 export function spawnChoice(g: Game): void {
   const { W, U } = g
-  const side = Math.random() < 0.5 ? -1 : 1          // which side the 3 crew are on
+  const side = random() < 0.5 ? -1 : 1          // which side the 3 crew are on
   const fast = { vy: 1.25, y: -90 * U }
   g.asteroids.push(
     makeAsteroid(g, W / 2 - side * W * 0.36, 24 * U, Object.assign(RESCUE(), fast, { people: 2 })),

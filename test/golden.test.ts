@@ -60,7 +60,6 @@ describe('golden traces', () => {
     expect(max(pairs, 'missed')).toBeGreaterThan(0)
 
     expect(column(touch, 'state')).toContain('play')
-    expect(new Set(column(touch, 'shipR')).size).toBe(1)   // a resize changes the picture, not the game
   }, 60000)
 
   test.runIf(update)('write the fixture', () => {

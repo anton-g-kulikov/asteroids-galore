@@ -1,5 +1,6 @@
 import { expect, test } from 'vitest'
 import { createGame, fit, shipMass } from '../src/game/game'
+import { seedRandom } from '../src/game/random'
 import { createRecords } from '../src/game/records'
 import { startGame, tryStart, update } from '../src/game/simulation'
 import { WORM_WAITS, levelTarget } from '../src/game/tuning'
@@ -240,4 +241,38 @@ test('FIELD-01 the play field is one fixed shape; the window only scales and cen
   expect(fit(800, 720)).toEqual({ scale: 1, x: 200, y: 0 })        // a wide window: bars at the sides
   expect(fit(390, 844)).toEqual({ scale: 0.975, x: 0, y: 71 })     // a tall phone: centred
   expect(fit(320, 568).scale).toBeCloseTo(568 / 720)               // a small phone: the whole field still fits
+})
+
+test('SEED-01 a run is dealt from its seed: the same seed and inputs give the same run, another seed another', () => {
+  const fly = (seed: number) => {
+    const g = createGame(createRecords(null))
+    g.seed = seed
+    startGame(g)
+    const seen: number[] = []
+    for (let i = 0; i < 600; i++) {
+      g.shields = 3; g.grace = 1          // rocks cannot end the run
+      step(g, i % 90 < 45 ? 1 : -1)
+      if (i % 60 === 0) seen.push(g.asteroids.length, ...g.asteroids.map(a => a.x + a.y))
+    }
+    return seen
+  }
+  const first = fly(0x4f2a9c)
+  seedRandom(12345)                        // whatever was dealt in between does not matter
+  expect(fly(0x4f2a9c)).toEqual(first)
+  expect(fly(0x4f2a9d)).not.toEqual(first)
+})
+
+test('SEED-02 the seed shown on the start screen is the first run\'s; every run after gets a new one', () => {
+  const g = createGame(createRecords(null))
+  const shown = g.seed
+  expect(Number.isInteger(shown) && shown >= 0 && shown < 0x1000000).toBe(true)
+  tryStart(g)
+  expect([g.state, g.seed]).toEqual(['play', shown])
+  const seeds = new Set([shown])
+  for (let i = 0; i < 5; i++) {
+    g.state = 'over'; g.stateTime = 1
+    tryStart(g)
+    seeds.add(g.seed)
+  }
+  expect(seeds.size).toBeGreaterThan(4)
 })

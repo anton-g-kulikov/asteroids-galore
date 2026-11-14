@@ -1,4 +1,4 @@
-import { rand } from './random'
+import { newSeed } from './random'
 import type { Records } from './records'
 import { CREW_MASS, FIELD_H, FIELD_W, SHIELDS, WELL_AHEAD, shipRadius } from './tuning'
 import type { Asteroid, Game, GameState, Well } from './types'
@@ -6,7 +6,7 @@ import type { Asteroid, Game, GameState, Well } from './types'
 export function createGame(records: Records): Game {
   const g: Game = {
     W: FIELD_W, H: FIELD_H, U: 1,
-    state: 'menu', stateTime: 0, clock: 0,
+    state: 'menu', stateTime: 0, clock: 0, seed: newSeed(),
     time: 0, speed: 1, distance: 0, spawnTimer: 0, shake: 0, flash: 0,
     level: 1, levelTime: 0, levelScore: 0, onboard: 0,
     saved: 0, lost: 0, missed: 0, rescueTimer: 0, rescueCount: 0,
@@ -21,7 +21,7 @@ export function createGame(records: Records): Game {
     asteroids: [], particles: [], floaters: [], stars: [],
   }
   g.ship.y = g.H - Math.max(110 * g.U, g.H * 0.16)
-  for (let i = 0; i < 90; i++) g.stars.push({ x: Math.random(), y: Math.random(), z: rand(0.2, 1) })
+  for (let i = 0; i < 90; i++) g.stars.push({ x: Math.random(), y: Math.random(), z: 0.2 + Math.random() * 0.8 })   // scenery: not dealt from the seed
   return g
 }
 

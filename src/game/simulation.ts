@@ -1,6 +1,6 @@
 import { newWell, reachOf, setState, shipMass, wellY } from './game'
 import { buzz } from './haptics'
-import { rand } from './random'
+import { newSeed, rand, random, seedRandom } from './random'
 import { runEnd } from './runSummary'
 import { missionSoFar, scoreOf } from './score'
 import { spawnAsteroid, spawnChoice, spawnDilemma, spawnDrop, spawnRescue } from './spawn'
@@ -12,6 +12,7 @@ import {
 import type { Asteroid, Game } from './types'
 
 export function startGame(g: Game): void {
+  seedRandom(g.seed)            // the whole run is dealt from its seed
   g.asteroids = []; g.particles = []; g.floaters = []; g.drops = []
   g.time = 0; g.speed = 1; g.distance = 0; g.spawnTimer = 0.6; g.shake = 0; g.newBest = false
   g.level = 1; g.ship.r = shipRadius(0); g.levelTime = 0; g.levelScore = 0; g.onboard = 0
@@ -35,7 +36,7 @@ export function tryStart(g: Game): void {
   if (g.state === 'menu') startGame(g)
   else if (g.stateTime <= 0.7) return
   else if (g.state === 'between') nextLevel(g)
-  else if (g.state === 'over' || g.state === 'won') startGame(g)
+  else if (g.state === 'over' || g.state === 'won') { g.seed = newSeed(); startGame(g) }
 }
 
 // Starts the next level, from the results screen. Each level restarts the speed
@@ -164,7 +165,7 @@ export function update(g: Game, dt: number, steer: number): void {
 
   for (const s of g.stars) {
     s.y += (scroll * 0.35 * s.z * dt) / H
-    if (s.y > 1) { s.y -= 1; s.x = Math.random() }
+    if (s.y > 1) { s.y -= 1; s.x = Math.random() }   // scenery: not dealt from the seed
   }
 
   if (g.state === 'play') playerAndSpawns(g, dt, steer, scroll)
@@ -216,12 +217,12 @@ export function update(g: Game, dt: number, steer: number): void {
     return false
   })
 
-  if (g.state === 'play' && Math.random() < dt * 60) {
+  if (g.state === 'play' && random() < dt * 60) {
     g.particles.push({
       x: ship.x + rand(-3, 3) * U, y: ship.y + ship.r * 1.1,
       vx: rand(-14, 14) * U - ship.vx * 0.15, vy: rand(120, 220) * U,
       life: rand(0.15, 0.35), max: 0.35, size: rand(1.5, 3.2) * U,
-      color: Math.random() < 0.5 ? '#7fdcff' : '#ffd166',
+      color: random() < 0.5 ? '#7fdcff' : '#ffd166',
     })
   }
   for (const p of g.particles) { p.x += p.vx * dt; p.y += p.vy * dt; p.life -= dt }
@@ -241,7 +242,7 @@ function openWormhole(g: Game): void {
   const r = 34 * U, y = -r - 30 * U
   g.wormCount++
   if (g.level < LAST_LEVEL) { g.wormhole = { x: rand(W * 0.2, W * 0.8), y, r }; return }
-  const side = Math.random() < 0.5 ? -1 : 1, off = rand(W * 0.2, W * 0.3)
+  const side = random() < 0.5 ? -1 : 1, off = rand(W * 0.2, W * 0.3)
   g.wormhole = { x: W / 2 + side * off, y, r }
   g.drops.push({ x: W / 2 - side * off, y, r: 16 * U, fall: 0.75 })
   if (g.wormCount === 1) g.slowWatch = g.wormhole
@@ -253,7 +254,7 @@ function nextWormWait(g: Game): number {
   if (!g.wormWaits.length) {
     g.wormWaits = [...WORM_WAITS]
     for (let i = g.wormWaits.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1))
+      const j = Math.floor(random() * (i + 1))
       ;[g.wormWaits[i], g.wormWaits[j]] = [g.wormWaits[j], g.wormWaits[i]]
     }
   }
