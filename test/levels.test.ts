@@ -3,7 +3,7 @@ import { createGame, fit, shipMass } from '../src/game/game'
 import { seedRandom } from '../src/game/random'
 import { createRecords } from '../src/game/records'
 import { startGame, tryStart, update } from '../src/game/simulation'
-import { WORM_WAITS, levelTarget } from '../src/game/tuning'
+import { SEAT_WAIT, WORM_WAITS, levelTarget, shipRadius } from '../src/game/tuning'
 import type { Game } from '../src/game/types'
 
 function playing(level = 1): Game {
@@ -277,7 +277,7 @@ test('SEED-02 the seed shown on the start screen is the first run\'s; every run 
   expect(seeds.size).toBeGreaterThan(4)
 })
 
-test('LEVEL-14 a full ship is not charged for crew it has no seat for, until the mission\'s wormhole has appeared', () => {
+test('LEVEL-14 a full ship is never charged for crew it has no seat for', () => {
   // a planetoid with `people` aboard drifts off the bottom, far from the ship
   const driftPast = (g: Game, people: number) => {
     g.asteroids.push({ ...rock(g), x: 30, y: g.H + 200, people, planet: true })
@@ -287,28 +287,82 @@ test('LEVEL-14 a full ship is not charged for crew it has no seat for, until the
   g.wormTimer = 1e9
   g.onboard = 4
   driftPast(g, 3)
-  expect(g.missed).toBe(0)              // full, and no way out yet: no choice, no charge
+  expect(g.missed).toBe(0)              // full: no choice, no charge
   g.onboard = 3
   driftPast(g, 3)
   expect(g.missed).toBe(1)              // one seat was free: one of the three was the player's to take
   g.onboard = 0
   driftPast(g, 2)
   expect(g.missed).toBe(3)              // free seats: a miss is a miss
-  // the wormhole shows: from now on staying is a choice, and a full ship pays for everyone who drifts past
+  // the wormhole shows and is missed: a full ship that stays on is still not charged
   g.onboard = 4
   g.levelScore = levelTarget(2); g.levelTime = 99; g.wormTimer = 0
   step(g)
   expect(g.wormCount).toBe(1)
   driftPast(g, 3)
-  expect(g.missed).toBe(6)
-  g.wormhole = { x: 20, y: g.H + 100, r: 30 }   // missed: it is gone, but it has appeared
+  g.wormhole = { x: 20, y: g.H + 100, r: 30 }
   step(g)
   driftPast(g, 2)
-  expect(g.missed).toBe(8)
-  // the next mission starts uncharged again
-  intoWormhole(g); update(g, 0.8, 0); tryStart(g)
-  g.spawnTimer = 999; g.rescueTimer = 999; g.wormTimer = 1e9
-  g.onboard = 8
-  driftPast(g, 4)
-  expect([g.level, g.missed]).toEqual([3, 8])
+  expect(g.missed).toBe(3)
+})
+
+test('LEVEL-15 a full ship is sent no planetoids; when a seat opens the next one follows after 4 seconds', () => {
+  const planets = (g: Game) => g.asteroids.filter(a => a.planet).length
+  const g = playing(2)                  // 4 seats
+  g.wormTimer = 1e9
+  g.onboard = 4
+  g.rescueTimer = 0                     // a crew is due
+  for (let i = 0; i < 120; i++) { g.spawnTimer = 999; step(g) }
+  expect(planets(g)).toBe(0)
+  g.rescueCount = 2; g.rescueTimer = 0  // and so is a two-crew pair
+  step(g)
+  expect([planets(g), g.rescueCount]).toEqual([0, 2])
+  // a seat opens: not at once, but 4 seconds later
+  g.onboard = 3
+  let at = -1
+  for (let i = 1; i <= 60 * 6 && at < 0; i++) { g.spawnTimer = 999; step(g); if (planets(g)) at = i / 60 }
+  expect(SEAT_WAIT).toBe(4)
+  expect(at).toBeGreaterThan(3.9)
+  expect(at).toBeLessThan(4.1)
+
+  // a crew-or-shield row arrives as a plain shield drop when the ship is full, and as a row when it is not
+  for (const [onboard, crews] of [[20, 0], [19, 2]] as const) {
+    const m5 = playing(5)
+    m5.wormTimer = 1e9
+    m5.onboard = onboard
+    m5.dropCount = 1                    // the next drop is the second: a choice
+    m5.levelScore = levelTarget(5) * (2 / 3) * 2 / 6
+    step(m5)
+    expect([m5.dropCount, m5.drops.length, planets(m5)]).toEqual([2, 1, crews])
+  }
+})
+
+test('LEVEL-16 a hit that burns a shield throws one crew member off the ship', () => {
+  const hit = (g: Game) => { g.grace = 0; g.asteroids.push(rock(g)); step(g) }
+  const g = playing(3)
+  g.onboard = 5
+  hit(g)
+  expect([g.shields, g.onboard, g.missed, g.lost, g.castaways.length]).toEqual([2, 4, 1, 0, 1])
+  expect(g.state).toBe('play')
+  const [c] = g.castaways, from = { x: c.x, y: c.y }
+  for (let i = 0; i < 30; i++) step(g)
+  expect(Math.hypot(c.x - from.x, c.y - from.y)).toBeGreaterThan(20)   // the figure drifts away from the ship
+  for (let i = 0; i < 200; i++) step(g)
+  expect(g.castaways).toHaveLength(0)                                   // and is gone
+  // the ship gets lighter
+  expect(g.ship.r).toBeLessThan(shipRadius(5))
+  // nobody aboard: only the shield
+  g.onboard = 0
+  hit(g)
+  expect([g.shields, g.onboard, g.missed, g.castaways.length]).toEqual([1, 0, 1, 0])
+  // a full ship that is hit has a seat again, so planetoids return
+  const full = playing(2)
+  full.onboard = 4
+  hit(full)
+  expect([full.onboard, full.rescueTimer > 0 && full.rescueTimer <= SEAT_WAIT]).toEqual([3, true])
+  // no shield left: the ship is destroyed and the crew go down with it, as before
+  const last = playing(3)
+  Object.assign(last, { onboard: 5, shields: 0 })
+  hit(last)
+  expect([last.state, last.lost, last.missed]).toEqual(['over', 5, 0])
 })

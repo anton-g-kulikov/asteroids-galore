@@ -8,7 +8,7 @@ export function createGame(records: Records): Game {
     W: FIELD_W, H: FIELD_H, U: 1,
     state: 'menu', stateTime: 0, clock: 0, seed: newSeed(),
     time: 0, speed: 1, distance: 0, spawnTimer: 0, shake: 0, flash: 0,
-    level: 1, levelTime: 0, levelScore: 0, onboard: 0,
+    level: 1, levelTime: 0, levelScore: 0, onboard: 0, fullFor: 0,
     saved: 0, lost: 0, missed: 0, rescueTimer: 0, rescueCount: 0,
     results: [], levelFrom: { distance: 0, missed: 0 },
     wormhole: null, wormTimer: 0, wormWaits: [], wormCount: 0, drops: [], dropCount: 0,
@@ -18,7 +18,7 @@ export function createGame(records: Records): Game {
     board: null, boardOpen: false,
     shareReady: false, shareNote: 0, shared: null,
     ship: { x: FIELD_W / 2, y: 0, vx: 0, r: shipRadius(0) },
-    asteroids: [], particles: [], floaters: [], stars: [],
+    asteroids: [], particles: [], floaters: [], castaways: [], stars: [],
   }
   g.ship.y = g.H - Math.max(110 * g.U, g.H * 0.16)
   for (let i = 0; i < 90; i++) g.stars.push({ x: Math.random(), y: Math.random(), z: 0.2 + Math.random() * 0.8 })   // scenery: not dealt from the seed

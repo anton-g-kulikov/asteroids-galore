@@ -29,6 +29,9 @@ export interface Particle {
   life: number; max: number; size: number; color: string
 }
 
+/** A crew member thrown off the ship by a hit, drifting away. */
+export interface Castaway { x: number; y: number; vx: number; vy: number; rot: number; spin: number; life: number }
+
 export interface Floater { x: number; y: number; str: string; life: number }
 
 export interface Star { x: number; y: number; z: number }   // x, y as fractions of the field
@@ -94,6 +97,8 @@ export interface Game {
   levelTime: number
   levelScore: number
   onboard: number        // crew in the seats right now: not saved until the next wormhole
+  /** Seconds the ship has had every seat taken; 0 while a seat is free. */
+  fullFor: number
   saved: number          // crew delivered through a wormhole; safe for good
   lost: number           // crew who were on board when the ship was destroyed
   missed: number         // crew that drifted past without being picked up
@@ -143,5 +148,6 @@ export interface Game {
   asteroids: Asteroid[]
   particles: Particle[]
   floaters: Floater[]
+  castaways: Castaway[]
   stars: Star[]
 }

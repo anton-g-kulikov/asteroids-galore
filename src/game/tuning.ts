@@ -19,6 +19,7 @@ export const DILEMMA_EVERY = 3       // every Nth rescue is a "save these or tho
 export const SHIELDS = 3             // every level starts with at least this many
 export const MAX_SHIELDS = 5         // a ship holds no more than this
 export const GRACE = 2               // seconds the ship cannot be hit after losing a life
+export const SEAT_WAIT = 4            // seconds from a seat opening on a full ship to the next planetoid
 export const SLOW_TIME = 1.4         // real seconds of slow motion when a two-crew pair comes into view
 export const SLOW_SCALE = 0.3        // game speed at the depth of the slow motion
 

@@ -117,6 +117,25 @@ test('HUD-13 the mission counter is out of 7, and spare shields add to the row',
   expect([0, 2, 3, 5].map(arcs)).toEqual([3, 3, 3, 5])
 })
 
+test('HUD-14 the crew count is yellow while seats are free and green when the ship is full, and swells as it fills', () => {
+  const crew = (onboard: number, fullFor = 9) => {
+    const g = createGame(createRecords(null))
+    Object.assign(g, { state: 'play', level: 2, onboard, fullFor })
+    let font = '', fill = '', seen = { font: '', fill: '', str: '' }
+    const ctx = new Proxy({}, {
+      get: (_t, prop) => (...args: unknown[]) => { if (prop === 'fillText' && String(args[0]).startsWith('CREW')) seen = { font, fill, str: String(args[0]) } },
+      set: (_t, prop, value) => { if (prop === 'font') font = String(value); if (prop === 'fillStyle') fill = String(value); return true },
+    }) as CanvasRenderingContext2D
+    drawHud(ctx, g)
+    return { ...seen, size: parseInt(seen.font.split(' ')[1]) }
+  }
+  expect([crew(0).str, crew(0).fill]).toEqual(['CREW 0/4', '#ffd166'])
+  expect(crew(3).fill).toBe('#ffd166')
+  expect([crew(4).str, crew(4).fill]).toEqual(['CREW 4/4', '#5dffa0'])
+  expect(crew(4, 0).size).toBeGreaterThan(crew(4).size)     // just filled: drawn larger for a moment
+  expect(crew(4, 2).size).toBe(crew(3).size)                // and back to its size
+})
+
 test('HUD-08 during a run the big number is the score, not the distance', () => {
   expect(drawnText('play', null, { distance: 400, saved: 0 })).not.toContain('0')   // nothing saved, nobody aboard: no number at all
   const text = drawnText('play', null, { distance: 400.9, saved: 3, missed: 1, results: banked })

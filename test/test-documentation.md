@@ -56,7 +56,9 @@ The game is a real-time canvas simulation driven by `Math.random`, so most behav
 | LEVEL-11 | `levels.test.ts` | Mission 5 offers 6 shields and mission 6 offers 4, evenly spaced by distance over the first two-thirds; every second one is a row of 2 crew, 3 crew and the shield between two rocks; missions 4 and 7 have no such drops | passing |
 | LEVEL-12 | `levels.test.ts` | Crew make the ship heavy: it swells, steers slower and has more mass with more crew; the mission alone changes nothing; delivering the crew shrinks it back | passing |
 | LEVEL-13 | `levels.test.ts` | Mission 5 starts at 1.4× | passing |
-| LEVEL-14 | `levels.test.ts` | Crew who drift past a full ship are not counted as missed until the mission's wormhole has appeared; of a crew bigger than the free seats only as many as there were seats for are counted; once a wormhole has appeared everyone who drifts past counts again; with free seats they always count; the next mission starts uncharged again | passing |
+| LEVEL-14 | `levels.test.ts` | Crew who drift past a full ship are never counted as missed, before the mission's wormhole or after it; of a crew bigger than the free seats only as many as there were seats for are counted; with free seats they always count | passing |
+| LEVEL-15 | `levels.test.ts` | A full ship is sent no planetoids: no single rescue and no two-crew pair when one is due, and a crew-or-shield row arrives as a plain shield drop; when a seat opens the next planetoid follows after 4 seconds, not at once | passing |
+| LEVEL-16 | `levels.test.ts` | A hit that burns a shield throws one crew member off the ship: one fewer on board, one more missed, a figure drifting away, and not counted as lost with the ship; with nobody aboard it costs only the shield; with no shield left it destroys the ship as before | passing |
 | FIELD-01 | `levels.test.ts` | The play field is always 400 × 720; a window only scales and centres it | passing |
 | SEED-01 | `levels.test.ts` | A run is dealt from its seed: the same seed and inputs give the same rocks, whatever was dealt before; another seed gives another run | passing |
 | SEED-02 | `levels.test.ts` | The seed on the start screen is the one the first run uses; every run after it gets a new one | passing |
@@ -109,13 +111,14 @@ The game is a real-time canvas simulation driven by `Math.random`, so most behav
 | HUD-04 | `render/hud.test.ts` | The `SHARE` button is drawn on both end screens only when a link is ready; it reads `COPIED` right after a copy | passing |
 | HUD-05 | `render/hud.test.ts` | The button sits inside the play field, in the top right corner | passing |
 | HUD-06 | `render/hud.test.ts` | The start screen shows a shared run: callsign, score, and `MADE IT HOME` with the crew saved for a run that went home, crew saved and distance for a lost one | passing |
-| HUD-07 | `render/hud.test.ts` | The start screen draws the title, the controls, the prompt and, at the foot, the version and the seed of the next run as six characters (`v0.2.1 · SEED 4F2A9C`); no other screen shows the seed | passing |
+| HUD-07 | `render/hud.test.ts` | The start screen draws the title, the controls, the prompt and, at the foot, the version and the seed of the next run as six characters (`v0.2.2 · SEED 4F2A9C`); no other screen shows the seed | passing |
 | HUD-11 | `render/hud.test.ts` | The leaderboard screen replaces the end screen: `TOP SCORES`, every row with rank, callsign, score and how the run ended (`HOME · 5,400 pc`, `LOST · 7,100 pc`, `LOST · MISSION 3`), and `TAP TO GO BACK`; a row that does not say how it ended has no such line; with no board the end screen stays | passing |
 | HUD-12 | `render/hud.test.ts` | The leaderboard link sits top left, clear of the share button, and is big enough to tap | passing |
 | HUD-10 | `render/hud.test.ts` | Between levels, under `MISSION N COMPLETE`: a `MISSION` row with distance, crew saved as a multiplier, the crew missed with their percentage, and its score; a `TOTAL` row with the run's score so far; then `TAP TO CONTINUE` | passing |
 | HUD-09 | `render/hud.test.ts` | During a run only one number shows: what the crew on board are worth (this mission's parsecs × on board, less the share the crew missed in it cost) while anyone is aboard, otherwise the score; no `0` | passing |
 | HUD-08 | `render/hud.test.ts` | During a run the big number is the score (nothing is shown while it is 0 and nobody is on board), with `SAVED` and `MISSED` counts; the distance is not the headline | passing |
 | HUD-13 | `render/hud.test.ts` | The mission counter is out of 7; the shield row shows 3 arcs, or as many as the ship holds when it has spares | passing |
+| HUD-14 | `render/hud.test.ts` | `CREW n/N` is yellow while there are free seats and green when the ship is full, and is drawn larger for a moment when it fills | passing |
 | PWA-01 | `pwa/manifest.test.ts` | Manifest: name, short name, start URL and scope `/`, full screen, portrait, and the same dark colour as the page's `theme-color` | passing |
 | PWA-02 | `pwa/manifest.test.ts` | Every manifest icon exists in `public/` as a PNG of the stated size; there are 192 and 512 px `any` icons and a 512 px `maskable` one | passing |
 | PWA-03 | `pwa/manifest.test.ts` | `index.html` links an `apple-touch-icon` (180 px PNG) and a favicon, and both files exist | passing |
@@ -141,6 +144,7 @@ The game is a real-time canvas simulation driven by `Math.random`, so most behav
 ## Checked by hand
 
 - The PWA on the production build (`npm run build && npm run preview`, 2026-11-14): the manifest and service worker are found and the page is controlled; with the preview server stopped the game reloads, a run starts, and a share link opens. An update published mid-run waited without reloading; on the start screen a waiting update applied and reloaded into the new version. **Not seen:** a waiting update applying on relaunch with the pane visible, and installing on a real phone.
+
 - The seven-mission run in a browser against the emulators (2026-11-14), driven by script through the debug hook: shield drops appear on mission 5 and add a shield, the crew-or-shield row arrives with slow motion, the run goes home from mission 7, the run is saved as `won` with its mission-7 parsecs, and the leaderboard entry holds the best and how it ended. Seen by eye: the play screen on missions 1 and 5 and the game-over screen. **Not seen by eye:** the two-row crew pips, the mission-7 offer, the seven-row end screen and the board rows.
 - Anonymous sign-in and the two writes against the emulators in a browser (`npm run emulators`, then `npm run dev`): one `runs` document per finished run, and `users/{uid}` holding the best score and callsign.
 - The board on both end screens at phone size, with seeded players in the emulator: own row highlighted inside the top 5 and added below it when outside.

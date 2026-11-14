@@ -1,6 +1,6 @@
 import { curvature, ringRadius, shipMass } from '../game/game'
 import { GRACE, levelCapacity } from '../game/tuning'
-import type { Asteroid, Drop, Game, Wormhole } from '../game/types'
+import type { Asteroid, Castaway, Drop, Game, Wormhole } from '../game/types'
 import { text } from './text'
 
 const ROCK = [['#8b8f9c', '#5b5f6b'], ['#9a8a7b', '#62564b'], ['#7d8794', '#4c545f']]
@@ -54,30 +54,47 @@ function drawRockBody(ctx: CanvasRenderingContext2D, a: Asteroid, U: number): vo
   }
 }
 
+// One crew member: an orange suit, a white helmet, and both arms waving.
+// Drawn standing on the origin, `s` sets the size.
+function drawPerson(ctx: CanvasRenderingContext2D, s: number, U: number, wave: number): void {
+  ctx.strokeStyle = ctx.fillStyle = '#ffb347'
+  ctx.lineWidth = 1.6 * U
+  ctx.lineCap = 'round'
+  for (const d of [-1, 1]) {
+    ctx.beginPath()
+    ctx.moveTo(d * s * 0.5, -s * 0.9)
+    ctx.lineTo(d * s * (1.3 + wave * d * 0.5), -s * (1.9 + wave * d))
+    ctx.stroke()
+  }
+  ctx.beginPath()
+  ctx.roundRect(-s * 0.6, -s * 1.5, s * 1.2, s * 1.7, s * 0.4)
+  ctx.fill()
+  ctx.fillStyle = '#ffffff'
+  ctx.beginPath(); ctx.arc(0, -s * 2.1, s * 0.75, 0, Math.PI * 2); ctx.fill()
+}
+
 function drawCrew(ctx: CanvasRenderingContext2D, a: Asteroid, U: number, clock: number): void {
   // stranded crew, standing around the rim and waving
   for (let i = 0; i < a.people; i++) {
-    const s = 4.6 * U
     ctx.save()
     ctx.rotate((i / a.people) * Math.PI * 2 + 0.4)
     ctx.translate(0, -a.r * 0.92)
-    ctx.strokeStyle = ctx.fillStyle = '#ffb347'
-    ctx.lineWidth = 1.6 * U
-    ctx.lineCap = 'round'
-    const wave = Math.sin(clock * 9 + i * 2) * 0.5
-    for (const d of [-1, 1]) {
-      ctx.beginPath()
-      ctx.moveTo(d * s * 0.5, -s * 0.9)
-      ctx.lineTo(d * s * (1.3 + wave * d * 0.5), -s * (1.9 + wave * d))
-      ctx.stroke()
-    }
-    ctx.beginPath()
-    ctx.roundRect(-s * 0.6, -s * 1.5, s * 1.2, s * 1.7, s * 0.4)
-    ctx.fill()
-    ctx.fillStyle = '#ffffff'
-    ctx.beginPath(); ctx.arc(0, -s * 2.1, s * 0.75, 0, Math.PI * 2); ctx.fill()
+    drawPerson(ctx, 4.6 * U, U, Math.sin(clock * 9 + i * 2) * 0.5)
     ctx.restore()
   }
+}
+
+// A crew member thrown off the ship by a hit: the same figure the player
+// picked up, a little larger, tumbling away and fading.
+export function drawCastaway(ctx: CanvasRenderingContext2D, g: Game, c: Castaway): void {
+  const { U, clock } = g
+  ctx.save()
+  ctx.globalAlpha = Math.min(1, c.life / 0.8)
+  ctx.translate(c.x, c.y)
+  ctx.rotate(c.rot)
+  ctx.translate(0, 6 * U)
+  drawPerson(ctx, 6 * U, U, Math.sin(clock * 14) * 0.5)
+  ctx.restore()
 }
 
 // The pickup ring around a body that still has crew on it.

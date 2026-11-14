@@ -66,11 +66,15 @@ function drawPlayHud(ctx: CanvasRenderingContext2D, g: Game, top: number): void 
   const cap = levelCapacity(g.level), rows = cap > 16 ? 2 : 1, per = Math.ceil(cap / rows)
   const step = Math.min(14 * U, 190 * U / per), pw = step * 0.68, ph = 9 * U, gap = 4 * U
   const px = W / 2 - (per * step - (step - pw)) / 2, py = by + bh + 9 * U
-  if (cap) text(ctx, `CREW ${g.onboard}/${cap}`, W / 2, py + rows * (ph + gap) - gap + 14 * U, 11 * U, g.onboard >= cap ? '#ffd166' : 'rgba(93,255,160,.85)', 'center', 700)
+  // Yellow means seats still free, green means crew: the count is yellow
+  // until the ship is full and then green, like every seat. It swells for a
+  // moment as it fills, so the change does not rest on colour alone.
+  const full = g.onboard >= cap, pulse = full ? Math.max(0, 1 - g.fullFor / 0.5) : 0
+  if (cap) text(ctx, `CREW ${g.onboard}/${cap}`, W / 2, py + rows * (ph + gap) - gap + 14 * U, (11 + 5 * pulse) * U, full ? '#5dffa0' : '#ffd166', 'center', 700)
   for (let i = 0; i < cap; i++) {
     ctx.beginPath(); ctx.roundRect(px + (i % per) * step, py + Math.floor(i / per) * (ph + gap), pw, ph, pw * 0.3)
     if (i < g.onboard) { ctx.fillStyle = '#5dffa0'; ctx.fill() }
-    else { ctx.strokeStyle = 'rgba(93,255,160,.55)'; ctx.lineWidth = 1.2 * U; ctx.stroke() }
+    else { ctx.strokeStyle = 'rgba(255,209,102,.6)'; ctx.lineWidth = 1.2 * U; ctx.stroke() }
   }
 
   if (g.time < 3.5) drawTouchHints(ctx, g, 0.35 * Math.min(1, 3.5 - g.time))

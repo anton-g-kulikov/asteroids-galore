@@ -5,7 +5,7 @@ import { runEnd } from './runSummary'
 import { missionSoFar, scoreOf } from './score'
 import { spawnAsteroid, spawnChoice, spawnDilemma, spawnDrop, spawnRescue } from './spawn'
 import {
-  CHOICE_EVERY, DILEMMA_EVERY, DROPS_WITHIN, FIRST_RESCUE, GRACE, LAST_LEVEL, LEVEL_MIN_TIME, MAX_SHIELDS, SHIELDS,
+  CHOICE_EVERY, DILEMMA_EVERY, DROPS_WITHIN, FIRST_RESCUE, GRACE, LAST_LEVEL, LEVEL_MIN_TIME, MAX_SHIELDS, SEAT_WAIT, SHIELDS,
   SLOW_TIME, WELL_PULL, WELL_TIME, WORM_WAITS,
   handling, levelCapacity, levelTarget, rescueGap, shieldDrops, shipRadius, speedAt, startSpeed,
 } from './tuning'
@@ -13,7 +13,7 @@ import type { Asteroid, Game } from './types'
 
 export function startGame(g: Game): void {
   seedRandom(g.seed)            // the whole run is dealt from its seed
-  g.asteroids = []; g.particles = []; g.floaters = []; g.drops = []
+  g.asteroids = []; g.particles = []; g.floaters = []; g.castaways = []; g.drops = []; g.fullFor = 0
   g.time = 0; g.speed = 1; g.distance = 0; g.spawnTimer = 0.6; g.shake = 0; g.newBest = false
   g.level = 1; g.ship.r = shipRadius(0); g.levelTime = 0; g.levelScore = 0; g.onboard = 0
   g.wormhole = null; g.wormTimer = 0; g.wormWaits = []; g.wormCount = 0; g.dropCount = 0; g.flash = 0
@@ -110,13 +110,24 @@ function saveBest(g: Game): void {
   if (g.records.saveBest(scoreOf(g), runEnd(g))) g.newBest = true
 }
 
-// A hit burns a shield, and the run carries on where it is: same level, same
-// distance, same crew. The rock that hit is destroyed and the ship is
-// untouchable for a moment so the player can get clear. With no shield left
-// the hit destroys the ship.
+// A hit burns a shield and throws one crew member off the ship, if anyone is
+// aboard: they are missed, and their seat is free again. Otherwise the run
+// carries on where it is: same level, same distance. The rock that hit is
+// destroyed and the ship is untouchable for a moment so the player can get
+// clear. With no shield left the hit destroys the ship.
 function takeHit(g: Game, a: Asteroid): void {
   if (g.shields <= 0) { gameOver(g); return }
   g.shields--
+  if (g.onboard > 0) {
+    g.onboard--
+    g.missed++
+    // Show, don't tell: the player sees the person leave.
+    const side = random() < 0.5 ? -1 : 1
+    g.castaways.push({
+      x: g.ship.x, y: g.ship.y, vx: side * rand(70, 130) * g.U, vy: rand(-60, -20) * g.U,
+      rot: 0, spin: side * rand(2, 4), life: 2.2,
+    })
+  }
   explode(g, g.ship.x, g.ship.y)
   g.shake = 0.4
   a.dead = true
@@ -126,14 +137,13 @@ function takeHit(g: Game, a: Asteroid): void {
 }
 
 // How many of the crew on a planetoid that has drifted off the field count as
-// missed. Until the level's wormhole has appeared the player cannot leave, so
-// a ship with no seat for them had no choice and is not charged: only as many
-// as there were free seats for count. Once a wormhole has shown, staying on is
-// a choice, and everyone who drifts past counts: that is its price.
+// missed: only as many as the ship had free seats for. A ship with no seat for
+// them had no choice, so it is never charged.
 function missedOn(g: Game, a: Asteroid): number {
-  if (g.wormCount > 0) return a.people
   return Math.min(a.people, levelCapacity(g.level) - g.onboard)
 }
+
+const isFull = (g: Game): boolean => g.onboard >= levelCapacity(g.level)
 
 // A shield arc flown through: one more shield, up to what a ship can hold.
 function takeDrop(g: Game, d: { x: number; y: number; r: number }): void {
@@ -237,6 +247,9 @@ export function update(g: Game, dt: number, steer: number): void {
   }
   for (const p of g.particles) { p.x += p.vx * dt; p.y += p.vy * dt; p.life -= dt }
   g.particles = g.particles.filter(p => p.life > 0)
+  for (const c of g.castaways) { c.x += c.vx * dt; c.y += (c.vy + scroll * 0.5) * dt; c.rot += c.spin * dt; c.life -= dt }
+  g.castaways = g.castaways.filter(c => c.life > 0)
+  g.fullFor = g.state === 'play' && isFull(g) ? g.fullFor + dt : 0
   for (const f of g.floaters) { f.y -= 45 * U * dt; f.life -= dt }
   g.floaters = g.floaters.filter(f => f.life > 0)
   g.shake = Math.max(0, g.shake - dt)
@@ -339,11 +352,16 @@ function playerAndSpawns(g: Game, dt: number, steer: number, scroll: number): vo
   const drops = shieldDrops(g.level)
   if (g.dropCount < drops && g.levelScore >= levelTarget(g.level) * DROPS_WITHIN * (g.dropCount + 1) / drops) {
     g.dropCount++
-    if (g.dropCount % CHOICE_EVERY === 0) spawnChoice(g); else spawnDrop(g)
+    // a full ship has no use for crew: its choice arrives as a plain shield
+    if (g.dropCount % CHOICE_EVERY === 0 && !isFull(g)) spawnChoice(g); else spawnDrop(g)
   }
 
   // A run opens with rocks alone: the first planetoid shows up at a set distance.
   if (g.level === 1 && g.distance < FIRST_RESCUE) return
+  // A full ship is sent no crew: the sky empties, which says "full, take them
+  // home" without a word. When a seat opens the next planetoid follows after
+  // a short wait.
+  if (isFull(g)) { g.rescueTimer = SEAT_WAIT; return }
   g.rescueTimer -= dt
   if (g.rescueTimer <= 0) {
     g.rescueCount++
