@@ -1,6 +1,6 @@
-import { keptPercent, missionScore, pendingScore, scoreOf } from '../game/score'
+import { missedPercent, missionScore, pendingScore, scoreOf } from '../game/score'
 import { LAST_LEVEL, SHIELDS, levelCapacity, levelTarget } from '../game/tuning'
-import type { BoardRow, Game, LevelResult, SharedRun } from '../game/types'
+import type { BoardRow, Game, LevelResult, RunEnd, SharedRun } from '../game/types'
 import { SHIELD_COLOR, SHIELD_SPREAD } from './sprites'
 import { text } from './text'
 
@@ -37,9 +37,10 @@ function drawPlayHud(ctx: CanvasRenderingContext2D, g: Game, top: number): void 
   if (g.records.best) text(ctx, `BEST ${fmt(g.records.best)}`, W - 14, top - 8 * U, 13 * U, 'rgba(255,255,255,.55)', 'right', 600)
   text(ctx, `MISSION ${g.level}/${LAST_LEVEL}`, 14, top - 8 * U, 13 * U, 'rgba(127,220,255,.9)', 'left', 700)
   // shields: one arc each, under the best distance, the same shape as the
-  // arcs ahead of the ship; spent ones are faint
+  // arcs ahead of the ship; spent ones are faint, and spares found on the way
+  // add to the row
   ctx.lineCap = 'round'
-  for (let i = 0; i < SHIELDS; i++) {
+  for (let i = 0; i < Math.max(SHIELDS, g.shields); i++) {
     const sr = 7 * U, sx = W - 14 - sr - i * sr * 2.5, sy = top + 38 * U
     ctx.beginPath(); ctx.arc(sx, sy, sr, -Math.PI / 2 - SHIELD_SPREAD, -Math.PI / 2 + SHIELD_SPREAD)
     ctx.strokeStyle = i < g.shields ? SHIELD_COLOR : 'rgba(127,220,255,.2)'
@@ -59,12 +60,14 @@ function drawPlayHud(ctx: CanvasRenderingContext2D, g: Game, top: number): void 
   text(ctx, `${Math.min(target, Math.floor(g.levelScore))} / ${target} pc`, bx + bw + 8 * U, by + bh + 1 * U, 11 * U, 'rgba(255,255,255,.6)', 'left', 600)
 
   // ship capacity: one seat per pip, filled as crew come aboard
-  const cap = levelCapacity(g.level)
-  const step = Math.min(14 * U, (W - 40) / cap), pw = step * 0.68, ph = 9 * U
-  const px = W / 2 - (cap * step - (step - pw)) / 2, py = by + bh + 9 * U
-  if (cap) text(ctx, `CREW ${g.onboard}/${cap}`, W / 2, py + ph + 14 * U, 11 * U, g.onboard >= cap ? '#ffd166' : 'rgba(93,255,160,.85)', 'center', 700)
+  // the big crews of the late missions sit in two rows, to stay clear of the
+  // counts on the left and the shields on the right
+  const cap = levelCapacity(g.level), rows = cap > 16 ? 2 : 1, per = Math.ceil(cap / rows)
+  const step = Math.min(14 * U, 190 * U / per), pw = step * 0.68, ph = 9 * U, gap = 4 * U
+  const px = W / 2 - (per * step - (step - pw)) / 2, py = by + bh + 9 * U
+  if (cap) text(ctx, `CREW ${g.onboard}/${cap}`, W / 2, py + rows * (ph + gap) - gap + 14 * U, 11 * U, g.onboard >= cap ? '#ffd166' : 'rgba(93,255,160,.85)', 'center', 700)
   for (let i = 0; i < cap; i++) {
-    ctx.beginPath(); ctx.roundRect(px + i * step, py, pw, ph, pw * 0.3)
+    ctx.beginPath(); ctx.roundRect(px + (i % per) * step, py + Math.floor(i / per) * (ph + gap), pw, ph, pw * 0.3)
     if (i < g.onboard) { ctx.fillStyle = '#5dffa0'; ctx.fill() }
     else { ctx.strokeStyle = 'rgba(93,255,160,.55)'; ctx.lineWidth = 1.2 * U; ctx.stroke() }
   }
@@ -103,7 +106,7 @@ function drawShared(ctx: CanvasRenderingContext2D, g: Game, run: SharedRun, y: n
   const { W, U } = g
   text(ctx, run.callsign, W / 2, y, 13 * U, '#ffd166', 'center', 700)
   text(ctx, fmt(run.score), W / 2, y + 30 * U, 28 * U, '#ffffff', 'center', 800)
-  if (run.outcome === 'won') text(ctx, `ALL MISSIONS COMPLETE · ${run.saved} SAVED`, W / 2, y + 48 * U, 12 * U, '#5dffa0', 'center', 700)
+  if (run.outcome === 'won') text(ctx, `MADE IT HOME · ${run.saved} SAVED`, W / 2, y + 48 * U, 12 * U, '#5dffa0', 'center', 700)
   else text(ctx, `${run.saved} SAVED · ${run.distance} pc`, W / 2, y + 48 * U, 12 * U, 'rgba(255,255,255,.65)', 'center', 600)
 }
 
@@ -122,27 +125,27 @@ function drawMissed(ctx: CanvasRenderingContext2D, g: Game, missed: number, y: n
   text(ctx, `${missed} MISSED`, g.W / 2, y, 13 * g.U, '#ff7b54', 'center', 700)
 }
 
-// The crew left behind and what they took off the mission's score: "4 (−40%)", or a dash for none.
-const missedCut = (missed: number): string => missed ? `${missed} (−${100 - keptPercent(missed)}%)` : '—'
+// The crew left behind and what they took off the mission's score: "4 (−26%)", or a dash for none.
+const missedCut = (missed: number): string => missed ? `${missed} (−${missedPercent(missed)}%)` : '—'
 
 const TABLE = [-150, -82, -18, 44, 122]   // column centres, in units from the middle
 const ORANGE = '#ff7b54'
 
 // One mission as a sum that reads left to right: distance, times the crew
 // saved, less the share the missed crew cost, is its score. A mission that
-// ended with the ship destroyed shows the crew it cost and a negative score.
+// ended with the ship destroyed shows the crew who went down with it and no
+// score: there is no sum to read.
 function drawMissionRow(ctx: CanvasRenderingContext2D, g: Game, r: LevelResult, name: string, y: number, size: number, alpha: number): void {
   const { W, U } = g
   const cols = TABLE.map(dx => W / 2 + dx * U)
-  const white = `rgba(255,255,255,${alpha})`, score = missionScore(r)
+  const white = `rgba(255,255,255,${alpha})`, missedColor = r.missed ? `rgba(255,123,84,${alpha + 0.2})` : white
+  const crashed = r.lost !== undefined
   text(ctx, name, cols[0], y, Math.min(size, 12 * U), white, 'center', 700)
   text(ctx, `${r.distance} pc`, cols[1], y, size, white, 'center', 600)
   if (r.lost) text(ctx, `−${r.lost}`, cols[2], y, size, 'rgba(255,154,60,.85)', 'center', 600)
-  else {
-    text(ctx, `×${r.saved}`, cols[2], y, size, `rgba(93,255,160,${alpha})`, 'center', 600)
-    text(ctx, missedCut(r.missed), cols[3], y, size, r.missed ? `rgba(255,123,84,${alpha + 0.2})` : white, 'center', 600)
-  }
-  text(ctx, score < 0 ? `−${fmt(-score)}` : fmt(score), cols[4], y, size, score < 0 ? 'rgba(255,154,60,.85)' : white, 'center', 600)
+  else text(ctx, `×${r.saved}`, cols[2], y, size, `rgba(93,255,160,${alpha})`, 'center', 600)
+  text(ctx, crashed ? String(r.missed || '—') : missedCut(r.missed), cols[3], y, size, missedColor, 'center', 600)
+  text(ctx, crashed ? '—' : fmt(missionScore(r)), cols[4], y, size, white, 'center', 600)
 }
 
 function drawTableHead(ctx: CanvasRenderingContext2D, g: Game, first: string, y: number): void {
@@ -168,12 +171,12 @@ function drawBetween(ctx: CanvasRenderingContext2D, g: Game): void {
 // Both end screens: a table with a row per mission played, each a sum of its
 // own, then the score they add up to, the best, the crew who were not saved,
 // the prompt and the leaderboard. After a crash the unfinished mission has a
-// row too, with the crew who went down with the ship and what they cost.
+// row too, with the crew who went down with the ship.
 function drawEnd(ctx: CanvasRenderingContext2D, g: Game): void {
   const { W, H, U } = g
   const won = g.state === 'won', gold = '#ffd166'
   const top = H * 0.17, head = top + 48 * U, line = 24 * U
-  text(ctx, won ? 'ALL MISSIONS COMPLETE' : 'GAME OVER', W / 2, top, 30 * U, won ? '#5dffa0' : ORANGE, 'center', 800)
+  text(ctx, won ? 'MADE IT HOME' : 'GAME OVER', W / 2, top, 30 * U, won ? '#5dffa0' : ORANGE, 'center', 800)
   drawTableHead(ctx, g, 'MISSION', head)
   g.results.forEach((r, i) => drawMissionRow(ctx, g, r, String(r.level), head + (i + 1) * line, 15 * U, 0.6))
 
@@ -232,11 +235,17 @@ function drawBoardButton(ctx: CanvasRenderingContext2D, g: Game): void {
   text(ctx, 'LEADERBOARD', r.x + r.w / 2, r.y + r.h / 2 + 4.5 * U, 13 * U, '#ffffff', 'center', 700)
 }
 
+/** How a run ended, as the board says it: who got out in time, and how deep into the last mission they went. */
+export const endNote = (end: RunEnd): string =>
+  end.level < LAST_LEVEL ? `LOST · MISSION ${end.level}`
+    : `${end.outcome === 'won' ? 'HOME' : 'LOST'} · ${fmt(end.finalDistance)} pc`
+
 // The leaderboard screen, opened from the link on an end screen: a title, then
-// rank, callsign and best score per row. The player's own row is gold.
+// rank, callsign and best score per row, and under the callsign how that run
+// ended. The player's own row is gold.
 function drawBoard(ctx: CanvasRenderingContext2D, g: Game, rows: BoardRow[]): void {
   const { W, H, U } = g
-  const half = 150 * U, line = 30 * U, y = H * 0.17
+  const half = 150 * U, line = 38 * U, y = H * 0.14
   ctx.fillStyle = 'rgba(5,6,13,.72)'
   ctx.fillRect(0, 0, W, H)
   text(ctx, 'TOP SCORES', W / 2, y, 30 * U, '#7fdcff', 'center', 800)
@@ -247,9 +256,10 @@ function drawBoard(ctx: CanvasRenderingContext2D, g: Game, rows: BoardRow[]): vo
     text(ctx, String(row.rank), W / 2 - half, ry, 15 * U, row.me ? color : 'rgba(255,255,255,.45)', 'left', weight)
     text(ctx, row.callsign, W / 2 - half + 34 * U, ry, 15 * U, color, 'left', weight)
     text(ctx, fmt(row.value), W / 2 + half, ry, 15 * U, color, 'right', weight)
+    if (row.end) text(ctx, endNote(row.end), W / 2 - half + 34 * U, ry + 14 * U, 10 * U, row.end.outcome === 'won' ? 'rgba(93,255,160,.8)' : 'rgba(255,255,255,.45)', 'left', 600)
   })
   ctx.globalAlpha = 0.6 + 0.4 * Math.sin(g.stateTime * 4)
-  text(ctx, 'TAP TO GO BACK', W / 2, y + 56 * U + rows.length * line + 30 * U, 20 * U, '#ffffff')
+  text(ctx, 'TAP TO GO BACK', W / 2, y + 56 * U + rows.length * line + 26 * U, 20 * U, '#ffffff')
   ctx.globalAlpha = 1
 }
 

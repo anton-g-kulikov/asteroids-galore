@@ -2,12 +2,13 @@ import './style.css'
 import { startCloud } from './cloud'
 import { shareIdFromPath, shareMessage, shareResult, shareUrl } from './cloud/share'
 import { createDebugHook } from './debugHook'
-import { createGame, layout } from './game/game'
+import { createGame, fit } from './game/game'
 import { createInput } from './game/input'
 import { createRecords, type RecordStore } from './game/records'
 import { runSummary, type RunResult } from './game/runSummary'
 import { tryStart, update } from './game/simulation'
 import { timeScale } from './game/timeScale'
+import { STEP } from './game/tuning'
 import { boardButtonRect, hasBoard, shareButtonRect } from './render/hud'
 import { render } from './render/render'
 
@@ -25,13 +26,16 @@ const cloud = startCloud(records, rows => { game.board = rows })
 const input = createInput()
 
 // ---------- Layout ----------
+// The play field never changes shape: the window only decides how big it is drawn.
+let view = fit(window.innerWidth, window.innerHeight)
 function resize() {
   const dpr = Math.min(window.devicePixelRatio || 1, 3)
-  layout(game, window.innerWidth, window.innerHeight)
-  canvas.style.width = game.W + 'px'
-  canvas.width = Math.round(game.W * dpr)
-  canvas.height = Math.round(game.H * dpr)
-  ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+  view = fit(window.innerWidth, window.innerHeight)
+  canvas.style.width = game.W * view.scale + 'px'
+  canvas.style.height = game.H * view.scale + 'px'
+  canvas.width = Math.round(game.W * view.scale * dpr)
+  canvas.height = Math.round(game.H * view.scale * dpr)
+  ctx.setTransform(dpr * view.scale, 0, 0, dpr * view.scale, 0, 0)
 }
 window.addEventListener('resize', resize)
 resize()
@@ -58,8 +62,9 @@ function runEnded() {
 }
 
 function inside(e: PointerEvent, r: { x: number; y: number; w: number; h: number }): boolean {
-  const x = e.clientX - (window.innerWidth - game.W) / 2   // the play field is centred
-  return x >= r.x && x <= r.x + r.w && e.clientY >= r.y && e.clientY <= r.y + r.h
+  // from window pixels to play-field units
+  const x = (e.clientX - view.x) / view.scale, y = (e.clientY - view.y) / view.scale
+  return x >= r.x && x <= r.x + r.w && y >= r.y && y <= r.y + r.h
 }
 
 function onShareButton(e: PointerEvent): boolean {
@@ -133,18 +138,27 @@ window.addEventListener('keyup', e => {
 })
 
 // ---------- Loop ----------
-let last = performance.now()
-function frame(now: number) {
-  const dt = Math.min(0.05, (now - last) / 1000)   // clamp: no jumps after tab switch
-  last = now
+// The game advances in steps of one fixed length, however often the screen
+// refreshes: a slow device takes several steps per frame and a fast one takes
+// a step every other frame, and both play the same game.
+function step() {
   let scale = 1
   if (game.slowmo > 0 && game.state === 'play') {
     scale = timeScale(game.slowmo)
-    game.slowmo -= dt
+    game.slowmo -= STEP
   }
   const wasPlaying = game.state === 'play'
-  update(game, dt * scale, input.steer())
+  update(game, STEP * scale, input.steer())
   if (wasPlaying && (game.state === 'over' || game.state === 'won')) runEnded()   // not the stop between levels
+}
+
+let last = performance.now(), owed = 0
+function frame(now: number) {
+  let dt = Math.min(0.25, (now - last) / 1000)   // clamp: no jumps after tab switch
+  last = now
+  if (Math.abs(dt - STEP) < 0.002) dt = STEP     // a 60 Hz screen: exactly one step per frame, no stutter
+  owed += dt
+  while (owed >= STEP - 1e-9) { owed -= STEP; step() }
   game.shareNote = Math.max(0, game.shareNote - dt)
   render(ctx, game)
   requestAnimationFrame(frame)

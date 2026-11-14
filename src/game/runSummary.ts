@@ -1,16 +1,12 @@
-import { scoreOf } from './score'
-import type { Game } from './types'
+import { finalDistance, scoreOf } from './score'
+import type { Game, RunEnd } from './types'
 
 /** What is kept of a run once it has ended. */
-export interface RunResult {
-  /** `won`: all levels cleared. `over`: ship destroyed. */
-  outcome: 'won' | 'over'
-  /** The missions' scores added up: see `missionScore`. Never below zero. */
+export interface RunResult extends RunEnd {
+  /** The missions' scores added up: see `missionScore`. */
   score: number
   /** Whole parsecs flown. */
   distance: number
-  /** Level the run ended on. */
-  level: number
   /** Crew delivered through a wormhole. */
   saved: number
   /** Crew who were on board when the ship was destroyed. Always 0 for a `won` run. */
@@ -20,12 +16,18 @@ export interface RunResult {
   durationSeconds: number
 }
 
+/** How the run ended: what the board shows beside its score. */
+export const runEnd = (g: Game): RunEnd => ({
+  outcome: g.state === 'won' ? 'won' : 'over',
+  level: g.level,
+  finalDistance: finalDistance(g),
+})
+
 export function runSummary(g: Game): RunResult {
   return {
-    outcome: g.state === 'won' ? 'won' : 'over',
+    ...runEnd(g),
     score: scoreOf(g),
     distance: Math.floor(g.distance),
-    level: g.level,
     saved: g.saved,
     lost: g.lost,
     missed: g.missed,

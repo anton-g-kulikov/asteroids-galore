@@ -7,4 +7,5 @@ html, body {
   -webkit-touch-callout: none;
   -webkit-tap-highlight-color: transparent;
 }
-canvas { display: block; margin: 0 auto; height: 100%; }
+body { display: flex; align-items: center; justify-content: center; }
+canvas { display: block; }

@@ -46,8 +46,21 @@ export interface Well { x: number; y: number; dwell: number; depth: number }
 
 export interface Wormhole { x: number; y: number; r: number }
 
+/** A shield arc drifting down the field; flying through it adds a shield. `fall` is its share of the scroll speed. */
+export interface Drop { x: number; y: number; r: number; fall: number }
+
+/** How a run ended: what a row of the board says besides the score. */
+export interface RunEnd {
+  /** `won`: went home through the last wormhole. `over`: ship destroyed. */
+  outcome: 'won' | 'over'
+  /** Mission the run ended on. */
+  level: number
+  /** Whole parsecs flown in the last mission; 0 when the run never reached it. */
+  finalDistance: number
+}
+
 /** One line of a leaderboard, ready to draw. */
-export interface BoardRow { rank: number; callsign: string; value: number; me: boolean }
+export interface BoardRow { rank: number; callsign: string; value: number; me: boolean; end: RunEnd | null }
 
 /** Someone else's run, opened from a share link. */
 export interface SharedRun {
@@ -59,7 +72,7 @@ export interface SharedRun {
 }
 
 export interface Game {
-  // Field size in CSS px; U = base unit (scales sprites)
+  // Field size and base unit: fixed (see FIELD_W, FIELD_H); the window only scales the picture
   W: number
   H: number
   U: number
@@ -78,8 +91,6 @@ export interface Game {
   level: number
   levelTime: number
   levelScore: number
-  /** Seconds spent in second gear on this level: see `speedAt`. */
-  gearTime: number
   onboard: number        // crew in the seats right now: not saved until the next wormhole
   saved: number          // crew delivered through a wormhole; safe for good
   lost: number           // crew who were on board when the ship was destroyed
@@ -93,6 +104,13 @@ export interface Game {
 
   wormhole: Wormhole | null   // exit to the next level, once the level's goals are met
   wormTimer: number
+  /** Waits still to be dealt to missed wormholes: see WORM_WAITS. */
+  wormWaits: number[]
+  /** Wormholes that have appeared on this level. */
+  wormCount: number
+  drops: Drop[]
+  /** Shield drops that have appeared on this level. */
+  dropCount: number
 
   // Gravity: the longer the ship sits in one place, the deeper the well it digs.
   // Wells stay where they were dug. When the ship leaves one it is left behind,
@@ -104,7 +122,7 @@ export interface Game {
   shields: number             // shields left; a hit with none destroys the ship
   grace: number               // seconds of protection left after a hit
   slowmo: number              // slow-motion seconds left
-  slowWatch: Asteroid | null  // the rock whose arrival triggers the slow motion
+  slowWatch: { y: number } | null   // the rock or wormhole whose arrival triggers the slow motion
 
   newBest: boolean
   records: Records

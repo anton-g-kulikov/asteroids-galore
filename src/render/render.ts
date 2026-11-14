@@ -1,7 +1,7 @@
 import { rand } from '../game/random'
 import type { Game } from '../game/types'
 import { drawHud } from './hud'
-import { drawAsteroid, drawGrid, drawShip, drawWormhole } from './sprites'
+import { drawAsteroid, drawDrop, drawGrid, drawShip, drawWormhole } from './sprites'
 import { text } from './text'
 
 /** Draws one frame. Reads the game, never changes it. */
@@ -23,6 +23,7 @@ export function render(ctx: CanvasRenderingContext2D, g: Game): void {
 
   if (g.wormhole) drawWormhole(ctx, g, g.wormhole)
   for (const a of g.asteroids) drawAsteroid(ctx, g, a)
+  for (const d of g.drops) drawDrop(ctx, g, d)
   for (const p of g.particles) {
     ctx.globalAlpha = Math.max(0, p.life / p.max)
     ctx.fillStyle = p.color

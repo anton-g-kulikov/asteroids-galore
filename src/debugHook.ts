@@ -22,6 +22,8 @@ export function createDebugHook(g: Game) {
     get onboard() { return g.onboard },
     get wormhole() { return g.wormhole },
     get wormTimer() { return g.wormTimer },
+    get drops() { return g.drops },
+    get results() { return g.results },
     get slowmo() { return g.slowmo },
     get shields() { return g.shields },
     get grace() { return g.grace },

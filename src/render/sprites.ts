@@ -1,6 +1,6 @@
 import { curvature, ringRadius, shipMass } from '../game/game'
 import { GRACE, levelCapacity } from '../game/tuning'
-import type { Asteroid, Game, Wormhole } from '../game/types'
+import type { Asteroid, Drop, Game, Wormhole } from '../game/types'
 import { text } from './text'
 
 const ROCK = [['#8b8f9c', '#5b5f6b'], ['#9a8a7b', '#62564b'], ['#7d8794', '#4c545f']]
@@ -133,9 +133,28 @@ export function drawWormhole(ctx: CanvasRenderingContext2D, g: Game, w: Wormhole
   ctx.restore()
 }
 
-/** Shields look the same ahead of the ship and in the HUD. */
+/** Shields look the same ahead of the ship, in the HUD and drifting down the field. */
 export const SHIELD_COLOR = '#7fdcff'
 export const SHIELD_SPREAD = 0.8   // half-width of a shield arc, in radians
+
+// A shield to pick up: the arc the player knows from the ship, glowing and
+// doubled so it reads as something to take, not something worn.
+export function drawDrop(ctx: CanvasRenderingContext2D, g: Game, d: Drop): void {
+  const { U, clock } = g
+  ctx.save()
+  ctx.translate(d.x, d.y)
+  ctx.globalAlpha = 0.16 + 0.08 * Math.sin(clock * 6)
+  ctx.fillStyle = SHIELD_COLOR
+  ctx.beginPath(); ctx.arc(0, 0, d.r * 1.35, 0, Math.PI * 2); ctx.fill()
+  ctx.globalAlpha = 1
+  ctx.lineCap = 'round'
+  ctx.strokeStyle = SHIELD_COLOR
+  for (const k of [1, 0.62]) {
+    ctx.lineWidth = 3 * U * k
+    ctx.beginPath(); ctx.arc(0, d.r * 0.55, d.r * k, -Math.PI / 2 - SHIELD_SPREAD, -Math.PI / 2 + SHIELD_SPREAD); ctx.stroke()
+  }
+  ctx.restore()
+}
 
 export function drawShip(ctx: CanvasRenderingContext2D, g: Game): void {
   const { ship, W, clock } = g
@@ -172,8 +191,9 @@ export function drawShip(ctx: CanvasRenderingContext2D, g: Game): void {
   ctx.fill()
   // passenger deck: one seat per dot, filling from the back as crew come aboard
   if (cap) {
-    // two seats sit one behind the other on the centreline
-    const cols = cap <= 2 ? 1 : cap <= 8 ? 2 : 4, rows = cap / cols
+    // two seats sit one behind the other on the centreline; the big crews of
+    // the late missions sit in wider rows so that every seat still fits the hull
+    const cols = cap <= 2 ? 1 : cap <= 8 ? 2 : cap <= 20 ? 4 : cap <= 25 ? 5 : 6, rows = Math.ceil(cap / cols)
     const p = Math.min(0.78 * r / Math.max(2, cols), 1.05 * r / rows)
     // the pair sits midway between the cockpit glass and the tail
     const back = cols === 1 ? r * 0.25 + p / 2 : r * 0.72

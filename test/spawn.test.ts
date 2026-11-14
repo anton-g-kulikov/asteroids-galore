@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest'
-import { createGame, layout } from '../src/game/game'
+import { createGame } from '../src/game/game'
 import { createRecords } from '../src/game/records'
 import { startGame, update } from '../src/game/simulation'
 import { crewSize, spawnAsteroid, spawnDilemma, spawnRescue } from '../src/game/spawn'
@@ -7,7 +7,6 @@ import { FIRST_RESCUE } from '../src/game/tuning'
 
 function playing(level: number) {
   const g = createGame(createRecords(null))
-  layout(g, 390, 844)
   startGame(g)
   g.level = level
   return g
@@ -78,7 +77,7 @@ test('SPAWN-07 planetoids carry more crew on later levels', () => {
   expect(range(sizes(1))).toEqual([1, 1])
   expect(range(sizes(2))).toEqual([1, 3])
   expect(range(sizes(3))).toEqual([1, 3])
-  expect(range(sizes(4))).toEqual([2, 4])
+  for (const l of [4, 5, 6, 7]) expect(range(sizes(l))).toEqual([2, 4])
   const means = [2, 3, 4].map(l => mean(sizes(l)))
   expect(means[0]).toBeLessThan(1.8)
   expect(means[1]).toBeGreaterThan(1.9)

@@ -2,8 +2,8 @@ import { expect, test, vi } from 'vitest'
 import { shareIdFromPath, shareMessage, shareResult, shareUrl } from '../../src/cloud/share'
 import type { RunResult } from '../../src/game/runSummary'
 
-const lost: RunResult = { outcome: 'over', score: 1128, distance: 564, level: 3, saved: 3, lost: 1, missed: 0, durationSeconds: 40 }
-const won: RunResult = { ...lost, outcome: 'won', level: 4, saved: 14, lost: 0, score: 7896 }
+const lost: RunResult = { outcome: 'over', score: 1128, distance: 564, level: 3, finalDistance: 0, saved: 3, lost: 1, missed: 0, durationSeconds: 40 }
+const won: RunResult = { ...lost, outcome: 'won', level: 7, finalDistance: 200, saved: 14, lost: 0, score: 7896 }
 
 test('SHARE-01 the run ID comes from /s/{id}', () => {
   expect(shareIdFromPath('/s/Ab3dEf6hIj9kLm2nOp5q')).toBe('Ab3dEf6hIj9kLm2nOp5q')
@@ -19,6 +19,7 @@ test('SHARE-02 the link and the message', () => {
   expect(shareMessage(lost)).toContain('3 crew')
   expect(shareMessage(lost)).toContain('1,128')
   expect(shareMessage(won)).toContain('14 crew')
+  expect(shareMessage(won)).toMatch(/^Made it home/)
   expect(shareMessage(won)).toContain('7,896')
   expect(shareMessage(lost) + shareMessage(won)).not.toContain('564')
 })

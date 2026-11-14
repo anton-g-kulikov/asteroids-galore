@@ -1,6 +1,6 @@
 import type { Records } from '../game/records'
 import type { RunResult } from '../game/runSummary'
-import type { BoardRow, SharedRun } from '../game/types'
+import type { BoardRow, RunEnd, SharedRun } from '../game/types'
 import { callsignFor } from './callsign'
 import { BOARD_SIZE, boardRows, type BoardEntry } from './leaderboard'
 
@@ -8,10 +8,10 @@ import { BOARD_SIZE, boardRows, type BoardEntry } from './leaderboard'
 export interface CloudBackend {
   /** Signs the player in (anonymously) and resolves with their user ID. */
   signIn(): Promise<string>
-  /** The player's saved best score, or null when nothing is saved yet. */
-  loadBest(uid: string): Promise<number | null>
-  /** Saves the player's leaderboard entry: their best score, under their callsign. */
-  saveBest(uid: string, best: number, callsign: string): Promise<void>
+  /** The player's saved best score and how that run ended, or null when nothing is saved yet. */
+  loadBest(uid: string): Promise<{ best: number; end: RunEnd | null } | null>
+  /** Saves the player's leaderboard entry: their best score and how that run ended, under their callsign. */
+  saveBest(uid: string, best: number, end: RunEnd, callsign: string): Promise<void>
   /** Saves a finished run under the player's callsign and resolves with the new run's ID. */
   saveRun(uid: string, run: RunResult, callsign: string): Promise<string>
   /** A run by its ID, for a share link; null when there is no such run. */
@@ -55,7 +55,7 @@ export function createResultsSync(backend: CloudBackend, records: Records, optio
   async function pushBest(id: string) {
     const now = records.best
     if (now <= saved) return
-    await backend.saveBest(id, now, callsignFor(id))
+    await backend.saveBest(id, now, records.bestEnd, callsignFor(id))
     saved = now
   }
 
@@ -63,13 +63,13 @@ export function createResultsSync(backend: CloudBackend, records: Records, optio
     if (uid) return uid
     const id = await backend.signIn()
     const remote = await backend.loadBest(id)
-    if (remote) { saved = remote; records.absorb(remote) }
+    if (remote?.best) { saved = remote.best; records.absorb(remote.best, remote.end) }
     uid = id
     return id
   }
 
   async function loadBoard(id: string) {
-    const me = { uid: id, callsign: callsignFor(id), value: records.best }
+    const me = { uid: id, callsign: callsignFor(id), value: records.best, end: records.bestEnd }
     const [top, above] = await Promise.all([
       backend.loadBoard(BOARD_SIZE),
       me.value > 0 ? backend.countAbove(me.value) : 0,

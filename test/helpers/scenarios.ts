@@ -18,7 +18,7 @@ function dodge(g: DebugHook): number {
   if (g.wormhole) return Math.abs(g.wormhole.x - s.x) < 6 ? 0 : g.wormhole.x > s.x ? 1 : -1
   const crew = g.asteroids.filter(a => a.people && a.y < s.y).sort((a, b) => b.y - a.y)[0]
   let best = s.x, bestCost = Infinity
-  for (let x = 24; x <= 366; x += 6) {
+  for (let x = 24; x <= 376; x += 6) {
     let cost = Math.abs(x - s.x) * 0.02
     if (crew) cost += Math.abs(x - (crew.x + (s.x >= crew.x ? 1 : -1) * (crew.r + 24))) * 0.01
     for (const a of g.asteroids) {
@@ -106,8 +106,8 @@ function touch(): Scenario['pilot'] {
 }
 
 export const scenarios: Scenario[] = [
-  { name: 'GOLD-01 mission', seed: 1, frames: 4800, pilot: mission() },
-  { name: 'GOLD-02 crash and retry', seed: 2, frames: 2400, pilot: crash(), storage: { 'asteroids-galore-best-score': '120' } },
+  { name: 'GOLD-01 mission', seed: 1, frames: 7800, pilot: mission() },
+  { name: 'GOLD-02 crash and retry', seed: 2, frames: 2400, pilot: crash(), storage: { 'asteroids-galore-best-v2': '120' } },
   { name: 'GOLD-03 two-crew pairs', seed: 3, frames: 3000, pilot: pairs() },
   { name: 'GOLD-04 touch and resize', seed: 4, frames: 2400, pilot: touch() },
 ]

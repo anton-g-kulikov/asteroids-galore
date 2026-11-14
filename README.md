@@ -4,7 +4,7 @@ A small top-down space dodger for phones. No shooting — just flying.
 
 **Play:** https://asteroids-galore.web.app
 
-The game is drawn on a single canvas. It is written in TypeScript, built with Vite, tested with Vitest, and hosted on Firebase Hosting. Finished runs are saved to Firestore under an anonymous Firebase account, the end screens show a leaderboard, and a run can be shared as a link; there is no login screen and no name to type.
+The game is drawn on a single canvas, on a play field of one fixed shape that is scaled to fit the window, and advances in fixed steps, so it plays the same on every device. It is written in TypeScript, built with Vite, tested with Vitest, and hosted on Firebase Hosting. Finished runs are saved to Firestore under an anonymous Firebase account, the end screens show a leaderboard, and a run can be shared as a link; there is no login screen and no name to type.
 
 ## Controls
 
@@ -50,13 +50,13 @@ _meta/              game design notes and the task list
 
 ## Saved results
 
-On load the game signs in anonymously in the background. When a run ends it writes one document to `runs` and keeps the player's best score in `users/{uid}`; a best saved there is restored if the device's storage was cleared. The document shapes are enforced by `firestore.rules`.
+On load the game signs in anonymously in the background. When a run ends it writes one document to `runs` and keeps the player's best score, and how that run ended, in `users/{uid}`; a best saved there is restored if the device's storage was cleared. The document shapes are enforced by `firestore.rules`.
 
 ## Leaderboard
 
 Each account gets a callsign generated from its ID, such as `COSMIC OTTER 42`; nobody types a name. `users/{uid}` doubles as the player's leaderboard entry and is public to read.
 
-Both end screens have a `LEADERBOARD` link that opens `TOP SCORES`: the top 10 by best score. Each mission scores its parsecs times the crew saved in it, less 10% for each crew member left behind, and the score is the missions added up, so a long flight with nobody saved scores nothing.
+Both end screens have a `LEADERBOARD` link that opens `TOP SCORES`: the top 10 by best score, each with a line saying how that run ended. There are seven missions. Each scores its parsecs times the crew saved in it, less a share for the crew left behind, and the score is the missions added up, so a long flight with nobody saved scores nothing. The wormhole of mission 7 is the way home: it ends the run, and the player decides when to take it.
 
 The player's own row is gold. If it is outside the top 10 it is added below with its rank. How the board behaves is described in [_meta/game-design.md](_meta/game-design.md).
 

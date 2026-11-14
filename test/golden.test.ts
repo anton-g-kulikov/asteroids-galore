@@ -42,23 +42,25 @@ describe('golden traces', () => {
     const max = (t: Trace, k: Parameters<typeof column>[1]) => Math.max(...(column(t, k) as number[]))
 
     expect(column(mission, 'state')).toContain('won')
-    expect(max(mission, 'level')).toBe(4)
+    expect(max(mission, 'level')).toBe(7)
+    expect(max(mission, 'drops')).toBeGreaterThan(0)
+    expect(new Set(column(mission, 'shipR')).size).toBeGreaterThan(3)   // the ship swells with its crew
     expect(max(mission, 'saved')).toBeGreaterThan(0)
     expect(max(mission, 'score')).toBeGreaterThan(0)
     // the best is the winning run's score; the pilot may fly on into another run afterwards
     const wonAt = column(mission, 'state').indexOf('won')
-    expect(Number(mission.storage['asteroids-galore-best-score'])).toBe(column(mission, 'score')[wonAt])
+    expect(Number(mission.storage['asteroids-galore-best-v2'])).toBe(column(mission, 'score')[wonAt])
 
     expect(column(crash, 'state')).toContain('over')
     expect(column(crash, 'state').lastIndexOf('play')).toBeGreaterThan(column(crash, 'state').indexOf('over'))
-    expect(crash.storage['asteroids-galore-best-score']).toBe('120')   // nobody saved: the best stands
+    expect(crash.storage['asteroids-galore-best-v2']).toBe('120')   // nobody saved: the best stands
 
     expect(max(pairs, 'slowmo')).toBeGreaterThan(0)
     expect(max(pairs, 'onboard')).toBe(4)
     expect(max(pairs, 'missed')).toBeGreaterThan(0)
 
     expect(column(touch, 'state')).toContain('play')
-    expect(new Set(column(touch, 'shipR')).size).toBeGreaterThan(1)   // the resizes took effect
+    expect(new Set(column(touch, 'shipR')).size).toBe(1)   // a resize changes the picture, not the game
   }, 60000)
 
   test.runIf(update)('write the fixture', () => {

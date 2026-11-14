@@ -1,24 +1,28 @@
-import { MISS_PERCENT } from './tuning'
+import { LAST_LEVEL, MISS_CAP, MISS_RATE } from './tuning'
 import type { Game, LevelResult } from './types'
 
-/** The share of a mission's score that is kept, in per cent, after the crew left behind. */
-export const keptPercent = (missed: number): number => Math.max(0, 100 - MISS_PERCENT * missed)
+/**
+ * The share of a mission's score that is kept after the crew left behind.
+ * Each one takes MISS_RATE of what is still at risk, and at most MISS_CAP is
+ * ever at risk: the penalty runs out while the parsecs keep growing.
+ */
+export const keptShare = (missed: number): number => 1 - MISS_CAP * (1 - (1 - MISS_RATE) ** missed)
+
+/** What the crew left behind cost, in whole per cent. */
+export const missedPercent = (missed: number): number => 100 - Math.round(keptShare(missed) * 100 + 1e-9)
 
 /**
  * A mission's score: the parsecs flown in it times the crew saved in it, less
- * MISS_PERCENT for every crew member left behind. Parsecs only ever multiply
- * the crew of their own mission, so lingering on an easy one buys little, and
- * the crews that drift past meanwhile eat into it.
- *
- * A mission that ended with the ship destroyed saved nobody: it costs its
- * distance times the crew who went down with the ship.
+ * the share the crew left behind cost. Parsecs only ever multiply the crew of
+ * their own mission. A mission that ended with the ship destroyed saved nobody
+ * and scores nothing; what earlier missions banked is untouched.
  */
 export const missionScore = (r: LevelResult): number =>
-  r.lost ? -(r.distance * r.lost) : Math.floor(r.distance * r.saved * keptPercent(r.missed) / 100)
+  Math.round(r.distance * r.saved * keptShare(r.missed))
 
-/** The run's score: its missions added up, never below zero. */
+/** The run's score: its missions added up. */
 export const runScore = (results: LevelResult[]): number =>
-  Math.max(0, results.reduce((sum, r) => sum + missionScore(r), 0))
+  results.reduce((sum, r) => sum + missionScore(r), 0)
 
 export const scoreOf = (g: Game): number => runScore(g.results)
 
@@ -31,3 +35,7 @@ export const missionSoFar = (g: Game): Omit<LevelResult, 'saved'> => ({
 
 /** What the crew on board would add if they were delivered now. */
 export const pendingScore = (g: Game): number => missionScore({ ...missionSoFar(g), saved: g.onboard })
+
+/** Whole parsecs flown in the last mission; 0 for a run that never reached it. */
+export const finalDistance = (g: Game): number =>
+  g.level >= LAST_LEVEL ? Math.floor(g.distance) - Math.floor(g.levelFrom.distance) : 0

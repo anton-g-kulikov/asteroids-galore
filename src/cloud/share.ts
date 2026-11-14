@@ -15,7 +15,7 @@ export const shareUrl = (origin: string, runId: string): string => `${origin}/s/
 /** The line that goes with the link. It leads with the crew: they are what the score is for. */
 export function shareMessage(run: RunResult): string {
   return run.outcome === 'won'
-    ? `All missions complete in Asteroids Galore: ${run.saved} crew saved, score ${run.score.toLocaleString('en-US')}.`
+    ? `Made it home in Asteroids Galore: ${run.saved} crew saved, score ${run.score.toLocaleString('en-US')}.`
     : `I saved ${run.saved} crew in Asteroids Galore and scored ${run.score.toLocaleString('en-US')}. Can you save more?`
 }
 

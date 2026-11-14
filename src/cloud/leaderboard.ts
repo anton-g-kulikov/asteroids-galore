@@ -1,10 +1,10 @@
-import type { BoardRow } from '../game/types'
+import type { BoardRow, RunEnd } from '../game/types'
 
 /** How many players the board lists before the player's own row. */
 export const BOARD_SIZE = 10
 
-/** One player's entry on the board, as the backend returns it. `value` is their best score. */
-export interface BoardEntry { uid: string; callsign: string; value: number }
+/** One player's entry on the board, as the backend returns it. `value` is their best score, `end` how that run ended. */
+export interface BoardEntry { uid: string; callsign: string; value: number; end: RunEnd | null }
 
 /**
  * Turns the top entries from the server into the rows to draw.
@@ -20,9 +20,9 @@ export function boardRows(top: BoardEntry[], me: BoardEntry, above: number, limi
     const ahead = entries.filter(e => e.value >= me.value).length   // on a tie, whoever got there first stays ahead
     entries.splice(ahead, 0, me)
   }
-  const rows = entries.slice(0, limit).map((e, i) => ({ rank: i + 1, callsign: e.callsign, value: e.value, me: e === me }))
+  const rows = entries.slice(0, limit).map((e, i) => ({ rank: i + 1, callsign: e.callsign, value: e.value, me: e === me, end: e.end }))
   if (me.value > 0 && !rows.some(r => r.me)) {
-    rows.push({ rank: Math.max(above + 1, limit + 1), callsign: me.callsign, value: me.value, me: true })
+    rows.push({ rank: Math.max(above + 1, limit + 1), callsign: me.callsign, value: me.value, me: true, end: me.end })
   }
   return rows
 }

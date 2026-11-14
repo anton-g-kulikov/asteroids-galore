@@ -1,48 +1,67 @@
 // The numbers that shape the game. What each one does for the player is
 // described in _meta/game-design.md.
 
-export const MAX_FIELD_WIDTH = 560   // px; wider screens get a centred play field
-export const TARGET_SPEED = 2.3      // speed multiplier on reaching a level's parsec target, whatever its length
-export const MAX_SPEED = 4.5         // first gear tops out here
-export const GEAR_AT = 2             // second gear unlocks once this many times the level's target is flown
-export const GEAR_RAMP = 0.1         // speed multiplier gained per second in second gear
-export const TOP_SPEED = 9           // second gear tops out here
-export const MISS_PERCENT = 10       // per cent of a mission's score lost for each crew member left behind
+// The play field has one fixed shape on every device; the window only scales it.
+export const FIELD_W = 400
+export const FIELD_H = 720
+export const STEP = 1 / 60           // seconds per simulation step, on every device
 
-/**
- * Speed multiplier for a level. First gear follows progress, not the clock:
- * `progress` is the share of the level's target flown, and speed rises in a
- * straight line from 1 to TARGET_SPEED at the target, then on at the same rate
- * up to MAX_SPEED. So a long level is no faster at its end than a short one.
- * A ship that stays on past GEAR_AT times the target is in second gear from
- * then on: `gearTime` seconds of it add speed on top, up to TOP_SPEED, so
- * farming parsecs on one level gets dangerous.
- */
-export const speedAt = (progress: number, gearTime: number): number =>
-  Math.min(TOP_SPEED, Math.min(MAX_SPEED, 1 + progress * (TARGET_SPEED - 1)) + gearTime * GEAR_RAMP)
+export const SPEED_GAIN = 1.3        // speed multiplier gained over a level's parsec target, whatever its length
+export const MISS_RATE = 0.1         // each crew member left behind takes this share of what is still at risk
+export const MISS_CAP = 0.75         // at most this share of a mission's score is ever at risk
+
 export const LEVEL_MIN_TIME = 20     // seconds of dodging before a level can end
-export const LAST_LEVEL = 4          // finishing this level wins the game
+export const LAST_LEVEL = 7          // the wormhole of this level is the way home
 export const WELL_TIME = 6           // seconds parked in one spot for the deepest gravity well
 export const WELL_AHEAD = 4          // well centre sits this many ship radii above the ship's centre
 export const WELL_PULL = 780         // how hard a well pulls rocks in, before ship mass and speed
 export const DILEMMA_EVERY = 3       // every Nth rescue is a "save these or those" choice
-export const SHIELDS = 3             // hits the shields absorb per level; the next one destroys the ship
+export const SHIELDS = 3             // every level starts with at least this many
+export const MAX_SHIELDS = 5         // a ship holds no more than this
 export const GRACE = 2               // seconds the ship cannot be hit after losing a life
 export const SLOW_TIME = 1.4         // real seconds of slow motion when a two-crew pair comes into view
 export const SLOW_SCALE = 0.3        // game speed at the depth of the slow motion
 
+const at = <T>(list: T[], l: number): T => list[Math.max(1, Math.min(l, list.length)) - 1]
+
 /** Parsecs to fly within the level. */
-const TARGETS = [500, 750, 1250, 2000]
-export const levelTarget = (l: number): number => TARGETS[Math.min(l, TARGETS.length) - 1]
+export const levelTarget = (l: number): number => at([500, 750, 1250, 2000, 2500, 3000, 3500], l)
 
-/** Seats: 2, 4, 8, 16, 32. */
-export const levelCapacity = (l: number): number => Math.min(32, 2 ** l)
+/** Seats. */
+export const levelCapacity = (l: number): number => at([2, 4, 8, 16, 20, 24, 32], l)
 
-/** A bigger ship steers slower. */
-export const levelHandling = (l: number): number => Math.max(0.5, 0.92 ** (l - 1))
+/** Speed multiplier a level starts at. */
+export const startSpeed = (l: number): number => at([1, 1, 1, 1, 1.4, 1.8, 2.2], l)
 
-/** The ship grows with its seat count. `unit` is the layout's base unit. */
-export const shipRadius = (l: number, unit: number): number => [13, 15, 17, 20, 22][Math.min(l, 5) - 1] * unit
+/**
+ * Speed multiplier for a level. It follows progress, not the clock: `progress`
+ * is the share of the level's target flown, and speed rises in a straight line
+ * by SPEED_GAIN over the target, whatever the level's length, and keeps rising
+ * at the same rate for as long as the ship stays on. There is no ceiling.
+ */
+export const speedAt = (l: number, progress: number): number => startSpeed(l) + progress * SPEED_GAIN
+
+/** Shield arcs that drift down the field during the level, evenly spaced over its first DROPS_WITHIN. */
+export const shieldDrops = (l: number): number => at([0, 0, 0, 0, 6, 4, 0], l)
+export const DROPS_WITHIN = 2 / 3
+export const CHOICE_EVERY = 2        // every Nth shield drop arrives as "2 crew, 3 crew or a shield"
+
+/** Seconds until a missed wormhole returns: dealt in a random order, reshuffled when all are used. */
+export const WORM_WAITS = [16, 19, 22, 25, 28]
+
+// Crew make the ship heavy: its size and steering come from the crew on board.
+export const FULL_CREW = 32          // the load at which the ship is at its biggest and slowest
+const LOAD_CURVE = 0.7               // below 1: the first crew aboard are felt the most
+const load = (crew: number): number => Math.min(1, Math.max(0, crew) / FULL_CREW) ** LOAD_CURVE
+
+/** Ship radius for the crew on board, in field units: 13 empty, 22 full. */
+export const shipRadius = (crew: number): number => 13 + 9 * load(crew)
+
+/** Steering speed for the crew on board: 100% empty, 60% full. */
+export const handling = (crew: number): number => 1 - 0.4 * load(crew)
+
+/** How much each crew member on board adds to the ship's mass, which deepens the well dug while parked. */
+export const CREW_MASS = 0.05
 
 /** Parsecs into a run before the first planetoid appears: the opening is rocks alone. */
 export const FIRST_RESCUE = 200

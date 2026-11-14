@@ -16,6 +16,7 @@ export interface DebugHook {
   readonly onboard: number
   readonly wormhole: { x: number; y: number; r: number } | null
   readonly wormTimer: number
+  readonly drops: { x: number; y: number; r: number }[]
   readonly slowmo: number
   readonly shields: number
   readonly grace: number
@@ -52,7 +53,7 @@ export const SAMPLE_EVERY = 20
 export const SAMPLE_KEYS = [
   'frame', 'state', 'level', 'shields', 'score', 'distance', 'speed', 'saved', 'lost', 'missed', 'onboard',
   'grace', 'slowmo', 'wormTimer', 'shipX', 'shipVx', 'shipR', 'rocks', 'rocksX', 'rocksY',
-  'people', 'wells', 'depth', 'wormX', 'wormY', 'draw',
+  'people', 'wells', 'depth', 'wormX', 'wormY', 'drops', 'draw',
 ] as const
 export type Sample = (number | string | null)[]
 
@@ -189,6 +190,7 @@ export async function runScenario(
           game.asteroids.length, sum(a => a.x), sum(a => a.y), sum(a => a.people),
           game.wells.length, round(game.wells.reduce((s, w) => s + w.depth, 0)),
           game.wormhole ? round(game.wormhole.x) : null, game.wormhole ? round(game.wormhole.y) : null,
+          game.drops.length,
           (hash >>> 0).toString(16),
         ])
       }

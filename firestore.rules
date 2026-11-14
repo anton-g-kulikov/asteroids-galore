@@ -15,6 +15,17 @@ service cloud.firestore {
       return value is int && value >= min && value <= max;
     }
 
+    // How a run ended. There are 7 missions (LAST_LEVEL in src/game/tuning.ts).
+    // A `won` run went home through the wormhole of mission 7; `final` is the
+    // parsecs flown in mission 7, and 0 for a run that never got there.
+    function validEnd(outcome, level, final) {
+      return outcome in ['won', 'over']
+        && wholeNumber(level, 1, 7)
+        && (outcome != 'won' || level == 7)
+        && wholeNumber(final, 0, 1000000)
+        && (level == 7 || final == 0);
+    }
+
     // One document per finished run. Written once by the player; never changed.
     // Anyone holding a run's ID can read it (that is what a share link is), but
     // runs cannot be listed.
@@ -23,15 +34,14 @@ service cloud.firestore {
       allow create: if signedInAs(request.resource.data.userId) && validRun(request.resource.data);
 
       function validRun(run) {
-        return run.keys().hasOnly(['userId', 'callsign', 'createdAt', 'appVersion', 'outcome', 'score', 'distance', 'level', 'saved', 'lost', 'missed', 'durationSeconds'])
-          && run.keys().hasAll(['userId', 'callsign', 'createdAt', 'appVersion', 'outcome', 'score', 'distance', 'level', 'saved', 'lost', 'missed', 'durationSeconds'])
+        return run.keys().hasOnly(['userId', 'callsign', 'createdAt', 'appVersion', 'outcome', 'score', 'distance', 'level', 'finalDistance', 'saved', 'lost', 'missed', 'durationSeconds'])
+          && run.keys().hasAll(['userId', 'callsign', 'createdAt', 'appVersion', 'outcome', 'score', 'distance', 'level', 'finalDistance', 'saved', 'lost', 'missed', 'durationSeconds'])
           && run.createdAt == request.time
           && validCallsign(run.callsign)
           && run.appVersion is string && run.appVersion.size() <= 20
-          && run.outcome in ['won', 'over']
           && wholeNumber(run.distance, 0, 1000000)
-          && wholeNumber(run.level, 1, 4)
-          && (run.outcome != 'won' || run.level == 4)
+          && validEnd(run.outcome, run.level, run.finalDistance)
+          && run.finalDistance <= run.distance
           && wholeNumber(run.saved, 0, 1000)
           && wholeNumber(run.lost, 0, 1000)
           && (run.outcome != 'won' || run.lost == 0)
@@ -45,20 +55,23 @@ service cloud.firestore {
       }
     }
 
-    // A player's leaderboard entry: callsign and best score. Public to read,
-    // since the board is a query over this collection. The best only ever goes
-    // up. An entry written before scores existed has no bestScore and counts as 0.
+    // A player's leaderboard entry: callsign, best score and how that run
+    // ended. Public to read, since the board is a query over this collection.
+    // The best only ever goes up. An entry written under earlier rules has no
+    // `best` (it has `bestScore`, or older fields): it counts as 0, is not on
+    // the board, and is replaced whole by the player's first entry of this kind.
     match /users/{userId} {
       allow read: if true;
       allow create: if signedInAs(userId) && validEntry(request.resource.data);
       allow update: if signedInAs(userId) && validEntry(request.resource.data)
-        && request.resource.data.bestScore >= resource.data.get('bestScore', 0);
+        && request.resource.data.best >= resource.data.get('best', 0);
 
       function validEntry(user) {
-        return user.keys().hasOnly(['callsign', 'bestScore', 'updatedAt'])
-          && user.keys().hasAll(['callsign', 'bestScore', 'updatedAt'])
+        return user.keys().hasOnly(['callsign', 'best', 'bestOutcome', 'bestLevel', 'bestFinal', 'updatedAt'])
+          && user.keys().hasAll(['callsign', 'best', 'bestOutcome', 'bestLevel', 'bestFinal', 'updatedAt'])
           && validCallsign(user.callsign)
-          && wholeNumber(user.bestScore, 0, 1000000000)
+          && wholeNumber(user.best, 0, 1000000000)
+          && validEnd(user.bestOutcome, user.bestLevel, user.bestFinal)
           && user.updatedAt == request.time;
       }
     }
