@@ -132,8 +132,8 @@ function drawMissed(ctx: CanvasRenderingContext2D, g: Game, missed: number, y: n
   text(ctx, `${missed} MISSED`, g.W / 2, y, 13 * g.U, '#ff7b54', 'center', 700)
 }
 
-// The crew left behind and what they took off the mission's score: "4 (−26%)", or a dash for none.
-const missedCut = (missed: number): string => missed ? `${missed} (−${missedPercent(missed)}%)` : '—'
+// The crew left behind and what they took off the mission's score: "4 (−20%)", or a dash for none.
+const missedCut = (r: LevelResult): string => r.missed ? `${r.missed} (−${missedPercent(r.missed, r.level)}%)` : '—'
 
 const TABLE = [-150, -82, -18, 44, 122]   // column centres, in units from the middle
 const ORANGE = '#ff7b54'
@@ -151,7 +151,7 @@ function drawMissionRow(ctx: CanvasRenderingContext2D, g: Game, r: LevelResult, 
   text(ctx, `${r.distance} pc`, cols[1], y, size, white, 'center', 600)
   if (r.lost) text(ctx, `−${r.lost}`, cols[2], y, size, 'rgba(255,154,60,.85)', 'center', 600)
   else text(ctx, `×${r.saved}`, cols[2], y, size, `rgba(93,255,160,${alpha})`, 'center', 600)
-  text(ctx, crashed ? String(r.missed || '—') : missedCut(r.missed), cols[3], y, size, missedColor, 'center', 600)
+  text(ctx, crashed ? String(r.missed || '—') : missedCut(r), cols[3], y, size, missedColor, 'center', 600)
   text(ctx, crashed ? '—' : fmt(missionScore(r)), cols[4], y, size, white, 'center', 600)
 }
 

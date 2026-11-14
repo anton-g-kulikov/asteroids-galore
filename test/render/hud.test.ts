@@ -92,6 +92,11 @@ test('HUD-02 an end screen is a table with a sum per mission, then the score the
   const seven = drawnText('won', null, { results: [1, 2, 3, 4, 5, 6, 7].map(level => ({ level, saved: 2, missed: 0, distance: 500 })) })
   expect(seven.slice(6, 41).filter((_, i) => i % 5 === 0)).toEqual(['1', '2', '3', '4', '5', '6', '7'])
   expect(seven).toContain('7,000')
+
+  // the cost of a missed crew member is the mission's own: 5% early, 3%, 2% and 1.5% in missions 5, 6 and 7
+  const late = drawnText('won', null, { results: [4, 5, 6, 7].map(level => ({ level, saved: 10, missed: 3, distance: 1000 })) })
+  expect(late.filter(t => t.startsWith('3 ('))).toEqual(['3 (−15%)', '3 (−9%)', '3 (−6%)', '3 (−4.5%)'])
+  expect(late).toEqual(expect.arrayContaining(['8,500', '9,100', '9,400', '9,550']))
 })
 
 test('HUD-03 no board, or an empty one: no link and no board', () => {
@@ -156,6 +161,8 @@ test('HUD-09 one number at a time: what the crew on board are worth, or else the
   expect(carrying).not.toContain('1,200')
   // a crew left behind on this mission takes 5% off what those on board are worth
   expect(drawnText('play', null, { distance: 1400, onboard: 4, missed: 1, results: banked, levelFrom: from })).toContain('+3,800')
+  // in mission 7 the same crew left behind takes 1.5%
+  expect(drawnText('play', null, { level: 7, distance: 1400, onboard: 4, missed: 1, results: banked, levelFrom: from })).toContain('+3,940')
   // empty seats: the score
   const empty = drawnText('play', null, { distance: 1400, saved: 3, onboard: 0, results: banked, levelFrom: from })
   expect(empty).toContain('1,200')

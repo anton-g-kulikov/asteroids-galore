@@ -7,7 +7,6 @@ export const FIELD_H = 720
 export const STEP = 1 / 60           // seconds per simulation step, on every device
 
 export const SPEED_GAIN = 1.3        // speed multiplier gained over a level's parsec target, whatever its length
-export const MISS_COST = 0.05        // each crew member left behind takes this share of the mission's score
 
 export const LEVEL_MIN_TIME = 20     // seconds of dodging before a level can end
 export const LAST_LEVEL = 7          // the wormhole of this level is the way home
@@ -29,6 +28,13 @@ export const levelTarget = (l: number): number => at([500, 750, 1250, 2000, 2500
 
 /** Seats. */
 export const levelCapacity = (l: number): number => at([2, 4, 6, 10, 16, 24, 32], l)
+
+/**
+ * The share of a mission's score that each crew member left behind takes.
+ * It falls as the seats grow: from mission 5 on, missing as many crew as the
+ * ship seats costs about half the mission.
+ */
+export const missCost = (l: number): number => at([0.05, 0.05, 0.05, 0.05, 0.03, 0.02, 0.015], l)
 
 /** Speed multiplier a level starts at. */
 export const startSpeed = (l: number): number => at([1, 1, 1, 1, 1.4, 1.8, 2.2], l)

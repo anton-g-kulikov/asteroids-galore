@@ -1,11 +1,16 @@
-import { LAST_LEVEL, MISS_COST } from './tuning'
+import { LAST_LEVEL, missCost } from './tuning'
 import type { Game, LevelResult } from './types'
 
-/** What the crew left behind cost, in whole per cent: MISS_COST each, and never more than everything. */
-export const missedPercent = (missed: number): number => Math.min(100, Math.round(missed * MISS_COST * 100))
+/**
+ * What the crew left behind in a mission of this level cost, in per cent:
+ * missCost(level) each, and never more than everything. Exact to a tenth, so
+ * what the table prints is what the score was worked out from.
+ */
+export const missedPercent = (missed: number, level: number): number =>
+  Math.min(100, Math.round(missed * missCost(level) * 1000) / 10)
 
 /** The share of a mission's score that is kept after the crew left behind. */
-export const keptShare = (missed: number): number => 1 - missedPercent(missed) / 100
+export const keptShare = (missed: number, level: number): number => 1 - missedPercent(missed, level) / 100
 
 /**
  * A mission's score: the parsecs flown in it times the crew saved in it, less
@@ -14,7 +19,7 @@ export const keptShare = (missed: number): number => 1 - missedPercent(missed) /
  * and scores nothing; what earlier missions banked is untouched.
  */
 export const missionScore = (r: LevelResult): number =>
-  Math.round(r.distance * r.saved * keptShare(r.missed))
+  Math.round(r.distance * r.saved * keptShare(r.missed, r.level))
 
 /** The run's score: its missions added up. */
 export const runScore = (results: LevelResult[]): number =>

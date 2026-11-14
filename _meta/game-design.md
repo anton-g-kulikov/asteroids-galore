@@ -19,7 +19,7 @@ All seven missions are built, with starting values that are still to be tuned by
 
 ## What the player is told
 
-Deliberately very little. The start screen shows only the title, the best score, the two control arrows and, small at the foot, the version and the seed of the next run (`v0.3.1 · SEED 4F2A9C`). Levels start without a banner — the only sign is the mission counter in the corner and a flash on arrival; between them a results screen shows what the last one added. Rescues, the level exit and gravity are left for the player to discover. This file describes how they work.
+Deliberately very little. The start screen shows only the title, the best score, the two control arrows and, small at the foot, the version and the seed of the next run (`v0.3.2 · SEED 4F2A9C`). Levels start without a banner — the only sign is the mission counter in the corner and a flash on arrival; between them a results screen shows what the last one added. Rescues, the level exit and gravity are left for the player to discover. This file describes how they work.
 
 ## The score
 
@@ -44,7 +44,7 @@ When the game is connected to the cloud and the board has loaded, both end scree
 
 The leaderboard is `TOP SCORES`: the ten highest best scores, one global board for all time. Players are listed by callsign: two words and a number, generated from the player's anonymous account, so nobody types a name and the same account always keeps the same one. Under each callsign a small line says how many missions that run finished: `FINISHED 2/7` for a run lost in mission 3. A run that reached mission 7 also says how it ended and the parsecs flown there: `FINISHED 7/7 · HOME · 5,400 pc` for a run that went home, `FINISHED 6/7 · LOST · 7,100 pc` for one destroyed in mission 7. The board then tells how far each player got and who got out in time. The player's own row is gold, which is also how they learn their callsign. A player outside the top ten gets an extra row with their rank. A player whose best is 0 is not listed.
 
-The board starts again whenever scores stop being comparable: entries are ranked by a field whose name changes with the scoring (`best3` since the flat 5% penalty of 2026-11-15; `best` before it, `bestScore` before that), so entries that only hold an earlier score are not listed, and a player's first new entry replaces their old one. Nothing is deleted. The best kept on the device moves to a new key at the same time.
+The board starts again whenever scores stop being comparable: entries are ranked by a field whose name changes with the scoring (`best3` since the linear penalty of 2026-11-15; `best` before it, `bestScore` before that), so entries that only hold an earlier score are not listed, and a player's first new entry replaces their old one. Nothing is deleted. The best kept on the device moves to a new key at the same time.
 
 The board is refreshed when a run ends, and the player's row always uses the best the game holds right now. Offline, or before the first board has loaded, there is simply no pill.
 
@@ -203,7 +203,7 @@ Agreed on 2026-11-14 and built the same day, replacing the four-mission game. Th
 | | Before | Now |
 |---|---|---|
 | Missions | 4, and the fourth ended the run | 7, and the seventh ends when the player goes home or the ship is destroyed |
-| Crew left behind | 10% each, down to nothing at ten | 5% each, down to nothing at twenty |
+| Crew left behind | 10% each, down to nothing at ten | 5% each in missions 1–4, then 3%, 2% and 1.5%, down to nothing |
 | Ship destroyed | The unfinished mission cost its parsecs × the crew aboard, taken off the banked score | The unfinished mission scores nothing; everything banked is kept |
 | Speed past the target | The same slope up to 4.5×, then second gear up to 9× | One slope in every mission: no second gear, and no ceiling |
 | A missed wormhole | Back after a random 15–30 seconds | Back after a wait dealt from a shuffled set |
@@ -220,24 +220,29 @@ Agreed on 2026-11-14 and built the same day, replacing the four-mission game. Th
 
 ### Crew left behind
 
-A mission's score is parsecs × crew saved, less a share for the crew left behind. The share, in every mission:
+A mission's score is parsecs × crew saved, less a share for the crew left behind. Each crew member left behind takes a fixed share of that mission's score, and the share depends on the mission:
 
-**Each crew member left behind takes 5% of the mission's score.**
+| Mission | 1–4 | 5 | 6 | 7 |
+|---|---|---|---|---|
+| Each missed crew member costs (`missCost`) | 5% | 3% | 2% | 1.5% |
+| Seats | 2–10 | 16 | 24 | 32 |
+| The mission is worth nothing at | 20 missed | 34 | 50 | 67 |
 
-| Missed | 1 | 2 | 3 | 5 | 10 | 20 or more |
-|---|---|---|---|---|---|---|
-| Kept | 95% | 90% | 85% | 75% | 50% | nothing |
-
-- **Why flat.** The earlier formula (10% of what was still at risk, with at most 75% ever at risk) could not be worked out in the head, and the results table showed figures like −7% and −35% that explained nothing. Now the table reads `3 (−15%)`.
-- **There is no floor.** Twenty crew left behind in one mission leave it worth nothing. That takes real misses: a full ship is sent no crew, so the count holds only crew the ship had a seat for and crew thrown off by hits.
-- **In code** it is one number, `MISS_COST` (5%).
+- **The rule of thumb:** from mission 5 on, missing as many crew as the ship seats costs about half the mission (16 × 3%, 24 × 2%, 32 × 1.5% are each 48%).
+- **Why it falls.** Seats grow from 2 to 32, so the chances to miss grow sixteen times; at a flat 5% each, the late missions were lost to misses. A run on 0.2.0 scored under the flat rule: mission 6, with 15 missed, lost 75% before counting hits, and mission 7, with 5 missed and 3 hits by 1,905 pc, was 40% down a little past halfway to the first way home. Under the table that mission 6 loses 30%.
+- **The penalty punishes mistakes, not time.** A mission cannot end before its target, the first wormhole appears as soon as the target is flown, and a full ship is sent no crew, so waiting adds no misses.
+- **Mission 7 must stay worth something,** or there is no choice between going home and staying.
+- **Why not a cap.** A cap turns "worth nothing" into a fixed tax, and every miss beyond it is free: the fault the 75% cap had.
+- **Still simple to read.** It is linear and has no floor other than nothing. The results table prints the count and the share, `3 (−15%)`; in mission 7 the share can end in a half, `1 (−1.5%)`, and the score is worked out from the figure that is printed.
+- **Hits.** Crew thrown off by a hit count as missed at the mission's own cost. In mission 7 a hit costs 1.5% plus the seat and the shield, so what ends a long stay is running out of shields.
+- **In code** it is `missCost(level)` in `tuning.ts`.
 
 ### Staying on
 
 Staying in a mission after its target is flown is still a gamble, but its shape changed with the two rules above.
 
 - **With free seats** it can pay: planetoids keep coming, every rescue raises the multiplier, and every parsec multiplies the crew aboard. Every planetoid not taken is a real miss.
-- **With a full ship** nothing drifts past and nothing is charged. Parsecs keep multiplying a full crew, so the score only climbs, and what it costs is risk: speed keeps rising, every hit throws a crew member off and takes 5% off the mission, and losing the ship loses the whole mission. A ship that is hit turns yellow and has to fill up again while the speed rises. Arriving home with a full ship is the skill.
+- **With a full ship** nothing drifts past and nothing is charged. Parsecs keep multiplying a full crew, so the score only climbs, and what it costs is risk: speed keeps rising, every hit throws a crew member off and takes that mission's share off its score (5% down to 1.5%), and losing the ship loses the whole mission. A ship that is hit turns yellow and has to fill up again while the speed rises. Arriving home with a full ship is the skill.
 - **In missions 1–6** this asks a player to risk the rest of the run for a larger mission score; in mission 7 it is the game.
 
 Before these rules the price of staying on with a full ship was the crew drifting past, and this section held a model of it: with the penalty of that time the score dipped first (7% down after a minute on mission 4, 18% on mission 7) and came level again only at speeds few survive. That model no longer describes anything in the game. Whether staying on now pays too easily is settled by playing (see [Still open](#still-open)).
@@ -333,7 +338,7 @@ Starting targets, *to tune*:
 Everything here is settled by playing, not by discussion:
 
 - **The parsecs and starting speeds of missions 5–7.**
-- **The 5% a crew member left behind costs,** and whether a mission should be able to fall to nothing.
+- **What a crew member left behind costs in each mission** (5%, then 3%, 2%, 1.5%), and whether a mission should be able to fall to nothing.
 - **The seats of missions 3–5** (6, 10, 16), which are fewer than before.
 - **Whether staying on with a full ship pays too easily,** now that it costs only risk (see [Staying on](#staying-on)).
 - **The wait before planetoids return** after a seat opens (`SEAT_WAIT`, 4 seconds).
@@ -374,7 +379,7 @@ The main numbers sit in `src/game/tuning.ts`:
 |---|---|
 | `FIELD_W`, `FIELD_H`, `STEP` | The fixed play field and the fixed simulation step |
 | `startSpeed`, `SPEED_GAIN` | Speed a level starts at, and how much it gains over the level's parsec target |
-| `MISS_COST` | Share of a mission's score that each crew member left behind takes |
+| `missCost` | Share of a mission's score that each crew member left behind takes, per mission |
 | `LEVEL_MIN_TIME` | Minimum seconds in a level before the wormhole can appear |
 | `levelTarget` | Parsecs to fly per level |
 | `levelCapacity` | Seats per level |
