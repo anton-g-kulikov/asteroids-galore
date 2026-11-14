@@ -8,12 +8,12 @@ The game is built from typed modules with Vite, has automated tests and Firebase
 
 The seven-mission run is built (see `game-design.md`). What is left of that plan, and what is settled only by playing, is listed there under "Still open".
 
-- **Play-test and tune missions 5–7:** their parsecs and starting speeds, the 75% cap on the missed-crew penalty (`MISS_CAP`), whether staying on with a full ship now pays too easily, whether losing a crew member to a hit is too harsh on mission 1, the set of wormhole waits, how many shield drops arrive as a choice, and how much each crew member slows the ship and deepens the well.
+- **Play-test and tune missions 5–7:** their parsecs and starting speeds, the 5% each crew member left behind costs (`MISS_COST`), the seats of missions 3–5, whether staying on with a full ship now pays too easily, whether losing a crew member to a hit is too harsh on mission 1, the set of wormhole waits, how many shield drops arrive as a choice, and how much each crew member slows the ship and deepens the well.
 - **Scores that can be checked:** saving each run's seed, a recording of the inputs, and a server that replays a run before listing its score. The fixed step, the fixed field and seeded randomness it depends on are in place; the rest is not started.
 - **Tuning aids:** per-run records of where and how runs end and the shields at each wormhole, and a scripted pilot in the tests that sweeps speeds to find where survival collapses. Not started; runs already record how they ended and how far mission 7 went.
 - **New things in missions 5–7:** decided after playing, and only if missions 5–7 feel thin. Candidates: dead stars, failing rescues, wrecked stations, angled asteroids.
 - **Look at the late missions on a real phone:** adding the game to the home screen on iOS and Android, the 32-seat hull and pip rows, the seven-row end-screen table and the board rows were checked by tests and by a scripted run, not by eye.
-- **Old leaderboard entries** in the live `users` collection hold only `bestScore`; they are no longer listed and can be deleted.
+- **Old leaderboard entries** in the live `users` collection hold only `best` or `bestScore`; they are no longer listed and can be deleted.
 - **Parked:** shooting (see the design notes for why).
 
 ## Known gaps
@@ -28,6 +28,7 @@ The seven-mission run is built (see `game-design.md`). What is left of that plan
 
 ## Done
 
+- Simpler scoring and a new board (2026-11-15, v0.3.0): each crew member left behind takes a flat 5% of the mission's score; seats grow evenly (2, 4, 6, 10, 16, 24, 32); the ship's size comes from its seats and only its steering from the crew on board; the screen between missions lists every mission flown so far; leaderboard rows say how many missions the run finished; the leaderboard starts again (entries ranked by `best3`, local best under a new key).
 - Two crew rules (2026-11-14): a full ship is sent no planetoids and is never charged for crew it has no seat for (a crew-or-shield row arrives as a plain shield; planetoids return 4 seconds after a seat opens); a hit that burns a shield also throws one crew member off the ship, who counts as missed. `CREW n/N` is yellow while seats are free and green when full. This replaces the wormhole line of the rule below. Scores for the same flying change again.
 - Installable, offline game (2026-11-14): web app manifest (full screen, portrait), icons drawn from the game's ship by `npm run icons`, a service worker that precaches the build so the game and share links open offline, and updates that wait for the start screen. Checked on the production build in a browser: installable manifest, offline reload and play with the server stopped, an update found mid-run left the run alone. **Not checked:** installing on a real phone, and watching a waiting update apply on relaunch (the browser pane was hidden, which pauses the game loop; the same steps applied on the start screen while it was visible).
 - A full ship is not charged for crew it has no seat for (2026-11-14): crew who drift past count as missed only if there was a free seat for them, or once the mission's wormhole has appeared. Scores for the same flying come out higher than under the first seven-mission build.

@@ -3,8 +3,8 @@
 import type { RunEnd } from './types'
 
 /** Not a key of any earlier best: scores under earlier rules are not comparable and are never read. */
-export const BEST_KEY = 'asteroids-galore-best-v2'
-export const BEST_END_KEY = 'asteroids-galore-best-v2-end'
+export const BEST_KEY = 'asteroids-galore-best-v3'
+export const BEST_END_KEY = 'asteroids-galore-best-v3-end'
 
 export type RecordStore = Pick<Storage, 'getItem' | 'setItem'>
 

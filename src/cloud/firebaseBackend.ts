@@ -12,10 +12,11 @@ import type { CloudBackend } from './resultsSync'
 const AUTH_EMULATOR = 'http://127.0.0.1:9199'
 const FIRESTORE_EMULATOR = ['127.0.0.1', 8180] as const
 
-// The field of a `users` document that the board is ranked by. Not the name
-// used under earlier rules (`bestScore`): those scores are not comparable, so
-// entries that only have the old field are simply not on the board.
-const BEST = 'best'
+// The field of a `users` document that the board is ranked by. Not a name used
+// under earlier scoring (`bestScore`, `best`): those scores are not comparable,
+// so entries that only have an old field are simply not on the board. Starting
+// the board again means a new name here, in firestore.rules and in records.ts.
+const BEST = 'best3'
 
 // How the best run ended, as stored beside it; null for an entry without it.
 function endOf(get: (field: string) => unknown): RunEnd | null {

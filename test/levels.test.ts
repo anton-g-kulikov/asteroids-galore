@@ -3,7 +3,7 @@ import { createGame, fit, shipMass } from '../src/game/game'
 import { seedRandom } from '../src/game/random'
 import { createRecords } from '../src/game/records'
 import { startGame, tryStart, update } from '../src/game/simulation'
-import { SEAT_WAIT, WORM_WAITS, levelTarget, shipRadius } from '../src/game/tuning'
+import { SEAT_WAIT, WORM_WAITS, levelCapacity, levelTarget, shipRadius } from '../src/game/tuning'
 import type { Game } from '../src/game/types'
 
 function playing(level = 1): Game {
@@ -196,34 +196,36 @@ test('LEVEL-11 mission 5 offers 6 shields and mission 6 offers 4, evenly spaced 
   }
 })
 
-test('LEVEL-12 crew make the ship heavy: it swells, steers slower and digs a deeper well; delivering them shrinks it back', () => {
+test('LEVEL-12 the ship is as big as its seats and as heavy as its crew: crew slow its steering and deepen its well, not its size', () => {
   const reach = (crew: number) => {
     const g = playing(7)
     g.onboard = crew
-    for (let i = 0; i < 60; i++) step(g, 1)
-    return { r: g.ship.r, x: g.ship.x, mass: shipMass(g) }
+    for (let i = 0; i < 15; i++) step(g, 1)
+    const x = g.ship.x                                         // before any of them reaches the wall
+    for (let i = 0; i < 75; i++) step(g, 1)
+    return { r: g.ship.r, x, mass: shipMass(g) }
   }
   const empty = reach(0), half = reach(16), full = reach(32)
-  expect(empty.r).toBeCloseTo(13)
-  expect(full.r).toBeCloseTo(22, 0)
-  expect(half.r).toBeGreaterThan(empty.r)
+  expect(empty.r).toBeCloseTo(22, 0)                           // 32 seats: the biggest ship, crew or no crew
+  expect([half.r, full.r]).toEqual([empty.r, empty.r])
   expect(full.x).toBeLessThan(half.x)                          // flew less far to the side in the same second
   expect(half.x).toBeLessThan(empty.x)
   expect([empty.mass, half.mass, full.mass]).toEqual([1, 1.8, 2.6])
-  // level alone changes nothing: an empty ship is the same size on every mission
-  const late = playing(7), early = playing(1)
-  for (let i = 0; i < 30; i++) { step(late); step(early) }
-  expect(late.ship.r).toBe(early.ship.r)
-  // delivered at the wormhole: the ship shrinks back
+  // every mission's ship is bigger than the one before
+  const sizes = [1, 2, 3, 4, 5, 6, 7].map(l => { const g = playing(l); for (let i = 0; i < 90; i++) step(g); return g.ship.r })
+  for (let i = 0; i < 7; i++) expect(sizes[i]).toBeCloseTo(shipRadius(levelCapacity(i + 1)), 1)
+  expect(sizes).toEqual([...sizes].sort((x, y) => x - y))
+  // delivered at the wormhole: the next mission's ship grows into its size
   const g = playing(3)
-  g.onboard = 8
+  g.onboard = 6
   for (let i = 0; i < 60; i++) step(g)
-  const loaded = g.ship.r
+  const before = g.ship.r
   intoWormhole(g); update(g, 0.8, 0); tryStart(g)
   g.spawnTimer = 999; g.rescueTimer = 999
+  step(g)
+  expect(g.ship.r - before).toBeLessThan(0.3)                  // not in one jump
   for (let i = 0; i < 90; i++) step(g)
-  expect(g.ship.r).toBeLessThan(loaded)
-  expect(g.ship.r).toBeCloseTo(13, 0)
+  expect(g.ship.r).toBeCloseTo(shipRadius(10), 1)
 })
 
 test('LEVEL-13 missions 5 to 7 start faster', () => {
@@ -326,7 +328,7 @@ test('LEVEL-15 a full ship is sent no planetoids; when a seat opens the next one
   expect(at).toBeLessThan(4.1)
 
   // a crew-or-shield row arrives as a plain shield drop when the ship is full, and as a row when it is not
-  for (const [onboard, crews] of [[20, 0], [19, 2]] as const) {
+  for (const [onboard, crews] of [[16, 0], [15, 2]] as const) {
     const m5 = playing(5)
     m5.wormTimer = 1e9
     m5.onboard = onboard
@@ -349,8 +351,6 @@ test('LEVEL-16 a hit that burns a shield throws one crew member off the ship', (
   expect(Math.hypot(c.x - from.x, c.y - from.y)).toBeGreaterThan(20)   // the figure drifts away from the ship
   for (let i = 0; i < 200; i++) step(g)
   expect(g.castaways).toHaveLength(0)                                   // and is gone
-  // the ship gets lighter
-  expect(g.ship.r).toBeLessThan(shipRadius(5))
   // nobody aboard: only the shield
   g.onboard = 0
   hit(g)

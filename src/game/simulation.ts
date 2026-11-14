@@ -15,7 +15,7 @@ export function startGame(g: Game): void {
   seedRandom(g.seed)            // the whole run is dealt from its seed
   g.asteroids = []; g.particles = []; g.floaters = []; g.castaways = []; g.drops = []; g.fullFor = 0
   g.time = 0; g.speed = 1; g.distance = 0; g.spawnTimer = 0.6; g.shake = 0; g.newBest = false
-  g.level = 1; g.ship.r = shipRadius(0); g.levelTime = 0; g.levelScore = 0; g.onboard = 0
+  g.level = 1; g.ship.r = shipRadius(levelCapacity(1)); g.levelTime = 0; g.levelScore = 0; g.onboard = 0
   g.wormhole = null; g.wormTimer = 0; g.wormWaits = []; g.wormCount = 0; g.dropCount = 0; g.flash = 0
   g.missed = 0; g.saved = 0; g.lost = 0
   g.results = []; g.levelFrom = { distance: 0, missed: 0 }
@@ -315,7 +315,7 @@ function playerAndSpawns(g: Game, dt: number, steer: number, scroll: number): vo
   // Ship: quick, slightly weighty lateral movement.
   // Crew make the ship heavy: it swells and steers slower as the seats fill,
   // and shrinks back when they are delivered.
-  ship.r += (shipRadius(g.onboard) * U - ship.r) * Math.min(1, dt * 5)
+  ship.r += (shipRadius(levelCapacity(g.level)) * U - ship.r) * Math.min(1, dt * 5)
   const maxV = W * (1.25 + g.speed * 0.18) * handling(g.onboard)
   const target = steer * maxV
   ship.vx += (target - ship.vx) * Math.min(1, dt * (target ? 9 : 7))

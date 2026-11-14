@@ -1,15 +1,11 @@
-import { LAST_LEVEL, MISS_CAP, MISS_RATE } from './tuning'
+import { LAST_LEVEL, MISS_COST } from './tuning'
 import type { Game, LevelResult } from './types'
 
-/**
- * The share of a mission's score that is kept after the crew left behind.
- * Each one takes MISS_RATE of what is still at risk, and at most MISS_CAP is
- * ever at risk: the penalty runs out while the parsecs keep growing.
- */
-export const keptShare = (missed: number): number => 1 - MISS_CAP * (1 - (1 - MISS_RATE) ** missed)
+/** What the crew left behind cost, in whole per cent: MISS_COST each, and never more than everything. */
+export const missedPercent = (missed: number): number => Math.min(100, Math.round(missed * MISS_COST * 100))
 
-/** What the crew left behind cost, in whole per cent. */
-export const missedPercent = (missed: number): number => 100 - Math.round(keptShare(missed) * 100 + 1e-9)
+/** The share of a mission's score that is kept after the crew left behind. */
+export const keptShare = (missed: number): number => 1 - missedPercent(missed) / 100
 
 /**
  * A mission's score: the parsecs flown in it times the crew saved in it, less

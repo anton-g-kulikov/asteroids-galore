@@ -3,7 +3,7 @@ import { createGame } from '../src/game/game'
 import { createRecords } from '../src/game/records'
 import { runSummary } from '../src/game/runSummary'
 import { keptShare, missedPercent, missionScore, pendingScore, runScore } from '../src/game/score'
-import { MISS_CAP, MISS_RATE } from '../src/game/tuning'
+import { MISS_COST } from '../src/game/tuning'
 import type { LevelResult } from '../src/game/types'
 
 const m = (distance: number, saved: number, missed = 0, lost?: number): LevelResult => ({ level: 1, distance, saved, missed, lost })
@@ -14,7 +14,7 @@ const ended = (state: 'over' | 'won', extra: object) =>
 test('SUM-01 a lost run: what its finished missions banked, with nothing taken off for the crash', () => {
   const run = runSummary(ended('over', { saved: 5, lost: 2, results: [m(300, 5, 1), m(112, 0, 1, 2)] }))
   expect(run).toEqual({
-    outcome: 'over', score: 1388, distance: 412, level: 3, finalDistance: 0, saved: 5, lost: 2, missed: 2, durationSeconds: 61.2,
+    outcome: 'over', score: 1425, distance: 412, level: 3, finalDistance: 0, saved: 5, lost: 2, missed: 2, durationSeconds: 61.2,
   })
 })
 
@@ -39,15 +39,13 @@ test('SCORE-02 a destroyed ship loses only the mission in flight: it scores noth
   expect(runScore([m(100, 1), m(928, 0, 2, 9)])).toBe(100)
 })
 
-test('SCORE-03 each crew member left behind takes 10% of what is still at risk, and at most 75% is ever at risk', () => {
-  expect([MISS_RATE, MISS_CAP]).toEqual([0.1, 0.75])
-  expect(keptShare(0)).toBe(1)
-  expect([1, 2, 3, 5, 10, 20].map(n => Math.round(keptShare(n) * 100))).toEqual([93, 86, 80, 69, 51, 34])
-  expect(keptShare(1000)).toBeCloseTo(0.25)                      // never below a quarter
-  expect([1, 2, 6, 1000].map(missedPercent)).toEqual([7, 14, 35, 75])
-  expect(missionScore(m(1000, 3, 1))).toBe(2775)                 // 3,000 less 7.5%
-  expect(missionScore(m(2082, 2, 4))).toBe(Math.round(4164 * (1 - 0.75 * (1 - 0.9 ** 4))))
-  expect(missionScore(m(1000, 3, 500))).toBe(750)
+test('SCORE-03 each crew member left behind takes 5% of the mission\'s score, down to nothing at 20', () => {
+  expect(MISS_COST).toBe(0.05)
+  expect([0, 1, 2, 3, 5, 10, 19, 20, 1000].map(keptShare).map(k => Math.round(k * 100))).toEqual([100, 95, 90, 85, 75, 50, 5, 0, 0])
+  expect([1, 2, 6, 20, 1000].map(missedPercent)).toEqual([5, 10, 30, 100, 100])
+  expect(missionScore(m(1000, 3, 1))).toBe(2850)                 // 3,000 less 5%
+  expect(missionScore(m(2082, 2, 4))).toBe(3331)                 // 4,164 less 20%
+  expect(missionScore(m(1000, 3, 500))).toBe(0)                  // never below nothing
 })
 
 test('SCORE-04 the run is its missions added up: parsecs do not multiply another mission\'s crew', () => {
@@ -57,5 +55,5 @@ test('SCORE-04 the run is its missions added up: parsecs do not multiply another
 
 test('SCORE-05 crew on board are worth this mission\'s parsecs so far, less what it has missed', () => {
   const g = Object.assign(createGame(createRecords(null)), { distance: 1300.6, missed: 5, onboard: 3, levelFrom: { distance: 900, missed: 3 } })
-  expect(pendingScore(g)).toBe(Math.round(400 * 3 * (1 - 0.75 * 0.19)))
+  expect(pendingScore(g)).toBe(400 * 3 * 0.9)
 })

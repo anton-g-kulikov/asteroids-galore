@@ -37,10 +37,11 @@ test('HUD-11 the leaderboard screen: every row by score with how the run ended, 
   for (const state of ['over', 'won'] as const) {
     const text = drawnText(state, rows, { boardOpen: true })
     expect(text).toEqual([
-      'TOP SCORES', '1', 'COSMIC OTTER 42', '25,680', 'HOME · 5,400 pc', '2', 'LUNAR FOX 07', '640', 'LOST · MISSION 3', 'TAP TO GO BACK',
+      'TOP SCORES', '1', 'COSMIC OTTER 42', '25,680', 'FINISHED 7/7 · HOME · 5,400 pc', '2', 'LUNAR FOX 07', '640', 'FINISHED 2/7', 'TAP TO GO BACK',
     ])
   }
-  expect(endNote({ outcome: 'over', level: 7, finalDistance: 7100 })).toBe('LOST · 7,100 pc')
+  expect(endNote({ outcome: 'over', level: 7, finalDistance: 7100 })).toBe('FINISHED 6/7 · LOST · 7,100 pc')
+  expect(endNote({ outcome: 'over', level: 1, finalDistance: 0 })).toBe('FINISHED 0/7')
   // an entry that does not say how its run ended: the row without a note
   expect(drawnText('over', [{ ...rows[0], end: null }], { boardOpen: true })).toEqual(['TOP SCORES', '1', 'COSMIC OTTER 42', '25,680', 'TAP TO GO BACK'])
   // no board to show: the end screen stays, even if the flag is somehow set
@@ -64,10 +65,10 @@ test('HUD-02 an end screen is a table with a sum per mission, then the score the
   // each row: mission, distance, crew saved as a multiplier, what the missed cost, its score
   expect(won.slice(0, 16)).toEqual([
     'MADE IT HOME', 'MISSION', 'DISTANCE', 'SAVED', 'MISSED', 'SCORE',
-    '1', '361 pc', '×2', '1 (−7%)', '668',
-    '2', '1779 pc', '×10', '6 (−35%)', '11,538',
+    '1', '361 pc', '×2', '1 (−5%)', '686',
+    '2', '1779 pc', '×10', '6 (−30%)', '12,453',
   ])
-  expect(won).toEqual(expect.arrayContaining(['SCORE', '12,206', 'NOT SAVED', '7 MISSED']))
+  expect(won).toEqual(expect.arrayContaining(['SCORE', '13,139', 'NOT SAVED', '7 MISSED']))
   expect(won.join(' ')).not.toMatch(/WENT DOWN|LOST|TOTAL/)
 
   // a crash: the unfinished mission shows the crew who went down, its missed without a percentage, and no score
@@ -153,25 +154,31 @@ test('HUD-09 one number at a time: what the crew on board are worth, or else the
   const carrying = drawnText('play', null, { distance: 1400, saved: 3, onboard: 4, results: banked, levelFrom: from })
   expect(carrying).toContain('+4,000')
   expect(carrying).not.toContain('1,200')
-  // a crew left behind on this mission takes 7.5% off what those on board are worth
-  expect(drawnText('play', null, { distance: 1400, onboard: 4, missed: 1, results: banked, levelFrom: from })).toContain('+3,700')
+  // a crew left behind on this mission takes 5% off what those on board are worth
+  expect(drawnText('play', null, { distance: 1400, onboard: 4, missed: 1, results: banked, levelFrom: from })).toContain('+3,800')
   // empty seats: the score
   const empty = drawnText('play', null, { distance: 1400, saved: 3, onboard: 0, results: banked, levelFrom: from })
   expect(empty).toContain('1,200')
   expect(empty.some(t => t.startsWith('+'))).toBe(false)
 })
 
-test('HUD-10 between levels: the mission as a sum, and the run\'s score so far', () => {
+test('HUD-10 between levels: every mission so far as a sum, and the run\'s score so far', () => {
   const text = drawnText('between', null, {
     level: 2, distance: 881.3, saved: 5,
     results: [{ level: 1, saved: 2, missed: 1, distance: 361 }, { level: 2, saved: 3, missed: 0, distance: 520 }],
   })
   expect(text).toEqual([
-    'MISSION 2 COMPLETE', 'DISTANCE', 'SAVED', 'MISSED', 'SCORE',
-    'MISSION', '520 pc', '×3', '—', '1,560',   // the mission just finished: its own sum
-    'TOTAL', '2,228',                          // the run so far: 668 + 1,560
+    'MISSION 2 COMPLETE', 'MISSION', 'DISTANCE', 'SAVED', 'MISSED', 'SCORE',
+    '1', '361 pc', '×2', '1 (−5%)', '686',     // the same table as the end screen: every mission flown
+    '2', '520 pc', '×3', '—', '1,560',         // the one just finished comes last
+    'TOTAL', '2,246',                          // the run so far: 686 + 1,560
     'TAP TO CONTINUE',
-  ])   // the mission number appears once, in the title, and earlier missions are not listed
+  ])
+  // after the first mission there is one row; after the sixth, six
+  expect(drawnText('between', null, { level: 1, results: [{ level: 1, saved: 2, missed: 0, distance: 500 }] })).toHaveLength(14)
+  const six = drawnText('between', null, { level: 6, results: [1, 2, 3, 4, 5, 6].map(level => ({ level, saved: 2, missed: 0, distance: 500 })) })
+  expect(six.slice(6, 36).filter((_, i) => i % 5 === 0)).toEqual(['1', '2', '3', '4', '5', '6'])
+  expect(six.slice(-3)).toEqual(['TOTAL', '6,000', 'TAP TO CONTINUE'])
 })
 
 test('HUD-04 the share button appears on end screens only when a link is ready', () => {

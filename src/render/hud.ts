@@ -145,7 +145,7 @@ const ORANGE = '#ff7b54'
 function drawMissionRow(ctx: CanvasRenderingContext2D, g: Game, r: LevelResult, name: string, y: number, size: number, alpha: number): void {
   const { W, U } = g
   const cols = TABLE.map(dx => W / 2 + dx * U)
-  const white = `rgba(255,255,255,${alpha})`, missedColor = r.missed ? `rgba(255,123,84,${alpha + 0.2})` : white
+  const white = `rgba(255,255,255,${alpha})`, missedColor = r.missed ? `rgba(255,123,84,${Math.min(1, alpha + 0.2)})` : white
   const crashed = r.lost !== undefined
   text(ctx, name, cols[0], y, Math.min(size, 12 * U), white, 'center', 700)
   text(ctx, `${r.distance} pc`, cols[1], y, size, white, 'center', 600)
@@ -161,18 +161,19 @@ function drawTableHead(ctx: CanvasRenderingContext2D, g: Game, first: string, y:
   })
 }
 
-// Between levels: the mission just finished as a sum (the title says which
-// one), and under it, brighter, the run's score so far: the missions added up.
+// Between levels: the same table as the end screens, with a row per mission
+// flown so far, the one just finished brightest, and under them the run's
+// score so far: the missions added up.
 function drawBetween(ctx: CanvasRenderingContext2D, g: Game): void {
   const { W, H, U } = g
-  const top = H * 0.22, head = top + 50 * U
-  const last = g.results[g.results.length - 1] ?? { level: g.level, saved: 0, missed: 0, distance: 0 }
+  const top = H * 0.17, head = top + 48 * U, line = 24 * U, n = g.results.length
   text(ctx, `MISSION ${g.level} COMPLETE`, W / 2, top, 30 * U, '#7fdcff', 'center', 800)
-  drawTableHead(ctx, g, '', head)
-  drawMissionRow(ctx, g, last, 'MISSION', head + 28 * U, 16 * U, 0.6)
-  text(ctx, 'TOTAL', W / 2 + TABLE[0] * U, head + 60 * U, 12 * U, '#ffffff', 'center', 800)
-  text(ctx, fmt(scoreOf(g)), W / 2 + TABLE[4] * U, head + 60 * U, 21 * U, '#ffffff', 'center', 800)
-  drawPrompt(ctx, g, 'TAP TO CONTINUE', head + 122 * U)
+  drawTableHead(ctx, g, 'MISSION', head)
+  g.results.forEach((r, i) => drawMissionRow(ctx, g, r, String(r.level), head + (i + 1) * line, 15 * U, i === n - 1 ? 0.95 : 0.6))
+  const total = head + (n + 1) * line + 14 * U
+  text(ctx, 'TOTAL', W / 2 + TABLE[0] * U, total, 12 * U, '#ffffff', 'center', 800)
+  text(ctx, fmt(scoreOf(g)), W / 2 + TABLE[4] * U, total, 21 * U, '#ffffff', 'center', 800)
+  drawPrompt(ctx, g, 'TAP TO CONTINUE', total + 62 * U)
 }
 
 // Both end screens: a table with a row per mission played, each a sum of its
@@ -242,10 +243,16 @@ function drawBoardButton(ctx: CanvasRenderingContext2D, g: Game): void {
   text(ctx, 'LEADERBOARD', r.x + r.w / 2, r.y + r.h / 2 + 4.5 * U, 13 * U, '#ffffff', 'center', 700)
 }
 
-/** How a run ended, as the board says it: who got out in time, and how deep into the last mission they went. */
-export const endNote = (end: RunEnd): string =>
-  end.level < LAST_LEVEL ? `LOST · MISSION ${end.level}`
-    : `${end.outcome === 'won' ? 'HOME' : 'LOST'} · ${fmt(end.finalDistance)} pc`
+/**
+ * How a run ended, as the board says it: how many missions it finished, and
+ * for a run that reached the last one, whether it got home and how deep into
+ * that mission it went.
+ */
+export function endNote(end: RunEnd): string {
+  const won = end.outcome === 'won'
+  const finished = `FINISHED ${won ? LAST_LEVEL : end.level - 1}/${LAST_LEVEL}`
+  return end.level < LAST_LEVEL ? finished : `${finished} · ${won ? 'HOME' : 'LOST'} · ${fmt(end.finalDistance)} pc`
+}
 
 // The leaderboard screen, opened from the link on an end screen: a title, then
 // rank, callsign and best score per row, and under the callsign how that run

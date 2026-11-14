@@ -29,9 +29,9 @@ The game is a real-time canvas simulation driven by `Math.random`, so most behav
 | ID | File | Case | Status |
 |---|---|---|---|
 | TUNE-01 | `tuning.test.ts` | Parsec target per level is 500, 750, 1250, 2000, 2500, 3000, 3500; there are 7 levels | passing |
-| TUNE-02 | `tuning.test.ts` | Seats per level are 2, 4, 8, 16, 20, 24, 32 | passing |
+| TUNE-02 | `tuning.test.ts` | Seats per level are 2, 4, 6, 10, 16, 24, 32 | passing |
 | TUNE-03 | `tuning.test.ts` | Steering speed comes from the crew on board: 100% empty, 60% with 32 or more, slower with every crew member | passing |
-| TUNE-04 | `tuning.test.ts` | Ship radius comes from the crew on board: 13 empty, 22 with 32 or more | passing |
+| TUNE-04 | `tuning.test.ts` | Ship radius comes from the seats: 14.3, 15.1, 15.8, 17, 18.5, 20.4, 22 over the seven missions, each visibly bigger than the last; 22 with 32 seats or more | passing |
 | TUNE-05 | `tuning.test.ts` | Gap between crews is 11–15 s on level 1 and 15–20 s on levels 2 to 7 | passing |
 | TUNE-06 | `tuning.test.ts` | One speed slope: every level gains 1.3× over its target from its starting speed (1× on levels 1–4, then 1.4×, 1.8×, 2.2×) and keeps rising past it; no second gear and no ceiling | passing |
 | TUNE-07 | `tuning.test.ts` | Shields: 3 to start, 5 at most; 6 drops on level 5, 4 on level 6, none elsewhere | passing |
@@ -54,7 +54,7 @@ The game is a real-time canvas simulation driven by `Math.random`, so most behav
 | LEVEL-09 | `levels.test.ts` | In mission 7 every wormhole arrives with a shield in the same row, mirrored on the opposite side and too far to take both, on a random side; in missions 1–6 the wormhole comes alone | passing |
 | LEVEL-10 | `levels.test.ts` | A shield drop adds a shield, up to 5; spares carry into the next mission, and a ship with fewer than 3 is topped up to 3 | passing |
 | LEVEL-11 | `levels.test.ts` | Mission 5 offers 6 shields and mission 6 offers 4, evenly spaced by distance over the first two-thirds; every second one is a row of 2 crew, 3 crew and the shield between two rocks; missions 4 and 7 have no such drops | passing |
-| LEVEL-12 | `levels.test.ts` | Crew make the ship heavy: it swells, steers slower and has more mass with more crew; the mission alone changes nothing; delivering the crew shrinks it back | passing |
+| LEVEL-12 | `levels.test.ts` | The ship is as big as its seats and as heavy as its crew: crew slow its steering and add mass but do not change its size; every mission's ship is bigger than the last; after a wormhole the ship grows into the next size gradually | passing |
 | LEVEL-13 | `levels.test.ts` | Mission 5 starts at 1.4× | passing |
 | LEVEL-14 | `levels.test.ts` | Crew who drift past a full ship are never counted as missed, before the mission's wormhole or after it; of a crew bigger than the free seats only as many as there were seats for are counted; with free seats they always count | passing |
 | LEVEL-15 | `levels.test.ts` | A full ship is sent no planetoids: no single rescue and no two-crew pair when one is due, and a crew-or-shield row arrives as a plain shield drop; when a seat opens the next planetoid follows after 4 seconds, not at once | passing |
@@ -64,7 +64,7 @@ The game is a real-time canvas simulation driven by `Math.random`, so most behav
 | SEED-02 | `levels.test.ts` | The seed on the start screen is the one the first run uses; every run after it gets a new one | passing |
 | REC-01 | `records.test.ts` | The best score loads from storage; missing or unreadable storage gives 0 | passing |
 | REC-02 | `records.test.ts` | A higher score is saved and reported as new, with how that run ended; an equal or lower one is not and leaves the saved ending alone; a missing or damaged ending reads as a plain lost run | passing |
-| REC-03 | `records.test.ts` | Bests saved under earlier rules (distance, crew, the four-mission score) are not read as a score | passing |
+| REC-03 | `records.test.ts` | Bests saved under earlier rules (distance, crew, the four-mission score, the seven-mission score before the flat 5% penalty) are not read as a score | passing |
 | REC-04 | `records.test.ts` | A storage that throws on write does not break the run | passing |
 | REC-05 | `records.test.ts` | A best from the cloud raises the local best and is stored with how it ended; a lower one is ignored; neither counts as a new best | passing |
 | INP-01 | `input.test.ts` | Left, right, both (hold course) and neither, for keys and pointers | passing |
@@ -75,7 +75,7 @@ The game is a real-time canvas simulation driven by `Math.random`, so most behav
 | SUM-01 | `runSummary.test.ts` | A lost run: outcome `over`, what its finished missions banked with nothing taken off for the crash, whole parsecs, level reached, no mission-7 parsecs, crew saved, lost and missed, seconds played | passing |
 | SCORE-01 | `runSummary.test.ts` | A mission scores its own whole parsecs times its own crew saved; nobody saved, or no distance, scores 0 | passing |
 | SCORE-02 | `runSummary.test.ts` | A destroyed ship loses only the mission in flight: that mission scores 0 and takes nothing off the others | passing |
-| SCORE-03 | `runSummary.test.ts` | Each crew member left behind takes 10% of what is still at risk and at most 75% is at risk: 93%, 86%, 80%, 69%, 51%, 34% kept for 1, 2, 3, 5, 10, 20 missed, never below 25% | passing |
+| SCORE-03 | `runSummary.test.ts` | Each crew member left behind takes 5% of the mission's score: 95%, 90%, 85%, 75%, 50%, 5% kept for 1, 2, 3, 5, 10, 19 missed, and nothing from 20 on, never less | passing |
 | SCORE-04 | `runSummary.test.ts` | The run's score is its missions added up: parsecs do not multiply another mission's crew | passing |
 | SCORE-05 | `runSummary.test.ts` | Crew on board are worth this mission's parsecs so far, less what it has missed | passing |
 | SUM-02 | `runSummary.test.ts` | A run that went home has outcome `won`, scores its missions added up, and records the parsecs flown in mission 7; so does a run lost in mission 7 | passing |
@@ -111,10 +111,10 @@ The game is a real-time canvas simulation driven by `Math.random`, so most behav
 | HUD-04 | `render/hud.test.ts` | The `SHARE` button is drawn on both end screens only when a link is ready; it reads `COPIED` right after a copy | passing |
 | HUD-05 | `render/hud.test.ts` | The button sits inside the play field, in the top right corner | passing |
 | HUD-06 | `render/hud.test.ts` | The start screen shows a shared run: callsign, score, and `MADE IT HOME` with the crew saved for a run that went home, crew saved and distance for a lost one | passing |
-| HUD-07 | `render/hud.test.ts` | The start screen draws the title, the controls, the prompt and, at the foot, the version and the seed of the next run as six characters (`v0.2.2 · SEED 4F2A9C`); no other screen shows the seed | passing |
-| HUD-11 | `render/hud.test.ts` | The leaderboard screen replaces the end screen: `TOP SCORES`, every row with rank, callsign, score and how the run ended (`HOME · 5,400 pc`, `LOST · 7,100 pc`, `LOST · MISSION 3`), and `TAP TO GO BACK`; a row that does not say how it ended has no such line; with no board the end screen stays | passing |
+| HUD-07 | `render/hud.test.ts` | The start screen draws the title, the controls, the prompt and, at the foot, the version and the seed of the next run as six characters (`v0.3.0 · SEED 4F2A9C`); no other screen shows the seed | passing |
+| HUD-11 | `render/hud.test.ts` | The leaderboard screen replaces the end screen: `TOP SCORES`, every row with rank, callsign, score and how many missions the run finished, with how it ended for a run that reached mission 7 (`FINISHED 7/7 · HOME · 5,400 pc`, `FINISHED 6/7 · LOST · 7,100 pc`, `FINISHED 2/7`, `FINISHED 0/7`), and `TAP TO GO BACK`; a row that does not say how it ended has no such line; with no board the end screen stays | passing |
 | HUD-12 | `render/hud.test.ts` | The leaderboard link sits top left, clear of the share button, and is big enough to tap | passing |
-| HUD-10 | `render/hud.test.ts` | Between levels, under `MISSION N COMPLETE`: a `MISSION` row with distance, crew saved as a multiplier, the crew missed with their percentage, and its score; a `TOTAL` row with the run's score so far; then `TAP TO CONTINUE` | passing |
+| HUD-10 | `render/hud.test.ts` | Between levels, under `MISSION N COMPLETE`: the same table as the end screens, a numbered row for every mission flown so far (one after mission 1, six after mission 6) with distance, crew saved as a multiplier, the crew missed with their percentage, and its score; a `TOTAL` row with the run's score so far; then `TAP TO CONTINUE` | passing |
 | HUD-09 | `render/hud.test.ts` | During a run only one number shows: what the crew on board are worth (this mission's parsecs × on board, less the share the crew missed in it cost) while anyone is aboard, otherwise the score; no `0` | passing |
 | HUD-08 | `render/hud.test.ts` | During a run the big number is the score (nothing is shown while it is 0 and nobody is on board), with `SAVED` and `MISSED` counts; the distance is not the headline | passing |
 | HUD-13 | `render/hud.test.ts` | The mission counter is out of 7; the shield row shows 3 arcs, or as many as the ship holds when it has spares | passing |
@@ -135,7 +135,7 @@ The game is a real-time canvas simulation driven by `Math.random`, so most behav
 | RULES-02 | A run for another user, or without sign-in, is refused | passing |
 | RULES-03 | Malformed runs are refused: extra field, missing field, negative distance, level 0 or 8, a run that went home from any mission but 7, mission-7 parsecs on a run that ended earlier or exceeding the whole run or fractional, a client-set time, a badly formed callsign | passing |
 | RULES-08 | A run's score cannot exceed its distance times crew saved, and cannot be negative or fractional; a run that went home cannot have crew lost | passing |
-| RULES-09 | A leaderboard entry written under earlier rules (only `bestScore`) can be replaced by one of the new kind, which then cannot go down | passing |
+| RULES-09 | A leaderboard entry written under earlier rules (only `bestScore`) can be replaced by one of the new kind (`best3`), which then cannot go down | passing |
 | RULES-04 | Runs cannot be changed or deleted; anyone can read a run by its ID; nobody can list runs | passing |
 | RULES-05 | A player can create and update their own entry (best score, how that run ended, callsign), not another player's; anyone can read entries and query the board, signed in or not | passing |
 | RULES-06 | The best score cannot go down; malformed entries are refused, including the old score field, an ending that does not hold together (home from a mission other than 7, level 8, mission-7 parsecs on an earlier mission) or is missing, and a missing or badly formed callsign | passing |

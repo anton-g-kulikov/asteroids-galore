@@ -19,7 +19,7 @@ All seven missions are built, with starting values that are still to be tuned by
 
 ## What the player is told
 
-Deliberately very little. The start screen shows only the title, the best score, the two control arrows and, small at the foot, the version and the seed of the next run (`v0.2.2 · SEED 4F2A9C`). Levels start without a banner — the only sign is the mission counter in the corner and a flash on arrival; between them a results screen shows what the last one added. Rescues, the level exit and gravity are left for the player to discover. This file describes how they work.
+Deliberately very little. The start screen shows only the title, the best score, the two control arrows and, small at the foot, the version and the seed of the next run (`v0.3.0 · SEED 4F2A9C`). Levels start without a banner — the only sign is the mission counter in the corner and a flash on arrival; between them a results screen shows what the last one added. Rescues, the level exit and gravity are left for the player to discover. This file describes how they work.
 
 ## The score
 
@@ -42,9 +42,9 @@ There is one best, the highest score, saved on the device together with how that
 
 When the game is connected to the cloud and the board has loaded, both end screens show a `LEADERBOARD` pill in the top left corner, mirroring `SHARE` on the right. A tap on it opens the leaderboard over the end screen and does not start a new run. The next tap, or Space, Enter or Escape, goes back to the end screen; that does not start a run either.
 
-The leaderboard is `TOP SCORES`: the ten highest best scores, one global board for all time. Players are listed by callsign: two words and a number, generated from the player's anonymous account, so nobody types a name and the same account always keeps the same one. Under each callsign a small line says how that run ended: `HOME · 5,400 pc` for a run that went home and `LOST · 7,100 pc` for one destroyed in mission 7, with the parsecs flown in mission 7, or `LOST · MISSION 3` for a run that never got there. The board then tells who got out in time. The player's own row is gold, which is also how they learn their callsign. A player outside the top ten gets an extra row with their rank. A player whose best is 0 is not listed.
+The leaderboard is `TOP SCORES`: the ten highest best scores, one global board for all time. Players are listed by callsign: two words and a number, generated from the player's anonymous account, so nobody types a name and the same account always keeps the same one. Under each callsign a small line says how many missions that run finished: `FINISHED 2/7` for a run lost in mission 3. A run that reached mission 7 also says how it ended and the parsecs flown there: `FINISHED 7/7 · HOME · 5,400 pc` for a run that went home, `FINISHED 6/7 · LOST · 7,100 pc` for one destroyed in mission 7. The board then tells how far each player got and who got out in time. The player's own row is gold, which is also how they learn their callsign. A player outside the top ten gets an extra row with their rank. A player whose best is 0 is not listed.
 
-The board started again when the seven-mission rules landed: entries are ranked by a new field (`best`), so entries that only hold a score from the earlier rules are not listed, and a player's first new entry replaces their old one.
+The board starts again whenever scores stop being comparable: entries are ranked by a field whose name changes with the scoring (`best3` since the flat 5% penalty of 2026-11-15; `best` before it, `bestScore` before that), so entries that only hold an earlier score are not listed, and a player's first new entry replaces their old one. Nothing is deleted. The best kept on the device moves to a new key at the same time.
 
 The board is refreshed when a run ends, and the player's row always uses the best the game holds right now. Offline, or before the first board has loaded, there is simply no pill.
 
@@ -88,9 +88,9 @@ There are 7 levels. **The player knows them as missions:** everything on screen 
 |---|---|---|---|---|
 | 1 | 500 | 1× | 2 | none |
 | 2 | 750 | 1× | 4 | none |
-| 3 | 1,250 | 1× | 8 | none |
-| 4 | 2,000 | 1× | 16 | none |
-| 5 | 2,500 | 1.4× | 20 | 6 |
+| 3 | 1,250 | 1× | 6 | none |
+| 4 | 2,000 | 1× | 10 | none |
+| 5 | 2,500 | 1.4× | 16 | 6 |
 | 6 | 3,000 | 1.8× | 24 | 4 |
 | 7 | 3,500 to the first wormhole, then open | 2.2× | 32 | one beside every wormhole |
 
@@ -98,19 +98,26 @@ Missions 1–4 are the game most players play, about five minutes. Missions 5–
 
 - A level's goals are met once its parsec target is flown **and** at least 20 seconds have passed. The bar under the score shows progress towards the target.
 - **One speed slope.** Speed follows progress, not the clock: from the level's starting speed it rises in a straight line with the parsecs flown and has gained 1.3× (`SPEED_GAIN`) at the level's target, whatever the level's length. Past the target it keeps rising at the same rate for as long as the ship stays on. There is no second gear and no ceiling: no mission levels off at a speed a player can survive for ever.
-- **The ship is what its crew make it.** Its size and steering come from the crew on board, not from the level (see [Crew make the ship heavy](#crew-make-the-ship-heavy)).
+- **Seats grow evenly.** 2, 4, 6, 10, 16, 24, 32: each mission adds about half again, with no jump in the middle and no flat stretch after it.
+- **The ship is built for its seats and weighed down by its crew.** Its size comes from the mission's seats, its steering from the crew on board (see [Crew make the ship heavy](#crew-make-the-ship-heavy)).
 - Entering a new level delivers the crew on board: they are saved, the seats are emptied, and the score jumps.
 
 ### Crew make the ship heavy
 
-An empty ship is small and nimble; every crew member aboard makes it bigger (a larger hitbox) and slower to steer, and delivering them at the wormhole shrinks it back. The player sees the ship swell, so no caption is needed.
+**Size comes from the seats.** Every mission's ship is bigger than the last (a larger hitbox), because it has more seats; it grows into its new size in the first moments of the mission. Crew coming aboard no longer change its size.
+
+| Mission | 1 | 2 | 3 | 4 | 5 | 6 | 7 |
+|---|---|---|---|---|---|---|---|
+| Seats | 2 | 4 | 6 | 10 | 16 | 24 | 32 |
+| Ship radius (`shipRadius`) | 14.3 | 15.1 | 15.8 | 17.0 | 18.5 | 20.4 | 22 |
+
+**Steering comes from the crew.** An empty ship is nimble; every crew member aboard makes it slower to steer, and delivering them at the wormhole gives the steering back.
 
 | Crew on board | 0 | 2 | 8 | 16 | 32 |
 |---|---|---|---|---|---|
-| Ship radius (`shipRadius`) | 13 | 14.3 | 16.4 | 18.5 | 22 |
 | Steering speed (`handling`) | 100% | 94% | 85% | 75% | 60% |
 
-- The first crew aboard are felt the most (the curve in `tuning.ts` is `(crew / 32)^0.7`).
+- Both follow the same curve in `tuning.ts`, `(n / 32)^0.7`: the first seats, and the first crew aboard, are felt the most.
 - **Crew deepen the well.** Each crew member adds 5% (`CREW_MASS`) to the ship's mass, which scales the pull of the well dug while parked: a full ship of 32 pulls 2.6 times as hard as an empty one.
 - It sharpens the trade the score already makes: more crew multiply the mission's parsecs and make every further parsec harder to fly.
 - Not built, on purpose: a loaded ship pulling asteroids while moving. The parked well is already a gravity effect the player has to learn.
@@ -125,12 +132,12 @@ Levels do not end on their own. When the goals are met, an unlabelled wormhole d
 
 ### Between levels
 
-Flying into the wormhole of levels 1 to 6 stops the game on a results screen: `MISSION N COMPLETE`, then a table under the headings `DISTANCE`, `SAVED`, `MISSED` and `SCORE`.
+Flying into the wormhole of levels 1 to 6 stops the game on a results screen: `MISSION N COMPLETE`, then the full table of the run so far under the headings `MISSION`, `DISTANCE`, `SAVED`, `MISSED` and `SCORE`.
 
-- **`MISSION`** — the mission just finished, as a sum that reads left to right: `484 pc  ×2  2 (−14%)  830`. Parsecs, times crew saved, less the share the missed crew cost, shown as the count and that share (a dash when none were), equals its score. The mission number is only in the title.
-- **`TOTAL`** — the run's score so far, brighter and larger: the missions added up.
+- **A row per mission flown,** numbered, the one just finished last and brightest. Each is a sum that reads left to right: `484 pc  ×2  2 (−10%)  871`. Parsecs, times crew saved, less the share the missed crew cost, shown as the count and that share (a dash when none were), equals its score.
+- **`TOTAL`** — the run's score so far, brighter and larger: the rows added up.
 
-Both end screens, under `MADE IT HOME` or `GAME OVER`, show the same table with one row per mission played (up to seven), numbered, and no total row: the score printed below is the rows added up. After a crash the unfinished mission has a row too: its saved column shows the crew who went down with the ship as `−3` in orange instead of a multiplier, its missed column the count without a percentage, and its score a dash: it has no sum. Then `NEW BEST!` or the best; then the `NOT SAVED` section with the crew lost with the ship and the run's `N MISSED`.
+Both end screens, under `MADE IT HOME` or `GAME OVER`, show that table with one row per mission played (up to seven) and no total row: the score printed below is the rows added up. After a crash the unfinished mission has a row too: its saved column shows the crew who went down with the ship as `−3` in orange instead of a multiplier, its missed column the count without a percentage, and its score a dash: it has no sum. Then `NEW BEST!` or the best; then the `NOT SAVED` section with the crew lost with the ship and the run's `N MISSED`.
 
 The screen between levels stays until the player taps (or presses Space or Enter); a tap in its first 0.7 seconds is ignored so a held thumb does not skip it. Nothing moves on and no distance is flown while it is up. The next level then starts with at least 3 shields. The wormhole of mission 7 goes straight to the `MADE IT HOME` screen.
 
@@ -195,75 +202,44 @@ Agreed on 2026-11-14 and built the same day, replacing the four-mission game. Th
 | | Before | Now |
 |---|---|---|
 | Missions | 4, and the fourth ended the run | 7, and the seventh ends when the player goes home or the ship is destroyed |
-| Crew left behind | 10% each, down to nothing at ten | Each takes 10% of what is still at risk, and at most 75% is ever at risk |
+| Crew left behind | 10% each, down to nothing at ten | 5% each, down to nothing at twenty |
 | Ship destroyed | The unfinished mission cost its parsecs × the crew aboard, taken off the banked score | The unfinished mission scores nothing; everything banked is kept |
 | Speed past the target | The same slope up to 4.5×, then second gear up to 9× | One slope in every mission: no second gear, and no ceiling |
 | A missed wormhole | Back after a random 15–30 seconds | Back after a wait dealt from a shuffled set |
 | Shields | 3 per mission | Topped up every mission; drops on missions 5 and 6; on mission 7 only by turning down the way home |
-| Ship size and steering | From the mission number | From the crew on board |
+| Ship size and steering | From the mission number | Size from the mission's seats, steering from the crew on board |
 | Frame time and field | Variable step, field sized from the window | Fixed step, fixed field |
 
 ### The missions
 
-- **Missions 1–4** keep their lengths and take about five minutes. They are the whole game for most players. They are a little easier than before at the start of each mission, because an empty ship is now small whatever the mission.
+- **Missions 1–4** keep their lengths and take about five minutes. They are the whole game for most players. Their ships have fewer seats than before from mission 3 on (6 and 10, not 8 and 16), so they fill sooner.
 - **Missions 5–7** are for competing. Each is longer than the last and starts faster, so each takes about two minutes to its target, as mission 4 does. Reaching mission 7 takes about nine minutes, and its first wormhole comes at about eleven.
 - **What makes 5–7 harder:** longer missions, higher speeds from the first second, fewer shield drops each mission, and crew that make the ship heavier and deepen its well. New objects are decided after playing (see [New things in missions 5–7](#new-things-in-missions-57)).
-- **Seats** stop doubling after mission 4. Mission 7 has 32 so that the ship does not fill early: about 21 people arrive before its first wormhole. Every crew member left behind there is the player's own miss, and every rescue both raises the multiplier and avoids a penalty.
+- **Seats** grow by about half each mission. Mission 7 has 32 so that the ship does not fill early: about 21 people arrive before its first wormhole. Every crew member left behind there is the player's own miss, and every rescue both raises the multiplier and avoids a penalty.
 
 ### Crew left behind
 
 A mission's score is parsecs × crew saved, less a share for the crew left behind. The share, in every mission:
 
-**kept share = 1 − cap × (1 − 0.9^missed)**, with a cap of 75% (*to tune*).
+**Each crew member left behind takes 5% of the mission's score.**
 
-Each crew member left behind takes 10% of what is still at risk, and at most the cap is ever at risk.
+| Missed | 1 | 2 | 3 | 5 | 10 | 20 or more |
+|---|---|---|---|---|---|---|
+| Kept | 95% | 90% | 85% | 75% | 50% | nothing |
 
-| Missed | 1 | 2 | 3 | 5 | 10 | 20 | any number |
-|---|---|---|---|---|---|---|---|
-| Kept | 93% | 86% | 80% | 69% | 51% | 34% | never below 25% |
-
-- **Why a cap.** With a flat 10% each, ten missed crew left nothing. With a cap a bad stretch cannot wipe out a mission. The cap now governs only real misses: crew the ship had a seat for, and crew thrown off by hits.
-- **It replaces the penalty that scaled with the crew on offer**, planned earlier for wrecked stations. Under this formula a missed station of 8 costs 43% of a mission, not 80%.
-- **In code** it is two numbers, `MISS_RATE` (10%) and `MISS_CAP` (75%), so the cap is one constant to change.
-
-### A full ship sees no crew
-
-Built on 2026-11-14, in two steps after the first runs on the seven-mission build.
-
-**The problem.** Every mission offers more crew than it has seats, so counting everyone who drifted past fixed most of the penalty before anyone played. In one run mission 5 offered 40 crew for 20 seats: the ship was filled and still charged 20 missed, 66% of the mission, so mission 5 paid less than mission 4. With 20 forced misses the formula is also saturated: one more careless miss costs under 1%.
-
-**The rule.**
-
-- **No planetoids while every seat is taken.** No single rescues and no two-crew pairs are sent, and a crew-or-shield row arrives as a plain shield drop.
-- **Planetoids already on the field** when the last seat fills drift past with grey rings and are never counted, before the mission's wormhole or after it (`missedOn` in `src/game/simulation.ts`).
-- **A crew bigger than the seats left.** The ship takes as many as it has seats for, and the rest are left on the planetoid. If nobody is taken, only as many as there were seats for are counted. This is judged when the planetoid leaves the field, a fraction of a second after it passes the ship.
-- **When a seat opens** (a hit, below), planetoids come again: the first follows 4 seconds later (`SEAT_WAIT`, *to tune*), not at once and not after a full gap of up to 20 seconds.
-- **The count shows it.** `CREW n/N` goes from yellow to green and swells for a moment (see [Rescue missions](#rescue-missions)).
-
-**Why.** `MISSED` now means only crew the ship had a seat for, or lost to a hit. The missions pay in order: on a full ship mission 5 can reach roughly 38,000 and mission 6 roughly 55,000, against about 26,000 for mission 4. And the sky emptying as the count turns green says "full, take them home" without a word.
-
-The first step, live for a few hours as v0.2.1, only spared a full ship the charge until its wormhole had appeared, and charged it again afterwards as the price of staying on. That price is now the hits.
-
-### A hit costs a crew member
-
-Built on 2026-11-14.
-
-- **The rule.** A hit that burns a shield also throws one crew member off the ship, if anyone is aboard. That person counts as one missed. The seat is free again, so the ship gets lighter and, if it was full, planetoids return.
-- **Unchanged:** a hit with nobody aboard costs only the shield, and a hit with no shield left destroys the ship as before; the crew aboard then go down with it and are not counted as missed.
-- **Shown, not told.** A figure tumbles away from the ship, a seat goes dark and the `MISSED` count moves. No caption.
-- **Why.** Shields refill to 3 for free in missions 1–4, so a hit there cost nothing: one run ended missions 2 and 3 on a single shield at no price. Now every hit costs a seat and a share of the mission.
-- **It balances itself a little.** A ship with fewer crew is smaller and steers faster.
-- **Uneven on purpose, to watch.** One person is half of mission 1's seats and 3% of mission 7's. Seats can be refilled, so an early hit costs little and a late one a lot. If mission 1 turns out too harsh on new players, this is where to look.
+- **Why flat.** The earlier formula (10% of what was still at risk, with at most 75% ever at risk) could not be worked out in the head, and the results table showed figures like −7% and −35% that explained nothing. Now the table reads `3 (−15%)`.
+- **There is no floor.** Twenty crew left behind in one mission leave it worth nothing. That takes real misses: a full ship is sent no crew, so the count holds only crew the ship had a seat for and crew thrown off by hits.
+- **In code** it is one number, `MISS_COST` (5%).
 
 ### Staying on
 
 Staying in a mission after its target is flown is still a gamble, but its shape changed with the two rules above.
 
 - **With free seats** it can pay: planetoids keep coming, every rescue raises the multiplier, and every parsec multiplies the crew aboard. Every planetoid not taken is a real miss.
-- **With a full ship** nothing drifts past and nothing is charged. Parsecs keep multiplying a full crew, so the score only climbs, and what it costs is risk: speed keeps rising, every hit throws a crew member off and takes 7% or more off the mission, and losing the ship loses the whole mission. A ship that is hit turns yellow and has to fill up again while the speed rises. Arriving home with a full ship is the skill.
+- **With a full ship** nothing drifts past and nothing is charged. Parsecs keep multiplying a full crew, so the score only climbs, and what it costs is risk: speed keeps rising, every hit throws a crew member off and takes 5% off the mission, and losing the ship loses the whole mission. A ship that is hit turns yellow and has to fill up again while the speed rises. Arriving home with a full ship is the skill.
 - **In missions 1–6** this asks a player to risk the rest of the run for a larger mission score; in mission 7 it is the game.
 
-Before these rules the price of staying on with a full ship was the crew drifting past, and this section held a model of it: with a cap of 75% the score dipped first (7% down after a minute on mission 4, 18% on mission 7) and came level again only at speeds few survive. That model no longer describes anything in the game. Whether staying on now pays too easily is settled by playing (see [Still open](#still-open)).
+Before these rules the price of staying on with a full ship was the crew drifting past, and this section held a model of it: with the penalty of that time the score dipped first (7% down after a minute on mission 4, 18% on mission 7) and came level again only at speeds few survive. That model no longer describes anything in the game. Whether staying on now pays too easily is settled by playing (see [Still open](#still-open)).
 
 One condition stands: no mission may level off at a speed a player can survive for ever. Speed keeps rising with the parsecs flown.
 
@@ -299,7 +275,7 @@ The average wait is the main dial for how long a mission 7 run lasts.
 
 Shield drops used to be a parked idea, because they made the game easier and rewarded staying on. Both are now intended: the count is fixed and falls each mission, and in mission 7 staying on is the game.
 
-For the crew-or-shield choice to be a choice the ship must not be full when it comes, so the crew on offer in missions 5 and 6 stay a little below the 20 and 24 seats. As built, the shield is always the middle of the three and the crews are on the sides; that keeps the two crews too far apart to take both.
+For the crew-or-shield choice to be a choice the ship must not be full when it comes, so the crew on offer in missions 5 and 6 stay a little below the 16 and 24 seats. As built, the shield is always the middle of the three and the crews are on the sides; that keeps the two crews too far apart to take both.
 
 ### Crew weight
 
@@ -320,8 +296,8 @@ Before, crew weighed almost nothing: each person added 0.02 to a mass of 1.0–1
 One board of best scores, for all time.
 
 - **When the choice to go home bites:** when the run in hand is already ahead of the player's own best. A run below it has nothing to lose, which is how a record chase works.
-- **Players will gamble deeper than the model says,** because a failed attempt costs only that run. The cap and the wait between wormholes are tuned from what players do on runs that are ahead of their best.
-- **Each row shows how the run ended** and how far it went in mission 7, for example `HOME · 5,400 pc` or `LOST · 7,100 pc`. The board then tells who got out in time.
+- **Players will gamble deeper than the model says,** because a failed attempt costs only that run. The wait between wormholes is tuned from what players do on runs that are ahead of their best.
+- **Each row shows how many missions the run finished,** and for a run that reached mission 7 how it ended and how far it went there, for example `FINISHED 7/7 · HOME · 5,400 pc` or `FINISHED 6/7 · LOST · 7,100 pc`. The board then tells who got out in time.
 
 An all-time board needs three things:
 
@@ -356,7 +332,8 @@ Starting targets, *to tune*:
 Everything here is settled by playing, not by discussion:
 
 - **The parsecs and starting speeds of missions 5–7.**
-- **The cap** on the missed-crew penalty, which now governs only real misses.
+- **The 5% a crew member left behind costs,** and whether a mission should be able to fall to nothing.
+- **The seats of missions 3–5** (6, 10, 16), which are fewer than before.
 - **Whether staying on with a full ship pays too easily,** now that it costs only risk (see [Staying on](#staying-on)).
 - **The wait before planetoids return** after a seat opens (`SEAT_WAIT`, 4 seconds).
 - **Whether a hit costing a crew member is too harsh on mission 1,** where one person is half the seats.
@@ -383,7 +360,7 @@ Considered on 2026-11-14 and not taken:
 ### What this touched outside the game
 
 - **Firestore rules:** `firestore.rules` accepts levels 1–7; a `won` run is one that went home from mission 7; a run records `finalDistance`, the parsecs flown in mission 7. **The rules must be deployed together with the client** (`firebase deploy --only firestore:rules`); GitHub Actions deploys Hosting only.
-- **Leaderboard entries** hold `best`, `bestOutcome`, `bestLevel` and `bestFinal`. The old `bestScore` field is neither read nor written, which is what starts the board again.
+- **Leaderboard entries** hold `best3`, `bestOutcome`, `bestLevel` and `bestFinal`. The earlier `best` and `bestScore` fields are neither read nor written, which is what starts the board again.
 - **Saved bests on the device** use new storage keys, so a best from the earlier rules is not uploaded to the new board.
 - **End screen and share text:** `ALL MISSIONS COMPLETE` became `MADE IT HOME`, on the end screen, in the line under a shared run and in the share message.
 - **Golden traces** were re-recorded: every change above alters missions 1–4 too.
@@ -396,11 +373,11 @@ The main numbers sit in `src/game/tuning.ts`:
 |---|---|
 | `FIELD_W`, `FIELD_H`, `STEP` | The fixed play field and the fixed simulation step |
 | `startSpeed`, `SPEED_GAIN` | Speed a level starts at, and how much it gains over the level's parsec target |
-| `MISS_RATE`, `MISS_CAP` | Share of what is still at risk that each crew member left behind takes, and the most that is ever at risk |
+| `MISS_COST` | Share of a mission's score that each crew member left behind takes |
 | `LEVEL_MIN_TIME` | Minimum seconds in a level before the wormhole can appear |
 | `levelTarget` | Parsecs to fly per level |
 | `levelCapacity` | Seats per level |
-| `shipRadius`, `handling`, `CREW_MASS` | Ship size, steering speed and extra mass for the crew on board |
+| `shipRadius`, `handling`, `CREW_MASS` | Ship size for its seats; steering speed and extra mass for the crew on board |
 | `LAST_LEVEL` | Number of levels |
 | `WELL_TIME` | Seconds parked for the deepest gravity well |
 | `WELL_AHEAD` | How far above the ship the well's centre sits, in ship radii |

@@ -41,7 +41,7 @@ test('REC-02 a higher score is saved and reported as new, together with how that
 })
 
 test('REC-03 bests saved under earlier rules are not read as a score', () => {
-  const r = createRecords(memory({ 'asteroids-galore-best': '3682', 'asteroids-galore-best-crew': '20', 'asteroids-galore-best-score': '22640' }))
+  const r = createRecords(memory({ 'asteroids-galore-best': '3682', 'asteroids-galore-best-crew': '20', 'asteroids-galore-best-score': '22640', 'asteroids-galore-best-v2': '9157' }))
   expect(r.best).toBe(0)
 })
 

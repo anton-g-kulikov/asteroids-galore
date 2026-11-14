@@ -12,7 +12,7 @@ test('TUNE-01 parsec target per level', () => {
 })
 
 test('TUNE-02 seats per level', () => {
-  expect(levels.map(levelCapacity)).toEqual([2, 4, 8, 16, 20, 24, 32])
+  expect(levels.map(levelCapacity)).toEqual([2, 4, 6, 10, 16, 24, 32])
 })
 
 test('TUNE-03 steering speed comes from the crew on board, not the level', () => {
@@ -23,12 +23,12 @@ test('TUNE-03 steering speed comes from the crew on board, not the level', () =>
   expect(steps).toEqual([...steps].sort((a, b) => b - a))   // every crew member slows it
 })
 
-test('TUNE-04 ship radius comes from the crew on board: 13 empty, 22 full', () => {
-  expect(shipRadius(0)).toBe(13)
+test('TUNE-04 ship radius comes from the seats: bigger in every mission, 22 with 32 seats', () => {
   expect(shipRadius(32)).toBeCloseTo(22)
   expect(shipRadius(99)).toBeCloseTo(22)
-  expect(shipRadius(16)).toBeGreaterThan(17)
-  expect(shipRadius(16)).toBeLessThan(20)
+  const sizes = levels.map(l => shipRadius(levelCapacity(l)))
+  expect(sizes.map(r => Math.round(r * 10) / 10)).toEqual([14.3, 15.1, 15.8, 17, 18.5, 20.4, 22])
+  for (let i = 1; i < sizes.length; i++) expect(sizes[i] - sizes[i - 1]).toBeGreaterThan(0.6)   // each step can be seen
 })
 
 test('TUNE-05 seconds between crews', () => {

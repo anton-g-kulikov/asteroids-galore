@@ -1,6 +1,6 @@
 import { newSeed } from './random'
 import type { Records } from './records'
-import { CREW_MASS, FIELD_H, FIELD_W, SHIELDS, WELL_AHEAD, shipRadius } from './tuning'
+import { CREW_MASS, FIELD_H, FIELD_W, SHIELDS, WELL_AHEAD, levelCapacity, shipRadius } from './tuning'
 import type { Asteroid, Game, GameState, Well } from './types'
 
 export function createGame(records: Records): Game {
@@ -17,7 +17,7 @@ export function createGame(records: Records): Game {
     newBest: false, records,
     board: null, boardOpen: false,
     shareReady: false, shareNote: 0, shared: null,
-    ship: { x: FIELD_W / 2, y: 0, vx: 0, r: shipRadius(0) },
+    ship: { x: FIELD_W / 2, y: 0, vx: 0, r: shipRadius(levelCapacity(1)) },
     asteroids: [], particles: [], floaters: [], castaways: [], stars: [],
   }
   g.ship.y = g.H - Math.max(110 * g.U, g.H * 0.16)
