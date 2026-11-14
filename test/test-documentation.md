@@ -56,6 +56,7 @@ The game is a real-time canvas simulation driven by `Math.random`, so most behav
 | LEVEL-11 | `levels.test.ts` | Mission 5 offers 6 shields and mission 6 offers 4, evenly spaced by distance over the first two-thirds; every second one is a row of 2 crew, 3 crew and the shield between two rocks; missions 4 and 7 have no such drops | passing |
 | LEVEL-12 | `levels.test.ts` | Crew make the ship heavy: it swells, steers slower and has more mass with more crew; the mission alone changes nothing; delivering the crew shrinks it back | passing |
 | LEVEL-13 | `levels.test.ts` | Mission 5 starts at 1.4× | passing |
+| LEVEL-14 | `levels.test.ts` | Crew who drift past a full ship are not counted as missed until the mission's wormhole has appeared; of a crew bigger than the free seats only as many as there were seats for are counted; once a wormhole has appeared everyone who drifts past counts again; with free seats they always count; the next mission starts uncharged again | passing |
 | FIELD-01 | `levels.test.ts` | The play field is always 400 × 720; a window only scales and centres it | passing |
 | SEED-01 | `levels.test.ts` | A run is dealt from its seed: the same seed and inputs give the same rocks, whatever was dealt before; another seed gives another run | passing |
 | SEED-02 | `levels.test.ts` | The seed on the start screen is the one the first run uses; every run after it gets a new one | passing |
@@ -108,7 +109,7 @@ The game is a real-time canvas simulation driven by `Math.random`, so most behav
 | HUD-04 | `render/hud.test.ts` | The `SHARE` button is drawn on both end screens only when a link is ready; it reads `COPIED` right after a copy | passing |
 | HUD-05 | `render/hud.test.ts` | The button sits inside the play field, in the top right corner | passing |
 | HUD-06 | `render/hud.test.ts` | The start screen shows a shared run: callsign, score, and `MADE IT HOME` with the crew saved for a run that went home, crew saved and distance for a lost one | passing |
-| HUD-07 | `render/hud.test.ts` | The start screen draws the title, the controls, the prompt and, at the foot, the version and the seed of the next run as six characters (`v0.2.0 · SEED 4F2A9C`); no other screen shows the seed | passing |
+| HUD-07 | `render/hud.test.ts` | The start screen draws the title, the controls, the prompt and, at the foot, the version and the seed of the next run as six characters (`v0.2.1 · SEED 4F2A9C`); no other screen shows the seed | passing |
 | HUD-11 | `render/hud.test.ts` | The leaderboard screen replaces the end screen: `TOP SCORES`, every row with rank, callsign, score and how the run ended (`HOME · 5,400 pc`, `LOST · 7,100 pc`, `LOST · MISSION 3`), and `TAP TO GO BACK`; a row that does not say how it ended has no such line; with no board the end screen stays | passing |
 | HUD-12 | `render/hud.test.ts` | The leaderboard link sits top left, clear of the share button, and is big enough to tap | passing |
 | HUD-10 | `render/hud.test.ts` | Between levels, under `MISSION N COMPLETE`: a `MISSION` row with distance, crew saved as a multiplier, the crew missed with their percentage, and its score; a `TOTAL` row with the run's score so far; then `TAP TO CONTINUE` | passing |

@@ -125,6 +125,16 @@ function takeHit(g: Game, a: Asteroid): void {
   buzz([60, 40, 60])
 }
 
+// How many of the crew on a planetoid that has drifted off the field count as
+// missed. Until the level's wormhole has appeared the player cannot leave, so
+// a ship with no seat for them had no choice and is not charged: only as many
+// as there were free seats for count. Once a wormhole has shown, staying on is
+// a choice, and everyone who drifts past counts: that is its price.
+function missedOn(g: Game, a: Asteroid): number {
+  if (g.wormCount > 0) return a.people
+  return Math.min(a.people, levelCapacity(g.level) - g.onboard)
+}
+
 // A shield arc flown through: one more shield, up to what a ship can hold.
 function takeDrop(g: Game, d: { x: number; y: number; r: number }): void {
   g.shields = Math.min(MAX_SHIELDS, g.shields + 1)
@@ -213,7 +223,7 @@ export function update(g: Game, dt: number, steer: number): void {
   g.asteroids = g.asteroids.filter(a => {
     if (a.dead) return false
     if (a.y - a.r < H + 10) return true
-    if (g.state === 'play') g.missed += a.people
+    if (g.state === 'play') g.missed += missedOn(g, a)
     return false
   })
 

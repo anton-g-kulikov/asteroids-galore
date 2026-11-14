@@ -276,3 +276,39 @@ test('SEED-02 the seed shown on the start screen is the first run\'s; every run 
   }
   expect(seeds.size).toBeGreaterThan(4)
 })
+
+test('LEVEL-14 a full ship is not charged for crew it has no seat for, until the mission\'s wormhole has appeared', () => {
+  // a planetoid with `people` aboard drifts off the bottom, far from the ship
+  const driftPast = (g: Game, people: number) => {
+    g.asteroids.push({ ...rock(g), x: 30, y: g.H + 200, people, planet: true })
+    step(g)
+  }
+  const g = playing(2)                  // 4 seats
+  g.wormTimer = 1e9
+  g.onboard = 4
+  driftPast(g, 3)
+  expect(g.missed).toBe(0)              // full, and no way out yet: no choice, no charge
+  g.onboard = 3
+  driftPast(g, 3)
+  expect(g.missed).toBe(1)              // one seat was free: one of the three was the player's to take
+  g.onboard = 0
+  driftPast(g, 2)
+  expect(g.missed).toBe(3)              // free seats: a miss is a miss
+  // the wormhole shows: from now on staying is a choice, and a full ship pays for everyone who drifts past
+  g.onboard = 4
+  g.levelScore = levelTarget(2); g.levelTime = 99; g.wormTimer = 0
+  step(g)
+  expect(g.wormCount).toBe(1)
+  driftPast(g, 3)
+  expect(g.missed).toBe(6)
+  g.wormhole = { x: 20, y: g.H + 100, r: 30 }   // missed: it is gone, but it has appeared
+  step(g)
+  driftPast(g, 2)
+  expect(g.missed).toBe(8)
+  // the next mission starts uncharged again
+  intoWormhole(g); update(g, 0.8, 0); tryStart(g)
+  g.spawnTimer = 999; g.rescueTimer = 999; g.wormTimer = 1e9
+  g.onboard = 8
+  driftPast(g, 4)
+  expect([g.level, g.missed]).toEqual([3, 8])
+})
