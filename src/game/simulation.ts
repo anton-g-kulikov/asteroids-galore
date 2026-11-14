@@ -1,23 +1,23 @@
 import { newWell, reachOf, setState, shipMass, wellY } from './game'
 import { buzz } from './haptics'
 import { rand } from './random'
-import { scoreOf } from './score'
+import { missionSoFar, scoreOf } from './score'
 import { spawnAsteroid, spawnDilemma, spawnRescue } from './spawn'
 import {
-  DILEMMA_EVERY, GRACE, LAST_LEVEL, LEVEL_MIN_TIME, MAX_SPEED, SHIELDS, SLOW_TIME, SPEED_RAMP, WELL_PULL, WELL_TIME,
-  levelCapacity, levelHandling, levelTarget, rescueGap, shipRadius,
+  DILEMMA_EVERY, GRACE, LAST_LEVEL, LEVEL_MIN_TIME, SHIELDS, SLOW_TIME, WELL_PULL, WELL_TIME,
+  FIRST_RESCUE, GEAR_AT, levelCapacity, levelHandling, levelTarget, rescueGap, shipRadius, speedAt,
 } from './tuning'
 import type { Asteroid, Game } from './types'
 
 export function startGame(g: Game): void {
   g.asteroids = []; g.particles = []; g.floaters = []
   g.time = 0; g.speed = 1; g.distance = 0; g.spawnTimer = 0.6; g.shake = 0; g.newBest = false
-  g.level = 1; g.ship.r = shipRadius(1, g.U); g.levelTime = 0; g.levelScore = 0; g.onboard = 0
+  g.level = 1; g.ship.r = shipRadius(1, g.U); g.levelTime = 0; g.levelScore = 0; g.gearTime = 0; g.onboard = 0
   g.wormhole = null; g.wormTimer = 0; g.flash = 0
   g.missed = 0; g.saved = 0; g.lost = 0
   g.results = []; g.levelFrom = { distance: 0, missed: 0 }
   g.boardOpen = false
-  g.rescueTimer = 4; g.rescueCount = 0; g.slowmo = 0; g.slowWatch = null
+  g.rescueTimer = 0; g.rescueCount = 0; g.slowmo = 0; g.slowWatch = null   // the first crew waits for FIRST_RESCUE
   g.shields = SHIELDS; g.grace = 0
   g.ship.x = g.W / 2; g.ship.vx = 0
   g.wells = [newWell(g, g.ship.x)]
@@ -43,19 +43,12 @@ function nextLevel(g: Game): void {
   g.wormTimer = 0; g.flash = 1                  // arrive somewhere new
   g.levelFrom = { distance: g.distance, missed: g.missed }
   g.shields = SHIELDS                           // every level starts with a full set
-  g.levelTime = 0; g.levelScore = 0
+  g.levelTime = 0; g.levelScore = 0; g.gearTime = 0
   g.spawnTimer = Math.max(g.spawnTimer, 1.2)    // short breather
   g.rescueTimer = 4
   buzz([40, 60, 40])
   setState(g, 'play')
 }
-
-// What the current level has added to the run so far, apart from crew saved.
-const levelSoFar = (g: Game) => ({
-  level: g.level,
-  missed: g.missed - g.levelFrom.missed,
-  distance: Math.floor(g.distance) - Math.floor(g.levelFrom.distance),
-})
 
 // Flying into the wormhole ends the level: the crew on board are delivered and
 // the level's result is written down. Then either the mission is complete, or
@@ -63,7 +56,7 @@ const levelSoFar = (g: Game) => ({
 function enterWormhole(g: Game): void {
   const saved = g.onboard
   deliver(g)
-  g.results.push({ ...levelSoFar(g), saved })
+  g.results.push({ ...missionSoFar(g), saved })
   g.asteroids = []; g.wormhole = null; g.slowmo = 0; g.slowWatch = null
   if (g.level >= LAST_LEVEL) { win(g); return }
   g.flash = 1
@@ -131,7 +124,7 @@ function gameOver(g: Game): void {
   explode(g, g.ship.x, g.ship.y)
   g.shake = 0.5
   g.lost = g.onboard            // everyone still aboard goes down with the ship, and counts against the score
-  g.results.push({ ...levelSoFar(g), saved: 0, lost: g.lost })   // the level that was never finished
+  g.results.push({ ...missionSoFar(g), saved: 0, lost: g.lost })   // the level that was never finished
   saveBest(g)
   buzz([60, 40, 140])
   setState(g, 'over')
@@ -145,7 +138,7 @@ function win(g: Game): void {
 }
 
 /** Meets the current level's goals at once. For the debug hook. */
-export function skipLevel(g: Game): void { g.levelScore = 1e9; g.levelTime = 1e9 }
+export function skipLevel(g: Game): void { g.levelScore = Math.max(g.levelScore, levelTarget(g.level)); g.levelTime = 1e9 }
 
 /** Advances the game by `dt` seconds. `steer` is -1, 0 or 1. */
 export function update(g: Game, dt: number, steer: number): void {
@@ -225,7 +218,9 @@ function playerAndSpawns(g: Game, dt: number, steer: number, scroll: number): vo
   const { W, H, U, ship } = g
   g.time += dt
   g.levelTime += dt
-  g.speed = Math.min(MAX_SPEED, 1 + g.levelTime * SPEED_RAMP)
+  const progress = g.levelScore / levelTarget(g.level)
+  if (progress >= GEAR_AT) g.gearTime += dt
+  g.speed = speedAt(progress, g.gearTime)
   g.distance += dt * g.speed * 10
   g.levelScore += dt * g.speed * 10
 
@@ -282,6 +277,8 @@ function playerAndSpawns(g: Game, dt: number, steer: number, scroll: number): vo
 
   g.grace = Math.max(0, g.grace - dt)
 
+  // A run opens with rocks alone: the first planetoid shows up at a set distance.
+  if (g.level === 1 && g.distance < FIRST_RESCUE) return
   g.rescueTimer -= dt
   if (g.rescueTimer <= 0) {
     g.rescueCount++

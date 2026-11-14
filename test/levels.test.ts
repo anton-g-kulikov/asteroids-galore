@@ -80,3 +80,15 @@ test('LEVEL-05 a new run starts with no results', () => {
   startGame(g)
   expect(g.results).toEqual([])
 })
+
+test('LEVEL-07 second gear starts only once twice the mission target has been flown', () => {
+  const g = playing()
+  g.spawnTimer = 999; g.rescueTimer = 999; g.wormTimer = 999   // an empty sky and no way out
+  g.levelScore = 990                                           // mission 1 asks for 500
+  update(g, 1 / 60, 0)
+  expect(g.gearTime).toBe(0)
+  g.levelScore = 1000
+  for (let i = 0; i < 60; i++) update(g, 1 / 60, 0)
+  expect(g.gearTime).toBeCloseTo(1)
+  expect(g.speed).toBeCloseTo(1 + g.levelScore / 500 * 1.3 + 0.1, 1)   // first gear from progress, second on top
+})

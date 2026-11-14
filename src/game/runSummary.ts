@@ -5,7 +5,7 @@ import type { Game } from './types'
 export interface RunResult {
   /** `won`: all levels cleared. `over`: ship destroyed. */
   outcome: 'won' | 'over'
-  /** Parsecs flown times crew counted (saved minus lost, never below zero). */
+  /** The missions' scores added up: see `missionScore`. Never below zero. */
   score: number
   /** Whole parsecs flown. */
   distance: number

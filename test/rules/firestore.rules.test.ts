@@ -31,7 +31,7 @@ const bests = (over: Record<string, unknown> = {}) => ({
 test('RULES-01 a player can create a well-formed run of their own', async () => {
   await assertSucceeds(setDoc(doc(as('ann'), 'runs/r1'), run('ann')))
   await assertSucceeds(setDoc(doc(as('ann'), 'runs/r2'), run('ann', { outcome: 'won', level: 4, lost: 0, score: 2060 })))
-  // nobody saved, or more lost than saved: the score is 0
+  // nobody saved, or a crash that cost more than was banked: the score is 0
   await assertSucceeds(setDoc(doc(as('ann'), 'runs/r3'), run('ann', { saved: 0, lost: 0, score: 0 })))
   await assertSucceeds(setDoc(doc(as('ann'), 'runs/r4'), run('ann', { saved: 2, lost: 6, score: 0 })))
 })
@@ -56,12 +56,13 @@ test('RULES-03 malformed runs are refused', async () => {
   await assertFails(setDoc(doc(db, 'runs/i'), run('ann', { callsign: 'look at me' })))
 })
 
-test('RULES-08 the score must be the distance times the crew counted', async () => {
+test('RULES-08 the score cannot exceed the distance times the crew saved', async () => {
   const db = as('ann')
+  await assertSucceeds(setDoc(doc(db, 'runs/ok'), run('ann', { score: 412 * 5 })))        // the ceiling itself
   await assertFails(setDoc(doc(db, 'runs/a'), run('ann', { score: 999999 })))
-  await assertFails(setDoc(doc(db, 'runs/b'), run('ann', { score: 412 * 5 })))            // forgot the crew lost
+  await assertFails(setDoc(doc(db, 'runs/b'), run('ann', { score: 412 * 5 + 1 })))
   await assertFails(setDoc(doc(db, 'runs/c'), run('ann', { saved: 0, lost: 0, score: 412 })))
-  await assertFails(setDoc(doc(db, 'runs/d'), run('ann', { saved: 2, lost: 6, score: 1 })))
+  await assertFails(setDoc(doc(db, 'runs/d'), run('ann', { score: -1 })))
   await assertFails(setDoc(doc(db, 'runs/e'), run('ann', { score: 1236.5 })))
   await assertFails(setDoc(doc(db, 'runs/f'), run('ann', { outcome: 'won', level: 4 })))   // a finished mission loses nobody
   await assertFails(setDoc(doc(db, 'runs/g'), run('ann', { saved: -1, score: 0 })))

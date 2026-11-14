@@ -34,13 +34,23 @@ export function spawnAsteroid(g: Game): void {
 const STEADY = () => ({ vx: 0, vy: 0.9, spin: rand(-0.5, 0.5) })
 const RESCUE = () => ({ ...STEADY(), planet: true })
 
-// Mostly one person per planetoid, sometimes two; three is a rarity.
-const crewSize = () => { const p = Math.random(); return p < 0.6 ? 1 : p < 0.92 ? 2 : 3 }
+// How many people a planetoid carries. Later levels have more seats, so their
+// planetoids carry more, not more planetoids: the sky stays sparse and the
+// seats can still fill by about the time the wormhole shows.
+//   level 1: always 1     level 2: mostly 1, sometimes 2, rarely 3
+//   level 3: mostly 2–3   level 4 on: 2–4
+export function crewSize(level: number): number {
+  const p = Math.random()
+  if (level <= 1) return 1
+  if (level === 2) return p < 0.6 ? 1 : p < 0.92 ? 2 : 3
+  if (level === 3) return p < 0.15 ? 1 : p < 0.65 ? 2 : 3
+  return p < 0.3 ? 2 : p < 0.7 ? 3 : 4
+}
 
 export function spawnRescue(g: Game): void {
   const r = rand(22, 28) * g.U
   g.asteroids.push(makeAsteroid(g, rand(g.W * 0.15, g.W * 0.85), r,
-    Object.assign(RESCUE(), { people: g.level === 1 ? 1 : crewSize() })))   // level 1: always a single crew
+    Object.assign(RESCUE(), { people: crewSize(g.level) })))
 }
 
 // Two crews on screen at once, in different columns, one following just

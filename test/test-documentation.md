@@ -28,22 +28,26 @@ The game is a real-time canvas simulation driven by `Math.random`, so most behav
 
 | ID | File | Case | Status |
 |---|---|---|---|
-| TUNE-01 | `tuning.test.ts` | Parsec target per level is 350, 450, 550, 650 | passing |
+| TUNE-01 | `tuning.test.ts` | Parsec target per level is 500, 750, 1250, 2000 | passing |
 | TUNE-02 | `tuning.test.ts` | Seats per level are 2, 4, 8, 16 and never exceed 32 | passing |
 | TUNE-03 | `tuning.test.ts` | Steering speed falls 8% per level and never below 50% | passing |
 | TUNE-04 | `tuning.test.ts` | Ship radius grows per level and scales with the base unit | passing |
-| TUNE-05 | `tuning.test.ts` | Gap between crews is 11–15 s on levels 1 and 2, 9–13 s on level 3, 8–11 s on level 4 | passing |
+| TUNE-05 | `tuning.test.ts` | Gap between crews is 11–15 s on level 1 and 15–20 s on levels 2 to 4 | passing |
+| TUNE-06 | `tuning.test.ts` | First gear follows progress: 2.3× at the target on every level, 4.5× at most; second gear adds 0.1× a second on top, up to 9× | passing |
 | SPAWN-01 | `spawn.test.ts` | Stranded crew are on planetoids; plain rocks carry nobody | passing |
 | SPAWN-02 | `spawn.test.ts` | On level 1 every planetoid has a single crew | passing |
 | SPAWN-03 | `spawn.test.ts` | A two-crew pair is two planetoids (1 and 2 crew) with two plain rocks as escorts | passing |
 | SPAWN-04 | `spawn.test.ts` | Level 1 never shows a two-crew pair, even when one is due; level 2 does | passing |
 | SPAWN-05 | `spawn.test.ts` | Flying across a planetoid costs no shield, leaves it whole and picks up its crew; a rock costs a shield and is destroyed | passing |
+| SPAWN-06 | `spawn.test.ts` | The first planetoid of a run appears at the 200 pc mark, not before | passing |
+| SPAWN-07 | `spawn.test.ts` | Planetoids carry more crew on later levels: 1 on level 1, 1–3 on levels 2 and 3 (more on 3), 2–4 on level 4 | passing |
 | LEVEL-01 | `levels.test.ts` | Flying into a wormhole stops on the results screen, delivers the crew, and records the level's saved, missed and distance | passing |
 | LEVEL-02 | `levels.test.ts` | The results screen waits for a tap, ignores one in its first 0.7 s, flies no distance while up, and then starts the next level with full shields | passing |
 | LEVEL-03 | `levels.test.ts` | Each level's row counts from where that level began | passing |
 | LEVEL-04 | `levels.test.ts` | The last wormhole finishes the mission with no results screen | passing |
 | LEVEL-06 | `levels.test.ts` | A destroyed ship adds a row for the unfinished level: nobody saved, the crew lost with the ship, and what was missed and flown in it | passing |
 | LEVEL-05 | `levels.test.ts` | A new run starts with no results | passing |
+| LEVEL-07 | `levels.test.ts` | Second gear starts only once twice the mission target has been flown | passing |
 | REC-01 | `records.test.ts` | The best score loads from storage; missing or unreadable storage gives 0 | passing |
 | REC-02 | `records.test.ts` | A higher score is saved and reported as new; an equal or lower one is not | passing |
 | REC-03 | `records.test.ts` | The old distance and crew bests are not read as a score | passing |
@@ -54,10 +58,13 @@ The game is a real-time canvas simulation driven by `Math.random`, so most behav
 | INP-03 | `input.test.ts` | Losing focus clears all held input | passing |
 | TIME-01 | `timeScale.test.ts` | No slow motion: scale is 1 | passing |
 | TIME-02 | `timeScale.test.ts` | Slow motion eases in over 0.2 s to 0.3 and back out over 0.45 s | passing |
-| SUM-01 | `runSummary.test.ts` | A lost run: outcome `over`, score, whole parsecs, level reached, crew saved, lost and missed, seconds played | passing |
-| SCORE-01 | `runSummary.test.ts` | The score is whole parsecs times crew saved; nobody saved, or no distance, scores 0 | passing |
-| SCORE-02 | `runSummary.test.ts` | Crew lost with the ship are taken off the crew saved, never below zero | passing |
-| SUM-02 | `runSummary.test.ts` | A finished mission has outcome `won` and scores parsecs times crew saved | passing |
+| SUM-01 | `runSummary.test.ts` | A lost run: outcome `over`, its missions' scores added up with the crash counted against it, whole parsecs, level reached, crew saved, lost and missed, seconds played | passing |
+| SCORE-01 | `runSummary.test.ts` | A mission scores its own whole parsecs times its own crew saved; nobody saved, or no distance, scores 0 | passing |
+| SCORE-02 | `runSummary.test.ts` | A crash costs that mission's parsecs times the crew lost, whatever was missed; the run never goes below zero | passing |
+| SCORE-03 | `runSummary.test.ts` | Each crew member left behind takes 10% off the mission's score, down to nothing at ten | passing |
+| SCORE-04 | `runSummary.test.ts` | The run's score is its missions added up: parsecs do not multiply another mission's crew | passing |
+| SCORE-05 | `runSummary.test.ts` | Crew on board are worth this mission's parsecs so far, less what it has missed | passing |
+| SUM-02 | `runSummary.test.ts` | A finished run has outcome `won` and scores its missions added up | passing |
 | CFG-01 | `cloud/config.test.ts` | No `VITE_FIREBASE_*` values: the cloud is off | passing |
 | CFG-02 | `cloud/config.test.ts` | A complete config is passed through; a partial one turns the cloud off | passing |
 | CFG-03 | `cloud/config.test.ts` | With the emulator flag only the project ID is needed | passing |
@@ -78,7 +85,7 @@ The game is a real-time canvas simulation driven by `Math.random`, so most behav
 | SYNC-08 | `cloud/resultsSync.test.ts` | The board is delivered after start, and again after a run with the new best in place | passing |
 | SYNC-09 | `cloud/resultsSync.test.ts` | A board that fails to load is logged; the run is still saved | passing |
 | HUD-01 | `render/hud.test.ts` | With a board loaded, both end screens show a `LEADERBOARD` link and not the board itself; no other screen shows the link | passing |
-| HUD-02 | `render/hud.test.ts` | An end screen is a table (a row per mission and a `TOTAL` row, distance then crew saved as a multiplier), the score with the best right under it and no sum line, then a `NOT SAVED` section with the crew lost with the ship and the crew missed; nobody saved scores 0 | passing |
+| HUD-02 | `render/hud.test.ts` | An end screen is a table with a row per mission (distance, crew saved as a multiplier, the crew missed and what they cost as a percentage, score) and no total row; the score they add up to with the best right under it; then a `NOT SAVED` section. A crash row shows the crew lost and a negative score; nobody saved scores 0 | passing |
 | HUD-03 | `render/hud.test.ts` | With no board, or an empty one, there is no link and no board | passing |
 | SHARE-01 | `cloud/share.test.ts` | `/s/{id}` gives the run ID; other paths, and IDs with odd characters, give none | passing |
 | SHARE-02 | `cloud/share.test.ts` | The link is `origin/s/{id}`; the message leads with the crew saved and gives the score, not the distance | passing |
@@ -93,8 +100,8 @@ The game is a real-time canvas simulation driven by `Math.random`, so most behav
 | HUD-07 | `render/hud.test.ts` | With no shared run the start screen draws nothing extra | passing |
 | HUD-11 | `render/hud.test.ts` | The leaderboard screen replaces the end screen: `TOP SCORES`, every row with rank, callsign and score, and `TAP TO GO BACK`; with no board the end screen stays | passing |
 | HUD-12 | `render/hud.test.ts` | The leaderboard link sits top left, clear of the share button, also on a small phone, and is big enough to tap | passing |
-| HUD-10 | `render/hud.test.ts` | Between levels, under `MISSION N COMPLETE`: a `MISSION` row and a `TOTAL` row, each with distance, crew saved as a multiplier and the score they make; then the mission's missed count and `TAP TO CONTINUE` | passing |
-| HUD-09 | `render/hud.test.ts` | During a run only one number shows: what the crew on board are worth (`+parsecs × on board`) while anyone is aboard, otherwise the score; no `0` | passing |
+| HUD-10 | `render/hud.test.ts` | Between levels, under `MISSION N COMPLETE`: a `MISSION` row with distance, crew saved as a multiplier, the crew missed with their percentage, and its score; a `TOTAL` row with the run's score so far; then `TAP TO CONTINUE` | passing |
+| HUD-09 | `render/hud.test.ts` | During a run only one number shows: what the crew on board are worth (this mission's parsecs × on board, less 10% per crew missed in it) while anyone is aboard, otherwise the score; no `0` | passing |
 | HUD-08 | `render/hud.test.ts` | During a run the big number is the score (nothing is shown while it is 0 and nobody is on board), with `SAVED` and `MISSED` counts; the distance is not the headline | passing |
 
 ## Firestore rules — `test/rules/firestore.rules.test.ts`
@@ -104,7 +111,7 @@ The game is a real-time canvas simulation driven by `Math.random`, so most behav
 | RULES-01 | A signed-in player can create a well-formed run of their own | passing |
 | RULES-02 | A run for another user, or without sign-in, is refused | passing |
 | RULES-03 | Malformed runs are refused: extra field, missing field, negative distance, level 5, a win below the last level, a client-set time, a badly formed callsign | passing |
-| RULES-08 | A run's score must equal its distance times (saved − lost), or 0 when that is not positive; a finished mission cannot have crew lost | passing |
+| RULES-08 | A run's score cannot exceed its distance times crew saved, and cannot be negative or fractional; a finished mission cannot have crew lost | passing |
 | RULES-09 | A leaderboard entry written before scores existed can be replaced by a scored one, which then cannot go down | passing |
 | RULES-04 | Runs cannot be changed or deleted; anyone can read a run by its ID; nobody can list runs | passing |
 | RULES-05 | A player can create and update their own entry (best score and callsign), not another player's; anyone can read entries, signed in or not | passing |

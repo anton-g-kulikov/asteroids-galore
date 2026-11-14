@@ -172,11 +172,14 @@ export function drawShip(ctx: CanvasRenderingContext2D, g: Game): void {
   ctx.fill()
   // passenger deck: one seat per dot, filling from the back as crew come aboard
   if (cap) {
-    const cols = cap <= 8 ? 2 : 4, rows = cap / cols
-    const p = Math.min(0.78 * r / cols, 1.05 * r / rows)
+    // two seats sit one behind the other on the centreline
+    const cols = cap <= 2 ? 1 : cap <= 8 ? 2 : 4, rows = cap / cols
+    const p = Math.min(0.78 * r / Math.max(2, cols), 1.05 * r / rows)
+    // the pair sits midway between the cockpit glass and the tail
+    const back = cols === 1 ? r * 0.25 + p / 2 : r * 0.72
     for (let i = 0; i < cap; i++) {
       const cx = (i % cols - (cols - 1) / 2) * p
-      const cy = r * 0.72 - Math.floor(i / cols) * p
+      const cy = back - Math.floor(i / cols) * p
       ctx.fillStyle = i < g.onboard ? '#16c060' : '#aab4cc'
       ctx.beginPath(); ctx.arc(cx, cy, p * 0.36, 0, Math.PI * 2); ctx.fill()
     }

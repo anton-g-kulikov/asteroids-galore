@@ -35,10 +35,11 @@ service cloud.firestore {
           && wholeNumber(run.saved, 0, 1000)
           && wholeNumber(run.lost, 0, 1000)
           && (run.outcome != 'won' || run.lost == 0)
-          // The score is parsecs times the crew counted: saved minus lost, never below zero.
+          // The score is the missions added up, each its own parsecs times its
+          // own crew saved, less what was missed. The run's totals cannot give
+          // the exact figure, only its ceiling: all the parsecs times all the crew.
           && wholeNumber(run.score, 0, 1000000000)
-          && ((run.saved > run.lost && run.score == run.distance * (run.saved - run.lost))
-            || (run.saved <= run.lost && run.score == 0))
+          && run.score <= run.distance * run.saved
           && wholeNumber(run.missed, 0, 10000)
           && run.durationSeconds is number && run.durationSeconds >= 0 && run.durationSeconds <= 86400;
       }

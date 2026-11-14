@@ -78,6 +78,8 @@ export interface Game {
   level: number
   levelTime: number
   levelScore: number
+  /** Seconds spent in second gear on this level: see `speedAt`. */
+  gearTime: number
   onboard: number        // crew in the seats right now: not saved until the next wormhole
   saved: number          // crew delivered through a wormhole; safe for good
   lost: number           // crew who were on board when the ship was destroyed

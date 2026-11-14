@@ -56,7 +56,7 @@ On load the game signs in anonymously in the background. When a run ends it writ
 
 Each account gets a callsign generated from its ID, such as `COSMIC OTTER 42`; nobody types a name. `users/{uid}` doubles as the player's leaderboard entry and is public to read.
 
-Both end screens have a `LEADERBOARD` link that opens `TOP SCORES`: the top 10 by best score. The score is parsecs flown times crew saved, so a long flight with nobody saved scores nothing.
+Both end screens have a `LEADERBOARD` link that opens `TOP SCORES`: the top 10 by best score. Each mission scores its parsecs times the crew saved in it, less 10% for each crew member left behind, and the score is the missions added up, so a long flight with nobody saved scores nothing.
 
 The player's own row is gold. If it is outside the top 10 it is added below with its rank. How the board behaves is described in [_meta/game-design.md](_meta/game-design.md).
 

@@ -1,6 +1,6 @@
-import { scoreOf } from '../game/score'
+import { keptPercent, missionScore, pendingScore, scoreOf } from '../game/score'
 import { LAST_LEVEL, SHIELDS, levelCapacity, levelTarget } from '../game/tuning'
-import type { BoardRow, Game, SharedRun } from '../game/types'
+import type { BoardRow, Game, LevelResult, SharedRun } from '../game/types'
 import { SHIELD_COLOR, SHIELD_SPREAD } from './sprites'
 import { text } from './text'
 
@@ -31,7 +31,7 @@ function drawPlayHud(ctx: CanvasRenderingContext2D, g: Game, top: number): void 
   // green with a plus: banked at the next wormhole, gone if the ship is lost
   // first. With the seats empty it is the score. Before anything is banked and
   // with nobody aboard there is no number to show.
-  const score = scoreOf(g), pending = Math.floor(g.distance) * g.onboard
+  const score = scoreOf(g), pending = g.onboard ? pendingScore(g) : 0
   if (pending) text(ctx, `+${fmt(pending)}`, W / 2, top, 34 * U, 'rgba(93,255,160,.9)')
   else if (score) text(ctx, fmt(score), W / 2, top, 34 * U, '#ffffff')
   if (g.records.best) text(ctx, `BEST ${fmt(g.records.best)}`, W - 14, top - 8 * U, 13 * U, 'rgba(255,255,255,.55)', 'right', 600)
@@ -117,66 +117,67 @@ function drawScore(ctx: CanvasRenderingContext2D, g: Game, y: number): number {
   return y + 48 * U
 }
 
-// Missed crew are not part of the sum, so they sit apart from the table, on a line of their own.
+// The crew left behind, on a line of their own.
 function drawMissed(ctx: CanvasRenderingContext2D, g: Game, missed: number, y: number): void {
   text(ctx, `${missed} MISSED`, g.W / 2, y, 13 * g.U, '#ff7b54', 'center', 700)
 }
 
-// Between levels: two rows that each read as a sum, distance times crew saved
-// equals score. The first is the mission just finished (the title says which),
-// the second, brighter, is the whole run so far. The run's score is not the
-// missions' scores added up, since every parsec multiplies every crew saved,
-// which is why both rows are spelled out.
+// The crew left behind and what they took off the mission's score: "4 (−40%)", or a dash for none.
+const missedCut = (missed: number): string => missed ? `${missed} (−${100 - keptPercent(missed)}%)` : '—'
+
+const TABLE = [-150, -82, -18, 44, 122]   // column centres, in units from the middle
+const ORANGE = '#ff7b54'
+
+// One mission as a sum that reads left to right: distance, times the crew
+// saved, less the share the missed crew cost, is its score. A mission that
+// ended with the ship destroyed shows the crew it cost and a negative score.
+function drawMissionRow(ctx: CanvasRenderingContext2D, g: Game, r: LevelResult, name: string, y: number, size: number, alpha: number): void {
+  const { W, U } = g
+  const cols = TABLE.map(dx => W / 2 + dx * U)
+  const white = `rgba(255,255,255,${alpha})`, score = missionScore(r)
+  text(ctx, name, cols[0], y, Math.min(size, 12 * U), white, 'center', 700)
+  text(ctx, `${r.distance} pc`, cols[1], y, size, white, 'center', 600)
+  if (r.lost) text(ctx, `−${r.lost}`, cols[2], y, size, 'rgba(255,154,60,.85)', 'center', 600)
+  else {
+    text(ctx, `×${r.saved}`, cols[2], y, size, `rgba(93,255,160,${alpha})`, 'center', 600)
+    text(ctx, missedCut(r.missed), cols[3], y, size, r.missed ? `rgba(255,123,84,${alpha + 0.2})` : white, 'center', 600)
+  }
+  text(ctx, score < 0 ? `−${fmt(-score)}` : fmt(score), cols[4], y, size, score < 0 ? 'rgba(255,154,60,.85)' : white, 'center', 600)
+}
+
+function drawTableHead(ctx: CanvasRenderingContext2D, g: Game, first: string, y: number): void {
+  ;[first, 'DISTANCE', 'SAVED', 'MISSED', 'SCORE'].forEach((h, i) => {
+    if (h) text(ctx, h, g.W / 2 + TABLE[i] * g.U, y, 11 * g.U, LABEL, 'center', 700)
+  })
+}
+
+// Between levels: the mission just finished as a sum (the title says which
+// one), and under it, brighter, the run's score so far: the missions added up.
 function drawBetween(ctx: CanvasRenderingContext2D, g: Game): void {
   const { W, H, U } = g
   const top = H * 0.22, head = top + 50 * U
-  const cols = [-132, -52, 24, 116].map(dx => W / 2 + dx * U)
-  const last = g.results[g.results.length - 1] ?? { saved: 0, missed: 0, distance: 0 }
+  const last = g.results[g.results.length - 1] ?? { level: g.level, saved: 0, missed: 0, distance: 0 }
   text(ctx, `MISSION ${g.level} COMPLETE`, W / 2, top, 30 * U, '#7fdcff', 'center', 800)
-  ;['DISTANCE', 'SAVED', 'SCORE'].forEach((h, i) => text(ctx, h, cols[i + 1], head, 11 * U, LABEL, 'center', 700))
-
-  const row = (y: number, name: string, distance: number, saved: number, bright: boolean) => {
-    const size = (bright ? 21 : 16) * U, weight = bright ? 800 : 600
-    const white = bright ? '#ffffff' : 'rgba(255,255,255,.6)'
-    text(ctx, name, cols[0], y, 12 * U, white, 'center', bright ? 800 : 700)
-    text(ctx, `${distance} pc`, cols[1], y, size, white, 'center', weight)
-    text(ctx, `×${saved}`, cols[2], y, size, bright ? '#5dffa0' : 'rgba(93,255,160,.65)', 'center', weight)
-    text(ctx, fmt(distance * saved), cols[3], y, size, white, 'center', weight)
-  }
-  row(head + 28 * U, 'MISSION', last.distance, last.saved, false)
-  row(head + 60 * U, 'TOTAL', Math.floor(g.distance), g.saved, true)
-
-  drawMissed(ctx, g, last.missed, head + 98 * U)
-  drawPrompt(ctx, g, 'TAP TO CONTINUE', head + 146 * U)
+  drawTableHead(ctx, g, '', head)
+  drawMissionRow(ctx, g, last, 'MISSION', head + 28 * U, 16 * U, 0.6)
+  text(ctx, 'TOTAL', W / 2 + TABLE[0] * U, head + 60 * U, 12 * U, '#ffffff', 'center', 800)
+  text(ctx, fmt(scoreOf(g)), W / 2 + TABLE[4] * U, head + 60 * U, 21 * U, '#ffffff', 'center', 800)
+  drawPrompt(ctx, g, 'TAP TO CONTINUE', head + 122 * U)
 }
 
-// Both end screens: a table with a row per mission played and a bright TOTAL
-// row, then the score, the best, what a crash cost, the prompt and the
-// leaderboard. After a crash the unfinished mission has a row too, with the
-// crew who went down with the ship in its saved column.
+// Both end screens: a table with a row per mission played, each a sum of its
+// own, then the score they add up to, the best, the crew who were not saved,
+// the prompt and the leaderboard. After a crash the unfinished mission has a
+// row too, with the crew who went down with the ship and what they cost.
 function drawEnd(ctx: CanvasRenderingContext2D, g: Game): void {
   const { W, H, U } = g
   const won = g.state === 'won', gold = '#ffd166'
   const top = H * 0.17, head = top + 48 * U, line = 24 * U
-  const cols = [-110, 0, 110].map(dx => W / 2 + dx * U)
-  const dim = 'rgba(255,255,255,.45)'
-  text(ctx, won ? 'ALL MISSIONS COMPLETE' : 'GAME OVER', W / 2, top, 30 * U, won ? '#5dffa0' : '#ff7b54', 'center', 800)
-  ;['MISSION', 'DISTANCE', 'SAVED'].forEach((h, i) => text(ctx, h, cols[i], head, 11 * U, LABEL, 'center', 700))
+  text(ctx, won ? 'ALL MISSIONS COMPLETE' : 'GAME OVER', W / 2, top, 30 * U, won ? '#5dffa0' : ORANGE, 'center', 800)
+  drawTableHead(ctx, g, 'MISSION', head)
+  g.results.forEach((r, i) => drawMissionRow(ctx, g, r, String(r.level), head + (i + 1) * line, 15 * U, 0.6))
 
-  g.results.forEach((r, i) => {
-    const ry = head + (i + 1) * line
-    text(ctx, String(r.level), cols[0], ry, 15 * U, dim, 'center', 600)
-    text(ctx, `${r.distance} pc`, cols[1], ry, 15 * U, dim, 'center', 600)
-    if (r.lost) text(ctx, `−${r.lost}`, cols[2], ry, 15 * U, 'rgba(255,154,60,.75)', 'center', 600)
-    else text(ctx, `×${r.saved}`, cols[2], ry, 15 * U, 'rgba(93,255,160,.5)', 'center', 600)
-  })
-  const ty = head + (g.results.length + 1) * line + 4 * U
-  text(ctx, 'TOTAL', cols[0], ty, 13 * U, '#ffffff', 'center', 800)
-  // The total row is the sum itself: distance, times the crew that count, is the score below.
-  text(ctx, `${Math.floor(g.distance)} pc`, cols[1], ty, 20 * U, '#ffffff', 'center', 800)
-  text(ctx, `×${Math.max(0, g.saved - g.lost)}`, cols[2], ty, 20 * U, '#5dffa0', 'center', 800)
-
-  let y = drawScore(ctx, g, ty + 36 * U)
+  let y = drawScore(ctx, g, head + (g.results.length + 1) * line + 22 * U)
   // the best sits right under the score it is compared with
   if (g.newBest) { y += 24 * U; text(ctx, 'NEW BEST!', W / 2, y, 14 * U, gold) }
   else if (g.records.best) { y += 24 * U; text(ctx, `BEST ${fmt(g.records.best)}`, W / 2, y, 14 * U, gold) }   // no best yet: say nothing

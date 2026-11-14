@@ -6,7 +6,18 @@ The game is built from typed modules with Vite, has automated tests and Firebase
 
 ## Next
 
-- Nothing queued beyond the first deploy.
+Missions beyond 4, as planned in `game-design.md` under "Planned: missions beyond 4". Roughly in this order; each step should be playable on its own.
+
+- **Decide first:** how many missions a run has (6 or 7 is the working assumption) and their parsec targets, by playing.
+- **Missed penalty that scales:** replace the flat `MISS_PERCENT` per person with a share of the crew on offer in the mission; keep the count and its cost in the results table.
+- **Crew weight:** ship size and steering come from crew on board instead of the level, replacing `shipRadius` and `levelHandling`. Can land before the new missions.
+- **More missions:** raise `LAST_LEVEL`, extend `levelTarget`, `rescueGap`, `crewSize` and the seat table, and update `firestore.rules` (level range, won means the last level) with their tests. Reset the leaderboard. Check the end-screen table on a short phone.
+- **Dead stars (mission 5):** fixed wells that pull the ship too.
+- **Failing rescues (mission 6):** `SOS` rings that shrink and close.
+- **Wrecked stations (mission 7):** harmless rescue objects with 4–8 crew; seats grow by a fixed step past 16, with a seat display that fits them.
+- **Finale:** sideways-drifting wormhole, angled asteroids.
+- Update the levels table and the tuning table in `game-design.md` as each piece lands, and move it out of the "Planned" section.
+- **Parked:** shooting and shield drops (see the design notes for why).
 
 ## Known gaps
 

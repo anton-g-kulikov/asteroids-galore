@@ -54,36 +54,35 @@ test('HUD-12 the leaderboard link sits top left, clear of the share button', () 
   expect(boardButtonRect(g).x + boardButtonRect(g).w).toBeLessThan(shareButtonRect(g).x)
 })
 
-test('HUD-02 an end screen is a table with a row per mission and a total, then the score and its sum', () => {
+test('HUD-02 an end screen is a table with a sum per mission, then the score they add up to', () => {
   const won = drawnText('won', null, {
     distance: 2140.6, saved: 12, lost: 0, missed: 7,
     results: [{ level: 1, saved: 2, missed: 1, distance: 361 }, { level: 2, saved: 10, missed: 6, distance: 1779 }],
   })
-  expect(won).toEqual(expect.arrayContaining([
-    'ALL MISSIONS COMPLETE', '361 pc', '×2', '1779 pc', '×10',
-    'TOTAL', '2140 pc', '×12', 'SCORE', '25,680', 'NOT SAVED', '7 MISSED',
-  ]))
-  expect(won.join(' ')).not.toMatch(/WENT DOWN|LOST/)
-  // distance first, crew saved last as the multiplier
-  expect(won.filter(t => ['MISSION', 'DISTANCE', 'MISSED', 'SAVED'].includes(t))).toEqual(['MISSION', 'DISTANCE', 'SAVED'])   // missed is not a column
+  // each row: mission, distance, crew saved as a multiplier, what the missed cost, its score
+  expect(won.slice(0, 16)).toEqual([
+    'ALL MISSIONS COMPLETE', 'MISSION', 'DISTANCE', 'SAVED', 'MISSED', 'SCORE',
+    '1', '361 pc', '×2', '1 (−10%)', '649',
+    '2', '1779 pc', '×10', '6 (−60%)', '7,116',
+  ])
+  expect(won).toEqual(expect.arrayContaining(['SCORE', '7,765', 'NOT SAVED', '7 MISSED']))
+  expect(won.join(' ')).not.toMatch(/WENT DOWN|LOST|TOTAL/)
 
-  // a crash: the unfinished mission shows the crew it cost, and the total counts them off
+  // a crash: the unfinished mission shows the crew it cost and a negative score
   const over = drawnText('over', null, {
     distance: 1000, saved: 9, lost: 3, missed: 2,
     results: [{ level: 1, saved: 9, missed: 0, distance: 600 }, { level: 2, saved: 0, lost: 3, missed: 2, distance: 400 }],
   })
-  expect(over).toEqual(expect.arrayContaining([
-    'GAME OVER', '600 pc', '×9', '400 pc', '−3', 'TOTAL', '1000 pc', '×6', '6,000', 'NOT SAVED', '3 WENT DOWN WITH THE SHIP', '2 MISSED',
-  ]))
-
-  expect(over.join(' ')).not.toContain('LOST)')   // the sum line is gone: the TOTAL row is the sum
+  expect(over.slice(6, 15)).toEqual(['1', '600 pc', '×9', '—', '5,400', '2', '400 pc', '−3', '−1,200'])
+  expect(over).toEqual(expect.arrayContaining(['GAME OVER', '4,200', 'NOT SAVED', '3 WENT DOWN WITH THE SHIP', '2 MISSED']))
 
   // the best comes straight after the score, before the crew who were not saved
-  const best = drawnText('over', null, { distance: 1000, saved: 9, lost: 3, missed: 2, newBest: true })
-  expect(best.slice(best.indexOf('6,000'), best.indexOf('6,000') + 3)).toEqual(['6,000', 'NEW BEST!', 'NOT SAVED'])
+  const best = drawnText('over', null, { results: [{ level: 1, saved: 3, missed: 0, distance: 2000 }], newBest: true })
+  expect(best.slice(best.lastIndexOf('6,000'), best.lastIndexOf('6,000') + 3)).toEqual(['6,000', 'NEW BEST!', 'NOT SAVED'])
 
   // nobody saved: the score is nothing, however far the ship flew
-  expect(drawnText('over', null, { distance: 3000, saved: 0, lost: 0, missed: 4 })).toEqual(expect.arrayContaining(['3000 pc', '×0', '0', '4 MISSED']))
+  const none = drawnText('over', null, { distance: 3000, missed: 4, results: [{ level: 1, saved: 0, lost: 0, missed: 4, distance: 3000 }] })
+  expect(none).toEqual(expect.arrayContaining(['3000 pc', '×0', '4 (−40%)', '0', '4 MISSED']))
 })
 
 test('HUD-03 no board, or an empty one: no link and no board', () => {
@@ -95,9 +94,11 @@ test('HUD-03 no board, or an empty one: no link and no board', () => {
   }
 })
 
+const banked = [{ level: 1, saved: 3, missed: 0, distance: 400 }]
+
 test('HUD-08 during a run the big number is the score, not the distance', () => {
   expect(drawnText('play', null, { distance: 400, saved: 0 })).not.toContain('0')   // nothing saved, nobody aboard: no number at all
-  const text = drawnText('play', null, { distance: 400.9, saved: 3, missed: 1 })
+  const text = drawnText('play', null, { distance: 400.9, saved: 3, missed: 1, results: banked })
   expect(text).toEqual(expect.arrayContaining(['1,200', 'SAVED 3', 'MISSED 1']))
   expect(text).not.toContain('400 pc')
 })
@@ -107,26 +108,29 @@ test('HUD-09 one number at a time: what the crew on board are worth, or else the
   const waiting = drawnText('play', null, { distance: 350.4, saved: 0, onboard: 2 })
   expect(waiting).toContain('+700')
   expect(waiting).not.toContain('0')
-  // crew on board and a score banked: still only the pending amount
-  const carrying = drawnText('play', null, { distance: 1000, saved: 3, onboard: 4 })
+  // crew on board and a score banked: still only the pending amount, from this mission's parsecs alone
+  const from = { distance: 400, missed: 0 }
+  const carrying = drawnText('play', null, { distance: 1400, saved: 3, onboard: 4, results: banked, levelFrom: from })
   expect(carrying).toContain('+4,000')
-  expect(carrying).not.toContain('3,000')
+  expect(carrying).not.toContain('1,200')
+  // a crew left behind on this mission takes 10% off what those on board are worth
+  expect(drawnText('play', null, { distance: 1400, onboard: 4, missed: 1, results: banked, levelFrom: from })).toContain('+3,600')
   // empty seats: the score
-  const empty = drawnText('play', null, { distance: 1000, saved: 3, onboard: 0 })
-  expect(empty).toContain('3,000')
+  const empty = drawnText('play', null, { distance: 1400, saved: 3, onboard: 0, results: banked, levelFrom: from })
+  expect(empty).toContain('1,200')
   expect(empty.some(t => t.startsWith('+'))).toBe(false)
 })
 
-test('HUD-10 between levels: the mission and the run so far, each as distance × saved = score', () => {
+test('HUD-10 between levels: the mission as a sum, and the run\'s score so far', () => {
   const text = drawnText('between', null, {
     level: 2, distance: 881.3, saved: 5,
     results: [{ level: 1, saved: 2, missed: 1, distance: 361 }, { level: 2, saved: 3, missed: 0, distance: 520 }],
   })
   expect(text).toEqual([
-    'MISSION 2 COMPLETE', 'DISTANCE', 'SAVED', 'SCORE',
-    'MISSION', '520 pc', '×3', '1,560',     // the mission just finished: its own sum
-    'TOTAL', '881 pc', '×5', '4,405',       // the run so far: the score that counts
-    '0 MISSED', 'TAP TO CONTINUE',
+    'MISSION 2 COMPLETE', 'DISTANCE', 'SAVED', 'MISSED', 'SCORE',
+    'MISSION', '520 pc', '×3', '—', '1,560',   // the mission just finished: its own sum
+    'TOTAL', '2,209',                          // the run so far: 649 + 1,560
+    'TAP TO CONTINUE',
   ])   // the mission number appears once, in the title, and earlier missions are not listed
 })
 
