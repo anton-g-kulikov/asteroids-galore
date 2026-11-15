@@ -22,7 +22,7 @@ const BEST = 'best3'
 function endOf(get: (field: string) => unknown): RunEnd | null {
   const outcome = get('bestOutcome'), level = Number(get('bestLevel'))
   if ((outcome !== 'won' && outcome !== 'over') || !level) return null
-  return { outcome, level, finalDistance: Number(get('bestFinal')) || 0 }
+  return { outcome, level, finalDistance: Number(get('bestFinal')) || 0, ship: Number(get('bestShip')) || 0 }
 }
 
 /**
@@ -53,7 +53,7 @@ export function createFirebaseBackend(config: CloudConfig): CloudBackend {
     },
     async saveBest(uid, best, end, callsign) {
       await setDoc(doc(db, 'users', uid), {
-        callsign, [BEST]: best, bestOutcome: end.outcome, bestLevel: end.level, bestFinal: end.finalDistance,
+        callsign, [BEST]: best, bestOutcome: end.outcome, bestLevel: end.level, bestFinal: end.finalDistance, bestShip: end.ship,
         updatedAt: serverTimestamp(),
       })
     },

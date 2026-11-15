@@ -1,5 +1,5 @@
 import { curvature, ringRadius, shipMass } from '../game/game'
-import { GRACE, levelCapacity } from '../game/tuning'
+import { GRACE, shipGrid, shipSeats } from '../game/tuning'
 import type { Asteroid, Castaway, Drop, Game, Wormhole } from '../game/types'
 import { text } from './text'
 
@@ -103,7 +103,7 @@ function drawRing(ctx: CanvasRenderingContext2D, g: Game, a: Asteroid): void {
   if (a.people) {
     const R = ringRadius(g, a)
     ctx.save()
-    const full = g.onboard >= levelCapacity(g.level)
+    const full = g.onboard >= shipSeats(g.shipType)
     const col = full ? '#8a8f9c' : '#5dffa0'
     ctx.strokeStyle = col
     ctx.globalAlpha = 0.55 + 0.3 * Math.sin(clock * 6)
@@ -173,18 +173,19 @@ export function drawDrop(ctx: CanvasRenderingContext2D, g: Game, d: Drop): void 
   ctx.restore()
 }
 
-export function drawShip(ctx: CanvasRenderingContext2D, g: Game): void {
-  const { ship, W, clock } = g
-  const r = ship.r
-  ctx.save()
-  ctx.translate(ship.x, ship.y)
-  ctx.rotate(Math.max(-0.45, Math.min(0.45, ship.vx / (W * 1.4) * 0.45)))
-  // engine flame
-  const f = r * (1.0 + Math.random() * 0.5)
-  ctx.fillStyle = '#ffb347'
-  ctx.beginPath()
-  ctx.moveTo(-r * 0.32, r * 0.75); ctx.lineTo(0, r * 0.75 + f); ctx.lineTo(r * 0.32, r * 0.75)
-  ctx.fill()
+/**
+ * A ship's body around the origin, nose up: wings, hull, cockpit and its seats,
+ * `onboard` of them taken. `type` is the ship, 1 to 5, and decides the seats;
+ * `r` is the size it is drawn at. The flame is left off a ship that is not flying.
+ */
+export function drawHull(ctx: CanvasRenderingContext2D, r: number, type: number, onboard: number, flame = true): void {
+  if (flame) {
+    const f = r * (1.0 + Math.random() * 0.5)
+    ctx.fillStyle = '#ffb347'
+    ctx.beginPath()
+    ctx.moveTo(-r * 0.32, r * 0.75); ctx.lineTo(0, r * 0.75 + f); ctx.lineTo(r * 0.32, r * 0.75)
+    ctx.fill()
+  }
   // wings
   ctx.fillStyle = '#3d7dd8'
   ctx.beginPath()
@@ -202,25 +203,30 @@ export function drawShip(ctx: CanvasRenderingContext2D, g: Game): void {
   // cockpit
   ctx.fillStyle = '#39c6ff'
   ctx.beginPath()
-  const cap = levelCapacity(g.level)
-  if (cap) ctx.ellipse(0, -r * 0.62, r * 0.17, r * 0.27, 0, 0, Math.PI * 2)
-  else ctx.ellipse(0, -r * 0.35, r * 0.2, r * 0.38, 0, 0, Math.PI * 2)
+  ctx.ellipse(0, -r * 0.62, r * 0.17, r * 0.27, 0, 0, Math.PI * 2)
   ctx.fill()
-  // passenger deck: one seat per dot, filling from the back as crew come aboard
-  if (cap) {
-    // two seats sit one behind the other on the centreline; the big crews of
-    // the late missions sit in wider rows so that every seat still fits the hull
-    const cols = cap <= 2 ? 1 : cap <= 8 ? 2 : cap <= 20 ? 4 : cap <= 25 ? 5 : 6, rows = Math.ceil(cap / cols)
-    const p = Math.min(0.78 * r / Math.max(2, cols), 1.05 * r / rows)
-    // the pair sits midway between the cockpit glass and the tail
-    const back = cols === 1 ? r * 0.25 + p / 2 : r * 0.72
-    for (let i = 0; i < cap; i++) {
-      const cx = (i % cols - (cols - 1) / 2) * p
-      const cy = back - Math.floor(i / cols) * p
-      ctx.fillStyle = i < g.onboard ? '#16c060' : '#aab4cc'
-      ctx.beginPath(); ctx.arc(cx, cy, p * 0.36, 0, Math.PI * 2); ctx.fill()
-    }
+  // passenger deck: one seat per dot, filling from the back as crew come
+  // aboard. Every ship's seats are a full rectangle: two seats sit one behind
+  // the other on the centreline, the bigger crews in rows of two or four.
+  const [cols, rows] = shipGrid(type)
+  const p = Math.min(0.78 * r / Math.max(2, cols), 1.05 * r / rows)
+  // the pair sits midway between the cockpit glass and the tail
+  const back = cols === 1 ? r * 0.25 + p / 2 : r * 0.72
+  for (let i = 0; i < cols * rows; i++) {
+    const cx = (i % cols - (cols - 1) / 2) * p
+    const cy = back - Math.floor(i / cols) * p
+    ctx.fillStyle = i < onboard ? '#16c060' : '#aab4cc'
+    ctx.beginPath(); ctx.arc(cx, cy, p * 0.36, 0, Math.PI * 2); ctx.fill()
   }
+}
+
+export function drawShip(ctx: CanvasRenderingContext2D, g: Game): void {
+  const { ship, W, clock } = g
+  const r = ship.r
+  ctx.save()
+  ctx.translate(ship.x, ship.y)
+  ctx.rotate(Math.max(-0.45, Math.min(0.45, ship.vx / (W * 1.4) * 0.45)))
+  drawHull(ctx, r, g.shipType, g.onboard)
   // shields: one arc per shield left, stacked ahead of the nose
   ctx.lineCap = 'round'
   ctx.strokeStyle = SHIELD_COLOR

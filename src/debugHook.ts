@@ -21,6 +21,7 @@ export function createDebugHook(g: Game) {
     get wells() { return g.wells },
     get level() { return g.level },
     get onboard() { return g.onboard },
+    get shipType() { return g.shipType },
     get wormhole() { return g.wormhole },
     get wormTimer() { return g.wormTimer },
     get drops() { return g.drops },

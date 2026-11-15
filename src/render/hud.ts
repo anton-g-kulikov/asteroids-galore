@@ -1,8 +1,9 @@
 import { seedName } from '../game/random'
 import { missedPercent, missionScore, pendingScore, scoreOf } from '../game/score'
-import { LAST_LEVEL, SHIELDS, levelCapacity, levelTarget } from '../game/tuning'
+import { isFleet, offer } from '../game/game'
+import { LAST_LEVEL, SHIELDS, levelTarget, shipRadius, shipSeats } from '../game/tuning'
 import type { BoardRow, Game, LevelResult, RunEnd, SharedRun } from '../game/types'
-import { SHIELD_COLOR, SHIELD_SPREAD } from './sprites'
+import { SHIELD_COLOR, SHIELD_SPREAD, drawHull } from './sprites'
 import { text } from './text'
 
 /** Scores get long: 25680 reads better as 25,680. */
@@ -61,16 +62,16 @@ function drawPlayHud(ctx: CanvasRenderingContext2D, g: Game, top: number): void 
   text(ctx, `${Math.min(target, Math.floor(g.levelScore))} / ${target} pc`, bx + bw + 8 * U, by + bh + 1 * U, 11 * U, 'rgba(255,255,255,.6)', 'left', 600)
 
   // ship capacity: one seat per pip, filled as crew come aboard
-  // the big crews of the late missions sit in two rows, to stay clear of the
-  // counts on the left and the shields on the right
-  const cap = levelCapacity(g.level), rows = cap > 16 ? 2 : 1, per = Math.ceil(cap / rows)
+  // the biggest ship's crew sit in two rows, to stay clear of the counts on
+  // the left and the shields on the right
+  const cap = shipSeats(g.shipType), rows = cap > 16 ? 2 : 1, per = Math.ceil(cap / rows)
   const step = Math.min(14 * U, 190 * U / per), pw = step * 0.68, ph = 9 * U, gap = 4 * U
   const px = W / 2 - (per * step - (step - pw)) / 2, py = by + bh + 9 * U
   // Yellow means seats still free, green means crew: the count is yellow
   // until the ship is full and then green, like every seat. It swells for a
   // moment as it fills, so the change does not rest on colour alone.
   const full = g.onboard >= cap, pulse = full ? Math.max(0, 1 - g.fullFor / 0.5) : 0
-  if (cap) text(ctx, `CREW ${g.onboard}/${cap}`, W / 2, py + rows * (ph + gap) - gap + 14 * U, (11 + 5 * pulse) * U, full ? '#5dffa0' : '#ffd166', 'center', 700)
+  text(ctx, `CREW ${g.onboard}/${cap}`, W / 2, py + rows * (ph + gap) - gap + 14 * U, (11 + 5 * pulse) * U, full ? '#5dffa0' : '#ffd166', 'center', 700)
   for (let i = 0; i < cap; i++) {
     ctx.beginPath(); ctx.roundRect(px + (i % per) * step, py + Math.floor(i / per) * (ph + gap), pw, ph, pw * 0.3)
     if (i < g.onboard) { ctx.fillStyle = '#5dffa0'; ctx.fill() }
@@ -133,7 +134,7 @@ function drawMissed(ctx: CanvasRenderingContext2D, g: Game, missed: number, y: n
 }
 
 // The crew left behind and what they took off the mission's score: "4 (−20%)", or a dash for none.
-const missedCut = (r: LevelResult): string => r.missed ? `${r.missed} (−${missedPercent(r.missed, r.level)}%)` : '—'
+const missedCut = (r: LevelResult): string => r.missed ? `${r.missed} (−${missedPercent(r.missed, r.ship)}%)` : '—'
 
 const TABLE = [-150, -82, -18, 44, 122]   // column centres, in units from the middle
 const ORANGE = '#ff7b54'
@@ -173,7 +174,50 @@ function drawBetween(ctx: CanvasRenderingContext2D, g: Game): void {
   const total = head + (n + 1) * line + 14 * U
   text(ctx, 'TOTAL', W / 2 + TABLE[0] * U, total, 12 * U, '#ffffff', 'center', 800)
   text(ctx, fmt(scoreOf(g)), W / 2 + TABLE[4] * U, total, 21 * U, '#ffffff', 'center', 800)
-  drawPrompt(ctx, g, 'TAP TO CONTINUE', total + 62 * U)
+  // Ships on offer: the choice is the answer, so there is no prompt beside it.
+  const cards = shipCards(g)
+  if (cards.length) drawShipCards(ctx, g, cards)
+  else drawPrompt(ctx, g, 'TAP TO CONTINUE', total + 62 * U)
+}
+
+export interface ShipCard { ship: number; x: number; y: number; w: number; h: number }
+
+/**
+ * Where the ships on offer between missions stand, in play-field units: side
+ * by side under the table, smallest on the left, each in its own share of the
+ * width. Empty when there is nothing to choose. A tap anywhere in a card's
+ * share of the width chooses it (see `tryStart`); the cards only show where.
+ */
+export function shipCards(g: Game): ShipCard[] {
+  const ships = offer(g)
+  if (ships.length < 2) return []
+  const { W, H, U } = g
+  const share = W / ships.length, w = Math.min(share - 10 * U, 150 * U), h = 112 * U
+  const y = H * 0.17 + 48 * U + (g.results.length + 1) * 24 * U + 14 * U + 26 * U   // under the total
+  return ships.map((ship, i) => ({ ship, x: share * (i + 0.5) - w / 2, y, w, h }))
+}
+
+// The ships on offer, drawn as what they are: a bigger hull with more seats.
+// No caption. They share one scale and stand on one line, so the eye compares
+// them. In the fleet the ship in use is marked; elsewhere both frames are
+// alike. The frames breathe once a tap counts.
+function drawShipCards(ctx: CanvasRenderingContext2D, g: Game, cards: ShipCard[]): void {
+  const { U } = g
+  const scale = Math.min(1.6, (cards[0].w - 12 * U) / (2.3 * shipRadius(cards[cards.length - 1].ship) * U))
+  const live = g.stateTime > 0.7, breathe = live ? 0.6 + 0.4 * Math.sin(g.stateTime * 4) : 0.3
+  for (const c of cards) {
+    const marked = isFleet(g) && c.ship === g.pick
+    ctx.globalAlpha = marked ? 1 : breathe
+    ctx.strokeStyle = marked ? '#ffffff' : 'rgba(255,255,255,.6)'
+    ctx.lineWidth = (marked ? 2.4 : 1.5) * U
+    ctx.beginPath(); ctx.roundRect(c.x, c.y, c.w, c.h, 12 * U); ctx.stroke()
+    ctx.globalAlpha = 1
+    const r = shipRadius(c.ship) * U * scale
+    ctx.save()
+    ctx.translate(c.x + c.w / 2, c.y + c.h - 14 * U - r * 0.95)   // every ship stands on the same line
+    drawHull(ctx, r, c.ship, 0, false)
+    ctx.restore()
+  }
 }
 
 // Both end screens: a table with a row per mission played, each a sum of its
@@ -251,7 +295,10 @@ function drawBoardButton(ctx: CanvasRenderingContext2D, g: Game): void {
 export function endNote(end: RunEnd): string {
   const won = end.outcome === 'won'
   const finished = `FINISHED ${won ? LAST_LEVEL : end.level - 1}/${LAST_LEVEL}`
-  return end.level < LAST_LEVEL ? finished : `${finished} · ${won ? 'HOME' : 'LOST'} · ${fmt(end.finalDistance)} pc`
+  if (end.level < LAST_LEVEL) return finished
+  // a run that reached the last mission also says which ship it chose for it
+  const ship = end.ship ? ` · ${shipSeats(end.ship)} SEATS` : ''
+  return `${finished} · ${won ? 'HOME' : 'LOST'} · ${fmt(end.finalDistance)} pc${ship}`
 }
 
 // The leaderboard screen, opened from the link on an end screen: a title, then

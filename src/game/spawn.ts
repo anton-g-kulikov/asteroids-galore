@@ -34,12 +34,11 @@ export function spawnAsteroid(g: Game): void {
 const STEADY = () => ({ vx: 0, vy: 0.9, spin: rand(-0.5, 0.5) })
 const RESCUE = () => ({ ...STEADY(), planet: true })
 
-// How many people a planetoid carries. Later levels have more seats, so their
-// planetoids carry more, not more planetoids: the sky stays sparse and the
-// seats can still fill by about the time the wormhole shows.
+// How many people a planetoid carries. It follows the mission, not the ship:
+// later missions carry more, not more planetoids, so the sky stays sparse. A
+// small ship in a late mission fills from one or two of them.
 //   level 1: always 1     level 2: mostly 1, sometimes 2, rarely 3
-//   level 3: mostly 2–3   level 4 on: 2–4 (levels 5–7 have more seats but
-//   are longer, so the same planetoids nearly fill them)
+//   level 3: mostly 2–3   level 4 on: 2–4
 export function crewSize(level: number): number {
   const p = random()
   if (level <= 1) return 1
@@ -69,7 +68,7 @@ export function spawnDilemma(g: Game): void {
 
   const [first, second] = random() < 0.5 ? [easy, hard] : [hard, easy]
   const fall = fast.vy * H * 0.34 * speed                              // px/s
-  const top = W * (1.25 + speed * 0.18) * handling(g.onboard)       // ship px/s
+  const top = W * (1.25 + speed * 0.18) * handling(g.shipType)      // ship px/s
   const reach = reachOf(g, first)
   // Best case for the player: grab the first crew early from its near edge,
   // then sprint to the other rock's corridor before its row arrives.

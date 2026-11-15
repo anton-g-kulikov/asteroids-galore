@@ -6,7 +6,7 @@ import { createGame, fit } from './game/game'
 import { createInput } from './game/input'
 import { createRecords, type RecordStore } from './game/records'
 import { runSummary, type RunResult } from './game/runSummary'
-import { tryStart, update } from './game/simulation'
+import { chooseSide, tryStart, update } from './game/simulation'
 import { timeScale } from './game/timeScale'
 import { STEP } from './game/tuning'
 import { boardButtonRect, hasBoard, shareButtonRect } from './render/hud'
@@ -108,7 +108,7 @@ window.addEventListener('pointerdown', e => {
   if (onBoardButton(e)) { game.boardOpen = true; return }
   if (onShareButton(e)) { sharePointer = e.pointerId; return }   // not a steer, not a restart
   input.pointer(e.pointerId, e.clientX, window.innerWidth)
-  tryStart(game)
+  tryStart(game, (e.clientX - view.x) / view.scale)   // where it landed across the field: between missions that chooses the ship
 }, { passive: false })
 window.addEventListener('pointermove', e => input.movePointer(e.pointerId, e.clientX, window.innerWidth))
 const release = (e: PointerEvent) => input.release(e.pointerId)
@@ -134,7 +134,7 @@ const sideOf = (key: string) =>
 window.addEventListener('keydown', e => {
   if (e.key === 'Escape') { closeBoard(); return }
   const side = sideOf(e.key)
-  if (side) input.key(side, true)
+  if (side) { input.key(side, true); if (!e.repeat) chooseSide(game, side === 'left' ? -1 : 1) }
   else if (e.key === ' ' || e.key === 'Enter') { if (!e.repeat && !closeBoard()) tryStart(game) }   // closing the leaderboard is not a restart
   else return
   e.preventDefault()

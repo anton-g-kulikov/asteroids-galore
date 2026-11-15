@@ -32,8 +32,13 @@ function dodge(g: DebugHook): number {
   return Math.abs(best - s.x) < 5 ? 0 : best > s.x ? 1 : -1
 }
 
-// Presses Enter now and then, which starts a run from the menu or an end screen.
-const tapStart = (f: number, io: Io) => { if (f % 60 === 5) { io.keyDown('Enter'); io.keyUp('Enter') } }
+// Presses Enter now and then, which starts a run from the menu or an end screen,
+// and the right arrow a little later, which takes the bigger ship when one is on
+// offer between missions. In the fleet the arrow moves the mark and Enter chooses.
+const tapStart = (f: number, io: Io) => {
+  if (f % 60 === 5) { io.keyDown('Enter'); io.keyUp('Enter') }
+  if (f % 60 === 35) { io.keyDown('ArrowRight'); io.keyUp('ArrowRight') }
+}
 
 function mission(): Scenario['pilot'] {
   let steer: ((dir: number) => void) | null = null

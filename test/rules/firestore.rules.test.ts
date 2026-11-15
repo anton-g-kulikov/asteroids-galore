@@ -20,22 +20,23 @@ const as = (uid: string) => env.authenticatedContext(uid).firestore()
 const anon = () => env.unauthenticatedContext().firestore()
 
 // a run that went home from mission 7
-const home = { outcome: 'won', level: 7, finalDistance: 300, lost: 0, score: 2060 }
+const seven = { level: 7, ship: 3, ships: [1, 1, 2, 3, 4, 5, 3] }   // upgraded at every stop, then a smaller ship from the fleet
+const home = { outcome: 'won', ...seven, finalDistance: 300, lost: 0, score: 2060 }
 
 const run = (userId: string, over: Record<string, unknown> = {}) => ({
   userId, callsign: 'COSMIC OTTER 42', createdAt: serverTimestamp(), appVersion: '0.1.0',
-  outcome: 'over', score: 1236, distance: 412, level: 3, finalDistance: 0, saved: 5, lost: 2, missed: 2, durationSeconds: 61.2,
+  outcome: 'over', score: 1236, distance: 412, level: 3, finalDistance: 0, ship: 2, ships: [1, 1, 2], saved: 5, lost: 2, missed: 2, durationSeconds: 61.2,
   ...over,
 })
 const bests = (over: Record<string, unknown> = {}) => ({
-  callsign: 'COSMIC OTTER 42', best3: 1236, bestOutcome: 'over', bestLevel: 3, bestFinal: 0, updatedAt: serverTimestamp(), ...over,
+  callsign: 'COSMIC OTTER 42', best3: 1236, bestOutcome: 'over', bestLevel: 3, bestFinal: 0, bestShip: 2, updatedAt: serverTimestamp(), ...over,
 })
 
 test('RULES-01 a player can create a well-formed run of their own', async () => {
   await assertSucceeds(setDoc(doc(as('ann'), 'runs/r1'), run('ann')))
   await assertSucceeds(setDoc(doc(as('ann'), 'runs/r2'), run('ann', home)))
   // lost in mission 7, and how far it got
-  await assertSucceeds(setDoc(doc(as('ann'), 'runs/r5'), run('ann', { level: 7, finalDistance: 412 })))
+  await assertSucceeds(setDoc(doc(as('ann'), 'runs/r5'), run('ann', { ...seven, finalDistance: 412 })))
   // nobody saved, or nothing banked before the crash: the score is 0
   await assertSucceeds(setDoc(doc(as('ann'), 'runs/r3'), run('ann', { saved: 0, lost: 0, score: 0 })))
   await assertSucceeds(setDoc(doc(as('ann'), 'runs/r4'), run('ann', { saved: 2, lost: 6, score: 0 })))
@@ -58,8 +59,8 @@ test('RULES-03 malformed runs are refused', async () => {
   await assertFails(setDoc(doc(db, 'runs/e2'), run('ann', { level: 0 })))
   await assertFails(setDoc(doc(db, 'runs/f'), run('ann', { ...home, level: 6, finalDistance: 0 })))   // only mission 7 leads home
   await assertFails(setDoc(doc(db, 'runs/f2'), run('ann', { finalDistance: 100 })))                    // mission 3 has no mission-7 parsecs
-  await assertFails(setDoc(doc(db, 'runs/f3'), run('ann', { level: 7, finalDistance: 413 })))          // more than the whole run
-  await assertFails(setDoc(doc(db, 'runs/f4'), run('ann', { level: 7, finalDistance: 1.5 })))
+  await assertFails(setDoc(doc(db, 'runs/f3'), run('ann', { ...seven, finalDistance: 413 })))          // more than the whole run
+  await assertFails(setDoc(doc(db, 'runs/f4'), run('ann', { ...seven, finalDistance: 1.5 })))
   await assertFails(setDoc(doc(db, 'runs/g'), run('ann', { outcome: 'draw' })))
   await assertFails(setDoc(doc(db, 'runs/h'), run('ann', { createdAt: new Date(2020, 0, 1) })))
   await assertFails(setDoc(doc(db, 'runs/i'), run('ann', { callsign: 'look at me' })))
@@ -75,6 +76,28 @@ test('RULES-08 the score cannot exceed the distance times the crew saved', async
   await assertFails(setDoc(doc(db, 'runs/e'), run('ann', { score: 1236.5 })))
   await assertFails(setDoc(doc(db, 'runs/f'), run('ann', { ...home, lost: 2 })))   // a run that went home loses nobody
   await assertFails(setDoc(doc(db, 'runs/g'), run('ann', { saved: -1, score: 0 })))
+})
+
+test('RULES-10 a run says which ship each mission was flown in', async () => {
+  const db = as('ann')
+  await assertSucceeds(setDoc(doc(db, 'runs/ok'), run('ann', { ship: 1, ships: [1, 1, 1] })))        // never upgraded
+  await assertSucceeds(setDoc(doc(db, 'runs/ok2'), run('ann', { level: 1, ship: 1, ships: [1] })))
+  const without: Record<string, unknown> = run('ann')
+  delete without.ships
+  await assertFails(setDoc(doc(db, 'runs/a'), without))
+  await assertFails(setDoc(doc(db, 'runs/b'), run('ann', { ships: [1, 1] })))            // one per mission reached
+  await assertFails(setDoc(doc(db, 'runs/c'), run('ann', { ships: [1, 1, 2, 3] })))
+  await assertFails(setDoc(doc(db, 'runs/d'), run('ann', { ship: 6, ships: [1, 1, 6] })))   // there are five ships
+  await assertFails(setDoc(doc(db, 'runs/e'), run('ann', { ship: 0, ships: [1, 1, 0] })))
+  await assertFails(setDoc(doc(db, 'runs/f'), run('ann', { ships: [2, 2, 2] })))         // every run starts in ship 1
+  await assertFails(setDoc(doc(db, 'runs/g'), run('ann', { ship: 3 })))                  // not the ship of the last mission
+  await assertFails(setDoc(doc(db, 'runs/h'), run('ann', { ships: 'fast' })))
+  // the entry on the board says which ship the best run ended in; 0 when it is not known
+  await assertSucceeds(setDoc(doc(db, 'users/ann'), bests({ bestShip: 0 })))
+  await assertFails(setDoc(doc(db, 'users/ann'), bests({ bestShip: 6 })))
+  const noShip: Record<string, unknown> = bests()
+  delete noShip.bestShip
+  await assertFails(setDoc(doc(db, 'users/ann'), noShip))
 })
 
 test('RULES-09 an entry written under earlier rules can be replaced by one of this kind', async () => {
@@ -98,7 +121,7 @@ test('RULES-04 runs cannot be changed or deleted; readable by ID, never listed',
 
 test('RULES-05 a player owns their entry; anyone can read the board', async () => {
   await assertSucceeds(setDoc(doc(as('ann'), 'users/ann'), bests()))
-  await assertSucceeds(setDoc(doc(as('ann'), 'users/ann'), bests({ best3: 5000, bestOutcome: 'won', bestLevel: 7, bestFinal: 5400 })))
+  await assertSucceeds(setDoc(doc(as('ann'), 'users/ann'), bests({ best3: 5000, bestOutcome: 'won', bestLevel: 7, bestFinal: 5400, bestShip: 5 })))
   await assertFails(setDoc(doc(as('bob'), 'users/ann'), bests()))
   await assertFails(setDoc(doc(anon(), 'users/zed'), bests()))
   await assertSucceeds(getDoc(doc(as('bob'), 'users/ann')))

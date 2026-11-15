@@ -1,7 +1,7 @@
 import { expect, test } from 'vitest'
 import {
   FIELD_H, FIELD_W, LAST_LEVEL, MAX_SHIELDS, SHIELDS, STEP, WORM_WAITS,
-  handling, levelCapacity, levelTarget, rescueGap, shieldDrops, shipRadius, speedAt, startSpeed,
+  FIRST_CHOICE, SHIPS, handling, levelTarget, rescueGap, shieldDrops, shipGrid, shipRadius, shipSeats, speedAt, startSpeed,
 } from '../src/game/tuning'
 
 const levels = [1, 2, 3, 4, 5, 6, 7]
@@ -11,24 +11,23 @@ test('TUNE-01 parsec target per level', () => {
   expect(levels.map(levelTarget)).toEqual([500, 750, 1250, 2000, 2500, 3000, 3500])
 })
 
-test('TUNE-02 seats per level', () => {
-  expect(levels.map(levelCapacity)).toEqual([2, 4, 6, 10, 16, 24, 32])
+const ships = [1, 2, 3, 4, 5]
+
+test('TUNE-02 five ships, each with twice the seats of the one before, in a full rectangle', () => {
+  expect([SHIPS, FIRST_CHOICE]).toEqual([5, 2])
+  expect(ships.map(shipSeats)).toEqual([2, 4, 8, 16, 32])
+  expect(ships.map(shipGrid)).toEqual([[1, 2], [2, 2], [2, 4], [4, 4], [4, 8]])
+  for (const s of ships) expect(shipGrid(s)[0] * shipGrid(s)[1]).toBe(shipSeats(s))   // no part-filled row
 })
 
-test('TUNE-03 steering speed comes from the crew on board, not the level', () => {
-  expect(handling(0)).toBe(1)
-  expect(handling(32)).toBeCloseTo(0.6)
-  expect(handling(99)).toBeCloseTo(0.6)
-  const steps = [0, 2, 8, 16, 32].map(handling)
-  expect(steps).toEqual([...steps].sort((a, b) => b - a))   // every crew member slows it
+test('TUNE-03 steering speed belongs to the ship: 100% in the smallest, 10% less with every step up', () => {
+  expect(ships.map(handling)).toEqual([1, 0.9, 0.8, 0.7, 0.6])
 })
 
-test('TUNE-04 ship radius comes from the seats: bigger in every mission, 22 with 32 seats', () => {
-  expect(shipRadius(32)).toBeCloseTo(22)
-  expect(shipRadius(99)).toBeCloseTo(22)
-  const sizes = levels.map(l => shipRadius(levelCapacity(l)))
-  expect(sizes.map(r => Math.round(r * 10) / 10)).toEqual([14.3, 15.1, 15.8, 17, 18.5, 20.4, 22])
-  for (let i = 1; i < sizes.length; i++) expect(sizes[i] - sizes[i - 1]).toBeGreaterThan(0.6)   // each step can be seen
+test('TUNE-04 ship radius belongs to the ship: 13 to 23, every step easy to see', () => {
+  const sizes = ships.map(shipRadius)
+  expect(sizes).toEqual([13, 15, 17.5, 20, 23])
+  for (let i = 1; i < sizes.length; i++) expect(sizes[i] / sizes[i - 1]).toBeGreaterThan(1.1)
 })
 
 test('TUNE-05 seconds between crews', () => {

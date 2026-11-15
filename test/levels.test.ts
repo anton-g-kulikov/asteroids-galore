@@ -3,13 +3,14 @@ import { createGame, fit, shipMass } from '../src/game/game'
 import { seedRandom } from '../src/game/random'
 import { createRecords } from '../src/game/records'
 import { startGame, tryStart, update } from '../src/game/simulation'
-import { SEAT_WAIT, WORM_WAITS, levelCapacity, levelTarget, shipRadius } from '../src/game/tuning'
+import { SEAT_WAIT, WORM_WAITS, levelTarget } from '../src/game/tuning'
 import type { Game } from '../src/game/types'
 
-function playing(level = 1): Game {
+function playing(level = 1, ship = 1): Game {
   const g = createGame(createRecords(null))
   startGame(g)
   g.level = level
+  g.shipType = ship
   g.spawnTimer = 999; g.rescueTimer = 999   // an empty sky
   return g
 }
@@ -31,7 +32,7 @@ test('LEVEL-01 a wormhole ends the level on a results screen and writes down wha
   expect(g.state).toBe('between')
   expect(g.level).toBe(1)               // the next level has not started
   expect([g.saved, g.onboard]).toEqual([2, 0])
-  expect(g.results).toEqual([{ level: 1, saved: 2, missed: 1, distance: 361 }])
+  expect(g.results).toEqual([{ level: 1, ship: 1, saved: 2, missed: 1, distance: 361 }])
 })
 
 test('LEVEL-02 the results screen waits for a tap, and ignores one that comes at once', () => {
@@ -54,7 +55,7 @@ test('LEVEL-03 each level gets its own row, counted from where the level began',
   g.spawnTimer = 999; g.rescueTimer = 999
   Object.assign(g, { distance: g.distance + 520.5, onboard: 3, missed: 5 })
   intoWormhole(g)
-  expect(g.results[1]).toEqual({ level: 2, saved: 3, missed: 3, distance: 520 })
+  expect(g.results[1]).toEqual({ level: 2, ship: 1, saved: 3, missed: 3, distance: 520 })
   expect(g.saved).toBe(4)
 })
 
@@ -72,7 +73,7 @@ test('LEVEL-04 the wormhole of mission 7 is the way home: it ends the run; those
   expect(g.saved).toBe(5)
   expect(g.results.map(r => r.level)).toEqual([7])
   expect(g.records.best).toBe(4000 * 5)
-  expect(g.records.bestEnd).toEqual({ outcome: 'won', level: 7, finalDistance: 4000 })
+  expect(g.records.bestEnd).toEqual({ outcome: 'won', level: 7, finalDistance: 4000, ship: 1 })
 })
 
 test('LEVEL-06 a destroyed ship loses only the mission in flight: its row scores nothing and the banked score stays', () => {
@@ -84,10 +85,10 @@ test('LEVEL-06 a destroyed ship loses only the mission in flight: its row scores
   g.asteroids.push(rock(g))
   step(g)
   expect(g.state).toBe('over')
-  expect(g.results[1]).toEqual({ level: 2, saved: 0, lost: 3, missed: 1, distance: 250 })
+  expect(g.results[1]).toEqual({ level: 2, ship: 1, saved: 0, lost: 3, missed: 1, distance: 250 })
   expect(g.lost).toBe(3)
   expect(g.records.best).toBe(400)      // mission 1 as banked: nothing taken off
-  expect(g.records.bestEnd).toEqual({ outcome: 'over', level: 2, finalDistance: 0 })
+  expect(g.records.bestEnd).toEqual({ outcome: 'over', level: 2, finalDistance: 0, ship: 1 })
 })
 
 test('LEVEL-05 a new run starts with no results', () => {
@@ -160,7 +161,7 @@ test('LEVEL-10 shields: a drop adds one, a ship holds 5 at most, spares carry ov
   g.drops.push({ x: g.ship.x, y: g.ship.y, r: 16, fall: 0.9 })
   step(g)
   expect(g.shields).toBe(5)
-  intoWormhole(g); update(g, 0.8, 0); tryStart(g)
+  intoWormhole(g); update(g, 0.8, 0); tryStart(g, 0)          // a tap on the left: keep the ship
   expect([g.level, g.shields]).toEqual([6, 5])                // spares are kept
   g.shields = 1
   g.spawnTimer = 999; g.rescueTimer = 999
@@ -196,36 +197,20 @@ test('LEVEL-11 mission 4 offers 2 shields, mission 5 offers 6 and mission 6 offe
   }
 })
 
-test('LEVEL-12 the ship is as big as its seats and as heavy as its crew: crew slow its steering and deepen its well, not its size', () => {
+test('LEVEL-12 crew do not change the ship\'s size or its steering: they only make it heavier', () => {
   const reach = (crew: number) => {
-    const g = playing(7)
+    const g = playing(7, 5)
     g.onboard = crew
     for (let i = 0; i < 15; i++) step(g, 1)
-    const x = g.ship.x                                         // before any of them reaches the wall
+    const x = g.ship.x                                         // before it reaches the wall
     for (let i = 0; i < 75; i++) step(g, 1)
     return { r: g.ship.r, x, mass: shipMass(g) }
   }
   const empty = reach(0), half = reach(16), full = reach(32)
-  expect(empty.r).toBeCloseTo(22, 0)                           // 32 seats: the biggest ship, crew or no crew
+  expect(empty.r).toBeCloseTo(23, 0)
   expect([half.r, full.r]).toEqual([empty.r, empty.r])
-  expect(full.x).toBeLessThan(half.x)                          // flew less far to the side in the same second
-  expect(half.x).toBeLessThan(empty.x)
+  expect([half.x, full.x]).toEqual([empty.x, empty.x])         // the same ship steers the same, empty or full
   expect([empty.mass, half.mass, full.mass]).toEqual([1, 1.8, 2.6])
-  // every mission's ship is bigger than the one before
-  const sizes = [1, 2, 3, 4, 5, 6, 7].map(l => { const g = playing(l); for (let i = 0; i < 90; i++) step(g); return g.ship.r })
-  for (let i = 0; i < 7; i++) expect(sizes[i]).toBeCloseTo(shipRadius(levelCapacity(i + 1)), 1)
-  expect(sizes).toEqual([...sizes].sort((x, y) => x - y))
-  // delivered at the wormhole: the next mission's ship grows into its size
-  const g = playing(3)
-  g.onboard = 6
-  for (let i = 0; i < 60; i++) step(g)
-  const before = g.ship.r
-  intoWormhole(g); update(g, 0.8, 0); tryStart(g)
-  g.spawnTimer = 999; g.rescueTimer = 999
-  step(g)
-  expect(g.ship.r - before).toBeLessThan(0.3)                  // not in one jump
-  for (let i = 0; i < 90; i++) step(g)
-  expect(g.ship.r).toBeCloseTo(shipRadius(10), 1)
 })
 
 test('LEVEL-17 the bigger the crew, the sooner the well forms: full depth in 6 seconds empty, 2.3 with 32 aboard', () => {
@@ -247,7 +232,7 @@ test('LEVEL-17 the bigger the crew, the sooner the well forms: full depth in 6 s
 
 test('LEVEL-13 missions 5 to 7 start faster', () => {
   const g = playing(4)
-  intoWormhole(g); update(g, 0.8, 0); tryStart(g)
+  intoWormhole(g); update(g, 0.8, 0); tryStart(g, 0)
   g.spawnTimer = 999; g.rescueTimer = 999
   step(g)
   expect([g.level, Math.round(g.speed * 10) / 10]).toEqual([5, 1.4])
@@ -302,7 +287,7 @@ test('LEVEL-14 a full ship is never charged for crew it has no seat for', () => 
     g.asteroids.push({ ...rock(g), x: 30, y: g.H + 200, people, planet: true })
     step(g)
   }
-  const g = playing(2)                  // 4 seats
+  const g = playing(2, 2)               // 4 seats
   g.wormTimer = 1e9
   g.onboard = 4
   driftPast(g, 3)
@@ -327,7 +312,7 @@ test('LEVEL-14 a full ship is never charged for crew it has no seat for', () => 
 
 test('LEVEL-15 a full ship is sent no planetoids; when a seat opens the next one follows after 4 seconds', () => {
   const planets = (g: Game) => g.asteroids.filter(a => a.planet).length
-  const g = playing(2)                  // 4 seats
+  const g = playing(2, 2)               // 4 seats
   g.wormTimer = 1e9
   g.onboard = 4
   g.rescueTimer = 0                     // a crew is due
@@ -346,7 +331,7 @@ test('LEVEL-15 a full ship is sent no planetoids; when a seat opens the next one
 
   // a crew-or-shield row arrives as a plain shield drop when the ship is full, and as a row when it is not
   for (const [onboard, crews] of [[16, 0], [15, 2]] as const) {
-    const m5 = playing(5)
+    const m5 = playing(5, 4)            // 16 seats
     m5.wormTimer = 1e9
     m5.onboard = onboard
     m5.dropCount = 1                    // the next drop is the second: a choice
@@ -358,7 +343,7 @@ test('LEVEL-15 a full ship is sent no planetoids; when a seat opens the next one
 
 test('LEVEL-16 a hit that burns a shield throws one crew member off the ship', () => {
   const hit = (g: Game) => { g.grace = 0; g.asteroids.push(rock(g)); step(g) }
-  const g = playing(3)
+  const g = playing(3, 3)
   g.onboard = 5
   hit(g)
   expect([g.shields, g.onboard, g.missed, g.lost, g.castaways.length]).toEqual([2, 4, 1, 0, 1])
@@ -373,12 +358,12 @@ test('LEVEL-16 a hit that burns a shield throws one crew member off the ship', (
   hit(g)
   expect([g.shields, g.onboard, g.missed, g.castaways.length]).toEqual([1, 0, 1, 0])
   // a full ship that is hit has a seat again, so planetoids return
-  const full = playing(2)
+  const full = playing(2, 2)
   full.onboard = 4
   hit(full)
   expect([full.onboard, full.rescueTimer > 0 && full.rescueTimer <= SEAT_WAIT]).toEqual([3, true])
   // no shield left: the ship is destroyed and the crew go down with it, as before
-  const last = playing(3)
+  const last = playing(3, 3)
   Object.assign(last, { onboard: 5, shields: 0 })
   hit(last)
   expect([last.state, last.lost, last.missed]).toEqual(['over', 5, 0])

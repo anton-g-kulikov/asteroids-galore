@@ -1,6 +1,6 @@
 import { newSeed } from './random'
 import type { Records } from './records'
-import { CREW_MASS, FIELD_H, FIELD_W, SHIELDS, WELL_AHEAD, levelCapacity, shipRadius } from './tuning'
+import { CREW_MASS, FIELD_H, FIELD_W, FIRST_CHOICE, LAST_LEVEL, SHIELDS, SHIPS, WELL_AHEAD, shipRadius, shipSeats } from './tuning'
 import type { Asteroid, Game, GameState, Well } from './types'
 
 export function createGame(records: Records): Game {
@@ -8,7 +8,7 @@ export function createGame(records: Records): Game {
     W: FIELD_W, H: FIELD_H, U: 1,
     state: 'menu', stateTime: 0, clock: 0, seed: newSeed(),
     time: 0, speed: 1, distance: 0, spawnTimer: 0, shake: 0, flash: 0,
-    level: 1, levelTime: 0, levelScore: 0, onboard: 0, fullFor: 0,
+    level: 1, shipType: 1, pick: 1, levelTime: 0, levelScore: 0, onboard: 0, fullFor: 0,
     saved: 0, lost: 0, missed: 0, rescueTimer: 0, rescueCount: 0,
     results: [], levelFrom: { distance: 0, missed: 0 },
     wormhole: null, wormTimer: 0, wormWaits: [], wormCount: 0, drops: [], dropCount: 0,
@@ -17,7 +17,7 @@ export function createGame(records: Records): Game {
     newBest: false, records,
     board: null, boardOpen: false,
     shareReady: false, shareNote: 0, shared: null,
-    ship: { x: FIELD_W / 2, y: 0, vx: 0, r: shipRadius(levelCapacity(1)) },
+    ship: { x: FIELD_W / 2, y: 0, vx: 0, r: shipRadius(1) },
     asteroids: [], particles: [], floaters: [], castaways: [], stars: [],
   }
   g.ship.y = g.H - Math.max(110 * g.U, g.H * 0.16)
@@ -43,6 +43,25 @@ export const newWell = (g: Game, x: number): Well => ({ x, y: wellY(g), dwell: 0
 
 /** Depth of the deepest well, 0..1. */
 export const curvature = (g: Game): number => Math.max(...g.wells.map(w => w.depth))
+
+/** Seats of the ship in use. */
+export const seats = (g: Game): number => shipSeats(g.shipType)
+
+/**
+ * The ships on offer on the results screen between missions, smallest first.
+ * After missions 2 to 5: the ship in use and the next one up. After mission 6:
+ * the fleet, every ship flown in this run. Fewer than two means there is
+ * nothing to choose and any tap moves on.
+ */
+export function offer(g: Game): number[] {
+  if (g.state !== 'between') return []
+  if (isFleet(g)) return [...new Set(g.results.map(r => r.ship))].sort((a, b) => a - b)
+  if (g.level >= FIRST_CHOICE && g.shipType < SHIPS) return [g.shipType, g.shipType + 1]
+  return []
+}
+
+/** True on the stop before the last mission, where the whole fleet is offered. */
+export const isFleet = (g: Game): boolean => g.state === 'between' && g.level === LAST_LEVEL - 1
 
 /** A fuller ship is heavier, and digs a deeper well when it stays in one spot. */
 export const shipMass = (g: Game): number => 1 + g.onboard * CREW_MASS

@@ -2,8 +2,8 @@ import { expect, test } from 'vitest'
 import { boardRows } from '../../src/cloud/leaderboard'
 import type { RunEnd } from '../../src/game/types'
 
-const home: RunEnd = { outcome: 'won', level: 7, finalDistance: 5400 }
-const lost: RunEnd = { outcome: 'over', level: 3, finalDistance: 0 }
+const home: RunEnd = { outcome: 'won', level: 7, finalDistance: 5400, ship: 5 }
+const lost: RunEnd = { outcome: 'over', level: 3, finalDistance: 0, ship: 2 }
 
 const top = [
   { uid: 'a', callsign: 'ALPHA ONE 01', value: 900, end: home },

@@ -13,6 +13,8 @@ export interface RunResult extends RunEnd {
   lost: number
   /** Crew who drifted past without being picked up. */
   missed: number
+  /** The ship each mission was flown in, in order; the unfinished one included. The choices are inputs: with the seed they say what was played. */
+  ships: number[]
   durationSeconds: number
 }
 
@@ -21,6 +23,7 @@ export const runEnd = (g: Game): RunEnd => ({
   outcome: g.state === 'won' ? 'won' : 'over',
   level: g.level,
   finalDistance: finalDistance(g),
+  ship: g.shipType,
 })
 
 export function runSummary(g: Game): RunResult {
@@ -31,6 +34,7 @@ export function runSummary(g: Game): RunResult {
     saved: g.saved,
     lost: g.lost,
     missed: g.missed,
+    ships: g.results.map(r => r.ship),
     durationSeconds: Math.round(g.time * 10) / 10,
   }
 }

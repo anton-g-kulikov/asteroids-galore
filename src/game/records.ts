@@ -8,7 +8,7 @@ export const BEST_END_KEY = 'asteroids-galore-best-v3-end'
 
 export type RecordStore = Pick<Storage, 'getItem' | 'setItem'>
 
-const NO_END: RunEnd = { outcome: 'over', level: 1, finalDistance: 0 }
+const NO_END: RunEnd = { outcome: 'over', level: 1, finalDistance: 0, ship: 0 }
 
 export interface Records {
   /** Highest score. */
@@ -25,7 +25,7 @@ function readEnd(raw: string | null | undefined): RunEnd {
   try {
     const v = JSON.parse(raw ?? '')
     if ((v.outcome === 'won' || v.outcome === 'over') && Number.isInteger(v.level) && Number.isInteger(v.finalDistance)) {
-      return { outcome: v.outcome, level: v.level, finalDistance: v.finalDistance }
+      return { outcome: v.outcome, level: v.level, finalDistance: v.finalDistance, ship: Number.isInteger(v.ship) ? v.ship : 0 }
     }
   } catch { /* missing or damaged: fall through */ }
   return NO_END

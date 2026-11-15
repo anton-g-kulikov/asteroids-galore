@@ -12,9 +12,9 @@ const broken: RecordStore = {
   setItem() { throw new Error('blocked') },
 }
 
-const home: RunEnd = { outcome: 'won', level: 7, finalDistance: 5400 }
-const lost: RunEnd = { outcome: 'over', level: 3, finalDistance: 0 }
-const none: RunEnd = { outcome: 'over', level: 1, finalDistance: 0 }
+const home: RunEnd = { outcome: 'won', level: 7, finalDistance: 5400, ship: 4 }
+const lost: RunEnd = { outcome: 'over', level: 3, finalDistance: 0, ship: 2 }
+const none: RunEnd = { outcome: 'over', level: 1, finalDistance: 0, ship: 0 }
 
 test('REC-01 the best loads from storage, or 0', () => {
   expect(createRecords(memory({ [BEST_KEY]: '412' })).best).toBe(412)
@@ -38,6 +38,8 @@ test('REC-02 a higher score is saved and reported as new, together with how that
   // a missing or damaged ending reads as a plain lost run
   expect(createRecords(memory({ [BEST_KEY]: '5' })).bestEnd).toEqual(none)
   expect(createRecords(memory({ [BEST_KEY]: '5', [BEST_END_KEY]: '{"outcome":"draw"}' })).bestEnd).toEqual(none)
+  // an ending saved before ships were recorded: kept, with the ship unknown
+  expect(createRecords(memory({ [BEST_KEY]: '5', [BEST_END_KEY]: '{"outcome":"won","level":7,"finalDistance":5400}' })).bestEnd).toEqual({ ...home, ship: 0 })
 })
 
 test('REC-03 bests saved under earlier rules are not read as a score', () => {

@@ -34,14 +34,21 @@ service cloud.firestore {
       allow create: if signedInAs(request.resource.data.userId) && validRun(request.resource.data);
 
       function validRun(run) {
-        return run.keys().hasOnly(['userId', 'callsign', 'createdAt', 'appVersion', 'outcome', 'score', 'distance', 'level', 'finalDistance', 'saved', 'lost', 'missed', 'durationSeconds'])
-          && run.keys().hasAll(['userId', 'callsign', 'createdAt', 'appVersion', 'outcome', 'score', 'distance', 'level', 'finalDistance', 'saved', 'lost', 'missed', 'durationSeconds'])
+        return run.keys().hasOnly(['userId', 'callsign', 'createdAt', 'appVersion', 'outcome', 'score', 'distance', 'level', 'finalDistance', 'saved', 'lost', 'missed', 'durationSeconds', 'ship', 'ships'])
+          && run.keys().hasAll(['userId', 'callsign', 'createdAt', 'appVersion', 'outcome', 'score', 'distance', 'level', 'finalDistance', 'saved', 'lost', 'missed', 'durationSeconds', 'ship', 'ships'])
           && run.createdAt == request.time
           && validCallsign(run.callsign)
           && run.appVersion is string && run.appVersion.size() <= 20
           && wholeNumber(run.distance, 0, 1000000)
           && validEnd(run.outcome, run.level, run.finalDistance)
           && run.finalDistance <= run.distance
+          // The ship each mission was flown in (there are 5: SHIPS in
+          // src/game/tuning.ts), one per mission reached, and the one the run
+          // ended in. Every run starts in ship 1.
+          && run.ships is list && run.ships.size() == run.level
+          && run.ships.hasOnly([1, 2, 3, 4, 5])
+          && run.ships[0] == 1
+          && run.ship == run.ships[run.level - 1]
           && wholeNumber(run.saved, 0, 1000)
           && wholeNumber(run.lost, 0, 1000)
           && (run.outcome != 'won' || run.lost == 0)
@@ -56,7 +63,7 @@ service cloud.firestore {
     }
 
     // A player's leaderboard entry: callsign, best score and how that run
-    // ended. Public to read, since the board is a query over this collection.
+    // ended, with the ship it ended in (0 when that was not recorded). Public to read, since the board is a query over this collection.
     // The best only ever goes up. An entry written under earlier scoring has no
     // `best3` (it has `best`, `bestScore`, or older fields): it counts as 0, is
     // not on the board, and is replaced whole by the player's first entry of
@@ -68,11 +75,12 @@ service cloud.firestore {
         && request.resource.data.best3 >= resource.data.get('best3', 0);
 
       function validEntry(user) {
-        return user.keys().hasOnly(['callsign', 'best3', 'bestOutcome', 'bestLevel', 'bestFinal', 'updatedAt'])
-          && user.keys().hasAll(['callsign', 'best3', 'bestOutcome', 'bestLevel', 'bestFinal', 'updatedAt'])
+        return user.keys().hasOnly(['callsign', 'best3', 'bestOutcome', 'bestLevel', 'bestFinal', 'bestShip', 'updatedAt'])
+          && user.keys().hasAll(['callsign', 'best3', 'bestOutcome', 'bestLevel', 'bestFinal', 'bestShip', 'updatedAt'])
           && validCallsign(user.callsign)
           && wholeNumber(user.best3, 0, 1000000000)
           && validEnd(user.bestOutcome, user.bestLevel, user.bestFinal)
+          && wholeNumber(user.bestShip, 0, 5)
           && user.updatedAt == request.time;
       }
     }

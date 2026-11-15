@@ -26,16 +26,6 @@ const at = <T>(list: T[], l: number): T => list[Math.max(1, Math.min(l, list.len
 /** Parsecs to fly within the level. */
 export const levelTarget = (l: number): number => at([500, 750, 1250, 2000, 2500, 3000, 3500], l)
 
-/** Seats. */
-export const levelCapacity = (l: number): number => at([2, 4, 6, 10, 16, 24, 32], l)
-
-/**
- * The share of a mission's score that each crew member left behind takes.
- * It falls as the seats grow: from mission 5 on, missing as many crew as the
- * ship seats costs about half the mission.
- */
-export const missCost = (l: number): number => at([0.05, 0.05, 0.05, 0.05, 0.03, 0.02, 0.015], l)
-
 /** Speed multiplier a level starts at. */
 export const startSpeed = (l: number): number => at([1, 1, 1, 1, 1.4, 1.8, 2.2], l)
 
@@ -55,17 +45,30 @@ export const CHOICE_EVERY = 2        // every Nth shield drop arrives as "2 crew
 /** Seconds until a missed wormhole returns: dealt in a random order, reshuffled when all are used. */
 export const WORM_WAITS = [16, 19, 22, 25, 28]
 
-// The ship is built for its seats and weighed down by its crew: its size comes
-// from the mission's seats, its steering from the crew on board.
-export const FULL_CREW = 32          // the seats of the biggest ship, and the load at which a ship is slowest
-const LOAD_CURVE = 0.7               // below 1: the first seats, and the first crew aboard, are felt the most
-const load = (crew: number): number => Math.min(1, Math.max(0, crew) / FULL_CREW) ** LOAD_CURVE
+// There are five ships, numbered 1 to 5. Seats, size, steering and what a crew
+// member left behind costs all belong to the ship, not to the mission: the
+// player chooses the ship between missions. Every run starts in ship 1.
+export const SHIPS = 5
+export const FIRST_CHOICE = 2        // the first mission after which a bigger ship is offered
 
-/** Ship radius for its seats, in field units: 14.3 with 2 seats, 22 with 32. */
-export const shipRadius = (seats: number): number => 13 + 9 * load(seats)
+/** Seats: each ship doubles the one before. */
+export const shipSeats = (s: number): number => at([2, 4, 8, 16, 32], s)
 
-/** Steering speed for the crew on board: 100% empty, 60% full. */
-export const handling = (crew: number): number => 1 - 0.4 * load(crew)
+/** The seats as a full rectangle: [seats across, rows]. */
+export const shipGrid = (s: number): [number, number] => at<[number, number]>([[1, 2], [2, 2], [2, 4], [4, 4], [4, 8]], s)
+
+/** Ship radius, in field units. */
+export const shipRadius = (s: number): number => at([13, 15, 17.5, 20, 23], s)
+
+/** Steering speed: the smallest ship is the quickest. */
+export const handling = (s: number): number => at([1, 0.9, 0.8, 0.7, 0.6], s)
+
+/**
+ * The share of a mission's score that each crew member left behind takes.
+ * It falls as the seats grow: in the two biggest ships, missing as many crew
+ * as the ship seats costs about half the mission.
+ */
+export const missCost = (s: number): number => at([0.05, 0.05, 0.05, 0.03, 0.015], s)
 
 /** How much each crew member on board adds to the ship's mass, which deepens the well dug while parked and digs it sooner. */
 export const CREW_MASS = 0.05

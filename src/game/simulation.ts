@@ -1,4 +1,4 @@
-import { newWell, reachOf, setState, shipMass, wellY } from './game'
+import { isFleet, newWell, offer, reachOf, seats, setState, shipMass, wellY } from './game'
 import { buzz } from './haptics'
 import { newSeed, rand, random, seedRandom } from './random'
 import { runEnd } from './runSummary'
@@ -7,7 +7,7 @@ import { spawnAsteroid, spawnChoice, spawnDilemma, spawnDrop, spawnRescue } from
 import {
   CHOICE_EVERY, DILEMMA_EVERY, DROPS_WITHIN, FIRST_RESCUE, GRACE, LAST_LEVEL, LEVEL_MIN_TIME, MAX_SHIELDS, SEAT_WAIT, SHIELDS,
   SLOW_TIME, WELL_PULL, WELL_TIME, WORM_WAITS,
-  handling, levelCapacity, levelTarget, rescueGap, shieldDrops, shipRadius, speedAt, startSpeed,
+  handling, levelTarget, rescueGap, shieldDrops, shipRadius, speedAt, startSpeed,
 } from './tuning'
 import type { Asteroid, Game } from './types'
 
@@ -15,7 +15,7 @@ export function startGame(g: Game): void {
   seedRandom(g.seed)            // the whole run is dealt from its seed
   g.asteroids = []; g.particles = []; g.floaters = []; g.castaways = []; g.drops = []; g.fullFor = 0
   g.time = 0; g.speed = 1; g.distance = 0; g.spawnTimer = 0.6; g.shake = 0; g.newBest = false
-  g.level = 1; g.ship.r = shipRadius(levelCapacity(1)); g.levelTime = 0; g.levelScore = 0; g.onboard = 0
+  g.level = 1; g.shipType = 1; g.pick = 1; g.ship.r = shipRadius(1); g.levelTime = 0; g.levelScore = 0; g.onboard = 0
   g.wormhole = null; g.wormTimer = 0; g.wormWaits = []; g.wormCount = 0; g.dropCount = 0; g.flash = 0
   g.missed = 0; g.saved = 0; g.lost = 0
   g.results = []; g.levelFrom = { distance: 0, missed: 0 }
@@ -31,18 +31,44 @@ export function startGame(g: Game): void {
  * A tap or a key: starts a run from the menu, moves on from the results screen
  * between levels, or restarts from an end screen. Screens that follow play must
  * have been up for a moment first, so a frantic tap does not skip them.
+ *
+ * `x` is where the tap landed across the field, and is left out for a key.
+ * When ships are on offer between missions the tap chooses the one in whose
+ * share of the width it landed: the left half keeps the ship and the right
+ * half takes the next one up, and in the fleet each ship has its own column.
+ * A key chooses only in the fleet, where it takes the ship that is marked;
+ * keep-or-upgrade has to be answered with a side (see `chooseSide`).
  */
-export function tryStart(g: Game): void {
+export function tryStart(g: Game, x?: number): void {
   if (g.state === 'menu') startGame(g)
   else if (g.stateTime <= 0.7) return
-  else if (g.state === 'between') nextLevel(g)
+  else if (g.state === 'between') {
+    const ships = offer(g)
+    if (ships.length < 2) nextLevel(g, ships[0] ?? g.shipType)
+    else if (x !== undefined) nextLevel(g, ships[Math.max(0, Math.min(ships.length - 1, Math.floor(x / g.W * ships.length)))])
+    else if (isFleet(g)) nextLevel(g, g.pick)
+  }
   else if (g.state === 'over' || g.state === 'won') { g.seed = newSeed(); startGame(g) }
 }
 
-// Starts the next level, from the results screen. Each level restarts the speed
-// ramp, the later ones from a higher speed, and the ship has more seats.
-function nextLevel(g: Game): void {
+/**
+ * A left or right key on the results screen between missions. Keep-or-upgrade:
+ * left keeps the ship, right takes the next one up. In the fleet it moves the
+ * mark from ship to ship, and the choice is made with `tryStart`.
+ */
+export function chooseSide(g: Game, dir: -1 | 1): void {
+  if (g.state !== 'between' || g.stateTime <= 0.7) return
+  const ships = offer(g)
+  if (ships.length < 2) return
+  if (isFleet(g)) g.pick = ships[Math.max(0, Math.min(ships.length - 1, ships.indexOf(g.pick) + dir))]
+  else nextLevel(g, ships[dir < 0 ? 0 : 1])
+}
+
+// Starts the next level in the chosen ship, from the results screen. Each level
+// restarts the speed ramp, the later ones from a higher speed.
+function nextLevel(g: Game, ship: number): void {
   g.level++
+  g.shipType = ship
   g.speed = startSpeed(g.level)
   g.wormTimer = 0; g.wormCount = 0; g.flash = 1 // arrive somewhere new
   g.levelFrom = { distance: g.distance, missed: g.missed }
@@ -64,6 +90,7 @@ function enterWormhole(g: Game): void {
   g.results.push({ ...missionSoFar(g), saved })
   g.asteroids = []; g.drops = []; g.wormhole = null; g.slowmo = 0; g.slowWatch = null
   if (g.level >= LAST_LEVEL) { win(g); return }
+  g.pick = g.shipType
   g.flash = 1
   buzz([40, 60, 40])
   setState(g, 'between')
@@ -80,7 +107,7 @@ function deliver(g: Game): void {
 // Takes as many people as there are free seats; the rest stay behind.
 function rescue(g: Game, a: Asteroid): void {
   const { ship, U } = g
-  const n = Math.min(a.people, levelCapacity(g.level) - g.onboard)
+  const n = Math.min(a.people, seats(g) - g.onboard)
   g.onboard += n
   g.floaters.push({ x: a.x, y: a.y - a.r, str: `×${n}`, life: 1.2 })   // a multiplier, not points: crew multiply the distance
   for (let i = 0; i < 14; i++) {
@@ -140,10 +167,10 @@ function takeHit(g: Game, a: Asteroid): void {
 // missed: only as many as the ship had free seats for. A ship with no seat for
 // them had no choice, so it is never charged.
 function missedOn(g: Game, a: Asteroid): number {
-  return Math.min(a.people, levelCapacity(g.level) - g.onboard)
+  return Math.min(a.people, seats(g) - g.onboard)
 }
 
-const isFull = (g: Game): boolean => g.onboard >= levelCapacity(g.level)
+const isFull = (g: Game): boolean => g.onboard >= seats(g)
 
 // A shield arc flown through: one more shield, up to what a ship can hold.
 function takeDrop(g: Game, d: { x: number; y: number; r: number }): void {
@@ -215,7 +242,7 @@ export function update(g: Game, dt: number, steer: number): void {
     a.rot += a.spin * dt
     if (g.state === 'play') {
       const dx = a.x - ship.x, dy = a.y - ship.y
-      if (a.people && g.onboard < levelCapacity(g.level)) {
+      if (a.people && !isFull(g)) {
         const reach = reachOf(g, a)
         if (dx * dx + dy * dy < reach * reach) rescue(g, a)
       }
@@ -312,11 +339,10 @@ function playerAndSpawns(g: Game, dt: number, steer: number, scroll: number): vo
     }
   }
 
-  // Ship: quick, slightly weighty lateral movement.
-  // Crew make the ship heavy: it swells and steers slower as the seats fill,
-  // and shrinks back when they are delivered.
-  ship.r += (shipRadius(levelCapacity(g.level)) * U - ship.r) * Math.min(1, dt * 5)
-  const maxV = W * (1.25 + g.speed * 0.18) * handling(g.onboard)
+  // Ship: quick, slightly weighty lateral movement. Its size and its steering
+  // are those of the ship in use; a new ship grows into its size.
+  ship.r += (shipRadius(g.shipType) * U - ship.r) * Math.min(1, dt * 5)
+  const maxV = W * (1.25 + g.speed * 0.18) * handling(g.shipType)
   const target = steer * maxV
   ship.vx += (target - ship.vx) * Math.min(1, dt * (target ? 9 : 7))
   ship.x += ship.vx * dt
