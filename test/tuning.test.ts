@@ -45,9 +45,9 @@ test('TUNE-06 one speed slope in every mission: 1.3x over the target, from the m
   expect(speedAt(1, 50)).toBeCloseTo(66)
 })
 
-test('TUNE-07 shields: 3 to start, 5 at most; drops on missions 5 and 6 only', () => {
+test('TUNE-07 shields: 3 to start, 5 at most; drops on missions 4, 5 and 6 only', () => {
   expect([SHIELDS, MAX_SHIELDS]).toEqual([3, 5])
-  expect(levels.map(shieldDrops)).toEqual([0, 0, 0, 0, 6, 4, 0])
+  expect(levels.map(shieldDrops)).toEqual([0, 0, 0, 2, 6, 4, 0])
 })
 
 test('TUNE-08 the same game on every device: one field, one step, one set of wormhole waits', () => {

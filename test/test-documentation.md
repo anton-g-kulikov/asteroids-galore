@@ -34,7 +34,7 @@ The game is a real-time canvas simulation driven by `Math.random`, so most behav
 | TUNE-04 | `tuning.test.ts` | Ship radius comes from the seats: 14.3, 15.1, 15.8, 17, 18.5, 20.4, 22 over the seven missions, each visibly bigger than the last; 22 with 32 seats or more | passing |
 | TUNE-05 | `tuning.test.ts` | Gap between crews is 11–15 s on level 1 and 15–20 s on levels 2 to 7 | passing |
 | TUNE-06 | `tuning.test.ts` | One speed slope: every level gains 1.3× over its target from its starting speed (1× on levels 1–4, then 1.4×, 1.8×, 2.2×) and keeps rising past it; no second gear and no ceiling | passing |
-| TUNE-07 | `tuning.test.ts` | Shields: 3 to start, 5 at most; 6 drops on level 5, 4 on level 6, none elsewhere | passing |
+| TUNE-07 | `tuning.test.ts` | Shields: 3 to start, 5 at most; 2 drops on level 4, 6 on level 5, 4 on level 6, none elsewhere | passing |
 | TUNE-08 | `tuning.test.ts` | The field is 400 × 720, the step 1/60 s, and the wormhole waits 16, 19, 22, 25, 28 s | passing |
 | SPAWN-01 | `spawn.test.ts` | Stranded crew are on planetoids; plain rocks carry nobody | passing |
 | SPAWN-02 | `spawn.test.ts` | On level 1 every planetoid has a single crew | passing |
@@ -53,7 +53,7 @@ The game is a real-time canvas simulation driven by `Math.random`, so most behav
 | LEVEL-08 | `levels.test.ts` | A missed wormhole returns after a wait dealt from the shuffled set: each of the five waits exactly once in every five; the first wormhole of a level does not wait | passing |
 | LEVEL-09 | `levels.test.ts` | In mission 7 every wormhole arrives with a shield in the same row, mirrored on the opposite side and too far to take both, on a random side; in missions 1–6 the wormhole comes alone | passing |
 | LEVEL-10 | `levels.test.ts` | A shield drop adds a shield, up to 5; spares carry into the next mission, and a ship with fewer than 3 is topped up to 3 | passing |
-| LEVEL-11 | `levels.test.ts` | Mission 5 offers 6 shields and mission 6 offers 4, evenly spaced by distance over the first two-thirds; every second one is a row of 2 crew, 3 crew and the shield between two rocks; missions 4 and 7 have no such drops | passing |
+| LEVEL-11 | `levels.test.ts` | Mission 4 offers 2 shields, mission 5 offers 6 and mission 6 offers 4, evenly spaced by distance over the first two-thirds; every second one is a row of 2 crew, 3 crew and the shield between two rocks; missions 3 and 7 have no such drops | passing |
 | LEVEL-12 | `levels.test.ts` | The ship is as big as its seats and as heavy as its crew: crew slow its steering and add mass but do not change its size; every mission's ship is bigger than the last; after a wormhole the ship grows into the next size gradually | passing |
 | LEVEL-17 | `levels.test.ts` | The bigger the crew, the sooner the well forms: time parked counts by the ship's mass, so the well is at full depth after 6 seconds empty and 2.3 seconds with 32 aboard, and is deeper after one second with every step up in crew | passing |
 | LEVEL-13 | `levels.test.ts` | Mission 5 starts at 1.4× | passing |

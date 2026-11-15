@@ -28,6 +28,7 @@ The seven-mission run is built (see `game-design.md`). What is left of that plan
 
 ## Done
 
+- Shield drops start in mission 4 (2026-11-15, v0.3.3): two drops, at a third and two-thirds of the way to its target; the second arrives as the crew-or-shield row. Missions 1–3 still have none.
 - The cost of a missed crew member depends on the mission (2026-11-15, v0.3.2): 5% in missions 1–4, then 3%, 2% and 1.5% in missions 5, 6 and 7, so that missing a shipful costs about half a late mission.
 - Crew dig the well sooner (2026-11-15): time parked counts by the ship's mass, so a full ship of 32 reaches full depth in 2.3 seconds instead of 6.
 - Simpler scoring and a new board (2026-11-15, v0.3.0): each crew member left behind takes a flat 5% of the mission's score; seats grow evenly (2, 4, 6, 10, 16, 24, 32); the ship's size comes from its seats and only its steering from the crew on board; the screen between missions lists every mission flown so far; leaderboard rows say how many missions the run finished; the leaderboard starts again (entries ranked by `best3`, local best under a new key).

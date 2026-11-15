@@ -27,7 +27,7 @@ Saving the stranded crew is what the game is about, and the score says so. Every
 
 - **Saved** means delivered. Crew picked up sit in the ship's seats and count for nothing yet. Flying into a wormhole delivers everyone on board: they are saved for good, and only then do they multiply that mission's parsecs.
 - **Per mission.** Parsecs only multiply the crew of their own mission. Staying on mission 1 to pile up distance multiplies two seats and nothing saved later, so it buys little; distance is worth most on the late missions, where the ship carries more and flying is hardest.
-- **Missed** crew are those who drifted off the bottom of the screen while the ship had a seat for them, and those thrown off the ship by a hit (see [Shields](#shields)). Crew who pass a ship with no free seat are never counted, and a full ship is sent none (see [A full ship sees no crew](#a-full-ship-sees-no-crew)). Each one counted takes 10% (`MISS_RATE`) of what is still at risk, and at most 75% (`MISS_CAP`) is ever at risk: the share kept is `1 − 0.75 × (1 − 0.9^missed)`. One missed keeps 93%, three 80%, ten 51%, and no number of them takes a mission below 25%. See [Crew left behind](#crew-left-behind) for why.
+- **Missed** crew are those who drifted off the bottom of the screen while the ship had a seat for them, and those thrown off the ship by a hit (see [Shields](#shields)). Crew who pass a ship with no free seat are never counted, and a full ship is sent none (see [A full ship sees no crew](#a-full-ship-sees-no-crew)). Each one counted takes a fixed share of the mission's score (`missCost`): 5% in missions 1–4, then 3%, 2% and 1.5% in missions 5, 6 and 7, down to nothing. See [Crew left behind](#crew-left-behind) for why.
 - **Lost with the ship.** If the ship is destroyed, the mission in flight scores nothing and the crew on board are lost with it. Everything banked by earlier missions is kept; nothing is taken off.
 - **Parsecs** are pure distance. They grow faster as the level speeds up, so staying in a level after its wormhole has appeared keeps adding distance, at rising risk.
 
@@ -61,22 +61,24 @@ Each level starts with at least 3 shields (`SHIELDS`), and a ship holds at most 
 - **Taking a hit:** hitting a rock burns one shield — the outermost arc disappears — and throws one crew member off the ship, if anyone is aboard. The player sees the figure tumble away from the ship and fade, a seat go dark and the `MISSED` count move; there is no caption. That person counts as one missed, and the seat is free again, so the ship gets a little lighter. With nobody aboard a hit costs only the shield. Otherwise the run carries on where it is: same level, same parsecs, same speed. See [A hit costs a crew member](#a-hit-costs-a-crew-member) for why.
 - **The rock that hit** is destroyed. Only asteroids hit: planetoids are harmless (see [Rescue missions](#rescue-missions)).
 - **Getting clear:** the ship cannot be hit for 2 seconds (`GRACE`). The shields blink for that time, not the ship, and the arc that was just burnt flickers out beyond them. It can still pick up crew and enter the wormhole.
-- **Refill:** entering a new level through the wormhole tops the shields up to 3. Spares above 3 are kept, so clean flying in missions 5 and 6 buys a better start in mission 7.
+- **Refill:** entering a new level through the wormhole tops the shields up to 3. Spares above 3 are kept, so clean flying in missions 4 to 6 buys a better start in mission 7.
 - **No shields left:** the ship flies bare, and the next hit destroys it and ends the run with the game-over screen.
 
 ### Shield drops
 
-More shields can be found from mission 5 on. A drop is a glowing shield arc drifting down the field, the same shape as the arcs on the ship; flying through it adds a shield.
+More shields can be found from mission 4 on. A drop is a glowing shield arc drifting down the field, the same shape as the arcs on the ship; flying through it adds a shield.
 
 | Mission | Shields at the start | Drops |
 |---|---|---|
-| 1–4 | 3 | none |
+| 1–3 | 3 | none |
+| 4 | 3 | 2 |
 | 5 | at least 3 | 6 |
 | 6 | at least 3 | 4 |
 | 7 | at least 3 | one beside every wormhole |
 
 - **The same for everyone.** The count is fixed (`shieldDrops`), drops are spaced evenly by distance over the first two-thirds of the mission (`DROPS_WITHIN`), and only their position is random. A shield just before the refill would be worth nothing.
-- **Fewer each mission, on purpose.** Mission 5 teaches the higher speeds with a cushion; mission 7 leaves the ship nearly bare.
+- **Mission 4 introduces them.** Its two drops come at a third and two-thirds of the way to the target, at the slow starting speed: the first is a plain shield, the second is the crew-or-shield row. A player meets both before mission 5, where the speed makes them matter, and can start mission 5 with a spare.
+- **Fewer each mission from 5 on, on purpose.** Mission 5 teaches the higher speeds with a cushion; mission 7 leaves the ship nearly bare.
 - **Shield or crew.** Every second drop (`CHOICE_EVERY`) arrives the way the two-crew pair does, as a choice in one fast row: 2 crew on one side, 3 crew on the other, and the shield in the middle between two small asteroids. The sides are too far apart to take both, and the corridor to the shield is narrow. The slow motion announces it. Which side has the 3 is random.
 - **In mission 7** the only shields are the ones offered opposite each wormhole (see [Leaving a level](#leaving-a-level)).
 
@@ -89,7 +91,7 @@ There are 7 levels. **The player knows them as missions:** everything on screen 
 | 1 | 500 | 1× | 2 | none |
 | 2 | 750 | 1× | 4 | none |
 | 3 | 1,250 | 1× | 6 | none |
-| 4 | 2,000 | 1× | 10 | none |
+| 4 | 2,000 | 1× | 10 | 2 |
 | 5 | 2,500 | 1.4× | 16 | 6 |
 | 6 | 3,000 | 1.8× | 24 | 4 |
 | 7 | 3,500 to the first wormhole, then open | 2.2× | 32 | one beside every wormhole |
@@ -207,7 +209,7 @@ Agreed on 2026-11-14 and built the same day, replacing the four-mission game. Th
 | Ship destroyed | The unfinished mission cost its parsecs × the crew aboard, taken off the banked score | The unfinished mission scores nothing; everything banked is kept |
 | Speed past the target | The same slope up to 4.5×, then second gear up to 9× | One slope in every mission: no second gear, and no ceiling |
 | A missed wormhole | Back after a random 15–30 seconds | Back after a wait dealt from a shuffled set |
-| Shields | 3 per mission | Topped up every mission; drops on missions 5 and 6; on mission 7 only by turning down the way home |
+| Shields | 3 per mission | Topped up every mission; drops on missions 4, 5 and 6; on mission 7 only by turning down the way home |
 | Ship size and steering | From the mission number | Size from the mission's seats, steering from the crew on board |
 | Frame time and field | Variable step, field sized from the window | Fixed step, fixed field |
 
@@ -279,9 +281,9 @@ The average wait is the main dial for how long a mission 7 run lasts.
 
 ### Shields
 
-Shield drops used to be a parked idea, because they made the game easier and rewarded staying on. Both are now intended: the count is fixed and falls each mission, and in mission 7 staying on is the game.
+Shield drops used to be a parked idea, because they made the game easier and rewarded staying on. Both are now intended: the count is fixed and falls each mission from 5 on, and in mission 7 staying on is the game.
 
-For the crew-or-shield choice to be a choice the ship must not be full when it comes, so the crew on offer in missions 5 and 6 stay a little below the 16 and 24 seats. As built, the shield is always the middle of the three and the crews are on the sides; that keeps the two crews too far apart to take both.
+For the crew-or-shield choice to be a choice the ship must not be full when it comes, so the crew on offer in missions 5 and 6 stay a little below the 16 and 24 seats. In mission 4 a ship that has filled its 10 seats gets the second drop as a plain shield. As built, the shield is always the middle of the three and the crews are on the sides; that keeps the two crews too far apart to take both.
 
 ### Crew weight
 
@@ -344,7 +346,7 @@ Everything here is settled by playing, not by discussion:
 - **The wait before planetoids return** after a seat opens (`SEAT_WAIT`, 4 seconds).
 - **Whether a hit costing a crew member is too harsh on mission 1,** where one person is half the seats.
 - **The set of wormhole waits.**
-- **How many shield drops arrive as a choice** between crew and a shield. Half of them is built: 3 of the 6 on mission 5 and 2 of the 4 on mission 6.
+- **How many shield drops arrive as a choice** between crew and a shield. Half of them is built: 1 of the 2 on mission 4, 3 of the 6 on mission 5 and 2 of the 4 on mission 6.
 - **Scores that can be checked** and **tuning aids** (per-run records of where and how runs end, a scripted pilot that sweeps speeds): planned, not built.
 - **How much each crew member deepens the well** and slows the ship.
 - **Whether the first wormhole-or-shield offer needs the slow motion.**

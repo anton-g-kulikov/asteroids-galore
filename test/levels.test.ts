@@ -168,8 +168,8 @@ test('LEVEL-10 shields: a drop adds one, a ship holds 5 at most, spares carry ov
   expect([g.level, g.shields]).toEqual([7, 3])                // topped up to 3
 })
 
-test('LEVEL-11 mission 5 offers 6 shields and mission 6 offers 4, evenly spaced over the first two-thirds; half arrive as a choice', () => {
-  for (const [level, count] of [[5, 6], [6, 4], [4, 0], [7, 0]] as const) {
+test('LEVEL-11 mission 4 offers 2 shields, mission 5 offers 6 and mission 6 offers 4, evenly spaced over the first two-thirds; half arrive as a choice', () => {
+  for (const [level, count] of [[4, 2], [5, 6], [6, 4], [3, 0], [7, 0]] as const) {
     const g = playing(level)
     g.wormTimer = 1e9
     const at: number[] = [], choices: number[] = []
@@ -192,7 +192,7 @@ test('LEVEL-11 mission 5 offers 6 shields and mission 6 offers 4, evenly spaced 
     }
     expect(at).toHaveLength(count)
     at.forEach((share, i) => expect(share).toBeCloseTo((2 / 3) * (i + 1) / count, 1))
-    expect(choices).toEqual(count === 6 ? [2, 4, 6] : count === 4 ? [2, 4] : [])
+    expect(choices).toEqual(count === 6 ? [2, 4, 6] : count === 4 ? [2, 4] : count === 2 ? [2] : [])
   }
 })
 

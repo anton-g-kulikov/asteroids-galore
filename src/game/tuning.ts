@@ -48,7 +48,7 @@ export const startSpeed = (l: number): number => at([1, 1, 1, 1, 1.4, 1.8, 2.2],
 export const speedAt = (l: number, progress: number): number => startSpeed(l) + progress * SPEED_GAIN
 
 /** Shield arcs that drift down the field during the level, evenly spaced over its first DROPS_WITHIN. */
-export const shieldDrops = (l: number): number => at([0, 0, 0, 0, 6, 4, 0], l)
+export const shieldDrops = (l: number): number => at([0, 0, 0, 2, 6, 4, 0], l)
 export const DROPS_WITHIN = 2 / 3
 export const CHOICE_EVERY = 2        // every Nth shield drop arrives as "2 crew, 3 crew or a shield"
 
