@@ -123,7 +123,7 @@ The game is a real-time canvas simulation driven by `Math.random`, so most behav
 | HUD-04 | `render/hud.test.ts` | The `SHARE` button is drawn on both end screens only when a link is ready; it reads `COPIED` right after a copy | passing |
 | HUD-05 | `render/hud.test.ts` | The button sits inside the play field, in the top right corner | passing |
 | HUD-06 | `render/hud.test.ts` | The start screen shows a shared run: callsign, score, and `MADE IT HOME` with the crew saved for a run that went home, crew saved and distance for a lost one | passing |
-| HUD-07 | `render/hud.test.ts` | The start screen draws the title, the controls, the prompt and, at the foot, the version and the seed of the next run as six characters (`v0.4.0 · SEED 4F2A9C`); no other screen shows the seed | passing |
+| HUD-07 | `render/hud.test.ts` | The start screen draws the title, the controls, the prompt and, at the foot, the version and the seed of the next run as six characters (`v0.4.1 · SEED 4F2A9C`); no other screen shows the seed | passing |
 | HUD-11 | `render/hud.test.ts` | The leaderboard screen replaces the end screen: `TOP SCORES`, every row with rank, callsign, score and how many missions the run finished; a run that reached mission 7 also says how it ended, its parsecs there and the seats of its ship (left out for an entry without a ship); a way back | passing |
 | HUD-12 | `render/hud.test.ts` | The leaderboard link sits top left, clear of the share button, and is big enough to tap | passing |
 | HUD-10 | `render/hud.test.ts` | Between levels, under `MISSION N COMPLETE`: the same table as the end screens, a numbered row for every mission flown so far and `TOTAL`; `TAP TO CONTINUE` only when no ships are on offer | passing |
@@ -149,7 +149,7 @@ The game is a real-time canvas simulation driven by `Math.random`, so most behav
 | RULES-02 | A run for another user, or without sign-in, is refused | passing |
 | RULES-03 | Malformed runs are refused: extra field, missing field, negative distance, level 0 or 8, a run that went home from any mission but 7, mission-7 parsecs on a run that ended earlier or exceeding the whole run or fractional, a client-set time, a badly formed callsign | passing |
 | RULES-08 | A run's score cannot exceed its distance times crew saved, and cannot be negative or fractional; a run that went home cannot have crew lost | passing |
-| RULES-09 | A leaderboard entry written under earlier rules (only `bestScore`) can be replaced by one of the new kind (`best3`), which then cannot go down | passing |
+| RULES-09 | A leaderboard entry written under earlier rules (only `bestScore`) can be replaced by one of the new kind (`best4`), which then cannot go down | passing |
 | RULES-10 | A run must say which ship each mission was flown in: a list of ships 1–5, one per mission reached, starting with ship 1, whose last entry is the ship the run ended in; a board entry must carry `bestShip`, 0–5 | passing |
 | RULES-04 | Runs cannot be changed or deleted; anyone can read a run by its ID; nobody can list runs | passing |
 | RULES-05 | A player can create and update their own entry (best score, how that run ended, callsign), not another player's; anyone can read entries and query the board, signed in or not | passing |

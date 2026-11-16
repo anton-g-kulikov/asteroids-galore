@@ -44,7 +44,7 @@ When the game is connected to the cloud and the board has loaded, both end scree
 
 The leaderboard is `TOP SCORES`: the ten highest best scores, one global board for all time. Players are listed by callsign: two words and a number, generated from the player's anonymous account, so nobody types a name and the same account always keeps the same one. Under each callsign a small line says how many missions that run finished: `FINISHED 2/7` for a run lost in mission 3. A run that reached mission 7 also says how it ended and the parsecs flown there: `FINISHED 7/7 · HOME · 5,400 pc · 16 SEATS` for a run that went home, `FINISHED 6/7 · LOST · 7,100 pc · 2 SEATS` for one destroyed in mission 7. The seats are those of the ship chosen for mission 7 (see [The choice](#the-choice)); an entry saved before ships were recorded leaves them out. The board then tells how far each player got, who got out in time and in what. The player's own row is gold, which is also how they learn their callsign. A player outside the top ten gets an extra row with their rank. A player whose best is 0 is not listed.
 
-The board starts again whenever scores stop being comparable: entries are ranked by a field whose name changes with the scoring (`best3` since the linear penalty of 2026-11-15; `best` before it, `bestScore` before that), so entries that only hold an earlier score are not listed, and a player's first new entry replaces their old one. Nothing is deleted. The best kept on the device moves to a new key at the same time.
+The board starts again whenever scores stop being comparable: entries are ranked by a field whose name changes with the scoring (`best4` since the five ships of 2026-11-16; `best3` before it, from the linear penalty of 2026-11-15; `best` and `bestScore` earlier), so entries that only hold an earlier score are not listed, and a player's first new entry replaces their old one. Nothing is deleted. The best kept on the device moves to a new key at the same time.
 
 The board is refreshed when a run ends, and the player's row always uses the best the game holds right now. Offline, or before the first board has loaded, there is simply no pill.
 
@@ -355,7 +355,7 @@ Considered on 2026-11-14 and not taken:
 ### What this touched outside the game
 
 - **Firestore rules:** `firestore.rules` accepts levels 1–7; a `won` run is one that went home from mission 7; a run records `finalDistance`, the parsecs flown in mission 7. **The rules must be deployed together with the client** (`firebase deploy --only firestore:rules`); GitHub Actions deploys Hosting only.
-- **Leaderboard entries** hold `best3`, `bestOutcome`, `bestLevel` and `bestFinal`. The earlier `best` and `bestScore` fields are neither read nor written, which is what starts the board again.
+- **Leaderboard entries** hold `best4`, `bestOutcome`, `bestLevel`, `bestFinal` and `bestShip`. The earlier `best3`, `best` and `bestScore` fields are neither read nor written, which is what starts the board again.
 - **Saved bests on the device** use new storage keys, so a best from the earlier rules is not uploaded to the new board.
 - **End screen and share text:** `ALL MISSIONS COMPLETE` became `MADE IT HOME`, on the end screen, in the line under a shared run and in the share message.
 - **Golden traces** were re-recorded: every change above alters missions 1–4 too.

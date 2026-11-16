@@ -29,7 +29,7 @@ const run = (userId: string, over: Record<string, unknown> = {}) => ({
   ...over,
 })
 const bests = (over: Record<string, unknown> = {}) => ({
-  callsign: 'COSMIC OTTER 42', best3: 1236, bestOutcome: 'over', bestLevel: 3, bestFinal: 0, bestShip: 2, updatedAt: serverTimestamp(), ...over,
+  callsign: 'COSMIC OTTER 42', best4: 1236, bestOutcome: 'over', bestLevel: 3, bestFinal: 0, bestShip: 2, updatedAt: serverTimestamp(), ...over,
 })
 
 test('RULES-01 a player can create a well-formed run of their own', async () => {
@@ -104,8 +104,8 @@ test('RULES-09 an entry written under earlier rules can be replaced by one of th
   await env.withSecurityRulesDisabled(async ctx => {
     await setDoc(doc(ctx.firestore(), 'users/ann'), { callsign: 'COSMIC OTTER 42', bestScore: 22640, updatedAt: new Date() })
   })
-  await assertSucceeds(setDoc(doc(as('ann'), 'users/ann'), bests({ best3: 10 })))
-  await assertFails(setDoc(doc(as('ann'), 'users/ann'), bests({ best3: 5 })))
+  await assertSucceeds(setDoc(doc(as('ann'), 'users/ann'), bests({ best4: 10 })))
+  await assertFails(setDoc(doc(as('ann'), 'users/ann'), bests({ best4: 5 })))
 })
 
 test('RULES-04 runs cannot be changed or deleted; readable by ID, never listed', async () => {
@@ -121,31 +121,31 @@ test('RULES-04 runs cannot be changed or deleted; readable by ID, never listed',
 
 test('RULES-05 a player owns their entry; anyone can read the board', async () => {
   await assertSucceeds(setDoc(doc(as('ann'), 'users/ann'), bests()))
-  await assertSucceeds(setDoc(doc(as('ann'), 'users/ann'), bests({ best3: 5000, bestOutcome: 'won', bestLevel: 7, bestFinal: 5400, bestShip: 5 })))
+  await assertSucceeds(setDoc(doc(as('ann'), 'users/ann'), bests({ best4: 5000, bestOutcome: 'won', bestLevel: 7, bestFinal: 5400, bestShip: 5 })))
   await assertFails(setDoc(doc(as('bob'), 'users/ann'), bests()))
   await assertFails(setDoc(doc(anon(), 'users/zed'), bests()))
   await assertSucceeds(getDoc(doc(as('bob'), 'users/ann')))
   await assertSucceeds(getDoc(doc(anon(), 'users/ann')))
-  const top = (db: ReturnType<typeof anon>) => query(collection(db, 'users'), where('best3', '>', 0), orderBy('best3', 'desc'), limit(5))
+  const top = (db: ReturnType<typeof anon>) => query(collection(db, 'users'), where('best4', '>', 0), orderBy('best4', 'desc'), limit(5))
   await assertSucceeds(getDocs(top(anon())))
-  await assertSucceeds(getCountFromServer(query(collection(as('bob'), 'users'), where('best3', '>', 100))))
+  await assertSucceeds(getCountFromServer(query(collection(as('bob'), 'users'), where('best4', '>', 100))))
 })
 
 test('RULES-06 the best cannot go down, and malformed entries are refused', async () => {
   const db = as('ann')
   await setDoc(doc(db, 'users/ann'), bests())
-  await assertFails(setDoc(doc(db, 'users/ann'), bests({ best3: 100 })))
+  await assertFails(setDoc(doc(db, 'users/ann'), bests({ best4: 100 })))
   await assertFails(setDoc(doc(db, 'users/ann'), bests({ bestScore: 99999 })))   // the old fields are gone
   await assertFails(setDoc(doc(db, 'users/ann'), bests({ bestOutcome: 'won' })))   // only mission 7 leads home
   await assertFails(setDoc(doc(db, 'users/ann'), bests({ bestLevel: 8 })))
   await assertFails(setDoc(doc(db, 'users/ann'), bests({ bestFinal: 50 })))        // mission 3 has no mission-7 parsecs
-  await assertFails(setDoc(doc(db, 'users/ann'), { callsign: 'COSMIC OTTER 42', best3: 5000, updatedAt: serverTimestamp() }))   // how the run ended is required
+  await assertFails(setDoc(doc(db, 'users/ann'), { callsign: 'COSMIC OTTER 42', best4: 5000, updatedAt: serverTimestamp() }))   // how the run ended is required
   await assertFails(setDoc(doc(db, 'users/ann'), bests({ admin: true })))
-  await assertFails(setDoc(doc(db, 'users/ann'), bests({ best3: 'high' })))
+  await assertFails(setDoc(doc(db, 'users/ann'), bests({ best4: 'high' })))
   await assertFails(setDoc(doc(db, 'users/ann'), bests({ updatedAt: new Date(2020, 0, 1) })))
   await assertFails(setDoc(doc(db, 'users/ann'), bests({ callsign: 'something rude' })))
   await assertFails(setDoc(doc(db, 'users/ann'), bests({ callsign: 'WAY TOO LONG A CALLSIGN TO BE REAL 42' })))
-  await assertFails(setDoc(doc(db, 'users/ann'), { best3: 1236, bestOutcome: 'over', bestLevel: 3, bestFinal: 0, updatedAt: serverTimestamp() }))
+  await assertFails(setDoc(doc(db, 'users/ann'), { best4: 1236, bestOutcome: 'over', bestLevel: 3, bestFinal: 0, updatedAt: serverTimestamp() }))
   await assertFails(deleteDoc(doc(db, 'users/ann')))
 })
 

@@ -112,7 +112,7 @@ function touch(): Scenario['pilot'] {
 
 export const scenarios: Scenario[] = [
   { name: 'GOLD-01 mission', seed: 6, frames: 7800, pilot: mission() },
-  { name: 'GOLD-02 crash and retry', seed: 2, frames: 2400, pilot: crash(), storage: { 'asteroids-galore-best-v3': '120' } },
+  { name: 'GOLD-02 crash and retry', seed: 2, frames: 2400, pilot: crash(), storage: { 'asteroids-galore-best-v4': '120' } },
   { name: 'GOLD-03 two-crew pairs', seed: 5, frames: 3000, pilot: pairs() },
   { name: 'GOLD-04 touch and resize', seed: 4, frames: 2400, pilot: touch() },
 ]

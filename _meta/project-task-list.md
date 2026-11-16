@@ -28,6 +28,7 @@ The seven-mission run is built (see `game-design.md`). What is left of that plan
 
 ## Done
 
+- A new board for the five ships (2026-11-16, v0.4.1): scores under the ships are not comparable with those before, so the leaderboard starts again (entries ranked by `best4`, local best under a new key). Nothing is deleted.
 - Five ships and a choice between missions (2026-11-15, v0.4.0): ships of 2, 4, 8, 16 and 32 seats with their own size, steering, seat rectangle and miss cost; every run starts in ship 1; keep or upgrade after missions 2–5 (left half keeps, right half upgrades), the fleet of ships flown before mission 7; the ship of each mission is saved with the run and checked by the rules; board rows of mission-7 runs name the seats. Checked in a browser: the keep-or-upgrade stop, the five-ship fleet, and mission 7 flown in a smaller ship from it. **Not played:** every ship number is a paper value. **The new Firestore rules must be deployed together with the new client.**
 - Shield drops start in mission 4 (2026-11-15, v0.3.3): two drops, at a third and two-thirds of the way to its target; the second arrives as the crew-or-shield row. Missions 1–3 still have none.
 - The cost of a missed crew member depends on the mission (2026-11-15, v0.3.2): 5% in missions 1–4, then 3%, 2% and 1.5% in missions 5, 6 and 7, so that missing a shipful costs about half a late mission.
