@@ -12,7 +12,7 @@ The seven-mission run is built (see `game-design.md`). What is left of that plan
 - **Scores that can be checked:** saving each run's seed, a recording of the inputs, and a server that replays a run before listing its score. The fixed step, the fixed field and seeded randomness it depends on are in place; the rest is not started.
 - **Tuning aids:** per-run records of where and how runs end and the shields at each wormhole, and a scripted pilot in the tests that sweeps speeds to find where survival collapses. Not started; runs already record how they ended and how far mission 7 went.
 - **New things in missions 5–7:** decided after playing, and only if missions 5–7 feel thin. Candidates: dead stars, failing rescues, wrecked stations, angled asteroids.
-- **Look at the late missions on a real phone:** adding the game to the home screen on iOS and Android, the 32-seat hull and pip rows, the seven-row end-screen table and the board rows were checked by tests and by a scripted run, not by eye.
+- **Look at the late missions on a real phone:** adding the game to the home screen on iOS and Android, the 18-seat hull and pip rows, the seven-row end-screen table and the board rows were checked by tests and by a scripted run, not by eye.
 - **Old leaderboard entries** in the live `users` collection hold only `best` or `bestScore`; they are no longer listed and can be deleted.
 - **Parked:** shooting (see the design notes for why).
 
@@ -28,6 +28,7 @@ The seven-mission run is built (see `game-design.md`). What is left of that plan
 
 ## Done
 
+- Ship numbers that make stopping a choice (2026-11-20, v0.4.2): seats 4, 6, 8, 12, 18; radius 13, 15, 18, 22, 27; steering 100, 90, 78, 64, 50%; seat rectangles 2 × 2, 2 × 3, 2 × 4, 3 × 4, 3 × 6; a missed crew member costs 5% in every ship (it was 3% and 1.5% in ships 4 and 5). The ships on offer are scaled to fit their frames nose to tail. Scores under these numbers are not comparable with those before, so the leaderboard starts again (entries ranked by `best5`, local best under a new key); nothing is deleted. Chosen with a scripted pilot, not by playing. Checked in a browser: mission 1 with 4 seats, the stop after mission 5, the five-ship fleet, ship 5 at the field's edge.
 - A new board for the five ships (2026-11-16, v0.4.1): scores under the ships are not comparable with those before, so the leaderboard starts again (entries ranked by `best4`, local best under a new key). Nothing is deleted.
 - Five ships and a choice between missions (2026-11-15, v0.4.0): ships of 2, 4, 8, 16 and 32 seats with their own size, steering, seat rectangle and miss cost; every run starts in ship 1; keep or upgrade after missions 2–5 (left half keeps, right half upgrades), the fleet of ships flown before mission 7; the ship of each mission is saved with the run and checked by the rules; board rows of mission-7 runs name the seats. Checked in a browser: the keep-or-upgrade stop, the five-ship fleet, and mission 7 flown in a smaller ship from it. **Not played:** every ship number is a paper value. **The new Firestore rules must be deployed together with the new client.**
 - Shield drops start in mission 4 (2026-11-15, v0.3.3): two drops, at a third and two-thirds of the way to its target; the second arrives as the crew-or-shield row. Missions 1–3 still have none.

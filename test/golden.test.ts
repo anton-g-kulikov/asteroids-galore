@@ -49,11 +49,11 @@ describe('golden traces', () => {
     expect(max(mission, 'score')).toBeGreaterThan(0)
     // the best is the winning run's score; the pilot may fly on into another run afterwards
     const wonAt = column(mission, 'state').indexOf('won')
-    expect(Number(mission.storage['asteroids-galore-best-v4'])).toBe(column(mission, 'score')[wonAt])
+    expect(Number(mission.storage['asteroids-galore-best-v5'])).toBe(column(mission, 'score')[wonAt])
 
     expect(column(crash, 'state')).toContain('over')
     expect(column(crash, 'state').lastIndexOf('play')).toBeGreaterThan(column(crash, 'state').indexOf('over'))
-    expect(crash.storage['asteroids-galore-best-v4']).toBe('120')   // nobody saved: the best stands
+    expect(crash.storage['asteroids-galore-best-v5']).toBe('120')   // nobody saved: the best stands
 
     expect(max(pairs, 'slowmo')).toBeGreaterThan(0)
     expect(max(pairs, 'onboard')).toBe(4)

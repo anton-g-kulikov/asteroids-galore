@@ -16,7 +16,7 @@ const FIRESTORE_EMULATOR = ['127.0.0.1', 8180] as const
 // under earlier scoring (`bestScore`, `best`): those scores are not comparable,
 // so entries that only have an old field are simply not on the board. Starting
 // the board again means a new name here, in firestore.rules and in records.ts.
-const BEST = 'best4'
+const BEST = 'best5'
 
 // How the best run ended, as stored beside it; null for an entry without it.
 function endOf(get: (field: string) => unknown): RunEnd | null {

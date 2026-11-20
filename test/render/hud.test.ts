@@ -3,7 +3,8 @@ import { version } from '../../package.json'
 import { createGame } from '../../src/game/game'
 import { createRecords } from '../../src/game/records'
 import type { BoardRow, Game, GameState } from '../../src/game/types'
-import { boardButtonRect, drawHud, endNote, shareButtonRect, shipCards } from '../../src/render/hud'
+import { shipRadius } from '../../src/game/tuning'
+import { boardButtonRect, drawHud, endNote, shareButtonRect, shipCardScale, shipCards } from '../../src/render/hud'
 
 const rows: BoardRow[] = [
   { rank: 1, callsign: 'COSMIC OTTER 42', value: 25680, me: false, end: { outcome: 'won', level: 7, finalDistance: 5400, ship: 4 } },
@@ -37,10 +38,10 @@ test('HUD-11 the leaderboard screen: every row by score with how the run ended, 
   for (const state of ['over', 'won'] as const) {
     const text = drawnText(state, rows, { boardOpen: true })
     expect(text).toEqual([
-      'TOP SCORES', '1', 'COSMIC OTTER 42', '25,680', 'FINISHED 7/7 · HOME · 5,400 pc · 16 SEATS', '2', 'LUNAR FOX 07', '640', 'FINISHED 2/7', 'TAP TO GO BACK',
+      'TOP SCORES', '1', 'COSMIC OTTER 42', '25,680', 'FINISHED 7/7 · HOME · 5,400 pc · 12 SEATS', '2', 'LUNAR FOX 07', '640', 'FINISHED 2/7', 'TAP TO GO BACK',
     ])
   }
-  expect(endNote({ outcome: 'over', level: 7, finalDistance: 7100, ship: 1 })).toBe('FINISHED 6/7 · LOST · 7,100 pc · 2 SEATS')
+  expect(endNote({ outcome: 'over', level: 7, finalDistance: 7100, ship: 1 })).toBe('FINISHED 6/7 · LOST · 7,100 pc · 4 SEATS')
   expect(endNote({ outcome: 'over', level: 7, finalDistance: 7100, ship: 0 })).toBe('FINISHED 6/7 · LOST · 7,100 pc')   // an entry from before ships were recorded
   expect(endNote({ outcome: 'over', level: 1, finalDistance: 0, ship: 1 })).toBe('FINISHED 0/7')
   // an entry that does not say how its run ended: the row without a note
@@ -94,10 +95,10 @@ test('HUD-02 an end screen is a table with a sum per mission, then the score the
   expect(seven.slice(6, 41).filter((_, i) => i % 5 === 0)).toEqual(['1', '2', '3', '4', '5', '6', '7'])
   expect(seven).toContain('7,000')
 
-  // the cost of a missed crew member is the ship's own, whatever the mission: 5% in ships 1-3, 3% in ship 4, 1.5% in ship 5
+  // a missed crew member costs 5% in every ship, whatever the mission
   const late = drawnText('won', null, { results: [3, 4, 5].map(ship => ({ level: 7, ship, saved: 10, missed: 3, distance: 1000 })) })
-  expect(late.filter(t => t.startsWith('3 ('))).toEqual(['3 (−15%)', '3 (−9%)', '3 (−4.5%)'])
-  expect(late).toEqual(expect.arrayContaining(['8,500', '9,100', '9,550']))
+  expect(late.filter(t => t.startsWith('3 ('))).toEqual(['3 (−15%)', '3 (−15%)', '3 (−15%)'])
+  expect(late.filter(t => t === '8,500')).toHaveLength(3)
 })
 
 test('HUD-03 no board, or an empty one: no link and no board', () => {
@@ -136,11 +137,11 @@ test('HUD-14 the crew count is yellow while seats are free and green when the sh
     drawHud(ctx, g)
     return { ...seen, size: parseInt(seen.font.split(' ')[1]) }
   }
-  expect([crew(0).str, crew(0).fill]).toEqual(['CREW 0/4', '#ffd166'])
-  expect(crew(3).fill).toBe('#ffd166')
-  expect([crew(4).str, crew(4).fill]).toEqual(['CREW 4/4', '#5dffa0'])
-  expect(crew(4, 0).size).toBeGreaterThan(crew(4).size)     // just filled: drawn larger for a moment
-  expect(crew(4, 2).size).toBe(crew(3).size)                // and back to its size
+  expect([crew(0).str, crew(0).fill]).toEqual(['CREW 0/6', '#ffd166'])
+  expect(crew(5).fill).toBe('#ffd166')
+  expect([crew(6).str, crew(6).fill]).toEqual(['CREW 6/6', '#5dffa0'])
+  expect(crew(6, 0).size).toBeGreaterThan(crew(6).size)     // just filled: drawn larger for a moment
+  expect(crew(6, 2).size).toBe(crew(5).size)                // and back to its size
 })
 
 test('HUD-08 during a run the big number is the score, not the distance', () => {
@@ -162,8 +163,8 @@ test('HUD-09 one number at a time: what the crew on board are worth, or else the
   expect(carrying).not.toContain('1,200')
   // a crew left behind on this mission takes 5% off what those on board are worth
   expect(drawnText('play', null, { distance: 1400, onboard: 4, missed: 1, results: banked, levelFrom: from })).toContain('+3,800')
-  // in the biggest ship the same crew left behind takes 1.5%
-  expect(drawnText('play', null, { shipType: 5, distance: 1400, onboard: 4, missed: 1, results: banked, levelFrom: from })).toContain('+3,940')
+  // and the same in the biggest ship
+  expect(drawnText('play', null, { shipType: 5, distance: 1400, onboard: 4, missed: 1, results: banked, levelFrom: from })).toContain('+3,800')
   // empty seats: the score
   const empty = drawnText('play', null, { distance: 1400, saved: 3, onboard: 0, results: banked, levelFrom: from })
   expect(empty).toContain('1,200')
@@ -261,9 +262,16 @@ test('HUD-15 between missions the ships on offer stand side by side under the ta
   expect(cards[1].x).toBeGreaterThan(g.W / 2)
   const seen = drawnCards(g)
   expect(seen.frames).toEqual(cards.map(c => c.x))
-  expect(seen.seats).toBe(4 + 8)                              // the hulls show their seats: that is the whole message
+  expect(seen.seats).toBe(6 + 8)                              // the hulls show their seats: that is the whole message
   expect(seen.text.slice(-2)).toEqual(['TOTAL', '3,000'])     // nothing written under the table
   expect(seen.text.join(' ')).not.toMatch(/TAP|SEATS|KEEP|UPGRADE/)
+  // the biggest hull on offer stands inside its frame, nose to tail, at every stop and in the fleet
+  for (const flown of [[1, 1], [1, 1, 2], [1, 1, 2, 3], [1, 1, 2, 3, 4], [1, 1, 2, 3, 4, 5]]) {
+    const stop = between(flown), offered = shipCards(stop)
+    const r = shipRadius(offered[offered.length - 1].ship) * shipCardScale(stop, offered)
+    expect(2.3 * r).toBeLessThanOrEqual(offered[0].h - 14 - 8)   // 14 under the tail, and clear of the frame above the nose
+    expect(2 * r).toBeLessThanOrEqual(offered[0].w - 8)
+  }
   // after mission 1 there is no offer: no cards, and the prompt
   expect(shipCards(between([1]))).toEqual([])
   expect(drawnCards(between([1])).text.slice(-1)).toEqual(['TAP TO CONTINUE'])
@@ -279,9 +287,9 @@ test('HUD-16 the fleet before mission 7 is a row of the ships flown, with the on
     expect(c.w).toBeGreaterThanOrEqual(44)                    // wide enough for a thumb
   })
   // six rows, the total and the cards all sit above the ship waiting at the foot of the field, shields included
-  expect(cards[0].y + cards[0].h).toBeLessThan(g.ship.y - 23 * 3.2)
+  expect(cards[0].y + cards[0].h).toBeLessThan(g.ship.y - 27 * 3.2)
   const seen = drawnCards(g)
-  expect(seen.seats).toBe(2 + 4 + 8 + 16 + 32)
+  expect(seen.seats).toBe(4 + 6 + 8 + 12 + 18)
   expect(seen.widths.indexOf(Math.max(...seen.widths))).toBe(4)   // ship 5 is in use: its frame is the heavy one
   expect(drawnCards(between([1, 1, 2, 3, 4, 5], { pick: 2 })).widths.indexOf(Math.max(...seen.widths))).toBe(1)
   // a run that never upgraded has one ship: nothing to choose, the prompt as after mission 1

@@ -3,7 +3,7 @@ import { createGame, offer, seats } from '../src/game/game'
 import { createRecords } from '../src/game/records'
 import { runSummary } from '../src/game/runSummary'
 import { chooseSide, startGame, tryStart, update } from '../src/game/simulation'
-import { handling, shipRadius } from '../src/game/tuning'
+import { handling, shipRadius, shipSeats } from '../src/game/tuning'
 import type { Game } from '../src/game/types'
 
 function playing(level = 1, ship = 1): Game {
@@ -38,10 +38,10 @@ function flyWith(taps: number[]): Game {
 
 test('SHIP-01 every run starts in the smallest ship, whatever the last run flew', () => {
   const g = playing()
-  expect([g.shipType, seats(g), g.ship.r]).toEqual([1, 2, 13])
+  expect([g.shipType, seats(g), g.ship.r]).toEqual([1, 4, 13])
   Object.assign(g, { level: 6, shipType: 5, state: 'over', stateTime: 1 })
   tryStart(g)
-  expect([g.state, g.level, g.shipType, seats(g), g.ship.r]).toEqual(['play', 1, 1, 2, 13])
+  expect([g.state, g.level, g.shipType, seats(g), g.ship.r]).toEqual(['play', 1, 1, 4, 13])
 })
 
 test('SHIP-02 after mission 1 there is nothing to choose: any tap or key moves on in the same ship', () => {
@@ -95,11 +95,11 @@ test('SHIP-04 the choice waits for its 0.7 seconds like any other tap', () => {
   expect([g.state, g.shipType]).toEqual(['play', 3])
 })
 
-test('SHIP-05 one step at a time: always upgrading flies 2, 2, 4, 8, 16 and 32 seats in missions 1 to 6', () => {
+test('SHIP-05 one step at a time: always upgrading flies 4, 4, 6, 8, 12 and 18 seats in missions 1 to 6', () => {
   const g = flyWith([RIGHT, RIGHT, RIGHT, RIGHT, RIGHT])   // the stops after missions 1 to 5
   expect(g.level).toBe(6)
   expect(g.results.map(r => r.ship)).toEqual([1, 1, 2, 3, 4, 5])
-  expect(g.results.map(r => r.ship).map(s => [2, 4, 8, 16, 32][s - 1])).toEqual([2, 2, 4, 8, 16, 32])
+  expect(g.results.map(r => shipSeats(r.ship))).toEqual([4, 4, 6, 8, 12, 18])
 })
 
 test('SHIP-06 a declined upgrade is gone for the run: four stops, four steps', () => {
@@ -158,7 +158,7 @@ test('SHIP-09 seats, size and steering are the ship\'s, in whatever mission it f
     return { r: g.ship.r, moved: g.ship.x - from, seats: seats(g) }
   }
   const all = [1, 2, 3, 4, 5].map(s => fly(7, s))
-  expect(all.map(a => a.seats)).toEqual([2, 4, 8, 16, 32])
+  expect(all.map(a => a.seats)).toEqual([4, 6, 8, 12, 18])
   all.forEach((a, i) => expect(a.r).toBeCloseTo(shipRadius(i + 1), 1))
   for (let i = 1; i < 5; i++) expect(all[i].moved).toBeLessThan(all[i - 1].moved * 0.95)   // each bigger ship is slower to the side
   expect(all[4].moved / all[0].moved).toBeCloseTo(handling(5) / handling(1), 1)
@@ -175,11 +175,11 @@ test('SHIP-09 seats, size and steering are the ship\'s, in whatever mission it f
 })
 
 test('SHIP-10 a ship takes only as many crew as it seats: a small ship in a late mission fills from one planetoid', () => {
-  const g = playing(6, 1)                // 2 seats
+  const g = playing(6, 1)                // 4 seats
   g.wormTimer = 1e9
-  g.asteroids.push({ x: g.ship.x, y: g.ship.y - 30, r: 24, shape: [1], craters: [], vx: 0, vy: 0, rot: 0, spin: 0, shade: 0, gy: 0, people: 4, planet: true })
+  g.asteroids.push({ x: g.ship.x, y: g.ship.y - 30, r: 24, shape: [1], craters: [], vx: 0, vy: 0, rot: 0, spin: 0, shade: 0, gy: 0, people: 6, planet: true })
   step(g)
-  expect([g.onboard, g.asteroids[0].people]).toEqual([2, 2])
+  expect([g.onboard, g.asteroids[0].people]).toEqual([4, 2])
   // the two left on it had no seat: they are not missed
   g.asteroids[0].y = g.H + 200
   step(g)

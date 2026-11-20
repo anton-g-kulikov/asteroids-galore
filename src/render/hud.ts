@@ -64,7 +64,7 @@ function drawPlayHud(ctx: CanvasRenderingContext2D, g: Game, top: number): void 
   // ship capacity: one seat per pip, filled as crew come aboard
   // the biggest ship's crew sit in two rows, to stay clear of the counts on
   // the left and the shields on the right
-  const cap = shipSeats(g.shipType), rows = cap > 16 ? 2 : 1, per = Math.ceil(cap / rows)
+  const cap = shipSeats(g.shipType), rows = cap > 12 ? 2 : 1, per = Math.ceil(cap / rows)
   const step = Math.min(14 * U, 190 * U / per), pw = step * 0.68, ph = 9 * U, gap = 4 * U
   const px = W / 2 - (per * step - (step - pw)) / 2, py = by + bh + 9 * U
   // Yellow means seats still free, green means crew: the count is yellow
@@ -197,13 +197,19 @@ export function shipCards(g: Game): ShipCard[] {
   return ships.map((ship, i) => ({ ship, x: share * (i + 0.5) - w / 2, y, w, h }))
 }
 
+/** The one scale the ships on offer are drawn at: the biggest of them fits its frame, across and nose to tail. */
+export function shipCardScale(g: Game, cards: ShipCard[]): number {
+  const big = shipRadius(cards[cards.length - 1].ship) * g.U
+  return Math.min(1.6, (cards[0].w - 12 * g.U) / (2.3 * big), (cards[0].h - 24 * g.U) / (2.3 * big))
+}
+
 // The ships on offer, drawn as what they are: a bigger hull with more seats.
 // No caption. They share one scale and stand on one line, so the eye compares
 // them. In the fleet the ship in use is marked; elsewhere both frames are
 // alike. The frames breathe once a tap counts.
 function drawShipCards(ctx: CanvasRenderingContext2D, g: Game, cards: ShipCard[]): void {
   const { U } = g
-  const scale = Math.min(1.6, (cards[0].w - 12 * U) / (2.3 * shipRadius(cards[cards.length - 1].ship) * U))
+  const scale = shipCardScale(g, cards)
   const live = g.stateTime > 0.7, breathe = live ? 0.6 + 0.4 * Math.sin(g.stateTime * 4) : 0.3
   for (const c of cards) {
     const marked = isFleet(g) && c.ship === g.pick

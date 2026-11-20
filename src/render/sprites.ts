@@ -206,8 +206,7 @@ export function drawHull(ctx: CanvasRenderingContext2D, r: number, type: number,
   ctx.ellipse(0, -r * 0.62, r * 0.17, r * 0.27, 0, 0, Math.PI * 2)
   ctx.fill()
   // passenger deck: one seat per dot, filling from the back as crew come
-  // aboard. Every ship's seats are a full rectangle: two seats sit one behind
-  // the other on the centreline, the bigger crews in rows of two or four.
+  // aboard. Every ship's seats are a full rectangle, in rows of two or three.
   const [cols, rows] = shipGrid(type)
   const p = Math.min(0.78 * r / Math.max(2, cols), 1.05 * r / rows)
   // the pair sits midway between the cockpit glass and the tail

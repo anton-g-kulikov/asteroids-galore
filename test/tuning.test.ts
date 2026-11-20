@@ -13,20 +13,22 @@ test('TUNE-01 parsec target per level', () => {
 
 const ships = [1, 2, 3, 4, 5]
 
-test('TUNE-02 five ships, each with twice the seats of the one before, in a full rectangle', () => {
+test('TUNE-02 five ships, each with about half again the seats of the one before, in a full rectangle', () => {
   expect([SHIPS, FIRST_CHOICE]).toEqual([5, 2])
-  expect(ships.map(shipSeats)).toEqual([2, 4, 8, 16, 32])
-  expect(ships.map(shipGrid)).toEqual([[1, 2], [2, 2], [2, 4], [4, 4], [4, 8]])
+  expect(ships.map(shipSeats)).toEqual([4, 6, 8, 12, 18])
+  expect(ships.map(shipGrid)).toEqual([[2, 2], [2, 3], [2, 4], [3, 4], [3, 6]])
   for (const s of ships) expect(shipGrid(s)[0] * shipGrid(s)[1]).toBe(shipSeats(s))   // no part-filled row
 })
 
-test('TUNE-03 steering speed belongs to the ship: 100% in the smallest, 10% less with every step up', () => {
-  expect(ships.map(handling)).toEqual([1, 0.9, 0.8, 0.7, 0.6])
+test('TUNE-03 steering speed belongs to the ship: 100% in the smallest, down to half in the biggest, no step smaller than the one before', () => {
+  const steer = ships.map(handling)
+  expect(steer).toEqual([1, 0.9, 0.78, 0.64, 0.5])
+  for (let i = 2; i < steer.length; i++) expect(Math.round((steer[i - 1] - steer[i]) * 100)).toBeGreaterThanOrEqual(Math.round((steer[i - 2] - steer[i - 1]) * 100))
 })
 
-test('TUNE-04 ship radius belongs to the ship: 13 to 23, every step easy to see', () => {
+test('TUNE-04 ship radius belongs to the ship: 13 to 27, every step easy to see', () => {
   const sizes = ships.map(shipRadius)
-  expect(sizes).toEqual([13, 15, 17.5, 20, 23])
+  expect(sizes).toEqual([13, 15, 18, 22, 27])
   for (let i = 1; i < sizes.length; i++) expect(sizes[i] / sizes[i - 1]).toBeGreaterThan(1.1)
 })
 

@@ -44,7 +44,7 @@ When the game is connected to the cloud and the board has loaded, both end scree
 
 The leaderboard is `TOP SCORES`: the ten highest best scores, one global board for all time. Players are listed by callsign: two words and a number, generated from the player's anonymous account, so nobody types a name and the same account always keeps the same one. Under each callsign a small line says how many missions that run finished: `FINISHED 2/7` for a run lost in mission 3. A run that reached mission 7 also says how it ended and the parsecs flown there: `FINISHED 7/7 · HOME · 5,400 pc · 16 SEATS` for a run that went home, `FINISHED 6/7 · LOST · 7,100 pc · 2 SEATS` for one destroyed in mission 7. The seats are those of the ship chosen for mission 7 (see [The choice](#the-choice)); an entry saved before ships were recorded leaves them out. The board then tells how far each player got, who got out in time and in what. The player's own row is gold, which is also how they learn their callsign. A player outside the top ten gets an extra row with their rank. A player whose best is 0 is not listed.
 
-The board starts again whenever scores stop being comparable: entries are ranked by a field whose name changes with the scoring (`best4` since the five ships of 2026-11-16; `best3` before it, from the linear penalty of 2026-11-15; `best` and `bestScore` earlier), so entries that only hold an earlier score are not listed, and a player's first new entry replaces their old one. Nothing is deleted. The best kept on the device moves to a new key at the same time.
+The board starts again whenever scores stop being comparable: entries are ranked by a field whose name changes with the scoring (`best5` since the ship numbers of 2026-11-20; `best4` before it, from the five ships of 2026-11-16; `best3` from the linear penalty of 2026-11-15; `best` and `bestScore` earlier), so entries that only hold an earlier score are not listed, and a player's first new entry replaces their old one. Nothing is deleted. The best kept on the device moves to a new key at the same time.
 
 The board is refreshed when a run ends, and the player's row always uses the best the game holds right now. Offline, or before the first board has loaded, there is simply no pill.
 
@@ -152,7 +152,7 @@ Later missions' planetoids carry more people, not more planetoids, so the sky st
 
 - **Capacity:** the ship takes only as many people as it has free seats; the rest stay on the planetoid. When the ship is full the rings of any planetoid still on the field turn grey and lose their `SOS` label, and no more planetoids are sent until a seat opens (see [A full ship sees no crew](#a-full-ship-sees-no-crew)); nothing spells out why.
 - **The count.** `CREW n/N` is yellow while there are free seats, and so are the outlines of the empty pips; it turns green when the ship is full and swells for half a second as it does, so the change does not rest on colour alone. Yellow means a free seat and green means crew, everywhere in the HUD: the filled pips, the seat dots on the hull, the `SOS` rings and the pending score are all green.
-- **Showing capacity:** seats are drawn on the ship's hull as dots that turn green as they fill, and repeated as pips with a `CREW n/N` count under the progress bar. Every ship's seats are a full rectangle on the hull: 1 × 2, 2 × 2, 2 × 4, 4 × 4 and 4 × 8 (across × rows). The 32 pips of the biggest ship sit in two rows.
+- **Showing capacity:** seats are drawn on the ship's hull as dots that turn green as they fill, and repeated as pips with a `CREW n/N` count under the progress bar. Every ship's seats are a full rectangle on the hull: 2 × 2, 2 × 3, 2 × 4, 3 × 4 and 3 × 6 (across × rows). The 18 pips of the biggest ship sit in two rows.
 
 ### Two crews at once
 
@@ -192,7 +192,7 @@ Agreed on 2026-11-14 and built the same day, replacing the four-mission game. Th
 | | Before | Now |
 |---|---|---|
 | Missions | 4, and the fourth ended the run | 7, and the seventh ends when the player goes home or the ship is destroyed |
-| Crew left behind | 10% each, down to nothing at ten | 5% each in ships 1–3, 3% in ship 4 and 1.5% in ship 5, down to nothing |
+| Crew left behind | 10% each, down to nothing at ten | 5% each, down to nothing at twenty |
 | Ship destroyed | The unfinished mission cost its parsecs × the crew aboard, taken off the banked score | The unfinished mission scores nothing; everything banked is kept |
 | Speed past the target | The same slope up to 4.5×, then second gear up to 9× | One slope in every mission: no second gear, and no ceiling |
 | A missed wormhole | Back after a random 15–30 seconds | Back after a wait dealt from a shuffled set |
@@ -205,33 +205,28 @@ Agreed on 2026-11-14 and built the same day, replacing the four-mission game. Th
 - **Missions 1–4** keep their lengths and take about five minutes. They are the whole game for most players. A player who always upgrades flies them with 2, 2, 4 and 8 seats.
 - **Missions 5–7** are for competing. Each is longer than the last and starts faster, so each takes about two minutes to its target, as mission 4 does. Reaching mission 7 takes about nine minutes, and its first wormhole comes at about eleven.
 - **What makes 5–7 harder:** longer missions, higher speeds from the first second, fewer shield drops each mission, and crew that make the ship heavier and deepen its well. New objects are decided after playing (see [New things in missions 5–7](#new-things-in-missions-57)).
-- **Seats** are the ship's: 2, 4, 8, 16 or 32. About 21 people arrive before mission 7's first wormhole, so the 32-seat ship does not fill early there: every crew member left behind is the player's own miss, and every rescue both raises the multiplier and avoids a penalty. A smaller ship fills, and is then sent no crew.
+- **Seats** are the ship's: 4, 6, 8, 12 or 18. About 21 people arrive before mission 7's first wormhole, so the 18-seat ship fills only near the end of that stretch: until then every crew member left behind is the player's own miss, and every rescue both raises the multiplier and avoids a penalty. A smaller ship fills sooner, and is then sent no crew.
 
 ### Crew left behind
 
-A mission's score is parsecs × crew saved, less a share for the crew left behind. Each crew member left behind takes a fixed share of that mission's score, and the share depends on the ship the mission was flown in:
+A mission's score is parsecs × crew saved, less a share for the crew left behind. Each crew member left behind takes 5% of that mission's score, in every ship and every mission, and a mission is worth nothing at 20 missed.
 
-| Ship | 1–3 | 4 | 5 |
-|---|---|---|---|
-| Each missed crew member costs (`missCost`) | 5% | 3% | 1.5% |
-| Seats | 2–8 | 16 | 32 |
-| The mission is worth nothing at | 20 missed | 34 | 67 |
-
-- **The rule of thumb:** in the two biggest ships, missing as many crew as the ship seats costs about half the mission (16 × 3% and 32 × 1.5% are each 48%), and never more than 5% each.
-- **Why it falls.** Seats grow from 2 to 32, so the chances to miss grow sixteen times; at a flat 5% each, the late missions were lost to misses. A run on 0.2.0 scored under the flat rule: mission 6, with 15 missed, lost 75% before counting hits, and mission 7, with 5 missed and 3 hits by 1,905 pc, was 40% down a little past halfway to the first way home. The cost was then set per mission (5%, then 3%, 2% and 1.5% in missions 5, 6 and 7), and since 0.4.0 it is set per ship, because the seats are the ship's.
+- **One figure, on the owner's word** (2026-11-20, 0.4.2). From 0.3.2 the cost fell in the late missions, and from 0.4.0 in the two biggest ships (3% and 1.5%), so that missing as many crew as the ship seats cost about half the mission. That was set for 16 and 32 seats. With 12 and 18 seats the cost is 5% everywhere again.
+- **What it means for the big ships.** A missed shipful costs 60% of the mission in ship 4 and 90% in ship 5, and a hit costs 5% plus the seat and the shield. Misses weigh more in the ships with more seats to miss, which is one more reason to stop climbing. **Not measured:** the scripted pilot's figures were flown with 4% and 2.8%, and then with 3% and 1.5%, not with a flat 5%.
+- **The earlier worry.** A run on 0.2.0 scored under a flat 5% lost 75% of mission 6 with 15 missed out of 24 seats. To watch for when playing.
 - **The penalty punishes mistakes, not time.** A mission cannot end before its target, the first wormhole appears as soon as the target is flown, and a full ship is sent no crew, so waiting adds no misses.
 - **Mission 7 must stay worth something,** or there is no choice between going home and staying.
 - **Why not a cap.** A cap turns "worth nothing" into a fixed tax, and every miss beyond it is free: the fault the 75% cap had.
-- **Still simple to read.** It is linear and has no floor other than nothing. The results table prints the count and the share, `3 (−15%)`; in ship 5 the share can end in a half, `1 (−1.5%)`, and the score is worked out from the figure that is printed.
-- **Hits.** Crew thrown off by a hit count as missed at the ship's own cost. In ship 5 a hit costs 1.5% plus the seat and the shield, so what ends a long stay is running out of shields.
-- **In code** it is `missCost(ship)` in `tuning.ts`.
+- **Still simple to read.** It is linear and has no floor other than nothing. The results table prints the count and the share, `3 (−15%)`, and the score is worked out from the figure that is printed.
+- **Hits.** Crew thrown off by a hit count as missed, at the same 5%.
+- **In code** it is `missCost(ship)` in `tuning.ts`: the same figure for every ship, kept per ship so that it can be tuned.
 
 ### Staying on
 
 Staying in a mission after its target is flown is still a gamble, but its shape changed with the two rules above.
 
 - **With free seats** it can pay: planetoids keep coming, every rescue raises the multiplier, and every parsec multiplies the crew aboard. Every planetoid not taken is a real miss.
-- **With a full ship** nothing drifts past and nothing is charged. Parsecs keep multiplying a full crew, so the score only climbs, and what it costs is risk: speed keeps rising, every hit throws a crew member off and takes that mission's share off its score (5% down to 1.5%), and losing the ship loses the whole mission. A ship that is hit turns yellow and has to fill up again while the speed rises. Arriving home with a full ship is the skill.
+- **With a full ship** nothing drifts past and nothing is charged. Parsecs keep multiplying a full crew, so the score only climbs, and what it costs is risk: speed keeps rising, every hit throws a crew member off and takes 5% off that mission's score, and losing the ship loses the whole mission. A ship that is hit turns yellow and has to fill up again while the speed rises. Arriving home with a full ship is the skill.
 - **In missions 1–6** this asks a player to risk the rest of the run for a larger mission score; in mission 7 it is the game.
 
 Before these rules the price of staying on with a full ship was the crew drifting past, and this section held a model of it: with the penalty of that time the score dipped first (7% down after a minute on mission 4, 18% on mission 7) and came level again only at speeds few survive. That model no longer describes anything in the game. Whether staying on now pays too easily is settled by playing (see [Still open](#still-open)).
@@ -282,7 +277,7 @@ Before, crew weighed almost nothing: each person added 0.02 to a mass of 1.0–1
 
 - **Dead stars:** a dark point with a fixed, deep well around it that pulls the ship as well as the asteroids. The grid already shows wells, so it needs nothing new on screen.
 - **Failing rescues:** on some planetoids the `SOS` ring shrinks over time. When it closes, the crew are missed.
-- **Wrecked stations:** larger than a planetoid, just as harmless, carrying 4–8 people. In mission 7 they would fill the 32 seats sooner than intended, so they would replace planetoids, not add to them.
+- **Wrecked stations:** larger than a planetoid, just as harmless, carrying 4–8 people. In mission 7 they would fill the biggest ship sooner than intended, so they would replace planetoids, not add to them.
 - **Angled asteroids:** some cross the screen at an angle instead of falling straight.
 - **A wormhole that drifts sideways:** the least likely to return, because it clashes with a shield placed evenly opposite the wormhole in mission 7.
 
@@ -327,11 +322,12 @@ Starting targets, *to tune*:
 Everything here is settled by playing, not by discussion:
 
 - **The parsecs and starting speeds of missions 5–7.**
-- **What a crew member left behind costs in each ship** (5%, 5%, 5%, 3%, 1.5%), and whether a mission should be able to fall to nothing.
-- **The five ships' seats, sizes and steering,** and everything under [What has to hold](#what-has-to-hold-to-check-by-playing).
+- **What a crew member left behind costs** (5% in every ship), whether the big ships need less, and whether a mission should be able to fall to nothing.
+- **The five ships' seats, sizes and steering,** and everything under [What has to hold](#what-has-to-hold-to-check-by-playing). The numbers are the second set, chosen with a scripted pilot (see [Ship numbers that make stopping a choice](#ship-numbers-that-make-stopping-a-choice)); no person has played them.
+- **Two-crew pairs in the clumsy ships.** The gap between the two rows grows as steering slows, up to a ceiling of 240 field units. Ship 5 reaches the ceiling at about 2.2× speed and ship 4 at about 2.9×; faster than that, saving both is harder than in the small ships.
 - **Whether staying on with a full ship pays too easily,** now that it costs only risk (see [Staying on](#staying-on)).
 - **The wait before planetoids return** after a seat opens (`SEAT_WAIT`, 4 seconds).
-- **Whether a hit costing a crew member is too harsh on mission 1,** where one person is half the seats.
+- **Whether a hit costing a crew member is too harsh on mission 1,** where one person is a quarter of the seats.
 - **The set of wormhole waits.**
 - **How many shield drops arrive as a choice** between crew and a shield. Half of them is built: 1 of the 2 on mission 4, 3 of the 6 on mission 5 and 2 of the 4 on mission 6.
 - **Scores that can be checked** and **tuning aids** (per-run records of where and how runs end, a scripted pilot that sweeps speeds): planned, not built.
@@ -355,30 +351,32 @@ Considered on 2026-11-14 and not taken:
 ### What this touched outside the game
 
 - **Firestore rules:** `firestore.rules` accepts levels 1–7; a `won` run is one that went home from mission 7; a run records `finalDistance`, the parsecs flown in mission 7. **The rules must be deployed together with the client** (`firebase deploy --only firestore:rules`); GitHub Actions deploys Hosting only.
-- **Leaderboard entries** hold `best4`, `bestOutcome`, `bestLevel`, `bestFinal` and `bestShip`. The earlier `best3`, `best` and `bestScore` fields are neither read nor written, which is what starts the board again.
+- **Leaderboard entries** hold `best5`, `bestOutcome`, `bestLevel`, `bestFinal` and `bestShip`. The earlier `best4`, `best3`, `best` and `bestScore` fields are neither read nor written, which is what starts the board again.
 - **Saved bests on the device** use new storage keys, so a best from the earlier rules is not uploaded to the new board.
 - **End screen and share text:** `ALL MISSIONS COMPLETE` became `MADE IT HOME`, on the end screen, in the line under a shared run and in the share message.
 - **Golden traces** were re-recorded: every change above alters missions 1–4 too.
 
 ## Five ships and a choice between missions
 
-Agreed on 2026-11-15 and built the same day (0.4.0). Every number here is a starting value, *to tune* by playing: none of it has been played yet.
+Agreed on 2026-11-15 and built the same day (0.4.0). The ships' seats, sizes and steering were replaced on 2026-11-20 (0.4.2); why is in [Ship numbers that make stopping a choice](#ship-numbers-that-make-stopping-a-choice). Every number here is *to tune* by playing: none of it has been played by a person yet.
 
 Seats are the multiplier, and a small ship is nimble. Until 0.4.0 the mission decided which the player got. Now the player decides, mission by mission: take the bigger ship, or keep the small one and fly further in it. Every run starts in the smallest ship and nothing is unlocked from one run to the next, so the board stays a board of skill.
 
 ### The five ships
 
-| Ship | Seats | Seat grid | Size (radius) | Steering |
-|---|---|---|---|---|
-| 1 | 2 | 1 × 2 | 13 | 100% |
-| 2 | 4 | 2 × 2 | 15 | 90% |
-| 3 | 8 | 2 × 4 | 17.5 | 80% |
-| 4 | 16 | 4 × 4 | 20 | 70% |
-| 5 | 32 | 4 × 8 | 23 | 60% |
+| Ship | Seats | Seat grid | Size (radius) | Steering | A crew member left behind costs |
+|---|---|---|---|---|---|
+| 1 | 4 | 2 × 2 | 13 | 100% | 5% |
+| 2 | 6 | 2 × 3 | 15 | 90% | 5% |
+| 3 | 8 | 2 × 4 | 18 | 78% | 5% |
+| 4 | 12 | 3 × 4 | 22 | 64% | 5% |
+| 5 | 18 | 3 × 6 | 27 | 50% | 5% |
 
-- **Each upgrade doubles the crew.** It is the easiest step to see, and to tune against.
+In 0.4.0 and 0.4.1 the ships had 2, 4, 8, 16 and 32 seats, radius 13 to 23, and steering from 100% down to 60% in even steps.
+
+- **Each upgrade adds about half again the crew,** and the big ships are much clumsier. With doubled seats the bigger ship was always right.
 - **Size and steering belong to the ship.** Steering no longer comes from the crew on board, so the player gets exactly what the picker shows. Crew on board still deepen the well and dig it sooner (`CREW_MASS`).
-- **Bigger differences, on purpose.** Before, a step up the seven per-mission ships added about half again the seats and 5–10% in size, and the steering depended only on the crew aboard. With that, the bigger ship would always be right.
+- **Big differences in size and steering, on purpose.** Before the ships, a step up the seven per-mission ships added 5–10% in size, and the steering depended only on the crew aboard.
 - **Every seat grid is a complete rectangle** (seats across × rows). Before, the front rows of missions 4, 6 and 7 were part-filled and set to the left.
 - **In code:** `shipSeats`, `shipGrid`, `shipRadius`, `handling` and `missCost` in `tuning.ts`, all keyed by the ship, 1 to 5.
 
@@ -392,7 +390,7 @@ Seats are the multiplier, and a small ship is nimble. Until 0.4.0 the mission de
 
 - **One step at a time, and no going back** until the fleet before mission 7.
 - **A declined upgrade is gone for the run.** There are four stops and four steps, so declining once puts ship 5 out of reach for that run. That gives declining a lasting cost.
-- **Missions 1 and 2 are both flown in ship 1.** A player who always upgrades flies 2, 2, 4, 8, 16 and 32 seats in missions 1–6.
+- **Missions 1 and 2 are both flown in ship 1.** A player who always upgrades flies 4, 4, 6, 8, 12 and 18 seats in missions 1–6.
 - **Mission 7 is flown in any ship the run has flown,** a smaller one included. A run that never upgraded has one ship, so it gets no choice there.
 
 ### How it is shown
@@ -405,21 +403,21 @@ Seats are the multiplier, and a small ship is nimble. Until 0.4.0 the mission de
 
 ### What follows the ship, and what stays with the mission
 
-- **With the ship:** seats, size, steering, and what a crew member left behind costs. The rule of thumb stays (missing as many crew as the ship seats costs about half the mission, and never more than 5% each): 5% for ships 1–3, 3% for ship 4, 1.5% for ship 5.
+- **With the ship:** seats, size and steering. What a crew member left behind costs is 5% in every ship (see [Crew left behind](#crew-left-behind)).
 - **With the mission:** parsecs, starting speed, shield drops, the wormhole rhythm, and how many people a planetoid carries. So a small ship in a late mission fills from one or two planetoids, in about 20 seconds, and then meets none.
 
 ### Why
 
-- **The score already trades the two evenly:** 8 seats over 5,000 parsecs is 16 seats over 2,500.
+- **The score already trades the two evenly:** 6 seats over 5,000 parsecs is 12 seats over 2,500.
 - **A full ship that stays on is charged nothing** (see [Staying on](#staying-on)), so flying further is how the nimble ship scores.
-- **Mission 7 gets a real loadout decision.** About 22 crew arrive before its first way home, so 32 seats rarely fill.
+- **Mission 7 gets a real loadout decision.** About 22 crew arrive before its first way home, so the 18 seats fill only late.
 
 ### What has to hold, to check by playing
 
-- **Declining is sometimes right.** A decline halves the crew ceiling for the rest of the run. If nobody ever declines at a stop, the ships differ too little there.
+- **Declining is sometimes right.** A decline lowers the crew ceiling for the rest of the run by one ship. If nobody ever declines at a stop, the ships differ too little there.
 - **No ship is always best in mission 7.**
 - **A small ship in a late mission is still a game.** Once it is full there are no planetoids, only rocks, until a hit opens a seat.
-- **The casual game scores a little less:** missions 2–4 have 2, 4 and 8 seats for a player who always upgrades, against 4, 6 and 10 today.
+- **Mission 1 never fills its ship:** it offers two or three single crew and ship 1 seats four, so `CREW n/4` stays yellow there.
 
 ### What it touched
 
@@ -427,6 +425,88 @@ Seats are the multiplier, and a small ship is nimble. Until 0.4.0 the mission de
 - **The choice is an input.** Each mission's result carries its ship, and a saved run carries the list (`ships`, one per mission reached) and the ship it ended in (`ship`). With the seed, that list says what was played. The Firestore rules require both and check that every run starts in ship 1.
 - **The board row** of a run that reached mission 7 names the seats of the ship it flew there; the entry stores it as `bestShip` (0 when not recorded).
 - **Scores changed.** The same flying scores differently than under 0.3.x. Whether the board starts again is the player-owner's call; as deployed it was not restarted.
+
+## Ship numbers that make stopping a choice
+
+Agreed and built on 2026-11-20 (0.4.2). It replaced the seats, sizes and steering of the five ships; the stops, the picker and the fleet stayed as built.
+
+### What was wrong with 0.4.1
+
+Tested with a scripted pilot flying whole runs of the 0.4.1 code from a seed, 200–300 runs per strategy at three skill levels (expert, strong, average).
+
+- **The first three upgrades were forced.** Stopping at 8 seats scored 66% of the best for an expert and 74% for a strong pilot; stopping at 4 seats, 39% and 47%.
+- **The nimble ship that flies further did not exist.** Never upgrading scored 16% of the best, and staying on in a small ship scored less than leaving on time.
+- **Only the last step was a decision:** 16 seats and 32 seats were within 5% of each other.
+- **Why.** Doubling the seats is worth more than agility buys (the expert got home 89% of the time in the 32-seater and 97% in the 8-seater), and parsecs cannot be doubled cheaply, because speed gains 1.3× over every target length.
+- **Declining late always beats declining early:** the bigger multipliers are kept for longer and the ceiling is the same. So the real decision is where to stop climbing.
+
+### The numbers
+
+| Ship | Seats | Seat grid | Size (radius) | Steering | A crew member left behind costs |
+|---|---|---|---|---|---|
+| 1 | 4 | 2 × 2 | 13 | 100% | 5% |
+| 2 | 6 | 2 × 3 | 15 | 90% | 5% |
+| 3 | 8 | 2 × 4 | 18 | 78% | 5% |
+| 4 | 12 | 3 × 4 | 22 | 64% | 5% |
+| 5 | 18 | 3 × 6 | 27 | 50% | 5% |
+
+- **A crew member left behind costs 5% in every ship,** on the owner's word (see [Crew left behind](#crew-left-behind)).
+- **Seats grow by about half** from ship to ship, not double.
+- **The big ships are clumsier** than in 0.4.1 (radius 20 and 23, steering 70% and 60%).
+- **Both are needed.** Flatter seats alone left stopping at ship 3 at 85%; clumsier ships alone, at 78%.
+
+### What the pilot scored with them
+
+Flown with the numbers as built, 5% for every ship. The best score from stopping at each ship, as a share of the best in the row:
+
+| Pilot | Stop at ship 5 (18 seats) | Ship 4 (12) | Ship 3 (8) | Ship 2 (6) | Ship 1 (4) |
+|---|---|---|---|---|---|
+| Expert | 87% | 100% | 100% | 85% | 61% |
+| Strong | 70% | 91% | 100% | 87% | 68% |
+| Average | 75% | 80% | 100% | 93% | 72% |
+
+- **Two plans compete at the top.** For the expert: stop at 8 seats and stay on from mission 4 (116,000, home 92% of the time), or stop at 12 seats and do the same (115,500, home 68%).
+- **The 18-seater is never the best pick.** It costs the expert 13% and the others 25–30%. At 5% each, a ship that seats more and is hit more loses more to misses, on top of being clumsier.
+- **The best ship no longer moves with skill:** 8 seats for the average and the strong pilot, 8 or 12 for the expert.
+- **The cost of a missed crew member decides this.** With 4% and 2.8% for ships 4 and 5 the three biggest ships were within 2% for the expert; with 3% and 1.5% the 18-seater was the expert's best, the 12-seater the strong pilot's and the 8-seater the average pilot's.
+
+### Fewer ships, and other stops
+
+Flown the same day with 5% for every ship, to see whether five ships are needed:
+
+| Setup | Expert: 18 / 12 / 8 seats | Strong | Average |
+|---|---|---|---|
+| Five ships, offers after missions 2, 3, 4, 5 (as built) | 87 / 100 / 100% | 70 / 91 / 100% | 75 / 80 / 100% |
+| Four ships (4, 8, 12, 18), offers after 2, 4, 5 | 90 / 99 / 100% | 71 / 92 / 100% | 78 / 83 / 100% |
+| Four ships, offers after 2 and 4, the next ship offered with the fleet after 6 | 94 / 99 / 100% | 92 / 92 / 100% | 83 / 83 / 100% |
+| Three ships (8, 12, 18), offers after 4 and 5 | 88 / 100 / 98% | 73 / 96 / 100% | 80 / 89 / 100% |
+
+- **The 6-seater adds nothing.** Four ships give the same decisions as five.
+- **Offers after 2, 4 and 6** keep the biggest ship for mission 7 only, so picking it wrongly costs less.
+- **Three ships starting at 8 seats** cost the casual game little: the average pilot finished mission 4 in 45% of runs against 49%, which is within the noise. What they lose is the obvious first upgrade that teaches the picker, and the ship growing in the first five minutes.
+- **Three ships of 4, 8 and 16 seats** leave no choice: the 8-seater wins at every level.
+
+**Gentler big ships do not rescue the 18-seater.** Four ships on the 2, 4, 6 rhythm were flown again with the sizes and steering of 0.4.1 (radius 13, 17.5, 20, 23; steering 100, 80, 70, 60%), still at 5% each:
+
+| Pilot | 12 seats, best plan | 8 seats, best plan | Flying the 18-seater in mission 7 |
+|---|---|---|---|
+| Expert | 133,900 (staying on from mission 4, home 82%) | 121,000 (the same, home 95%) | 114,900, against 115,000 for the 12-seater flown the same way |
+| Strong | 69,000 (leaving on time, home 35%) | 69,500 (leaving on time, home 68%) | 63,100, against 69,000 |
+| Average | 20,000 | 21,900 | 20,000, the same |
+
+- **Why.** A full ship is sent no crew, so a small ship that fills early is out of reach of the miss cost for the rest of the mission. A ship with more seats stays open to it longer, and at a flat 5% that costs more than the extra seats earn.
+- **With these gentler numbers the 8- and 12-seaters make a real pair:** the best ship is 8 seats for the average pilot, either for the strong one (the 12-seater scores the same and gets home half as often), and 12 for the expert.
+- **So under a flat 5% the ladder that works is three ships: 4, 8 and 12 seats,** with the gentler sizes and steering, offers after missions 2 and 4, and the fleet after mission 6. One obvious upgrade teaches the picker; the second is a decision.
+
+### What it costs, and what is not known
+
+- **Scores fall by about 20%,** and are not comparable with those on the board. Whether the board starts again is the player-owner's call.
+- **The board started again with these numbers** (`best5`), so rows of 0.4.1 runs, whose stored ship number would now name different seats, are no longer listed.
+- **Ship 1 has 4 seats** and mission 1 offers two or three crew, so its count never turns green there.
+- **The first two upgrades stay obvious.**
+- **Two-crew pairs are harder in ships 4 and 5 at speed** (see [Still open](#still-open)).
+- **The saved-crew label crosses the ship frames for a moment.** `18 SAVED` rises from the bigger hull through the foot of the frames for about a second after a wormhole.
+- **A pilot is not a person.** It never parks to dig a well and flies every mission the same way. Differences under about 3% are noise. Also tried and not taken: a flatter top alone (2, 4, 8, 14, 24), and half the speed slope past the target, which raised every score by about 12% and left the spread as it was.
 
 ## Tuning
 
@@ -436,7 +516,7 @@ The main numbers sit in `src/game/tuning.ts`:
 |---|---|
 | `FIELD_W`, `FIELD_H`, `STEP` | The fixed play field and the fixed simulation step |
 | `startSpeed`, `SPEED_GAIN` | Speed a level starts at, and how much it gains over the level's parsec target |
-| `missCost` | Share of a mission's score that each crew member left behind takes, per ship |
+| `missCost` | Share of a mission's score that each crew member left behind takes: 5% in every ship |
 | `LEVEL_MIN_TIME` | Minimum seconds in a level before the wormhole can appear |
 | `levelTarget` | Parsecs to fly per level |
 | `SHIPS`, `FIRST_CHOICE` | Number of ships, and the first mission after which a bigger one is offered |
