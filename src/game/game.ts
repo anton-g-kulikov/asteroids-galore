@@ -8,7 +8,7 @@ export function createGame(records: Records): Game {
     W: FIELD_W, H: FIELD_H, U: 1,
     state: 'menu', stateTime: 0, clock: 0, seed: newSeed(),
     time: 0, speed: 1, distance: 0, spawnTimer: 0, shake: 0, flash: 0,
-    level: 1, shipType: 1, pick: 1, levelTime: 0, levelScore: 0, onboard: 0, fullFor: 0,
+    level: 1, shipType: 1, pick: 1, levelTime: 0, levelScore: 0, onboard: 0, fullFor: 0, events: [],
     saved: 0, lost: 0, missed: 0, rescueTimer: 0, rescueCount: 0,
     results: [], levelFrom: { distance: 0, missed: 0 },
     wormhole: null, wormTimer: 0, wormWaits: [], wormCount: 0, drops: [], dropCount: 0,

@@ -38,5 +38,8 @@ export function createDebugHook(g: Game) {
 }
 
 declare global {
-  interface Window { __game?: ReturnType<typeof createDebugHook> }
+  interface Window {
+    __game?: ReturnType<typeof createDebugHook>
+    __sound?: { sounds: string[]; play(name: string, pitch?: number): void; event(e: unknown): void }
+  }
 }

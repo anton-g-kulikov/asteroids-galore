@@ -1,4 +1,5 @@
 import { isFleet, newWell, offer, reachOf, seats, setState, shipMass, wellY } from './game'
+import { emit } from './events'
 import { buzz } from './haptics'
 import { newSeed, rand, random, seedRandom } from './random'
 import { runEnd } from './runSummary'
@@ -45,8 +46,8 @@ export function tryStart(g: Game, x?: number): void {
   else if (g.state === 'between') {
     const ships = offer(g)
     if (ships.length < 2) nextLevel(g, ships[0] ?? g.shipType)
-    else if (x !== undefined) nextLevel(g, ships[Math.max(0, Math.min(ships.length - 1, Math.floor(x / g.W * ships.length)))])
-    else if (isFleet(g)) nextLevel(g, g.pick)
+    else if (x !== undefined) choose(g, ships[Math.max(0, Math.min(ships.length - 1, Math.floor(x / g.W * ships.length)))])
+    else if (isFleet(g)) choose(g, g.pick)
   }
   else if (g.state === 'over' || g.state === 'won') { g.seed = newSeed(); startGame(g) }
 }
@@ -60,8 +61,18 @@ export function chooseSide(g: Game, dir: -1 | 1): void {
   if (g.state !== 'between' || g.stateTime <= 0.7) return
   const ships = offer(g)
   if (ships.length < 2) return
-  if (isFleet(g)) g.pick = ships[Math.max(0, Math.min(ships.length - 1, ships.indexOf(g.pick) + dir))]
-  else nextLevel(g, ships[dir < 0 ? 0 : 1])
+  if (isFleet(g)) {
+    const pick = ships[Math.max(0, Math.min(ships.length - 1, ships.indexOf(g.pick) + dir))]
+    if (pick !== g.pick) emit(g, { kind: 'mark', ship: pick })
+    g.pick = pick
+  }
+  else choose(g, ships[dir < 0 ? 0 : 1])
+}
+
+// A ship chosen from the ones on offer: a click, then the next level.
+function choose(g: Game, ship: number): void {
+  emit(g, { kind: 'choice', ship })
+  nextLevel(g, ship)
 }
 
 // Starts the next level in the chosen ship, from the results screen. Each level
@@ -92,6 +103,7 @@ function enterWormhole(g: Game): void {
   if (g.level >= LAST_LEVEL) { win(g); return }
   g.pick = g.shipType
   g.flash = 1
+  emit(g, { kind: 'enter' })
   buzz([40, 60, 40])
   setState(g, 'between')
 }
@@ -108,7 +120,9 @@ function deliver(g: Game): void {
 function rescue(g: Game, a: Asteroid): void {
   const { ship, U } = g
   const n = Math.min(a.people, seats(g) - g.onboard)
+  for (let i = 1; i <= n; i++) emit(g, { kind: 'save', seat: g.onboard + i, seats: seats(g) })
   g.onboard += n
+  if (n > 0 && isFull(g)) emit(g, { kind: 'full' })
   g.floaters.push({ x: a.x, y: a.y - a.r, str: `×${n}`, life: 1.2 })   // a multiplier, not points: crew multiply the distance
   for (let i = 0; i < 14; i++) {
     const t = rand(0.2, 0.45)   // crew "beam" towards the ship
@@ -145,9 +159,11 @@ function saveBest(g: Game): void {
 function takeHit(g: Game, a: Asteroid): void {
   if (g.shields <= 0) { gameOver(g); return }
   g.shields--
+  emit(g, { kind: 'hit', size: Math.round(a.r / g.U), shieldsLeft: g.shields })
   if (g.onboard > 0) {
     g.onboard--
     g.missed++
+    emit(g, { kind: 'missed', count: 1 })
     // Show, don't tell: the player sees the person leave.
     const side = random() < 0.5 ? -1 : 1
     g.castaways.push({
@@ -159,6 +175,7 @@ function takeHit(g: Game, a: Asteroid): void {
   g.shake = 0.4
   a.dead = true
   g.missed += a.people          // anyone on that rock is lost
+  if (a.people > 0) emit(g, { kind: 'missed', count: a.people })
   g.grace = GRACE
   buzz([60, 40, 60])
 }
@@ -175,6 +192,7 @@ const isFull = (g: Game): boolean => g.onboard >= seats(g)
 // A shield arc flown through: one more shield, up to what a ship can hold.
 function takeDrop(g: Game, d: { x: number; y: number; r: number }): void {
   g.shields = Math.min(MAX_SHIELDS, g.shields + 1)
+  emit(g, { kind: 'shield' })
   for (let i = 0; i < 12; i++) {
     const a = rand(0, 6.283), v = rand(40, 160) * g.U
     g.particles.push({ x: d.x, y: d.y, vx: Math.cos(a) * v, vy: Math.sin(a) * v, life: rand(0.2, 0.5), max: 0.5, size: rand(1.5, 3) * g.U, color: '#7fdcff' })
@@ -188,6 +206,7 @@ function gameOver(g: Game): void {
   g.shake = 0.5
   g.lost = g.onboard            // everyone still aboard goes down with the ship
   g.results.push({ ...missionSoFar(g), saved: 0, lost: g.lost })   // the level that was never finished: it scores nothing
+  emit(g, { kind: 'destroyed' })
   buzz([60, 40, 140])
   setState(g, 'over')
   saveBest(g)
@@ -195,6 +214,7 @@ function gameOver(g: Game): void {
 
 function win(g: Game): void {
   g.flash = 1
+  emit(g, { kind: 'home' })
   buzz([40, 60, 40, 60, 120])
   setState(g, 'won')
   saveBest(g)
@@ -260,7 +280,11 @@ export function update(g: Game, dt: number, steer: number): void {
   g.asteroids = g.asteroids.filter(a => {
     if (a.dead) return false
     if (a.y - a.r < H + 10) return true
-    if (g.state === 'play') g.missed += missedOn(g, a)
+    if (g.state === 'play') {
+      const left = missedOn(g, a)
+      g.missed += left
+      if (left > 0) emit(g, { kind: 'missed', count: left })
+    }
     return false
   })
 
@@ -291,6 +315,7 @@ function openWormhole(g: Game): void {
   const { W, U } = g
   const r = 34 * U, y = -r - 30 * U
   g.wormCount++
+  emit(g, { kind: 'wormhole' })
   if (g.level < LAST_LEVEL) { g.wormhole = { x: rand(W * 0.2, W * 0.8), y, r }; return }
   const side = random() < 0.5 ? -1 : 1, off = rand(W * 0.2, W * 0.3)
   g.wormhole = { x: W / 2 + side * off, y, r }

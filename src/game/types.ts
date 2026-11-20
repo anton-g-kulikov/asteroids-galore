@@ -1,3 +1,4 @@
+import type { SoundEvent } from './events'
 import type { Records } from './records'
 
 /** `between`: the results screen shown after a wormhole, before the next level starts. */
@@ -105,6 +106,8 @@ export interface Game {
   levelScore: number
   onboard: number        // crew in the seats right now: not saved until the next wormhole
   /** Seconds the ship has had every seat taken; 0 while a seat is free. */
+  /** What happened since the sound last looked: appended by the simulation, emptied by the player. */
+  events: SoundEvent[]
   fullFor: number
   saved: number          // crew delivered through a wormhole; safe for good
   lost: number           // crew who were on board when the ship was destroyed

@@ -1,0 +1,30 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Sound audition</title>
+<style>
+  :root { --bg: #05060d; --fg: #e8eefc; --dim: #8a93ab; --line: #24304d; --hi: #7fdcff; }
+  body { margin: 0; background: var(--bg); color: var(--fg); font: 15px/1.4 system-ui, -apple-system, sans-serif; }
+  main { max-width: 640px; margin: 0 auto; padding: 20px 16px 40px; }
+  h1 { font-size: 20px; margin: 0 0 4px; }
+  p { color: var(--dim); margin: 0 0 18px; }
+  h2 { font-size: 13px; letter-spacing: .08em; text-transform: uppercase; color: var(--hi); margin: 22px 0 8px; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 8px; }
+  button { text-align: left; background: #0d1222; color: var(--fg); border: 1px solid var(--line); border-radius: 10px; padding: 10px 12px; font: inherit; cursor: pointer; min-height: 44px; }
+  button:hover { border-color: var(--hi); }
+  button small { display: block; color: var(--dim); font-size: 12px; margin-top: 2px; }
+  label { display: flex; gap: 8px; align-items: center; color: var(--dim); margin-top: 6px; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Sound audition</h1>
+  <p>Every sound in the game, played by the game's own code. Tap a button to hear it. The numbers are in <code>src/audio/sounds.ts</code>; change one and this page reloads with it.</p>
+  <label><input type="checkbox" id="slow"> As in slow motion (lower, by the game's time scale at its depth)</label>
+  <div id="list"></div>
+</main>
+<script type="module" src="/src/audio/audition.ts"></script>
+</body>
+</html>

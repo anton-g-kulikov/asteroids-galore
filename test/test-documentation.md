@@ -123,7 +123,7 @@ The game is a real-time canvas simulation driven by `Math.random`, so most behav
 | HUD-04 | `render/hud.test.ts` | The `SHARE` button is drawn on both end screens only when a link is ready; it reads `COPIED` right after a copy | passing |
 | HUD-05 | `render/hud.test.ts` | The button sits inside the play field, in the top right corner | passing |
 | HUD-06 | `render/hud.test.ts` | The start screen shows a shared run: callsign, score, and `MADE IT HOME` with the crew saved for a run that went home, crew saved and distance for a lost one | passing |
-| HUD-07 | `render/hud.test.ts` | The start screen draws the title, the controls, the prompt and, at the foot, the version and the seed of the next run as six characters (`v0.4.3 · SEED 4F2A9C`); no other screen shows the seed | passing |
+| HUD-07 | `render/hud.test.ts` | The start screen draws the title, the controls, the prompt and, at the foot, the version and the seed of the next run as six characters (`v0.4.5 · SEED 4F2A9C`); no other screen shows the seed | passing |
 | HUD-11 | `render/hud.test.ts` | The leaderboard screen replaces the end screen: `TOP SCORES`, every row with rank, callsign, score and how many missions the run finished; a run that reached mission 7 also says how it ended, its parsecs there and the seats of its ship (left out for an entry without a ship); a way back | passing |
 | HUD-12 | `render/hud.test.ts` | The leaderboard link sits top left, clear of the share button, and is big enough to tap | passing |
 | HUD-10 | `render/hud.test.ts` | Between levels, under `MISSION N COMPLETE`: the same table as the end screens, a numbered row for every mission flown so far and `TOTAL`; `TAP TO CONTINUE` only when no ships are on offer | passing |
@@ -140,6 +140,21 @@ The game is a real-time canvas simulation driven by `Math.random`, so most behav
 | UPD-01 | `pwa/updates.test.ts` | Only the start screen allows an update; play, the stop between missions and the end screens do not | passing |
 | UPD-02 | `pwa/updates.test.ts` | An update found during a run waits, and is applied once, as soon as the game is on the start screen | passing |
 | UPD-03 | `pwa/updates.test.ts` | With no update waiting nothing is applied, on any screen | passing |
+| SND-01 | `sound/events.test.ts` | Crew taken aboard report one `save` each with the seat it fills, so a run of saves climbs; the one that fills the ship also reports `full`, once | passing |
+| SND-02 | `sound/events.test.ts` | Crew left behind report `missed` with how many: a planetoid drifting past with free seats, the crew on a rock that hits, and a crew member thrown off by a hit (after the `hit`); a full ship drifting past reports nothing. A `hit` carries the rock's size and how many shields are left | passing |
+| SND-03 | `sound/events.test.ts` | A shield arc taken reports `shield`; a wormhole reports `wormhole` once when it appears, and `enter` when flown into; the last way home reports `home`; a destroyed ship reports `destroyed`; a choice between missions reports `choice` with the ship chosen, and moving the fleet's mark reports `mark` | passing |
+| SND-04 | `sound/events.test.ts` | The simulation needs no audio and reads nothing for sound: the golden traces (GOLD-01 to GOLD-04) are unchanged | passing |
+| AUD-01 | `sound/sounds.test.ts` | Every event has a sound, and every sound's numbers sit in the one `SOUNDS` table; a save note rises with the seat; a bigger ship's click is lower; a crew member thrown off by a hit ends on the same falling note as one left behind; a bigger rock's hit is lower, louder and longer; a hit the shield takes cracks the shield, and a hit that takes the last shield also sounds a warning | passing |
+| AUD-02 | `sound/player.test.ts` | Nothing plays before the first tap or key; the first one starts the audio once; events then play their sounds | passing |
+| AUD-03 | `sound/player.test.ts` | Muting stops everything, is remembered on the device and read back next time; unmuting plays one click so the player hears sound is on | passing |
+| AUD-04 | `sound/player.test.ts` | Leaving the page suspends the audio and coming back resumes it, unless muted or never started | passing |
+| AUD-05 | `sound/player.test.ts` | During slow motion new sounds play lower, by the game's time scale, and at normal pitch once it ends | passing |
+| AUD-06 | `sound/player.test.ts` | While a wormhole is on the field a soft pulse repeats, louder as it nears the ship; it stops when the wormhole is gone | passing |
+| AUD-07 | `sound/player.test.ts` | Entering a wormhole and the ship being destroyed stop the sounds still playing before their own | passing |
+| AUD-08 | `sound/synth.test.ts` | A sound is built from oscillators and noise with the frequencies, lengths and loudness in its table entry, scaled by pitch, gain and stretch; noise with a frequency goes through a low-pass that sweeps from it to its end frequency; nothing is left connected after it ends | passing |
+| AUD-09 | `sound/sounds.test.ts` | The ship destroyed sounds like a blow: it starts at once with a sharp crack (noise whose low-pass starts high), a boom whose low-pass closes down to a rumble, and a deep thud falling below 50 Hz; it lasts over a second | passing |
+| MUTE-01 | `sound/muteButton.test.ts` | A small speaker icon sits in the top right corner of the start screen, inside the field, clear of the title and big enough to tap; it is shown nowhere else, and not at all where the browser has no Web Audio | passing |
+| MUTE-02 | `sound/muteButton.test.ts` | The icon shows sound waves when sound is on and a slash when muted, with no text | passing |
 
 ## Firestore rules — `test/rules/firestore.rules.test.ts`
 
@@ -158,6 +173,7 @@ The game is a real-time canvas simulation driven by `Math.random`, so most behav
 
 ## Checked by hand
 
+- Sound (2026-11-20): every sound auditioned in a browser through `window.__sound`, the mute icon on the start screen, and a run with sound on. **Not checked:** on a phone, or by the owner's ear.
 - Three ships (2026-11-20, v0.4.3): the stops after missions 2, 3 and 4, a run that declined at mission 2, and the fleet of three and of two, drawn headlessly with the game's own render code (the browser pane was hidden, which pauses the game): the ships stand inside their frames, mission 3 shows only the prompt, the fleet's heavy frame is on the ship in use, and nothing reaches the waiting ship. **Not checked:** on a phone or by hand; how the 8- and 12-seaters feel.
 - New ship numbers (2026-11-20, v0.4.2), on the dev server with the game driven through the debug hook and synthetic taps: mission 1 shows `CREW 0/4` and its results read as before; upgrading at every stop reaches ship 5; after mission 5 ships 4 and 5 stand inside their frames; the five-ship fleet fits above the waiting ship; in mission 6 the 18 pips sit in two rows of nine and ship 5 stops 35 field units from the edge. Seen: the `18 SAVED` label rises through the foot of the fleet's frames for about a second. **Not checked:** on a phone or by hand; how any ship feels; a two-crew pair flown in ship 5.
 - Five ships (2026-11-15, v0.4.0), on the dev server with the game driven through the debug hook and synthetic taps: after mission 1 a tap moves on in ship 1; after mission 2 the two framed ships appear under the table and a tap on the right upgrades; upgrading at every stop reaches the five-ship fleet after mission 6, which fits above the waiting ship with ship 5 marked; a tap in the middle column starts mission 7 in ship 3 with 8 seats. **Not checked:** on a phone, by hand, or with a real thumb; how any ship feels to fly; saving a run with ships to the live Firestore.

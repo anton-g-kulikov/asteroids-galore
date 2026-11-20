@@ -561,6 +561,108 @@ Agreed on 2026-11-20 and built the same day, not yet deployed. It replaces the f
 - **It was measured inside the four-ship run,** as the plans that never take the 18-seater. That is the same game as this ladder, but the ladder has not been flown as its own setup.
 - **Nobody has played it.** The pilot never parks to dig a well and flies every mission the same way. The stop screens were checked by drawing them with the game's own code, not on a phone.
 
+## Sound and effects
+
+Asked for by the owner on 2026-11-20. Step 1 of the [order of work](#order-of-work), the sound effects and the mute control, is built and live since 0.4.5; the rest is a proposal.
+
+### What the game did before sound
+
+| Event | On screen | On a phone that vibrates |
+|---|---|---|
+| Crew saved | Green dots fly from the planetoid to the ship, and `×n` rises | Short buzz |
+| Ship full | The crew count turns green and pulses | Nothing |
+| Crew left behind | Only the `MISSED` count changes | Nothing |
+| Hit by a rock | Sparks, the screen shakes, a crew member tumbles away, the shields blink | Double buzz |
+| Shield picked up | Cyan sparks | Short buzz |
+| Two crews, or a crew-or-shield row | Slow motion | Nothing |
+| Wormhole appears | The wormhole itself | Nothing |
+| Wormhole entered, next mission | A violet flash over the field | Double buzz |
+| Ship destroyed | Sparks and a longer shake | Long buzz |
+| Made it home | A violet flash | Longest buzz |
+| Speed rising | The stars stretch | Nothing |
+
+- **The costliest event is silent.** A crew member left behind takes 5% of the mission and shows only as a digit changing in the corner.
+- **Nothing announces a wormhole,** which appears at the top of the field while the player watches the rocks near the ship.
+
+### Rules for every sound and effect
+
+- **They say what happened, with no words.** A sound or an effect that needs a caption is the wrong one (see [Principle: show, don't tell](#principle-show-dont-tell)).
+- **They never change the deal.** Today's sparks, the crew beam and the engine flame are made inside the simulation and draw from the seeded numbers. That is the same on every device, but a new effect made the same way would change every run dealt after it and the golden traces. New effects are made in the drawing code with `Math.random`, and sound is played from events the simulation reports.
+- **Nothing hides a rock.** No effect is brighter than a rock's outline or drawn over one, and no sound masks the hit.
+- **Everything works with the sound off.** Each event is still readable on screen. Many people play a phone in silence.
+- **The look is on trial.** A "vector glow" look is being tried on its own branch; effects are drawn in whichever look is kept, so they wait for that choice.
+
+### Sound effects
+
+Built on 2026-11-20. Made in the browser with the Web Audio API when they are played: no files to download and no licences. Each sound is a handful of numbers in one table, `SOUNDS` in `src/audio/sounds.ts`, next to the few numbers that shape how events use them (`SAVE_STEP`, `MISSED_GAP`, `HIT`, `CLICK_PITCH`, `PULSE`, `MASTER`). Nobody has heard them yet: they are a first set, to be tuned by ear.
+
+| Event | Sound as built |
+|---|---|
+| Crew saved | A short square-wave blip; one per person, each a whole tone above the last as the seats fill |
+| Ship full | A soft major chord, once, just after the last save note |
+| Crew left behind | A low falling note, once per person, a beat apart |
+| Hit by a rock | Noise burst and a thud that scale with the rock: the smallest (radius 14) is short and high, the biggest (radius 50) long, low and loud (`HIT`); then a short falling crackle for the shield breaking |
+| The last shield taken | The same, with two falling warning beeps on top: the next hit destroys the ship |
+| Crew member thrown off by a hit | After the hit, the same falling note as a crew member left behind |
+| Seat opened by a hit | Nothing of its own: the hit says it |
+| Shield picked up | A bright rising sweep |
+| Two crews, or a crew-or-shield row | Every sound that starts during the slow motion plays lower, by the game's time scale, then at normal pitch again |
+| Wormhole appears | A soft low pulse, repeating every 0.9 seconds while it is on the field, louder as it nears the ship |
+| Wormhole entered | A sweep upward; it cuts off whatever is still playing |
+| Ship destroyed | A blow: a sharp crack, a boom whose low-pass closes down to a rumble over a second and a half, and a deep thud under both; it cuts off the rest |
+| Made it home | The save chord with an octave on top, held |
+| Keep or upgrade, fleet | A click for the choice, lower for a bigger ship; moving the fleet's mark is the same click, quieter |
+
+- **Pitch carries the count.** Save notes climb as the ship fills, so a player hears how full the ship is without looking.
+- **The two costs sound alike on purpose.** A crew member left behind and a crew member thrown off by a hit both cost 5%, so both end on the same falling note.
+- **The slow motion lowers new sounds only.** Sounds already playing keep their pitch; they are short, so the drop is heard at once.
+- **The deal does not change.** The simulation only appends events (`src/game/events.ts`) at the moments it already buzzed or counted; it never reads them back and they draw nothing from the seeded numbers. The golden traces came out identical. The sound code (`src/audio/`) reads the events, the slow motion and where the wormhole is, and writes nothing back.
+- **Trying a sound by ear:** `npm run dev` and open `/audition.html`: a button for every sound and for the events as the game plays them (three saves, filling the 12-seater, hits by small, middle and big rocks, a hit on the last shield, the pulse coming closer), with a box to hear them as in slow motion. The page is on the dev server only, not in the build. In the game itself, after one tap on the page, in the browser console, `__sound.play('save')` plays one sound (`__sound.play('save', 1.5)` higher), and `__sound.event({ kind: 'missed', count: 3 })` plays what an event sounds like. `__sound.sounds` lists the names.
+
+### Music
+
+- **One loop in layers.** The run is 5 to 12 minutes and gets faster, so the track loops cleanly and comes as three or four layers that play together. The game brings a layer in as the mission's speed rises and takes them out for the results screen.
+- **Where it comes from:** a commissioned track, with a licensed placeholder until it arrives. A ready-made track is rarely supplied in layers that loop. A generated track is possible if the plan it was made under allows use in a published game; the terms have to be read at the time.
+- **Mission 7 has no end of its own,** so its layers must hold for several minutes without a build that runs out.
+- **Files:** one compressed loop per layer, a few hundred kilobytes each. They are the first large files in an app that works offline, so they are fetched after the game is playable, and the game plays without them.
+
+### Effects to add
+
+| Event | Effect |
+|---|---|
+| Crew left behind | The planetoid's ring turns red and fades as it leaves the foot of the field |
+| Ship full | A pulse on the hull, to match the count in the corner |
+| Wormhole appears | The stars near it bend towards it, as the grid does for a well |
+| Wormhole entered | The stars streak to a point before the flash |
+| Shield lost | The front arc breaks into pieces that fly off |
+| Seat filled | The crew beam ends on the seat that turns green |
+
+Screen shake, the flash, the sparks and the stretching stars stay as they are.
+
+### Controls and limits
+
+- **A mute control,** built: a small speaker in the top right corner of the start screen, waves when sound is on and a cross when muted, with no word. A tap on it toggles sound and does not start a run. `M` on a keyboard toggles it anywhere, during a run too. The choice is remembered on the device. One mute covers everything; whether music gets its own is open.
+- **Where else it could go:** the start screen is the only place it is drawn, so a phone player cannot mute in the middle of a run. An icon on the end screens is the next place to try if that is missed.
+- **Where the browser has no Web Audio** there is no sound and no icon.
+- **Sound starts with the first tap or key.** Browsers block audio before the player touches the page.
+- **Leaving the page** suspends the sound; coming back resumes it, unless it is muted.
+- **Vibration stays** as it is and plays with the sounds.
+- **Flashes and shake** are already in the game; a way to reduce them for players who ask their device for less motion is open.
+- **Drawn outside the drawing code.** The icon is drawn by `src/audio/muteButton.ts` after the frame, so `src/render` does not change.
+
+### Order of work
+
+1. Sound effects and the mute control: no files, and they close the two silent events. **Built on 2026-11-20.**
+2. The effects for a crew member left behind and for the wormhole.
+3. Music, once a track exists.
+
+### Not decided
+
+- Steps 2 and 3: the effects and the music are proposed, not agreed.
+- How each sound should sound. The first set was made without anyone hearing it; the owner tunes it by ear.
+- Who makes the track, and what it should sound like.
+- Whether the first sounds wait for the look to be chosen.
+
 ## Tuning
 
 The main numbers sit in `src/game/tuning.ts`:

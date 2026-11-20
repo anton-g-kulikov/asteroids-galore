@@ -10,6 +10,7 @@ The game is drawn on a single canvas, on a play field of one fixed shape that is
 
 - **Touch:** hold the left side of the screen to fly left, the right side to fly right. Holding both keeps the ship straight; sliding a thumb across the middle switches direction.
 - **Keyboard:** arrow keys or A / D. Space or Enter starts a run.
+- **Sound:** starts with the first tap or key. The speaker in the top right of the start screen mutes it, and so does `M`; the choice is remembered on the device.
 
 ## Run locally
 
@@ -42,6 +43,7 @@ index.html          page shell; loads src/main.ts
 src/main.ts         wires the canvas, input events and the frame loop
 src/game/           rules and state: tuning, spawning, simulation, input, saved bests
 src/render/         drawing: playfield, sprites, HUD and end screens
+src/audio/          sound effects and the mute control
 src/pwa/            manifest and service-worker updates
 public/             favicon and app icons
 scripts/            icon generator

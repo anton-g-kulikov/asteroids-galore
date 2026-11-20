@@ -1,4 +1,8 @@
 import './style.css'
+import { drawMuteButton, muteButtonRect, showsMute } from './audio/muteButton'
+import { createSoundPlayer } from './audio/player'
+import { SOUNDS } from './audio/sounds'
+import { createWebAudio, hasWebAudio } from './audio/webAudio'
 import { startCloud } from './cloud'
 import { shareIdFromPath, shareMessage, shareResult, shareUrl } from './cloud/share'
 import { createDebugHook } from './debugHook'
@@ -25,6 +29,14 @@ const game = createGame(records)
 // null when Firebase is not configured; the board then stays empty and is not drawn
 const cloud = startCloud(records, rows => { game.board = rows })
 const input = createInput()
+
+// Sound follows what the simulation reports; nothing it does goes back into the game.
+// Browsers allow audio only after a tap or a key, so the first one starts it.
+const sound = createSoundPlayer({ storage: store, createAudio: createWebAudio })
+const canPlaySound = hasWebAudio()
+document.addEventListener('visibilitychange', () => sound.setHidden(document.visibilityState === 'hidden'))
+window.addEventListener('pagehide', () => sound.setHidden(true))
+window.addEventListener('pageshow', () => sound.setHidden(false))
 
 // Installed or not, the game keeps working offline after one visit. Only in a
 // production build: in development and tests there is no service worker.
@@ -104,6 +116,8 @@ if (sharedId) cloud?.loadShared(sharedId).then(run => { game.shared = run })
 // ---------- Input ----------
 window.addEventListener('pointerdown', e => {
   e.preventDefault()
+  sound.unlock()
+  if (showsMute(game, canPlaySound) && inside(e, muteButtonRect(game))) { sound.toggleMute(); return }   // not a start
   if (closeBoard()) return
   if (onBoardButton(e)) { game.boardOpen = true; return }
   if (onShareButton(e)) { sharePointer = e.pointerId; return }   // not a steer, not a restart
@@ -132,6 +146,8 @@ const sideOf = (key: string) =>
   key === 'ArrowRight' || key === 'd' || key === 'D' ? 'right' : null
 
 window.addEventListener('keydown', e => {
+  sound.unlock()
+  if (e.key === 'm' || e.key === 'M') { if (!e.repeat) sound.toggleMute(); return }
   if (e.key === 'Escape') { closeBoard(); return }
   const side = sideOf(e.key)
   if (side) { input.key(side, true); if (!e.repeat) chooseSide(game, side === 'left' ? -1 : 1) }
@@ -169,9 +185,18 @@ function frame(now: number) {
   while (owed >= STEP - 1e-9) { owed -= STEP; step() }
   game.shareNote = Math.max(0, game.shareNote - dt)
   updater?.tick(game.state)
+  sound.frame(game, dt)
   render(ctx, game)
+  if (showsMute(game, canPlaySound)) drawMuteButton(ctx, game, sound.muted)
   requestAnimationFrame(frame)
 }
 requestAnimationFrame(frame)
 
 window.__game = createDebugHook(game)
+// For tuning the sounds by ear, after one tap on the page: `__sound.play('save')`,
+// `__sound.play('save', 1.5)` for a higher one, or `__sound.event({ kind: 'missed', count: 3 })`.
+window.__sound = {
+  sounds: Object.keys(SOUNDS),
+  play: (name: keyof typeof SOUNDS, pitch = 1) => sound.audition(name, pitch),
+  event: (e: Parameters<typeof sound.audition>[0]) => sound.audition(e),
+}
