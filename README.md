@@ -11,6 +11,7 @@ The game is drawn on a single canvas, on a play field of one fixed shape that is
 - **Touch:** hold the left side of the screen to fly left, the right side to fly right. Holding both keeps the ship straight; sliding a thumb across the middle switches direction.
 - **Keyboard:** arrow keys or A / D. Space or Enter starts a run.
 - **Sound:** starts with the first tap or key. The speaker in the top right of the start screen and of the stops between missions mutes it, and so does `M`; the choice is remembered on the device.
+- **Frame rate:** the gauge in the top left of the start screen shows how many frames a second the device draws, in the bottom left corner; tap it again to hide it.
 
 ## Run locally
 
@@ -64,7 +65,7 @@ The game is a progressive web app. On a phone it can be added to the home screen
 
 - **Offline:** a service worker precaches the whole build, so after one visit the game loads and plays without a network, share links included. Finished runs are saved once the network is back.
 - **Updates:** a new version downloads in the background and is applied on the start screen, never during a run; otherwise it takes over at the next launch. Hosting serves `sw.js` and the manifest uncached, so a deploy reaches players.
-- **Where it lives:** the manifest in `src/pwa/manifest.ts`, the update rule in `src/pwa/updates.ts`, the service worker settings in `vite.config.ts`. The icons are drawn from the game's ship by `scripts/make-icons.mjs` (`npm run icons`, needs ImageMagick).
+- **Where it lives:** the manifest in `src/pwa/manifest.ts`, the update rule in `src/pwa/updates.ts`, the service worker settings in `vite.config.ts`. The icons are drawn from the game's ship, in its vector glow look, by `scripts/make-icons.mjs` (`npm run icons`, needs ImageMagick).
 - **Development:** `npm run dev` has no service worker. To try it, `npm run build && npm run preview`.
 
 ## Leaderboard

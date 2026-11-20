@@ -123,7 +123,7 @@ The game is a real-time canvas simulation driven by `Math.random`, so most behav
 | HUD-04 | `render/hud.test.ts` | The `SHARE` button is drawn on both end screens only when a link is ready; it reads `COPIED` right after a copy | passing |
 | HUD-05 | `render/hud.test.ts` | The button sits inside the play field, in the top right corner | passing |
 | HUD-06 | `render/hud.test.ts` | The start screen shows a shared run: callsign, score, and `MADE IT HOME` with the crew saved for a run that went home, crew saved and distance for a lost one | passing |
-| HUD-07 | `render/hud.test.ts` | The start screen draws the title, the controls, the prompt and, at the foot, the version and the seed of the next run as six characters (`v0.4.6 · SEED 4F2A9C`); no other screen shows the seed | passing |
+| HUD-07 | `render/hud.test.ts` | The start screen draws the title, the controls, the prompt and, at the foot, the version and the seed of the next run as six characters (`v0.4.7 · SEED 4F2A9C`); no other screen shows the seed | passing |
 | HUD-11 | `render/hud.test.ts` | The leaderboard screen replaces the end screen: `TOP SCORES`, every row with rank, callsign, score and how many missions the run finished; a run that reached mission 7 also says how it ended, its parsecs there and the seats of its ship (left out for an entry without a ship); a way back | passing |
 | HUD-12 | `render/hud.test.ts` | The leaderboard link sits top left, clear of the share button, and is big enough to tap | passing |
 | HUD-10 | `render/hud.test.ts` | Between levels, under `MISSION N COMPLETE`: the same table as the end screens, a numbered row for every mission flown so far and `TOTAL`; `TAP TO CONTINUE` only when no ships are on offer | passing |
@@ -156,6 +156,10 @@ The game is a real-time canvas simulation driven by `Math.random`, so most behav
 | MUTE-01 | `sound/muteButton.test.ts` | A small speaker icon sits in the top right corner of the start screen and of the results screens between missions, inside the field, clear of the title and big enough to tap; it is not shown in flight or on the end screens, and not at all where the browser has no Web Audio | passing |
 | MUTE-02 | `sound/muteButton.test.ts` | The icon shows sound waves when sound is on and a slash when muted, with no text | passing |
 | MUTE-03 | `sound/muteButton.test.ts` | A tap on the icon is only a mute: on the start screen it does not start a run, and between missions it neither chooses a ship nor moves on; a tap anywhere else, or where the icon is not shown, is not taken | passing |
+| FPS-01 | `fps/meter.test.ts` | The frame meter reads frames drawn per second over the last half second, and the slowest single frame of the last 3 seconds as a rate: steady 60 Hz reads 60 and 60, 30 Hz reads 30; one 100 ms frame among 60 Hz shows a low near 10 for 3 seconds, then recovers; with no frames yet there is no reading | passing |
+| FPS-02 | `fps/meter.test.ts` | The switch is off by default, toggles, is remembered on the device and read back next time; a storage that throws does not break it | passing |
+| FPS-03 | `fps/fpsButton.test.ts` | A small gauge icon sits in the top left corner of the start screen, mirroring the mute speaker, inside the field, clear of the title and big enough to tap; it is shown nowhere else; a tap on it only toggles the switch | passing |
+| FPS-04 | `fps/fpsButton.test.ts` | When the switch is on the reading is drawn on every screen, small, in the star colour, in the left corner just above the progress bar and below the ship; when it is off, or before there is a reading, nothing is drawn | passing |
 
 ## Firestore rules — `test/rules/firestore.rules.test.ts`
 
@@ -174,6 +178,7 @@ The game is a real-time canvas simulation driven by `Math.random`, so most behav
 
 ## Checked by hand
 
+- Frame-rate display (2026-11-21): the gauge icon on the start screen and the reading in flight, in a browser on the dev server. **Not checked:** on a phone, which is what it is for.
 - Sound (2026-11-20): every sound auditioned in a browser through `window.__sound`, the mute icon on the start screen, and a run with sound on. **Not checked:** on a phone, or by the owner's ear.
 - Three ships (2026-11-20, v0.4.3): the stops after missions 2, 3 and 4, a run that declined at mission 2, and the fleet of three and of two, drawn headlessly with the game's own render code (the browser pane was hidden, which pauses the game): the ships stand inside their frames, mission 3 shows only the prompt, the fleet's heavy frame is on the ship in use, and nothing reaches the waiting ship. **Not checked:** on a phone or by hand; how the 8- and 12-seaters feel.
 - New ship numbers (2026-11-20, v0.4.2), on the dev server with the game driven through the debug hook and synthetic taps: mission 1 shows `CREW 0/4` and its results read as before; upgrading at every stop reaches ship 5; after mission 5 ships 4 and 5 stand inside their frames; the five-ship fleet fits above the waiting ship; in mission 6 the 18 pips sit in two rows of nine and ship 5 stops 35 field units from the edge. Seen: the `18 SAVED` label rises through the foot of the fleet's frames for about a second. **Not checked:** on a phone or by hand; how any ship feels; a two-crew pair flown in ship 5.

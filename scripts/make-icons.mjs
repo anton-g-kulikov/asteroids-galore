@@ -1,31 +1,53 @@
-// Draws the app icons: the game's ship, flying up through a faint grid with a
-// rock passing by. Writes SVGs to public/ and renders the PNGs with ImageMagick.
-// Run with `npm run icons` after changing the ship.
+// Draws the app icons in the game's vector glow look: the ship in lines of
+// light, flying up through the violet grid with a rock passing by. Writes SVGs to public/ and renders the PNGs with ImageMagick.
+// Run with `npm run icons` after changing the ship or the look.
 import { execFileSync } from 'node:child_process'
 import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 
-const BG = '#05060d'
+const BG = '#000000'
+const LINE = '#5ff5ff'
 
-// The ship as drawSpaceship in src/render/sprites.ts draws it, nose up, centred on (0, 0).
-function ship(r) {
-  const p = (...xy) => xy.map(v => +(v * r).toFixed(2)).join(' ')
-  return `
-    <path fill="#ffb347" d="M${p(-0.32, 0.75)} L${p(0, 2.0)} L${p(0.32, 0.75)} Z"/>
-    <path fill="#3d7dd8" d="M${p(0, -0.2)} L${p(1.15, 0.95)} L${p(0.3, 0.7)} L${p(-0.3, 0.7)} L${p(-1.15, 0.95)} Z"/>
-    <path fill="#e8eefc" d="M${p(0, -1.35)} Q${p(0.55, -0.2)} ${p(0.42, 0.85)} L${p(-0.42, 0.85)} Q${p(-0.55, -0.2)} ${p(0, -1.35)} Z"/>
-    <ellipse fill="#39c6ff" cx="0" cy="${(-0.35 * r).toFixed(2)}" rx="${(0.2 * r).toFixed(2)}" ry="${(0.38 * r).toFixed(2)}"/>`
+// A glow every renderer draws the same way (ImageMagick ignores SVG filters):
+// the shapes' outlines again, wider and fainter each time, under the shapes.
+function halo(color, width, spread, shapes) {
+  const rings = [1, 2, 3, 4, 5, 6, 7, 8].map(i =>
+    `<g stroke-width="${(width + 2 * spread * (i / 8) ** 1.6).toFixed(2)}">${shapes}</g>`).join('')
+  return `<g fill="none" stroke="${color}" stroke-opacity=".075" stroke-linejoin="round" stroke-linecap="round">${rings}</g>`
 }
 
+// The ship as drawHull in src/render/sprites.ts draws it, nose up, centred on
+// (0, 0): black inside, lines of light, a full crew of four in ship 1's seats.
+function ship(r, { seats = true, line = 0.09 } = {}) {
+  const p = (...xy) => xy.map(v => +(v * r).toFixed(2)).join(' ')
+  const n = v => (v * r).toFixed(2)
+  const dots = seats ? [[-0.18, 0.6], [0.18, 0.6], [-0.18, 0.24], [0.18, 0.24]]
+    .map(([x, y]) => `<circle cx="${n(x)}" cy="${n(y)}" r="${n(0.13)}"/>`).join('') : ''
+  const flame = `<path d="M${p(-0.32, 0.75)} L${p(0, 2.0)} L${p(0.32, 0.75)} Z"/>`
+  const hull = `<path d="M${p(0, -0.2)} L${p(1.15, 0.95)} L${p(0.3, 0.7)} L${p(-0.3, 0.7)} L${p(-1.15, 0.95)} Z"/>
+      <path d="M${p(0, -1.35)} Q${p(0.55, -0.2)} ${p(0.42, 0.85)} L${p(-0.42, 0.85)} Q${p(-0.55, -0.2)} ${p(0, -1.35)} Z"/>`
+  return `
+    ${halo('#ffe66b', 0, r * 0.3, flame)}<g fill="#ffe66b">${flame}</g>
+    ${halo(LINE, r * line, r * 0.3, hull)}
+    <g fill="${BG}" stroke="${LINE}" stroke-width="${n(line)}" stroke-linejoin="round">${hull}</g>
+    <ellipse fill="${LINE}" cx="0" cy="${n(-0.62)}" rx="${n(0.17)}" ry="${n(0.27)}"/>
+    ${halo('#5dffa0', 0, r * 0.1, dots)}<g fill="#5dffa0">${dots}</g>`
+}
+
+// A rock as drawRockBody draws it: dark inside, a bright outline, craters as thin rings.
 function rock(x, y, r) {
   const pts = [1, 0.86, 1.04, 0.8, 0.98, 0.9, 1.06, 0.84, 0.95, 1.02].map((k, i, a) => {
     const t = (i / a.length) * Math.PI * 2
     return `${(x + Math.cos(t) * r * k).toFixed(1)},${(y + Math.sin(t) * r * k).toFixed(1)}`
   })
-  return `<polygon points="${pts.join(' ')}" fill="#8b8f9c" stroke="#5b5f6b" stroke-width="${(r * 0.12).toFixed(1)}"/>
-    <circle cx="${x - r * 0.3}" cy="${y - r * 0.15}" r="${r * 0.22}" fill="#5b5f6b"/>
-    <circle cx="${x + r * 0.28}" cy="${y + r * 0.3}" r="${r * 0.14}" fill="#5b5f6b"/>`
+  const body = `<polygon points="${pts.join(' ')}"/>`
+  return `${halo('#9fb4b0', r * 0.1, r * 0.3, body)}
+    <g fill="#2b3634" stroke="#9fb4b0" stroke-width="${(r * 0.1).toFixed(1)}" stroke-linejoin="round">${body}</g>
+    <g fill="none" stroke="#9fb4b0" stroke-opacity=".6" stroke-width="${(r * 0.06).toFixed(1)}">
+      <circle cx="${x - r * 0.3}" cy="${y - r * 0.15}" r="${r * 0.22}"/>
+      <circle cx="${x + r * 0.28}" cy="${y + r * 0.3}" r="${r * 0.14}"/>
+    </g>`
 }
 
 /** `scale` shrinks the artwork towards the centre, for the maskable icon's safe zone. */
@@ -40,14 +62,14 @@ function icon({ size = 512, scale = 1, rounded = false, details = true } = {}) {
     }
   }
   const stars = details ? [[70, 90, 2.5], [430, 70, 2], [400, 300, 2.5], [90, 400, 2], [150, 230, 1.6], [360, 440, 1.8], [250, 40, 1.5]]
-    .map(([x, y, r]) => `<circle cx="${x}" cy="${y}" r="${r}" fill="#cfe0ff" opacity=".8"/>`).join('') : ''
+    .map(([x, y, r]) => `<circle cx="${x}" cy="${y}" r="${r}" fill="#7fa8a2"/>`).join('') : ''
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
   <rect width="${size}" height="${size}" fill="${BG}"${rounded ? ` rx="${size * 0.22}"` : ''}/>
-  <g stroke="#6ea0ff" stroke-opacity=".16" stroke-width="${(2 * k).toFixed(2)}">${grid.join('')}</g>
+  <g stroke="#968cff" stroke-opacity=".3" stroke-width="${(2 * k).toFixed(2)}">${grid.join('')}</g>
   <g transform="translate(${c} ${c}) scale(${k}) translate(-256 -256)">
     ${stars}
     ${details ? rock(392, 160, 46) : ''}
-    <g transform="translate(256 222)">${ship(118)}</g>
+    <g transform="translate(256 222)">${ship(118, details ? {} : { seats: false, line: 0.14 })}</g>
   </g>
 </svg>
 `

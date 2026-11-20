@@ -663,6 +663,19 @@ Screen shake, the flash, the sparks and the stretching stars stay as they are.
 - Who makes the track, and what it should sound like.
 - Whether the first sounds wait for the look to be chosen.
 
+## Frame rate display and new icons
+
+Asked for by the owner on 2026-11-20. Both are built and live since 0.4.7 (2026-11-21).
+
+- **Why.** The vector-glow look went live in 0.4.4 without its frame rate being checked on a phone. The game steps at a fixed rate whatever the screen does, but a phone that draws few frames is harder to fly.
+- **A frame rate control on the start screen (live since 0.4.7).** The owner's words: "add a frame rate control to the start screen and show it if switched on". Built as a switch for a display, not a limiter:
+  - **The switch** is a small gauge, a dial with a needle and no word, in the top left corner of the start screen. It mirrors the mute speaker in the top right: the same row, size and brightness, and cyan while on. A tap on it only flips the switch and does not start a run. It is off by default and remembered on the device.
+  - **The reading,** when on, is shown on every screen, in flight included, as for example `58 FPS · LOW 41`. It is small monospace text in the star colour, in the bottom left corner just above the progress bar, below the ship. The first number is frames drawn per second over the last half second; `LOW` is the slowest single frame of the last 3 seconds as a rate, which shows a stutter. Drawn on every kind of screen, it overlaps nothing: the play field has a fixed shape, so a short phone scales it rather than rearranging it.
+  - **It counts frames drawn,** not simulation steps, which stay at a fixed 1/60 s. A gap of a second or more, such as the tab coming back, is not counted as a frame. Nothing in the simulation changes. With the switch off a frame is drawn as before, apart from the gauge itself on the start screen.
+  - **In code:** `src/fps/meter.ts` (the meter and the switch) and `src/fps/fpsButton.ts` (the gauge and the reading), drawn after the frame like the mute speaker, so `src/render` does not change.
+- **The logo and the favicon are redrawn in the vector-glow look (live since 0.4.7).** The app icons (`public/icons`) and `public/favicon.svg` show the ship as the game draws it: a black hull in cyan lines of light with a cyan cockpit and a yellow flame, on the black field. The large icons also show ship 1's four seats full (green dots), the violet grid, a few stars and one dark-filled rock; the favicon is the ship alone with a heavier line, so it reads at 16 px. The glow is drawn as wider, fainter copies of each outline, because ImageMagick ignores SVG filters. `npm run icons` redraws them. A phone that has the game installed keeps its old icon until the phone refreshes it.
+- **Still open:** whether the owner also wants a way to cap or lower the frame rate; this builds only the display.
+
 ## Tuning
 
 The main numbers sit in `src/game/tuning.ts`:

@@ -3,6 +3,8 @@ import { drawMuteButton, onMuteButton, showsMute } from './audio/muteButton'
 import { createSoundPlayer } from './audio/player'
 import { SOUNDS } from './audio/sounds'
 import { createWebAudio, hasWebAudio } from './audio/webAudio'
+import { drawFpsButton, drawFpsReading, onFpsButton, showsFpsButton } from './fps/fpsButton'
+import { createFpsSwitch, createFrameMeter } from './fps/meter'
 import { startCloud } from './cloud'
 import { shareIdFromPath, shareMessage, shareResult, shareUrl } from './cloud/share'
 import { createDebugHook } from './debugHook'
@@ -34,6 +36,11 @@ const input = createInput()
 // Browsers allow audio only after a tap or a key, so the first one starts it.
 const sound = createSoundPlayer({ storage: store, createAudio: createWebAudio })
 const canPlaySound = hasWebAudio()
+
+// The frame-rate display: off by default, switched by the gauge on the start screen.
+// It counts frames drawn, and never touches the simulation.
+const fps = createFpsSwitch(store)
+const frames = createFrameMeter()
 document.addEventListener('visibilitychange', () => sound.setHidden(document.visibilityState === 'hidden'))
 window.addEventListener('pagehide', () => sound.setHidden(true))
 window.addEventListener('pageshow', () => sound.setHidden(false))
@@ -117,6 +124,8 @@ if (sharedId) cloud?.loadShared(sharedId).then(run => { game.shared = run })
 window.addEventListener('pointerdown', e => {
   e.preventDefault()
   sound.unlock()
+  // the frame-rate switch: only a switch, not a start
+  if (onFpsButton(game, (e.clientX - view.x) / view.scale, (e.clientY - view.y) / view.scale)) { fps.toggle(); return }
   // only a mute: not a start, a steer, a choice of ship or a move on
   if (onMuteButton(game, (e.clientX - view.x) / view.scale, (e.clientY - view.y) / view.scale, canPlaySound)) { sound.toggleMute(); return }
   if (closeBoard()) return
@@ -179,7 +188,9 @@ function step() {
 
 let last = performance.now(), owed = 0
 function frame(now: number) {
-  let dt = Math.min(0.25, (now - last) / 1000)   // clamp: no jumps after tab switch
+  const raw = (now - last) / 1000
+  if (raw < 1) frames.frame(raw)                 // a frame actually drawn; a long gap is the tab coming back, not a stutter
+  let dt = Math.min(0.25, raw)                   // clamp: no jumps after tab switch
   last = now
   if (Math.abs(dt - STEP) < 0.002) dt = STEP     // a 60 Hz screen: exactly one step per frame, no stutter
   owed += dt
@@ -189,6 +200,8 @@ function frame(now: number) {
   sound.frame(game, dt)
   render(ctx, game)
   if (showsMute(game, canPlaySound)) drawMuteButton(ctx, game, sound.muted)
+  if (showsFpsButton(game)) drawFpsButton(ctx, game, fps.on)
+  if (fps.on) drawFpsReading(ctx, game, frames.reading())   // on every screen: it sits alone in the bottom left corner
   requestAnimationFrame(frame)
 }
 requestAnimationFrame(frame)
