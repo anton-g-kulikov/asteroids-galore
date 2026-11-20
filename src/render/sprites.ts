@@ -300,7 +300,7 @@ export function drawGrid(ctx: CanvasRenderingContext2D, g: Game): void {
       if (x === -seg) ctx.moveTo(px, py); else ctx.lineTo(px, py)
     }
   }
-  ctx.strokeStyle = `rgba(${Math.round(60 + 140 * c)},${Math.round(230 - 90 * c)},${Math.round(200 + 55 * c)},${0.08 + 0.4 * c})`
+  ctx.strokeStyle = `rgba(${Math.round(110 + 90 * c)},${Math.round(160 - 30 * c)},255,${0.07 + 0.38 * c})`
   ctx.lineWidth = 1 + c * 0.6
   ctx.stroke()
 }

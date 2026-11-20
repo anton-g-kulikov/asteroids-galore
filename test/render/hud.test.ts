@@ -112,17 +112,18 @@ test('HUD-03 no board, or an empty one: no link and no board', () => {
 
 const banked = [{ level: 1, ship: 1, saved: 3, missed: 0, distance: 400 }]
 
-test('HUD-13 the mission counter is out of 7, and spare shields add to the row', () => {
+test('HUD-13 in play: the mission out of 7 top left, one dot per seat top right, and no row of shields', () => {
   expect(drawnText('play', null, { level: 5 })).toContain('MISSION 5/7')
-  const arcs = (shields: number) => {
+  const dots = (shipType: number, shields: number) => {
     const g = createGame(createRecords(null))
-    Object.assign(g, { state: 'play', shields })
+    Object.assign(g, { state: 'play', shipType, shields, time: 9 })
     let n = 0
-    const ctx = new Proxy({}, { get: (_t, prop) => (...args: unknown[]) => { if (prop === 'arc' && args[2] === 7) n++ }, set: () => true }) as CanvasRenderingContext2D
+    const ctx = new Proxy({}, { get: (_t, prop) => (...args: unknown[]) => { void args; if (prop === 'arc') n++ }, set: () => true }) as CanvasRenderingContext2D
     drawHud(ctx, g)
     return n
   }
-  expect([0, 2, 3, 5].map(arcs)).toEqual([3, 3, 3, 5])
+  expect([1, 2, 3].map(s => dots(s, 3))).toEqual([4, 8, 12])   // the seats, and nothing else round
+  expect(dots(2, 5)).toBe(8)                                    // shields are read off the ship, not the HUD
 })
 
 test('HUD-14 the crew count is yellow while seats are free and green when the ship is full, and swells as it fills', () => {
@@ -147,7 +148,8 @@ test('HUD-14 the crew count is yellow while seats are free and green when the sh
 test('HUD-08 during a run the big number is the score, not the distance', () => {
   expect(drawnText('play', null, { distance: 400, saved: 0 })).not.toContain('0')   // nothing saved, nobody aboard: no number at all
   const text = drawnText('play', null, { distance: 400.9, saved: 3, missed: 1, results: banked })
-  expect(text).toEqual(expect.arrayContaining(['1,200', 'SAVED 3', 'MISSED 1']))
+  expect(text).toContain('1,200')
+  expect(text.some(t => /^(SAVED|MISSED|BEST) /.test(t))).toBe(false)   // those wait for the table between missions
   expect(text).not.toContain('400 pc')
 })
 

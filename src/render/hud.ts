@@ -1,9 +1,9 @@
 import { seedName } from '../game/random'
 import { missedPercent, missionScore, pendingScore, scoreOf } from '../game/score'
 import { isFleet, offer } from '../game/game'
-import { LAST_LEVEL, SHIELDS, levelTarget, shipRadius, shipSeats } from '../game/tuning'
+import { LAST_LEVEL, levelTarget, shipRadius, shipSeats } from '../game/tuning'
 import type { BoardRow, Game, LevelResult, RunEnd, SharedRun } from '../game/types'
-import { SHIELD_COLOR, SHIELD_SPREAD, drawHull } from './sprites'
+import { drawHull } from './sprites'
 import { text } from './text'
 
 /** Scores get long: 25680 reads better as 25,680. */
@@ -28,55 +28,36 @@ function drawTouchHints(ctx: CanvasRenderingContext2D, g: Game, alpha: number): 
 }
 
 function drawPlayHud(ctx: CanvasRenderingContext2D, g: Game, top: number): void {
-  const { W, U } = g
-  // One number at a time. With crew on board it is what they are worth, in
-  // green with a plus: banked at the next wormhole, gone if the ship is lost
-  // first. With the seats empty it is the score. Before anything is banked and
-  // with nobody aboard there is no number to show.
-  const score = scoreOf(g), pending = g.onboard ? pendingScore(g) : 0
-  if (pending) text(ctx, `+${fmt(pending)}`, W / 2, top, 34 * U, 'rgba(93,255,160,.9)')
-  else if (score) text(ctx, fmt(score), W / 2, top, 34 * U, '#ffffff')
-  if (g.records.best) text(ctx, `BEST ${fmt(g.records.best)}`, W - 14, top - 8 * U, 13 * U, 'rgba(255,255,255,.55)', 'right', 600)
+  const { W, H, U } = g
+  // Top left: the mission, and under it one number at a time. With crew on
+  // board it is what they are worth, in green with a plus: banked at the next
+  // wormhole, gone if the ship is lost first. With the seats empty it is the
+  // score. Before anything is banked and with nobody aboard there is no number.
   text(ctx, `MISSION ${g.level}/${LAST_LEVEL}`, 14, top - 8 * U, 13 * U, 'rgba(127,220,255,.9)', 'left', 700)
-  // shields: one arc each, under the best distance, the same shape as the
-  // arcs ahead of the ship; spent ones are faint, and spares found on the way
-  // add to the row
-  ctx.lineCap = 'round'
-  for (let i = 0; i < Math.max(SHIELDS, g.shields); i++) {
-    const sr = 7 * U, sx = W - 14 - sr - i * sr * 2.5, sy = top + 38 * U
-    ctx.beginPath(); ctx.arc(sx, sy, sr, -Math.PI / 2 - SHIELD_SPREAD, -Math.PI / 2 + SHIELD_SPREAD)
-    ctx.strokeStyle = i < g.shields ? SHIELD_COLOR : 'rgba(127,220,255,.2)'
-    ctx.lineWidth = (i < g.shields ? 2.6 : 1.4) * U
-    ctx.stroke()
-  }
-  ctx.lineCap = 'butt'
-  text(ctx, `SAVED ${g.saved}`, 14, top + 12 * U, 11 * U, '#5dffa0', 'left', 700)
-  text(ctx, `MISSED ${g.missed}`, 14, top + 28 * U, 11 * U, '#ff7b54', 'left', 700)
+  const score = scoreOf(g), pending = g.onboard ? pendingScore(g) : 0
+  if (pending) text(ctx, `+${fmt(pending)}`, 14, top + 18 * U, 24 * U, 'rgba(93,255,160,.9)', 'left')
+  else if (score) text(ctx, fmt(score), 14, top + 18 * U, 24 * U, '#ffffff', 'left')
 
-  // level progress: points bar, then "hold on" if the minimum time isn't up yet
-  const target = levelTarget(g.level), bw = 150 * U, bh = 5 * U, bx = W / 2 - bw / 2, by = top + 10 * U
-  ctx.fillStyle = 'rgba(255,255,255,.18)'
-  ctx.beginPath(); ctx.roundRect(bx, by, bw, bh, bh / 2); ctx.fill()
-  ctx.fillStyle = '#7fdcff'
-  ctx.beginPath(); ctx.roundRect(bx, by, bw * Math.min(1, g.levelScore / target), bh, bh / 2); ctx.fill()
-  text(ctx, `${Math.min(target, Math.floor(g.levelScore))} / ${target} pc`, bx + bw + 8 * U, by + bh + 1 * U, 11 * U, 'rgba(255,255,255,.6)', 'left', 600)
-
-  // ship capacity: one seat per pip, filled as crew come aboard
-  // the biggest ship's crew sit in two rows, to stay clear of the counts on
-  // the left and the shields on the right
-  const cap = shipSeats(g.shipType), rows = cap > 12 ? 2 : 1, per = Math.ceil(cap / rows)
-  const step = Math.min(14 * U, 190 * U / per), pw = step * 0.68, ph = 9 * U, gap = 4 * U
-  const px = W / 2 - (per * step - (step - pw)) / 2, py = by + bh + 9 * U
-  // Yellow means seats still free, green means crew: the count is yellow
+  // Top right: the crew on board out of the seats, and one dot per seat under
+  // it. Yellow means seats still free, green means crew: the count is yellow
   // until the ship is full and then green, like every seat. It swells for a
   // moment as it fills, so the change does not rest on colour alone.
+  const cap = shipSeats(g.shipType)
   const full = g.onboard >= cap, pulse = full ? Math.max(0, 1 - g.fullFor / 0.5) : 0
-  text(ctx, `CREW ${g.onboard}/${cap}`, W / 2, py + rows * (ph + gap) - gap + 14 * U, (11 + 5 * pulse) * U, full ? '#5dffa0' : '#ffd166', 'center', 700)
+  text(ctx, `CREW ${g.onboard}/${cap}`, W - 14, top - 8 * U, (13 + 5 * pulse) * U, full ? '#5dffa0' : '#ffd166', 'right', 700)
+  const step = 11 * U, pr = 3.6 * U, px = W - 14 - pr - (cap - 1) * step, py = top + 8 * U
   for (let i = 0; i < cap; i++) {
-    ctx.beginPath(); ctx.roundRect(px + (i % per) * step, py + Math.floor(i / per) * (ph + gap), pw, ph, pw * 0.3)
+    ctx.beginPath(); ctx.arc(px + i * step, py, pr, 0, Math.PI * 2)
     if (i < g.onboard) { ctx.fillStyle = '#5dffa0'; ctx.fill() }
     else { ctx.strokeStyle = 'rgba(255,209,102,.6)'; ctx.lineWidth = 1.2 * U; ctx.stroke() }
   }
+
+  // Along the foot of the field: how far the mission's target is.
+  const target = levelTarget(g.level), bw = W - 28, bh = 4 * U, bx = 14, by = H - 16 * U
+  ctx.fillStyle = 'rgba(255,255,255,.18)'
+  ctx.fillRect(bx, by, bw, bh)
+  ctx.fillStyle = '#7fdcff'
+  ctx.fillRect(bx, by, bw * Math.min(1, g.levelScore / target), bh)
 
   if (g.time < 3.5) drawTouchHints(ctx, g, 0.35 * Math.min(1, 3.5 - g.time))
 }

@@ -33,7 +33,7 @@ Saving the stranded crew is what the game is about, and the score says so. Every
 
 None of this is explained to the player. It is shown:
 
-- **During a run** there is one big number at a time. With crew on board it is green with a plus, `+700`: what they are worth right now — this mission's parsecs × crew on board, less what the mission has missed — which is what the next wormhole will bank; it grows as the ship flies on and drops when a crew is missed. With the seats empty it is the score, in white. Before anything is banked and with nobody aboard there is no number at all, never a `0`. `SAVED` and `MISSED` are counted in the corner; the seats on the ship and the pips under the progress bar show who is on board and still at risk.
+- **During a run** there is one big number at a time. With crew on board it is green with a plus, `+700`: what they are worth right now — this mission's parsecs × crew on board, less what the mission has missed — which is what the next wormhole will bank; it grows as the ship flies on and drops when a crew is missed. With the seats empty it is the score, in white. Before anything is banked and with nobody aboard there is no number at all, never a `0`. The number sits top left under `MISSION n/7`. Since the vector glow look (2026-11-20) `SAVED`, `MISSED` and the best score are not shown during play: they wait for the table between missions. The seats on the ship and the dots top right show who is on board and still at risk, and a thin bar along the foot of the field shows how far the mission's target is.
 - **On the end screen** a table lists every mission played as a sum of its own — distance, crew saved, what the missed cost, score — and the run's score, which is those scores added up, is printed below it with the best right under it. Crew who were not saved have a section of their own, `NOT SAVED`: `3 WENT DOWN WITH THE SHIP` in orange if anyone did, and the number missed (see [Between levels](#between-levels)).
 
 There is one best, the highest score, saved on the device together with how that run ended; the end screen shows `NEW BEST!` when it is beaten. Bests from before the seven-mission rules are not comparable and are not read.
@@ -56,7 +56,7 @@ Whoever opens the link gets the ordinary start screen with the shared run under 
 
 ## Shields
 
-Each level starts with at least 3 shields (`SHIELDS`), and a ship holds at most 5 (`MAX_SHIELDS`). They are shown in two places, with the same shape: as arcs stacked ahead of the ship's nose, and as a row of arcs under the best score, where spent ones turn faint. There is no caption.
+Each level starts with at least 3 shields (`SHIELDS`), and a ship holds at most 5 (`MAX_SHIELDS`). They are shown as arcs stacked ahead of the ship's nose. Until the vector glow look (2026-11-20) a row of arcs in the HUD repeated them; now the ship is the only place. There is no caption.
 
 - **Taking a hit:** hitting a rock burns one shield — the outermost arc disappears — and throws one crew member off the ship, if anyone is aboard. The player sees the figure tumble away from the ship and fade, a seat go dark and the `MISSED` count move; there is no caption. That person counts as one missed, and the seat is free again, so the ship gets a little lighter. With nobody aboard a hit costs only the shield. Otherwise the run carries on where it is: same level, same parsecs, same speed. See [A hit costs a crew member](#a-hit-costs-a-crew-member) for why.
 - **The rock that hit** is destroyed. Only asteroids hit: planetoids are harmless (see [Rescue missions](#rescue-missions)).
@@ -152,7 +152,7 @@ Later missions' planetoids carry more people, not more planetoids, so the sky st
 
 - **Capacity:** the ship takes only as many people as it has free seats; the rest stay on the planetoid. When the ship is full the rings of any planetoid still on the field turn grey and lose their `SOS` label, and no more planetoids are sent until a seat opens (see [A full ship sees no crew](#a-full-ship-sees-no-crew)); nothing spells out why.
 - **The count.** `CREW n/N` is yellow while there are free seats, and so are the outlines of the empty pips; it turns green when the ship is full and swells for half a second as it does, so the change does not rest on colour alone. Yellow means a free seat and green means crew, everywhere in the HUD: the filled pips, the seat dots on the hull, the `SOS` rings and the pending score are all green.
-- **Showing capacity:** seats are drawn on the ship's hull as dots that turn green as they fill, and repeated as pips with a `CREW n/N` count under the progress bar. Every ship's seats are a full rectangle on the hull: 2 × 2, 2 × 3, 2 × 4, 3 × 4 and 3 × 6 (across × rows). The 18 pips of the biggest ship sit in two rows.
+- **Showing capacity:** seats are drawn on the ship's hull as dots that turn green as they fill, and repeated top right as a `CREW n/N` count with one dot per seat under it. Every ship's seats are a full rectangle on the hull: 2 × 2, 2 × 3, 2 × 4, 3 × 4 and 3 × 6 (across × rows). The 18 pips of the biggest ship sit in two rows.
 
 ### Two crews at once
 

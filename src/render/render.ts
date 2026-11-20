@@ -3,6 +3,9 @@ import { drawHud } from './hud'
 import { drawAsteroid, drawCastaway, drawDrop, drawGrid, drawShip, drawWormhole } from './sprites'
 import { text } from './text'
 
+/** How the field is drawn. `starStretch`: how much a near star lengthens for each 1× of speed above the starting speed. */
+export const look = { starStretch: 4 }
+
 /** Draws one frame. Reads the game, never changes it. */
 export function render(ctx: CanvasRenderingContext2D, g: Game): void {
   const { W, H, U } = g
@@ -16,7 +19,7 @@ export function render(ctx: CanvasRenderingContext2D, g: Game): void {
     ctx.globalAlpha = 0.25 + s.z * 0.6
     ctx.fillStyle = '#7fa8a2'
     const sz = (0.6 + s.z * 1.4) * U
-    ctx.fillRect(s.x * W, s.y * H, sz, sz * (1 + (g.state === 'play' ? g.speed - 1 : 0) * s.z * 1.5))
+    ctx.fillRect(s.x * W, s.y * H, sz, sz * (1 + (g.state === 'play' ? g.speed - 1 : 0) * s.z * look.starStretch))
   }
   ctx.globalAlpha = 1
 
