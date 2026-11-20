@@ -199,18 +199,18 @@ test('LEVEL-11 mission 4 offers 2 shields, mission 5 offers 6 and mission 6 offe
 
 test('LEVEL-12 crew do not change the ship\'s size or its steering: they only make it heavier', () => {
   const reach = (crew: number) => {
-    const g = playing(7, 5)
+    const g = playing(7, 3)
     g.onboard = crew
     for (let i = 0; i < 15; i++) step(g, 1)
     const x = g.ship.x                                         // before it reaches the wall
     for (let i = 0; i < 75; i++) step(g, 1)
     return { r: g.ship.r, x, mass: shipMass(g) }
   }
-  const empty = reach(0), half = reach(9), full = reach(18)
-  expect(empty.r).toBeCloseTo(27, 0)
+  const empty = reach(0), half = reach(6), full = reach(12)
+  expect(empty.r).toBeCloseTo(20, 0)
   expect([half.r, full.r]).toEqual([empty.r, empty.r])
   expect([half.x, full.x]).toEqual([empty.x, empty.x])         // the same ship steers the same, empty or full
-  expect([empty.mass, half.mass, full.mass].map(m => Math.round(m * 100) / 100)).toEqual([1, 1.45, 1.9])
+  expect([empty.mass, half.mass, full.mass].map(m => Math.round(m * 100) / 100)).toEqual([1, 1.3, 1.6])
 })
 
 test('LEVEL-17 the bigger the crew, the sooner the well forms: full depth in 6 seconds empty, 2.3 with 32 aboard', () => {
@@ -287,19 +287,19 @@ test('LEVEL-14 a full ship is never charged for crew it has no seat for', () => 
     g.asteroids.push({ ...rock(g), x: 30, y: g.H + 200, people, planet: true })
     step(g)
   }
-  const g = playing(2, 2)               // 6 seats
+  const g = playing(2, 2)               // 8 seats
   g.wormTimer = 1e9
-  g.onboard = 6
+  g.onboard = 8
   driftPast(g, 3)
   expect(g.missed).toBe(0)              // full: no choice, no charge
-  g.onboard = 5
+  g.onboard = 7
   driftPast(g, 3)
   expect(g.missed).toBe(1)              // one seat was free: one of the three was the player's to take
   g.onboard = 0
   driftPast(g, 2)
   expect(g.missed).toBe(3)              // free seats: a miss is a miss
   // the wormhole shows and is missed: a full ship that stays on is still not charged
-  g.onboard = 6
+  g.onboard = 8
   g.levelScore = levelTarget(2); g.levelTime = 99; g.wormTimer = 0
   step(g)
   expect(g.wormCount).toBe(1)
@@ -312,9 +312,9 @@ test('LEVEL-14 a full ship is never charged for crew it has no seat for', () => 
 
 test('LEVEL-15 a full ship is sent no planetoids; when a seat opens the next one follows after 4 seconds', () => {
   const planets = (g: Game) => g.asteroids.filter(a => a.planet).length
-  const g = playing(2, 2)               // 6 seats
+  const g = playing(2, 2)               // 8 seats
   g.wormTimer = 1e9
-  g.onboard = 6
+  g.onboard = 8
   g.rescueTimer = 0                     // a crew is due
   for (let i = 0; i < 120; i++) { g.spawnTimer = 999; step(g) }
   expect(planets(g)).toBe(0)
@@ -322,7 +322,7 @@ test('LEVEL-15 a full ship is sent no planetoids; when a seat opens the next one
   step(g)
   expect([planets(g), g.rescueCount]).toEqual([0, 2])
   // a seat opens: not at once, but 4 seconds later
-  g.onboard = 5
+  g.onboard = 7
   let at = -1
   for (let i = 1; i <= 60 * 6 && at < 0; i++) { g.spawnTimer = 999; step(g); if (planets(g)) at = i / 60 }
   expect(SEAT_WAIT).toBe(4)
@@ -331,7 +331,7 @@ test('LEVEL-15 a full ship is sent no planetoids; when a seat opens the next one
 
   // a crew-or-shield row arrives as a plain shield drop when the ship is full, and as a row when it is not
   for (const [onboard, crews] of [[12, 0], [11, 2]] as const) {
-    const m5 = playing(5, 4)            // 12 seats
+    const m5 = playing(5, 3)            // 12 seats
     m5.wormTimer = 1e9
     m5.onboard = onboard
     m5.dropCount = 1                    // the next drop is the second: a choice
@@ -359,9 +359,9 @@ test('LEVEL-16 a hit that burns a shield throws one crew member off the ship', (
   expect([g.shields, g.onboard, g.missed, g.castaways.length]).toEqual([1, 0, 1, 0])
   // a full ship that is hit has a seat again, so planetoids return
   const full = playing(2, 2)
-  full.onboard = 6
+  full.onboard = 8
   hit(full)
-  expect([full.onboard, full.rescueTimer > 0 && full.rescueTimer <= SEAT_WAIT]).toEqual([5, true])
+  expect([full.onboard, full.rescueTimer > 0 && full.rescueTimer <= SEAT_WAIT]).toEqual([7, true])
   // no shield left: the ship is destroyed and the crew go down with it, as before
   const last = playing(3, 3)
   Object.assign(last, { onboard: 5, shields: 0 })

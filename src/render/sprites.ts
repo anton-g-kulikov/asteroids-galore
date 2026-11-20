@@ -175,7 +175,7 @@ export function drawDrop(ctx: CanvasRenderingContext2D, g: Game, d: Drop): void 
 
 /**
  * A ship's body around the origin, nose up: wings, hull, cockpit and its seats,
- * `onboard` of them taken. `type` is the ship, 1 to 5, and decides the seats;
+ * `onboard` of them taken. `type` is the ship, 1 to 3, and decides the seats;
  * `r` is the size it is drawn at. The flame is left off a ship that is not flying.
  */
 export function drawHull(ctx: CanvasRenderingContext2D, r: number, type: number, onboard: number, flame = true): void {

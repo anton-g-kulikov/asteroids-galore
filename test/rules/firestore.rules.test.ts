@@ -20,7 +20,7 @@ const as = (uid: string) => env.authenticatedContext(uid).firestore()
 const anon = () => env.unauthenticatedContext().firestore()
 
 // a run that went home from mission 7
-const seven = { level: 7, ship: 3, ships: [1, 1, 2, 3, 4, 5, 3] }   // upgraded at every stop, then a smaller ship from the fleet
+const seven = { level: 7, ship: 2, ships: [1, 1, 2, 2, 3, 3, 2] }   // upgraded at both stops, then a smaller ship from the fleet
 const home = { outcome: 'won', ...seven, finalDistance: 300, lost: 0, score: 2060 }
 
 const run = (userId: string, over: Record<string, unknown> = {}) => ({
@@ -29,7 +29,7 @@ const run = (userId: string, over: Record<string, unknown> = {}) => ({
   ...over,
 })
 const bests = (over: Record<string, unknown> = {}) => ({
-  callsign: 'COSMIC OTTER 42', best5: 1236, bestOutcome: 'over', bestLevel: 3, bestFinal: 0, bestShip: 2, updatedAt: serverTimestamp(), ...over,
+  callsign: 'COSMIC OTTER 42', best6: 1236, bestOutcome: 'over', bestLevel: 3, bestFinal: 0, bestShip: 2, updatedAt: serverTimestamp(), ...over,
 })
 
 test('RULES-01 a player can create a well-formed run of their own', async () => {
@@ -86,15 +86,15 @@ test('RULES-10 a run says which ship each mission was flown in', async () => {
   delete without.ships
   await assertFails(setDoc(doc(db, 'runs/a'), without))
   await assertFails(setDoc(doc(db, 'runs/b'), run('ann', { ships: [1, 1] })))            // one per mission reached
-  await assertFails(setDoc(doc(db, 'runs/c'), run('ann', { ships: [1, 1, 2, 3] })))
-  await assertFails(setDoc(doc(db, 'runs/d'), run('ann', { ship: 6, ships: [1, 1, 6] })))   // there are five ships
+  await assertFails(setDoc(doc(db, 'runs/c'), run('ann', { ships: [1, 1, 1, 1] })))
+  await assertFails(setDoc(doc(db, 'runs/d'), run('ann', { ship: 4, ships: [1, 1, 4] })))   // there are three ships
   await assertFails(setDoc(doc(db, 'runs/e'), run('ann', { ship: 0, ships: [1, 1, 0] })))
   await assertFails(setDoc(doc(db, 'runs/f'), run('ann', { ships: [2, 2, 2] })))         // every run starts in ship 1
-  await assertFails(setDoc(doc(db, 'runs/g'), run('ann', { ship: 3 })))                  // not the ship of the last mission
+  await assertFails(setDoc(doc(db, 'runs/g'), run('ann', { ship: 1 })))                  // not the ship of the last mission
   await assertFails(setDoc(doc(db, 'runs/h'), run('ann', { ships: 'fast' })))
   // the entry on the board says which ship the best run ended in; 0 when it is not known
   await assertSucceeds(setDoc(doc(db, 'users/ann'), bests({ bestShip: 0 })))
-  await assertFails(setDoc(doc(db, 'users/ann'), bests({ bestShip: 6 })))
+  await assertFails(setDoc(doc(db, 'users/ann'), bests({ bestShip: 4 })))
   const noShip: Record<string, unknown> = bests()
   delete noShip.bestShip
   await assertFails(setDoc(doc(db, 'users/ann'), noShip))
@@ -104,8 +104,14 @@ test('RULES-09 an entry written under earlier rules can be replaced by one of th
   await env.withSecurityRulesDisabled(async ctx => {
     await setDoc(doc(ctx.firestore(), 'users/ann'), { callsign: 'COSMIC OTTER 42', bestScore: 22640, updatedAt: new Date() })
   })
-  await assertSucceeds(setDoc(doc(as('ann'), 'users/ann'), bests({ best5: 10 })))
-  await assertFails(setDoc(doc(as('ann'), 'users/ann'), bests({ best5: 5 })))
+  await assertSucceeds(setDoc(doc(as('ann'), 'users/ann'), bests({ best6: 10 })))
+  await assertFails(setDoc(doc(as('ann'), 'users/ann'), bests({ best6: 5 })))
+  // an entry from the five ships: its best5 counts for nothing on the new board
+  await env.withSecurityRulesDisabled(async ctx => {
+    await setDoc(doc(ctx.firestore(), 'users/bob'), { callsign: 'LUNAR FOX 07', best5: 116000, bestOutcome: 'won', bestLevel: 7, bestFinal: 5400, bestShip: 5, updatedAt: new Date() })
+  })
+  await assertSucceeds(setDoc(doc(as('bob'), 'users/bob'), bests({ callsign: 'LUNAR FOX 07', best6: 10 })))
+  await assertFails(setDoc(doc(as('bob'), 'users/bob'), bests({ callsign: 'LUNAR FOX 07', best6: 5 })))
 })
 
 test('RULES-04 runs cannot be changed or deleted; readable by ID, never listed', async () => {
@@ -121,31 +127,31 @@ test('RULES-04 runs cannot be changed or deleted; readable by ID, never listed',
 
 test('RULES-05 a player owns their entry; anyone can read the board', async () => {
   await assertSucceeds(setDoc(doc(as('ann'), 'users/ann'), bests()))
-  await assertSucceeds(setDoc(doc(as('ann'), 'users/ann'), bests({ best5: 5000, bestOutcome: 'won', bestLevel: 7, bestFinal: 5400, bestShip: 5 })))
+  await assertSucceeds(setDoc(doc(as('ann'), 'users/ann'), bests({ best6: 5000, bestOutcome: 'won', bestLevel: 7, bestFinal: 5400, bestShip: 3 })))
   await assertFails(setDoc(doc(as('bob'), 'users/ann'), bests()))
   await assertFails(setDoc(doc(anon(), 'users/zed'), bests()))
   await assertSucceeds(getDoc(doc(as('bob'), 'users/ann')))
   await assertSucceeds(getDoc(doc(anon(), 'users/ann')))
-  const top = (db: ReturnType<typeof anon>) => query(collection(db, 'users'), where('best5', '>', 0), orderBy('best5', 'desc'), limit(5))
+  const top = (db: ReturnType<typeof anon>) => query(collection(db, 'users'), where('best6', '>', 0), orderBy('best6', 'desc'), limit(5))
   await assertSucceeds(getDocs(top(anon())))
-  await assertSucceeds(getCountFromServer(query(collection(as('bob'), 'users'), where('best5', '>', 100))))
+  await assertSucceeds(getCountFromServer(query(collection(as('bob'), 'users'), where('best6', '>', 100))))
 })
 
 test('RULES-06 the best cannot go down, and malformed entries are refused', async () => {
   const db = as('ann')
   await setDoc(doc(db, 'users/ann'), bests())
-  await assertFails(setDoc(doc(db, 'users/ann'), bests({ best5: 100 })))
+  await assertFails(setDoc(doc(db, 'users/ann'), bests({ best6: 100 })))
   await assertFails(setDoc(doc(db, 'users/ann'), bests({ bestScore: 99999 })))   // the old fields are gone
   await assertFails(setDoc(doc(db, 'users/ann'), bests({ bestOutcome: 'won' })))   // only mission 7 leads home
   await assertFails(setDoc(doc(db, 'users/ann'), bests({ bestLevel: 8 })))
   await assertFails(setDoc(doc(db, 'users/ann'), bests({ bestFinal: 50 })))        // mission 3 has no mission-7 parsecs
-  await assertFails(setDoc(doc(db, 'users/ann'), { callsign: 'COSMIC OTTER 42', best5: 5000, updatedAt: serverTimestamp() }))   // how the run ended is required
+  await assertFails(setDoc(doc(db, 'users/ann'), { callsign: 'COSMIC OTTER 42', best6: 5000, updatedAt: serverTimestamp() }))   // how the run ended is required
   await assertFails(setDoc(doc(db, 'users/ann'), bests({ admin: true })))
-  await assertFails(setDoc(doc(db, 'users/ann'), bests({ best5: 'high' })))
+  await assertFails(setDoc(doc(db, 'users/ann'), bests({ best6: 'high' })))
   await assertFails(setDoc(doc(db, 'users/ann'), bests({ updatedAt: new Date(2020, 0, 1) })))
   await assertFails(setDoc(doc(db, 'users/ann'), bests({ callsign: 'something rude' })))
   await assertFails(setDoc(doc(db, 'users/ann'), bests({ callsign: 'WAY TOO LONG A CALLSIGN TO BE REAL 42' })))
-  await assertFails(setDoc(doc(db, 'users/ann'), { best5: 1236, bestOutcome: 'over', bestLevel: 3, bestFinal: 0, updatedAt: serverTimestamp() }))
+  await assertFails(setDoc(doc(db, 'users/ann'), { best6: 1236, bestOutcome: 'over', bestLevel: 3, bestFinal: 0, updatedAt: serverTimestamp() }))
   await assertFails(deleteDoc(doc(db, 'users/ann')))
 })
 
