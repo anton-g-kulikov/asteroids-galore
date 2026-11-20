@@ -7,14 +7,14 @@ import { text } from './text'
 export function render(ctx: CanvasRenderingContext2D, g: Game): void {
   const { W, H, U } = g
   ctx.save()
-  ctx.fillStyle = '#05060d'
+  ctx.fillStyle = '#000000'
   ctx.fillRect(0, 0, W, H)
   if (g.shake > 0) ctx.translate((Math.random() * 2 - 1) * g.shake * 16 * U, (Math.random() * 2 - 1) * g.shake * 16 * U)
 
   drawGrid(ctx, g)
   for (const s of g.stars) {
     ctx.globalAlpha = 0.25 + s.z * 0.6
-    ctx.fillStyle = '#cfe0ff'
+    ctx.fillStyle = '#7fa8a2'
     const sz = (0.6 + s.z * 1.4) * U
     ctx.fillRect(s.x * W, s.y * H, sz, sz * (1 + (g.state === 'play' ? g.speed - 1 : 0) * s.z * 1.5))
   }

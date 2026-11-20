@@ -39,7 +39,7 @@ export interface Star { x: number; y: number; z: number }   // x, y as fractions
 /** What one finished level added to the run. */
 export interface LevelResult {
   level: number
-  ship: number       // the ship it was flown in, 1 to 5
+  ship: number       // the ship it was flown in, 1 to 3
   saved: number      // crew delivered at the wormhole that ended it
   missed: number     // crew who drifted past during it
   distance: number   // whole parsecs flown in it
@@ -61,7 +61,7 @@ export interface RunEnd {
   level: number
   /** Whole parsecs flown in the last mission; 0 when the run never reached it. */
   finalDistance: number
-  /** The ship the run ended in, 1 to 5; 0 when it was not recorded. */
+  /** The ship the run ended in, 1 to 3; 0 when it was not recorded. */
   ship: number
 }
 
@@ -97,7 +97,7 @@ export interface Game {
   flash: number
 
   level: number
-  /** The ship in use, 1 to 5: see SHIPS. Chosen between missions. */
+  /** The ship in use, 1 to 3: see SHIPS. Chosen between missions. */
   shipType: number
   /** The ship marked in the fleet before the last mission; a key press moves it. */
   pick: number

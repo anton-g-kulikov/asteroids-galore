@@ -313,7 +313,7 @@ export function endNote(end: RunEnd): string {
 function drawBoard(ctx: CanvasRenderingContext2D, g: Game, rows: BoardRow[]): void {
   const { W, H, U } = g
   const half = 150 * U, line = 38 * U, y = H * 0.14
-  ctx.fillStyle = 'rgba(5,6,13,.72)'
+  ctx.fillStyle = 'rgba(0,0,0,.8)'
   ctx.fillRect(0, 0, W, H)
   text(ctx, 'TOP SCORES', W / 2, y, 30 * U, '#7fdcff', 'center', 800)
   rows.forEach((row, i) => {
@@ -341,7 +341,7 @@ export function drawHud(ctx: CanvasRenderingContext2D, g: Game): void {
     drawBetween(ctx, g)
   } else {
     if (g.state === 'over') {
-      ctx.fillStyle = `rgba(5,6,13,${Math.min(0.55, g.stateTime * 1.2)})`
+      ctx.fillStyle = `rgba(0,0,0,${Math.min(0.55, g.stateTime * 1.2)})`
       ctx.fillRect(0, 0, W, H)
     }
     if (g.boardOpen && g.board?.length) drawBoard(ctx, g, g.board)

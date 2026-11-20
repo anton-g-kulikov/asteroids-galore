@@ -1,7 +1,7 @@
 import type { ManifestOptions } from 'vite-plugin-pwa'
 
 /** The game's dark background, also the page's `theme-color` in index.html. */
-const SPACE = '#05060d'
+const SPACE = '#000000'
 
 /**
  * The web app manifest. vite.config.ts hands it to vite-plugin-pwa, which

@@ -8,7 +8,7 @@ import type { BoardRow, RunEnd } from '../../src/game/types'
 const ME = callsignFor('uid-1')
 const SHARED = { callsign: 'COSMIC OTTER 42', outcome: 'won' as const, score: 29400, saved: 14, distance: 2100 }
 const run: RunResult = { outcome: 'over', score: 150, distance: 150, level: 2, finalDistance: 0, ship: 1, saved: 1, lost: 0, missed: 0, ships: [1, 1], durationSeconds: 30 }
-const HOME: RunEnd = { outcome: 'won', level: 7, finalDistance: 5400, ship: 5 }
+const HOME: RunEnd = { outcome: 'won', level: 7, finalDistance: 5400, ship: 3 }
 const LOST: RunEnd = { outcome: 'over', level: 2, finalDistance: 0, ship: 1 }
 const NONE: RunEnd = { outcome: 'over', level: 1, finalDistance: 0, ship: 0 }
 

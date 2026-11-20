@@ -1,6 +1,6 @@
 import { newSeed } from './random'
 import type { Records } from './records'
-import { CREW_MASS, FIELD_H, FIELD_W, FIRST_CHOICE, LAST_LEVEL, SHIELDS, SHIPS, WELL_AHEAD, shipRadius, shipSeats } from './tuning'
+import { CHOICES, CREW_MASS, FIELD_H, FIELD_W, LAST_LEVEL, SHIELDS, SHIPS, WELL_AHEAD, shipRadius, shipSeats } from './tuning'
 import type { Asteroid, Game, GameState, Well } from './types'
 
 export function createGame(records: Records): Game {
@@ -49,14 +49,14 @@ export const seats = (g: Game): number => shipSeats(g.shipType)
 
 /**
  * The ships on offer on the results screen between missions, smallest first.
- * After missions 2 to 5: the ship in use and the next one up. After mission 6:
- * the fleet, every ship flown in this run. Fewer than two means there is
- * nothing to choose and any tap moves on.
+ * After missions 2 and 4 (CHOICES): the ship in use and the next one up. After
+ * mission 6: the fleet, every ship flown in this run, and nothing new. Fewer
+ * than two means there is nothing to choose and any tap moves on.
  */
 export function offer(g: Game): number[] {
   if (g.state !== 'between') return []
   if (isFleet(g)) return [...new Set(g.results.map(r => r.ship))].sort((a, b) => a - b)
-  if (g.level >= FIRST_CHOICE && g.shipType < SHIPS) return [g.shipType, g.shipType + 1]
+  if (CHOICES.includes(g.level) && g.shipType < SHIPS) return [g.shipType, g.shipType + 1]
   return []
 }
 

@@ -29,9 +29,9 @@ The game is a real-time canvas simulation driven by `Math.random`, so most behav
 | ID | File | Case | Status |
 |---|---|---|---|
 | TUNE-01 | `tuning.test.ts` | Parsec target per level is 500, 750, 1250, 2000, 2500, 3000, 3500; there are 7 levels | passing |
-| TUNE-02 | `tuning.test.ts` | Five ships with 4, 6, 8, 12 and 18 seats, each in a full rectangle (2 × 2, 2 × 3, 2 × 4, 3 × 4, 3 × 6); the first bigger ship is offered after mission 2 | passing |
-| TUNE-03 | `tuning.test.ts` | Steering speed belongs to the ship: 100%, 90%, 78%, 64%, 50%, no step smaller than the one before | passing |
-| TUNE-04 | `tuning.test.ts` | Ship radius belongs to the ship: 13, 15, 18, 22, 27, each step more than 10% bigger | passing |
+| TUNE-02 | `tuning.test.ts` | Three ships with 4, 8 and 12 seats, each in a full rectangle (2 × 2, 2 × 4, 3 × 4); a bigger ship is offered after missions 2 and 4 only | passing |
+| TUNE-03 | `tuning.test.ts` | Steering speed belongs to the ship: 100%, 80%, 70% | passing |
+| TUNE-04 | `tuning.test.ts` | Ship radius belongs to the ship: 13, 17.5, 20, each step more than 10% bigger | passing |
 | TUNE-05 | `tuning.test.ts` | Gap between crews is 11–15 s on level 1 and 15–20 s on levels 2 to 7 | passing |
 | TUNE-06 | `tuning.test.ts` | One speed slope: every level gains 1.3× over its target from its starting speed (1× on levels 1–4, then 1.4×, 1.8×, 2.2×) and keeps rising past it; no second gear and no ceiling | passing |
 | TUNE-07 | `tuning.test.ts` | Shields: 3 to start, 5 at most; 2 drops on level 4, 6 on level 5, 4 on level 6, none elsewhere | passing |
@@ -57,14 +57,14 @@ The game is a real-time canvas simulation driven by `Math.random`, so most behav
 | LEVEL-12 | `levels.test.ts` | Crew do not change the ship's size or its steering: empty, half full and full, the same ship is as big and moves as far to the side; they only add mass | passing |
 | LEVEL-17 | `levels.test.ts` | The bigger the crew, the sooner the well forms: time parked counts by the ship's mass, so the well is at full depth after 6 seconds empty and 2.3 seconds with 32 aboard, and is deeper after one second with every step up in crew | passing |
 | SHIP-01 | `ships.test.ts` | Every run starts in ship 1 (4 seats, radius 13), whatever the last run flew | passing |
-| SHIP-02 | `ships.test.ts` | After mission 1 nothing is on offer: a tap anywhere or a key moves on in the same ship; a steering key alone does not | passing |
-| SHIP-03 | `ships.test.ts` | After missions 2–5 the ship in use and the next one up are on offer: a tap on the left half keeps, on the right half upgrades (the middle counts as right, taps outside the field as the nearer side); Space and Enter do nothing; the left and right arrows keep and upgrade | passing |
+| SHIP-02 | `ships.test.ts` | After missions 1, 3 and 5 nothing is on offer, in any ship: a tap anywhere or a key moves on in the same ship; a steering key alone does not | passing |
+| SHIP-03 | `ships.test.ts` | After missions 2 and 4 the ship in use and the next one up are on offer: a tap on the left half keeps, on the right half upgrades (the middle counts as right, taps outside the field as the nearer side); Space and Enter do nothing; the left and right arrows keep and upgrade | passing |
 | SHIP-04 | `ships.test.ts` | A choice made in the first 0.7 seconds of the screen is ignored, by tap or by key | passing |
-| SHIP-05 | `ships.test.ts` | One step at a time: a player who always upgrades flies ships 1, 1, 2, 3, 4, 5 (4, 4, 6, 8, 12, 18 seats) in missions 1–6 | passing |
-| SHIP-06 | `ships.test.ts` | A declined upgrade is gone for the run: declining once ends in ship 4 with ship 5 out of the fleet; there is no way back down before the fleet | passing |
-| SHIP-07 | `ships.test.ts` | After mission 6 the fleet is every ship flown in the run; a tap in a ship's column chooses it, a smaller one included; a run that never upgraded has nothing to choose and any tap or key moves on | passing |
+| SHIP-05 | `ships.test.ts` | One step at a time: a player who always upgrades flies ships 1, 1, 2, 2, 3, 3 (4, 4, 8, 8, 12, 12 seats) in missions 1–6 | passing |
+| SHIP-06 | `ships.test.ts` | A declined upgrade is gone for the run: declining after mission 2 is offered the 8-seater again after mission 4 and ends with ship 3 out of the fleet; there is no way back down before the fleet | passing |
+| SHIP-07 | `ships.test.ts` | After mission 6 the fleet is every ship flown in the run and nothing new; a tap in a ship's column chooses it, a smaller one included; a run that never upgraded has nothing to choose and any tap or key moves on | passing |
 | SHIP-08 | `ships.test.ts` | In the fleet the arrows move a mark that starts on the ship in use and stops at either end; Space or Enter takes the marked ship | passing |
-| SHIP-09 | `ships.test.ts` | Seats, size and steering are the ship's in whatever mission it flies: each bigger ship moves less far to the side, ship 5 at 50% of ship 1; a new ship grows into its size over the first moments | passing |
+| SHIP-09 | `ships.test.ts` | Seats, size and steering are the ship's in whatever mission it flies: each bigger ship moves less far to the side, ship 3 at 70% of ship 1; a new ship grows into its size over the first moments | passing |
 | SHIP-10 | `ships.test.ts` | A ship takes only as many crew as it seats: a 4-seat ship in mission 6 takes 4 of 6 from a planetoid, and the two it had no seat for are not missed | passing |
 | SHIP-11 | `ships.test.ts` | Each mission's result carries its ship, and the finished run carries the list, the unfinished mission included, and the ship it ended in | passing |
 | LEVEL-13 | `levels.test.ts` | Mission 5 starts at 1.4× | passing |
@@ -131,8 +131,8 @@ The game is a real-time canvas simulation driven by `Math.random`, so most behav
 | HUD-08 | `render/hud.test.ts` | During a run the big number is the score (nothing is shown while it is 0 and nobody is on board), with `SAVED` and `MISSED` counts; the distance is not the headline | passing |
 | HUD-13 | `render/hud.test.ts` | The mission counter is out of 7; the shield row shows 3 arcs, or as many as the ship holds when it has spares | passing |
 | HUD-14 | `render/hud.test.ts` | `CREW n/N` is yellow while there are free seats and green when the ship is full, and is drawn larger for a moment when it fills | passing |
-| HUD-15 | `render/hud.test.ts` | After missions 2–5 the ship in use and the next one up stand under the table, each inside its own half of the field, drawn with their seats; no caption, no prompt; at every stop and in the fleet the biggest hull on offer fits its frame, across and nose to tail; after mission 1 there are no ships and the prompt is shown | passing |
-| HUD-16 | `render/hud.test.ts` | The fleet after mission 6: a row of the ships flown, each inside its own share of the width and wide enough to tap, ending above the waiting ship; the ship marked has the heavy frame; a run with one ship gets the prompt instead | passing |
+| HUD-15 | `render/hud.test.ts` | After missions 2 and 4 the ship in use and the next one up stand under the table, each inside its own half of the field, drawn with their seats; no caption, no prompt; at every stop and in the fleet the biggest hull on offer fits its frame, across and nose to tail; after missions 1, 3 and 5 there are no ships and the prompt is shown | passing |
+| HUD-16 | `render/hud.test.ts` | The fleet after mission 6: a row of the ships flown (at most three), each inside its own share of the width and wide enough to tap, ending above the waiting ship; the ship marked has the heavy frame; a run with one ship gets the prompt instead | passing |
 | PWA-01 | `pwa/manifest.test.ts` | Manifest: name, short name, start URL and scope `/`, full screen, portrait, and the same dark colour as the page's `theme-color` | passing |
 | PWA-02 | `pwa/manifest.test.ts` | Every manifest icon exists in `public/` as a PNG of the stated size; there are 192 and 512 px `any` icons and a 512 px `maskable` one | passing |
 | PWA-03 | `pwa/manifest.test.ts` | `index.html` links an `apple-touch-icon` (180 px PNG) and a favicon, and both files exist | passing |
@@ -150,7 +150,7 @@ The game is a real-time canvas simulation driven by `Math.random`, so most behav
 | RULES-03 | Malformed runs are refused: extra field, missing field, negative distance, level 0 or 8, a run that went home from any mission but 7, mission-7 parsecs on a run that ended earlier or exceeding the whole run or fractional, a client-set time, a badly formed callsign | passing |
 | RULES-08 | A run's score cannot exceed its distance times crew saved, and cannot be negative or fractional; a run that went home cannot have crew lost | passing |
 | RULES-09 | A leaderboard entry written under earlier rules (only `bestScore`) can be replaced by one of the new kind (`best5`), which then cannot go down | passing |
-| RULES-10 | A run must say which ship each mission was flown in: a list of ships 1–5, one per mission reached, starting with ship 1, whose last entry is the ship the run ended in; a board entry must carry `bestShip`, 0–5 | passing |
+| RULES-10 | A run must say which ship each mission was flown in: a list of ships 1–3, one per mission reached, starting with ship 1, whose last entry is the ship the run ended in; a board entry must carry `bestShip`, 0–3 | passing |
 | RULES-04 | Runs cannot be changed or deleted; anyone can read a run by its ID; nobody can list runs | passing |
 | RULES-05 | A player can create and update their own entry (best score, how that run ended, callsign), not another player's; anyone can read entries and query the board, signed in or not | passing |
 | RULES-06 | The best score cannot go down; malformed entries are refused, including the old score field, an ending that does not hold together (home from a mission other than 7, level 8, mission-7 parsecs on an earlier mission) or is missing, and a missing or badly formed callsign | passing |

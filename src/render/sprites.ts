@@ -1,36 +1,39 @@
 import { curvature, ringRadius, shipMass } from '../game/game'
 import { GRACE, shipGrid, shipSeats } from '../game/tuning'
 import type { Asteroid, Castaway, Drop, Game, Wormhole } from '../game/types'
-import { text } from './text'
+import { glow, text } from './text'
 
-const ROCK = [['#8b8f9c', '#5b5f6b'], ['#9a8a7b', '#62564b'], ['#7d8794', '#4c545f']]
+// Vector glow: every body is a dark fill inside a bright, glowing outline.
+// Each pair is [outline, fill].
+const ROCK = [['#9fb4b0', '#2b3634'], ['#b4a898', '#37312b'], ['#93a6b8', '#29313a']]
 // Planetoids are round and coloured, so they never read as one of the grey rocks.
-const PLANET = [['#4fb3a5', '#2f7d74'], ['#d2946b', '#935f41'], ['#7f93dc', '#4d5ca0']]
+const PLANET = [['#ff5fd2', '#5a1f4c'], ['#ff9a5f', '#5c3521'], ['#b48cff', '#3a2a66']]
+const LINE = '#5ff5ff'   // the ship's own lines
+const BLACK = '#000000'
 
-// A planetoid: a banded disc with a soft highlight.
+// A planetoid: a banded disc in a glowing rim.
 function drawPlanetBody(ctx: CanvasRenderingContext2D, a: Asteroid, U: number): void {
   const [light, dark] = PLANET[a.shade]
   const r = a.r
   ctx.save()
   ctx.beginPath(); ctx.arc(0, 0, r, 0, Math.PI * 2)
-  ctx.fillStyle = light
+  ctx.fillStyle = dark
   ctx.fill()
   ctx.clip()
-  ctx.fillStyle = dark
-  ctx.globalAlpha = 0.55
+  ctx.fillStyle = light
+  ctx.globalAlpha = 0.3
   ctx.fillRect(-r, -r * 0.5, r * 2, r * 0.26)
   ctx.fillRect(-r, r * 0.08, r * 2, r * 0.4)
   ctx.fillRect(-r, r * 0.72, r * 2, r * 0.3)
-  ctx.globalAlpha = 0.22
-  ctx.fillStyle = '#ffffff'
-  ctx.beginPath(); ctx.arc(-r * 0.35, -r * 0.4, r * 0.55, 0, Math.PI * 2); ctx.fill()
   ctx.restore()
   ctx.lineWidth = Math.max(1.5, 2 * U)
-  ctx.strokeStyle = dark
+  ctx.strokeStyle = light
+  glow(ctx, light, 10 * U)
   ctx.beginPath(); ctx.arc(0, 0, r, 0, Math.PI * 2); ctx.stroke()
+  glow(ctx)
 }
 
-// An asteroid: a jagged grey rock with craters.
+// An asteroid: a jagged dark rock in a glowing outline, with craters.
 function drawRockBody(ctx: CanvasRenderingContext2D, a: Asteroid, U: number): void {
   ctx.beginPath()
   const n = a.shape.length
@@ -41,23 +44,28 @@ function drawRockBody(ctx: CanvasRenderingContext2D, a: Asteroid, U: number): vo
   }
   ctx.closePath()
   const [light, dark] = ROCK[a.shade]
-  ctx.fillStyle = light
+  ctx.fillStyle = dark
   ctx.fill()
   ctx.lineWidth = Math.max(1.5, 2 * U)
-  ctx.strokeStyle = dark
+  ctx.strokeStyle = light
+  glow(ctx, light, 10 * U)
   ctx.stroke()
-  ctx.fillStyle = dark
+  glow(ctx)
+  ctx.lineWidth = Math.max(1, 1.2 * U)
+  ctx.globalAlpha = 0.6
   for (const c of a.craters) {
     ctx.beginPath()
     ctx.arc(Math.cos(c.a) * c.d * a.r, Math.sin(c.a) * c.d * a.r, c.r * a.r, 0, Math.PI * 2)
-    ctx.fill()
+    ctx.stroke()
   }
+  ctx.globalAlpha = 1
 }
 
-// One crew member: an orange suit, a white helmet, and both arms waving.
+// One crew member: a yellow suit, a white helmet, and both arms waving.
 // Drawn standing on the origin, `s` sets the size.
 function drawPerson(ctx: CanvasRenderingContext2D, s: number, U: number, wave: number): void {
-  ctx.strokeStyle = ctx.fillStyle = '#ffb347'
+  ctx.strokeStyle = ctx.fillStyle = '#ffe66b'
+  glow(ctx, '#ffe66b', 6 * U)
   ctx.lineWidth = 1.6 * U
   ctx.lineCap = 'round'
   for (const d of [-1, 1]) {
@@ -71,6 +79,7 @@ function drawPerson(ctx: CanvasRenderingContext2D, s: number, U: number, wave: n
   ctx.fill()
   ctx.fillStyle = '#ffffff'
   ctx.beginPath(); ctx.arc(0, -s * 2.1, s * 0.75, 0, Math.PI * 2); ctx.fill()
+  glow(ctx)
 }
 
 function drawCrew(ctx: CanvasRenderingContext2D, a: Asteroid, U: number, clock: number): void {
@@ -104,8 +113,9 @@ function drawRing(ctx: CanvasRenderingContext2D, g: Game, a: Asteroid): void {
     const R = ringRadius(g, a)
     ctx.save()
     const full = g.onboard >= shipSeats(g.shipType)
-    const col = full ? '#8a8f9c' : '#5dffa0'
+    const col = full ? '#6a7574' : '#5dffa0'
     ctx.strokeStyle = col
+    if (!full) glow(ctx, col, 10 * U)
     ctx.globalAlpha = 0.55 + 0.3 * Math.sin(clock * 6)
     ctx.lineWidth = 2 * U
     ctx.setLineDash([8 * U, 7 * U])
@@ -142,6 +152,7 @@ export function drawWormhole(ctx: CanvasRenderingContext2D, g: Game, w: Wormhole
   for (let i = 0; i < 4; i++) {
     const rr = w.r * (1 - i * 0.2), a0 = clock * (2.5 + i * 1.3) + i * 1.7
     ctx.strokeStyle = i % 2 ? '#7fdcff' : '#c9a8ff'
+    glow(ctx, i % 2 ? '#7fdcff' : '#c9a8ff', 12 * U)
     ctx.lineWidth = (3 - i * 0.5) * U
     for (let k = 0; k < 2; k++) {
       ctx.beginPath(); ctx.arc(0, 0, rr, a0 + k * Math.PI, a0 + k * Math.PI + 1.9); ctx.stroke()
@@ -166,6 +177,7 @@ export function drawDrop(ctx: CanvasRenderingContext2D, g: Game, d: Drop): void 
   ctx.globalAlpha = 1
   ctx.lineCap = 'round'
   ctx.strokeStyle = SHIELD_COLOR
+  glow(ctx, SHIELD_COLOR, 10 * U)
   for (const k of [1, 0.62]) {
     ctx.lineWidth = 3 * U * k
     ctx.beginPath(); ctx.arc(0, d.r * 0.55, d.r * k, -Math.PI / 2 - SHIELD_SPREAD, -Math.PI / 2 + SHIELD_SPREAD); ctx.stroke()
@@ -175,47 +187,62 @@ export function drawDrop(ctx: CanvasRenderingContext2D, g: Game, d: Drop): void 
 
 /**
  * A ship's body around the origin, nose up: wings, hull, cockpit and its seats,
- * `onboard` of them taken. `type` is the ship, 1 to 5, and decides the seats;
+ * `onboard` of them taken. `type` is the ship, 1 to 3, and decides the seats;
  * `r` is the size it is drawn at. The flame is left off a ship that is not flying.
  */
+/** A seat nobody sits in. */
+export const SEAT_FREE = '#8fc4cc'
+
 export function drawHull(ctx: CanvasRenderingContext2D, r: number, type: number, onboard: number, flame = true): void {
   if (flame) {
     const f = r * (1.0 + Math.random() * 0.5)
-    ctx.fillStyle = '#ffb347'
+    ctx.fillStyle = '#ffe66b'
+    glow(ctx, '#ffe66b', r * 0.6)
     ctx.beginPath()
     ctx.moveTo(-r * 0.32, r * 0.75); ctx.lineTo(0, r * 0.75 + f); ctx.lineTo(r * 0.32, r * 0.75)
     ctx.fill()
   }
+  // the ship is drawn in lines of light: black inside, so nothing shows through
+  ctx.strokeStyle = LINE
+  ctx.lineWidth = Math.max(1.5, r * 0.09)
+  ctx.lineJoin = 'round'
+  glow(ctx, LINE, r * 0.5)
   // wings
-  ctx.fillStyle = '#3d7dd8'
+  ctx.fillStyle = BLACK
   ctx.beginPath()
   ctx.moveTo(0, -r * 0.2); ctx.lineTo(r * 1.15, r * 0.95); ctx.lineTo(r * 0.3, r * 0.7)
   ctx.lineTo(-r * 0.3, r * 0.7); ctx.lineTo(-r * 1.15, r * 0.95)
-  ctx.closePath(); ctx.fill()
+  ctx.closePath(); ctx.fill(); ctx.stroke()
   // hull
-  ctx.fillStyle = '#e8eefc'
+  ctx.fillStyle = BLACK
   ctx.beginPath()
   ctx.moveTo(0, -r * 1.35)
   ctx.quadraticCurveTo(r * 0.55, -r * 0.2, r * 0.42, r * 0.85)
   ctx.lineTo(-r * 0.42, r * 0.85)
   ctx.quadraticCurveTo(-r * 0.55, -r * 0.2, 0, -r * 1.35)
-  ctx.fill()
+  ctx.fill(); ctx.stroke()
+  glow(ctx)
   // cockpit
-  ctx.fillStyle = '#39c6ff'
+  ctx.fillStyle = LINE
   ctx.beginPath()
   ctx.ellipse(0, -r * 0.62, r * 0.17, r * 0.27, 0, 0, Math.PI * 2)
   ctx.fill()
   // passenger deck: one seat per dot, filling from the back as crew come
   // aboard. Every ship's seats are a full rectangle, in rows of two or three.
   const [cols, rows] = shipGrid(type)
-  const p = Math.min(0.78 * r / Math.max(2, cols), 1.05 * r / rows)
+  // The seats keep clear of the hull's lines and of the cockpit glass: the
+  // lowest row stops short of the tail, the highest short of the glass.
+  const p = Math.min(0.72 * r / Math.max(2, cols), 1.0 * r / rows)
   // the pair sits midway between the cockpit glass and the tail
-  const back = cols === 1 ? r * 0.25 + p / 2 : r * 0.72
+  const back = cols === 1 ? r * 0.25 + p / 2 : r * 0.6
   for (let i = 0; i < cols * rows; i++) {
     const cx = (i % cols - (cols - 1) / 2) * p
     const cy = back - Math.floor(i / cols) * p
-    ctx.fillStyle = i < onboard ? '#16c060' : '#aab4cc'
-    ctx.beginPath(); ctx.arc(cx, cy, p * 0.36, 0, Math.PI * 2); ctx.fill()
+    const taken = i < onboard
+    ctx.fillStyle = taken ? '#5dffa0' : SEAT_FREE
+    if (taken) glow(ctx, '#5dffa0', p * 0.6)
+    ctx.beginPath(); ctx.arc(cx, cy, p * (taken ? 0.36 : 0.28), 0, Math.PI * 2); ctx.fill()
+    glow(ctx)
   }
 }
 
@@ -229,6 +256,7 @@ export function drawShip(ctx: CanvasRenderingContext2D, g: Game): void {
   // shields: one arc per shield left, stacked ahead of the nose
   ctx.lineCap = 'round'
   ctx.strokeStyle = SHIELD_COLOR
+  glow(ctx, SHIELD_COLOR, r * 0.5)
   // After a hit the shields blink while the ship cannot be hit, and the arc
   // that was just burnt flickers out beyond them.
   const safe = g.grace > 0 && g.state === 'play'
@@ -272,7 +300,7 @@ export function drawGrid(ctx: CanvasRenderingContext2D, g: Game): void {
       if (x === -seg) ctx.moveTo(px, py); else ctx.lineTo(px, py)
     }
   }
-  ctx.strokeStyle = `rgba(${Math.round(110 + 90 * c)},${Math.round(160 - 30 * c)},255,${0.07 + 0.38 * c})`
+  ctx.strokeStyle = `rgba(${Math.round(60 + 140 * c)},${Math.round(230 - 90 * c)},${Math.round(200 + 55 * c)},${0.08 + 0.4 * c})`
   ctx.lineWidth = 1 + c * 0.6
   ctx.stroke()
 }

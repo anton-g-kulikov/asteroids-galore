@@ -42,11 +42,11 @@ service cloud.firestore {
           && wholeNumber(run.distance, 0, 1000000)
           && validEnd(run.outcome, run.level, run.finalDistance)
           && run.finalDistance <= run.distance
-          // The ship each mission was flown in (there are 5: SHIPS in
+          // The ship each mission was flown in (there are 3: SHIPS in
           // src/game/tuning.ts), one per mission reached, and the one the run
           // ended in. Every run starts in ship 1.
           && run.ships is list && run.ships.size() == run.level
-          && run.ships.hasOnly([1, 2, 3, 4, 5])
+          && run.ships.hasOnly([1, 2, 3])
           && run.ships[0] == 1
           && run.ship == run.ships[run.level - 1]
           && wholeNumber(run.saved, 0, 1000)
@@ -80,7 +80,7 @@ service cloud.firestore {
           && validCallsign(user.callsign)
           && wholeNumber(user.best5, 0, 1000000000)
           && validEnd(user.bestOutcome, user.bestLevel, user.bestFinal)
-          && wholeNumber(user.bestShip, 0, 5)
+          && wholeNumber(user.bestShip, 0, 3)
           && user.updatedAt == request.time;
       }
     }

@@ -45,29 +45,30 @@ export const CHOICE_EVERY = 2        // every Nth shield drop arrives as "2 crew
 /** Seconds until a missed wormhole returns: dealt in a random order, reshuffled when all are used. */
 export const WORM_WAITS = [16, 19, 22, 25, 28]
 
-// There are five ships, numbered 1 to 5. Seats, size, steering and what a crew
+// There are three ships, numbered 1 to 3. Seats, size, steering and what a crew
 // member left behind costs all belong to the ship, not to the mission: the
 // player chooses the ship between missions. Every run starts in ship 1.
-export const SHIPS = 5
-export const FIRST_CHOICE = 2        // the first mission after which a bigger ship is offered
+export const SHIPS = 3
+/** The missions after which the next ship up is offered. One step per stop, and a declined step is not offered twice. */
+export const CHOICES = [2, 4]
 
-/** Seats: each ship has about half again the seats of the one before. */
-export const shipSeats = (s: number): number => at([4, 6, 8, 12, 18], s)
+/** Seats: 4, 8, 12. */
+export const shipSeats = (s: number): number => at([4, 8, 12], s)
 
 /** The seats as a full rectangle: [seats across, rows]. */
-export const shipGrid = (s: number): [number, number] => at<[number, number]>([[2, 2], [2, 3], [2, 4], [3, 4], [3, 6]], s)
+export const shipGrid = (s: number): [number, number] => at<[number, number]>([[2, 2], [2, 4], [3, 4]], s)
 
 /** Ship radius, in field units. */
-export const shipRadius = (s: number): number => at([13, 15, 18, 22, 27], s)
+export const shipRadius = (s: number): number => at([13, 17.5, 20], s)
 
-/** Steering speed: the smallest ship is the quickest, and the biggest steers at half its speed. */
-export const handling = (s: number): number => at([1, 0.9, 0.78, 0.64, 0.5], s)
+/** Steering speed: the smallest ship is the quickest. */
+export const handling = (s: number): number => at([1, 0.8, 0.7], s)
 
 /**
  * The share of a mission's score that each crew member left behind takes.
  * It is the same 5% in every ship; it is kept per ship so that it can be tuned.
  */
-export const missCost = (s: number): number => at([0.05, 0.05, 0.05, 0.05, 0.05], s)
+export const missCost = (s: number): number => at([0.05, 0.05, 0.05], s)
 
 /** How much each crew member on board adds to the ship's mass, which deepens the well dug while parked and digs it sooner. */
 export const CREW_MASS = 0.05

@@ -1,6 +1,6 @@
 html, body {
   margin: 0; height: 100%; overflow: hidden;
-  background: #05060d;
+  background: #000000;
   touch-action: none;
   overscroll-behavior: none;
   -webkit-user-select: none; user-select: none;

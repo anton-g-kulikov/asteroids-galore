@@ -12,7 +12,7 @@ const broken: RecordStore = {
   setItem() { throw new Error('blocked') },
 }
 
-const home: RunEnd = { outcome: 'won', level: 7, finalDistance: 5400, ship: 4 }
+const home: RunEnd = { outcome: 'won', level: 7, finalDistance: 5400, ship: 3 }
 const lost: RunEnd = { outcome: 'over', level: 3, finalDistance: 0, ship: 2 }
 const none: RunEnd = { outcome: 'over', level: 1, finalDistance: 0, ship: 0 }
 

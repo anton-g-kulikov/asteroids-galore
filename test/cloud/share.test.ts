@@ -3,7 +3,7 @@ import { shareIdFromPath, shareMessage, shareResult, shareUrl } from '../../src/
 import type { RunResult } from '../../src/game/runSummary'
 
 const lost: RunResult = { outcome: 'over', score: 1128, distance: 564, level: 3, finalDistance: 0, ship: 2, saved: 3, lost: 1, missed: 0, ships: [1, 1, 2], durationSeconds: 40 }
-const won: RunResult = { ...lost, outcome: 'won', level: 7, finalDistance: 200, ship: 5, ships: [1, 1, 2, 3, 4, 5, 5], saved: 14, lost: 0, score: 7896 }
+const won: RunResult = { ...lost, outcome: 'won', level: 7, finalDistance: 200, ship: 3, ships: [1, 1, 2, 2, 3, 3, 3], saved: 14, lost: 0, score: 7896 }
 
 test('SHARE-01 the run ID comes from /s/{id}', () => {
   expect(shareIdFromPath('/s/Ab3dEf6hIj9kLm2nOp5q')).toBe('Ab3dEf6hIj9kLm2nOp5q')
