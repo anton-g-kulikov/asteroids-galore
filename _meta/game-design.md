@@ -44,7 +44,7 @@ When the game is connected to the cloud and the board has loaded, both end scree
 
 The leaderboard is `TOP SCORES`: the ten highest best scores, one global board for all time. Players are listed by callsign: two words and a number, generated from the player's anonymous account, so nobody types a name and the same account always keeps the same one. Under each callsign a small line says how many missions that run finished: `FINISHED 2/7` for a run lost in mission 3. A run that reached mission 7 also says how it ended and the parsecs flown there: `FINISHED 7/7 · HOME · 5,400 pc · 16 SEATS` for a run that went home, `FINISHED 6/7 · LOST · 7,100 pc · 2 SEATS` for one destroyed in mission 7. The seats are those of the ship chosen for mission 7 (see [The choice](#the-choice)); an entry saved before ships were recorded leaves them out. The board then tells how far each player got, who got out in time and in what. The player's own row is gold, which is also how they learn their callsign. A player outside the top ten gets an extra row with their rank. A player whose best is 0 is not listed.
 
-The board starts again whenever scores stop being comparable: entries are ranked by a field whose name changes with the scoring (`best5` since the ship numbers of 2026-11-20; `best4` before it, from the five ships of 2026-11-16; `best3` from the linear penalty of 2026-11-15; `best` and `bestScore` earlier), so entries that only hold an earlier score are not listed, and a player's first new entry replaces their old one. Nothing is deleted. The best kept on the device moves to a new key at the same time.
+The board starts again whenever scores stop being comparable: entries are ranked by a field whose name changes with the scoring (`best6` since the three ships of 2026-11-20; `best5` before it, from the ship numbers of the same day; `best4`, from the five ships of 2026-11-16; `best3` from the linear penalty of 2026-11-15; `best` and `bestScore` earlier), so entries that only hold an earlier score are not listed, and a player's first new entry replaces their old one. Nothing is deleted. The best kept on the device moves to a new key at the same time.
 
 The board is refreshed when a run ends, and the player's row always uses the best the game holds right now. Offline, or before the first board has loaded, there is simply no pill.
 
@@ -351,7 +351,7 @@ Considered on 2026-11-14 and not taken:
 ### What this touched outside the game
 
 - **Firestore rules:** `firestore.rules` accepts levels 1–7; a `won` run is one that went home from mission 7; a run records `finalDistance`, the parsecs flown in mission 7. **The rules must be deployed together with the client** (`firebase deploy --only firestore:rules`); GitHub Actions deploys Hosting only.
-- **Leaderboard entries** hold `best5`, `bestOutcome`, `bestLevel`, `bestFinal` and `bestShip`. The earlier `best4`, `best3`, `best` and `bestScore` fields are neither read nor written, which is what starts the board again.
+- **Leaderboard entries** hold `best6`, `bestOutcome`, `bestLevel`, `bestFinal` and `bestShip`. The earlier `best5`, `best4`, `best3`, `best` and `bestScore` fields are neither read nor written, which is what starts the board again.
 - **Saved bests on the device** use new storage keys, so a best from the earlier rules is not uploaded to the new board.
 - **End screen and share text:** `ALL MISSIONS COMPLETE` became `MADE IT HOME`, on the end screen, in the line under a shared run and in the share message.
 - **Golden traces** were re-recorded: every change above alters missions 1–4 too.
@@ -551,7 +551,7 @@ Agreed on 2026-11-20 and built the same day, not yet deployed. It replaces the f
 ### What it touched
 
 - **The Firestore rules** accept ships 1–3 in a run's `ships` and `bestShip` 0–3 on a board entry. A 0.4.2 client still running on someone's phone can no longer save a run flown in ships 4 or 5.
-- **Stored ship numbers changed meaning:** ship 2 was 6 seats and is now 8, ship 3 was 8 and is now 12. A board row written under 0.4.2 is shown with the new seats (a 0.4.2 run in its ship 3 reads `12 SEATS`, though it flew 8), and rows in ships 4 or 5 are shown as `12 SEATS`. The board field is still `best5`; whether the board starts again is the player-owner's call.
+- **The board starts again** (`best6`, and the best on the device moves to the `-v6` keys), on the player-owner's word. Stored ship numbers changed meaning (ship 2 was 6 seats and is now 8, ship 3 was 8 and is now 12), so a 0.4.2 row would have named the wrong seats. Those rows are no longer listed; nothing is deleted, and a player's first new entry replaces their old one.
 - **Scores rise** and are not comparable with 0.4.2: the expert's best plan scored 133,900 against 116,000.
 - **Golden traces** were recorded again. The mission run first differs on the stop after mission 2, where the offered ship is now the 8-seater; the other three runs never reach a stop and are unchanged.
 - **Tests:** TUNE-02 to TUNE-04, SHIP-02 to SHIP-09, SHIP-11, HUD-15, HUD-16 and RULES-10 describe three ships. Older tests that named ships 4 and 5, or ship 2 as 6 seats, were moved onto the new ships without changing what they check.
