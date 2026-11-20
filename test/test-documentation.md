@@ -123,7 +123,7 @@ The game is a real-time canvas simulation driven by `Math.random`, so most behav
 | HUD-04 | `render/hud.test.ts` | The `SHARE` button is drawn on both end screens only when a link is ready; it reads `COPIED` right after a copy | passing |
 | HUD-05 | `render/hud.test.ts` | The button sits inside the play field, in the top right corner | passing |
 | HUD-06 | `render/hud.test.ts` | The start screen shows a shared run: callsign, score, and `MADE IT HOME` with the crew saved for a run that went home, crew saved and distance for a lost one | passing |
-| HUD-07 | `render/hud.test.ts` | The start screen draws the title, the controls, the prompt and, at the foot, the version and the seed of the next run as six characters (`v0.4.5 · SEED 4F2A9C`); no other screen shows the seed | passing |
+| HUD-07 | `render/hud.test.ts` | The start screen draws the title, the controls, the prompt and, at the foot, the version and the seed of the next run as six characters (`v0.4.6 · SEED 4F2A9C`); no other screen shows the seed | passing |
 | HUD-11 | `render/hud.test.ts` | The leaderboard screen replaces the end screen: `TOP SCORES`, every row with rank, callsign, score and how many missions the run finished; a run that reached mission 7 also says how it ended, its parsecs there and the seats of its ship (left out for an entry without a ship); a way back | passing |
 | HUD-12 | `render/hud.test.ts` | The leaderboard link sits top left, clear of the share button, and is big enough to tap | passing |
 | HUD-10 | `render/hud.test.ts` | Between levels, under `MISSION N COMPLETE`: the same table as the end screens, a numbered row for every mission flown so far and `TOTAL`; `TAP TO CONTINUE` only when no ships are on offer | passing |
@@ -153,8 +153,9 @@ The game is a real-time canvas simulation driven by `Math.random`, so most behav
 | AUD-07 | `sound/player.test.ts` | Entering a wormhole and the ship being destroyed stop the sounds still playing before their own | passing |
 | AUD-08 | `sound/synth.test.ts` | A sound is built from oscillators and noise with the frequencies, lengths and loudness in its table entry, scaled by pitch, gain and stretch; noise with a frequency goes through a low-pass that sweeps from it to its end frequency; nothing is left connected after it ends | passing |
 | AUD-09 | `sound/sounds.test.ts` | The ship destroyed sounds like a blow: it starts at once with a sharp crack (noise whose low-pass starts high), a boom whose low-pass closes down to a rumble, and a deep thud falling below 50 Hz; it lasts over a second | passing |
-| MUTE-01 | `sound/muteButton.test.ts` | A small speaker icon sits in the top right corner of the start screen, inside the field, clear of the title and big enough to tap; it is shown nowhere else, and not at all where the browser has no Web Audio | passing |
+| MUTE-01 | `sound/muteButton.test.ts` | A small speaker icon sits in the top right corner of the start screen and of the results screens between missions, inside the field, clear of the title and big enough to tap; it is not shown in flight or on the end screens, and not at all where the browser has no Web Audio | passing |
 | MUTE-02 | `sound/muteButton.test.ts` | The icon shows sound waves when sound is on and a slash when muted, with no text | passing |
+| MUTE-03 | `sound/muteButton.test.ts` | A tap on the icon is only a mute: on the start screen it does not start a run, and between missions it neither chooses a ship nor moves on; a tap anywhere else, or where the icon is not shown, is not taken | passing |
 
 ## Firestore rules — `test/rules/firestore.rules.test.ts`
 

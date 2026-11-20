@@ -641,8 +641,8 @@ Screen shake, the flash, the sparks and the stretching stars stay as they are.
 
 ### Controls and limits
 
-- **A mute control,** built: a small speaker in the top right corner of the start screen, waves when sound is on and a cross when muted, with no word. A tap on it toggles sound and does not start a run. `M` on a keyboard toggles it anywhere, during a run too. The choice is remembered on the device. One mute covers everything; whether music gets its own is open.
-- **Where else it could go:** the start screen is the only place it is drawn, so a phone player cannot mute in the middle of a run. An icon on the end screens is the next place to try if that is missed.
+- **A mute control,** built: a small speaker in the top right corner of the start screen and of the results screens between missions, waves when sound is on and a cross when muted, with no word. A tap on it only toggles sound: it does not start a run, choose a ship or move on. `M` on a keyboard toggles it anywhere, during a run too. The choice is remembered on the device. One mute covers everything; whether music gets its own is open.
+- **Where it is not:** in flight, where a tap steers, and on the end screens, whose top corners hold the leaderboard and share buttons. A phone player can mute at any stop between missions, but not while flying.
 - **Where the browser has no Web Audio** there is no sound and no icon.
 - **Sound starts with the first tap or key.** Browsers block audio before the player touches the page.
 - **Leaving the page** suspends the sound; coming back resumes it, unless it is muted.

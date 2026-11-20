@@ -1,5 +1,5 @@
 import './style.css'
-import { drawMuteButton, muteButtonRect, showsMute } from './audio/muteButton'
+import { drawMuteButton, onMuteButton, showsMute } from './audio/muteButton'
 import { createSoundPlayer } from './audio/player'
 import { SOUNDS } from './audio/sounds'
 import { createWebAudio, hasWebAudio } from './audio/webAudio'
@@ -117,7 +117,8 @@ if (sharedId) cloud?.loadShared(sharedId).then(run => { game.shared = run })
 window.addEventListener('pointerdown', e => {
   e.preventDefault()
   sound.unlock()
-  if (showsMute(game, canPlaySound) && inside(e, muteButtonRect(game))) { sound.toggleMute(); return }   // not a start
+  // only a mute: not a start, a steer, a choice of ship or a move on
+  if (onMuteButton(game, (e.clientX - view.x) / view.scale, (e.clientY - view.y) / view.scale, canPlaySound)) { sound.toggleMute(); return }
   if (closeBoard()) return
   if (onBoardButton(e)) { game.boardOpen = true; return }
   if (onShareButton(e)) { sharePointer = e.pointerId; return }   // not a steer, not a restart

@@ -10,7 +10,7 @@ The game is drawn on a single canvas, on a play field of one fixed shape that is
 
 - **Touch:** hold the left side of the screen to fly left, the right side to fly right. Holding both keeps the ship straight; sliding a thumb across the middle switches direction.
 - **Keyboard:** arrow keys or A / D. Space or Enter starts a run.
-- **Sound:** starts with the first tap or key. The speaker in the top right of the start screen mutes it, and so does `M`; the choice is remembered on the device.
+- **Sound:** starts with the first tap or key. The speaker in the top right of the start screen and of the stops between missions mutes it, and so does `M`; the choice is remembered on the device.
 
 ## Run locally
 

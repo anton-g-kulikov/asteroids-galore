@@ -1,7 +1,7 @@
 import type { Game } from '../game/types'
 
 // The mute control: a small speaker in the top right corner of the start
-// screen, with no word. Drawn here rather than with the rest of the screen,
+// screen and of the results screens between missions, with no word. Drawn here rather than with the rest of the screen,
 // so the drawing code does not need to know about sound. `M` on a keyboard
 // toggles it anywhere.
 
@@ -12,8 +12,23 @@ export function muteButtonRect(g: Game): { x: number; y: number; w: number; h: n
   return { x: W - 14 - size, y: 44 * U + 8 - size / 2, w: size, h: size }
 }
 
-/** Only on the start screen, and only where the browser can play sound. */
-export const showsMute = (g: Game, audio: boolean): boolean => audio && g.state === 'menu'
+/**
+ * On the start screen and between missions: the screens that wait for a tap.
+ * Not in flight, where a tap steers, and not on the end screens, whose top
+ * corners hold the leaderboard and share buttons. Only where the browser can
+ * play sound.
+ */
+export const showsMute = (g: Game, audio: boolean): boolean => audio && (g.state === 'menu' || g.state === 'between')
+
+/**
+ * True when a tap at (x, y), in play-field units, lands on the icon. Such a tap
+ * is only a mute: it must not also start a run, choose a ship or move on.
+ */
+export function onMuteButton(g: Game, x: number, y: number, audio: boolean): boolean {
+  if (!showsMute(g, audio)) return false
+  const r = muteButtonRect(g)
+  return x >= r.x && x <= r.x + r.w && y >= r.y && y <= r.y + r.h
+}
 
 export function drawMuteButton(ctx: CanvasRenderingContext2D, g: Game, muted: boolean): void {
   const { U } = g
