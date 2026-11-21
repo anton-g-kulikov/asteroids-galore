@@ -371,11 +371,11 @@ textarea { width: 100%; font: 12px/1.5 var(--mono); color: var(--text); backgrou
       <li>Key: A minor, Am–F–C–G, two bars each. The game's save chord is C major, so it sits inside the same notes.</li>
       <li>Tempo: 96 BPM at 1×, plus 14 BPM for each 1× of speed, at most 140. 90 BPM between missions.</li>
       <li>Lead instrument: a piano, on trial here in three sets of effects; the synth lead is what the game plays today.</li>
-      <li>Lead: a sixteen-bar melody (two eight-bar halves) on top of everything, and the last layer in: from 2.2×, only once the arpeggio has played 4 bars, and always from the start of a half, so the melody is never joined in the middle. It plays at most 32 bars at a stretch (the melody twice), fading out over bars 31 and 32, then pauses for 16 bars before starting again from the top. It alternates octaves: 2–3 the first time it comes in, 3–4 after the pause, then 2–3 again, and so on through the run. (The game alternates 3–4 and 4–5 today.)</li>
+      <li>Lead: a sixteen-bar melody (two eight-bar halves) on top of everything, and the last layer in: from 2.2×, only once the arpeggio has played 4 bars, and always from the start of a half, so the melody is never joined in the middle. It plays at most 32 bars at a stretch (the melody twice), fading out over bars 31 and 32, then pauses for 16 bars before starting again from the top. Its entries take turns, on the owner's word: the first in octaves 2–3 on the piano with the long reverb, the second and third in octaves 3–4 with the longer echo, the fourth as the first again, and so on through the run. Played alone or switched on by hand, it uses the octave and piano shown in the editor. (The game plays the synth lead, alternating 3–4 and 4–5, today.)</li>
       <li>Layer order: each layer waits for the one under it. The arpeggio comes in only after the drums have played 4 bars, and the lead only after the arpeggio has played 4 bars. At full speed from a standstill: drums at bar 1, arpeggio at bar 5, lead at bar 9.</li>
       <li>Layers: bass from 1.3× in mission 1 and from the first bar in missions 2–7, drums from 1.7×, arpeggio from 2.0×; sixteenth-note hats from 2.8×. The pad's filter opens with speed.</li>
       <li>A rest: at most once every sixteen bars, in the last of them, one of the bass, drums or arpeggio drops out for one bar and comes back on the downbeat. Only a layer that has played at least sixteen bars since it came in can rest, and never the same one twice running.</li>
-<li>Start screen: silent until the note is tapped, then the whole soundtrack, played as if flying at 2.8×: every layer, about 121 BPM, with the lead coming in after its usual wait. A run starts from it without a break: the layers leave at their chord changes as the speed drops to the run's, and every mission opens with a 1.2 s fly-in.</li>
+<li>Start screen: silent until the note is tapped, then the whole soundtrack at the tempo of 2× (110 BPM). Every layer plays there whatever its speed threshold, each waiting its turn: pad, bass and drums from bar 1, the arpeggio at bar 5, the lead at bar 9. The fast hi-hats of 2.8× stay out. A run starts from it without a break: the layers leave at their chord changes as the speed drops to the run's, and every mission opens with a 1.2 s fly-in.</li>
       <li>End screen after the ship is destroyed: the music fades over 1.5 s, then the bass alone plays one long note every 6 seconds (A, F, C, G in turn) at 60 BPM, the first after 2 seconds, until the next run.</li>
       <li>Slow motion: tempo down to 60%, new notes up to five semitones lower, everything muffled, back in 1.4 s.</li>
       <li>Music level: −12 dB, with a limiter at −1 dB. The sounds play at the game's own level.</li>
@@ -399,8 +399,10 @@ textarea { width: 100%; font: 12px/1.5 var(--mono); color: var(--text); backgrou
     tempo: { base: 96, perSpeed: 14, max: 140, results: 90 },
     from: { pad: 0, bass: 1.3, drums: 1.7, arp: 2.0, lead: 2.2 },
     hats16From: 2.8,
+    // The lead's entries in a run, in turn (the owner's word): its octaves and the piano's effects. The fourth entry is the first again.
+    leadTurns: [{ oct: 'o2', voice: 'hall' }, { oct: 'o3', voice: 'echo' }, { oct: 'o3', voice: 'echo' }],
     layerWait: 4,       // the arpeggio waits for 4 bars of drums, the lead for 4 bars of arpeggio (the owner's word)
-    menuSpeed: 2.8,     // the start screen's music plays as if flying at this speed: every layer (the owner's word)
+    menuSpeed: 2.0,     // the start screen's music takes its tempo from this speed (the owner's word): 110 BPM. Every layer plays there, whatever its threshold
     over: { bpm: 60, fade: 1.5, first: 8, every: 24, length: 2.4 },   // the end screen: one bass note every 24 sixteenths (6 s), the first after 2 s
     bassFromMission: 2, // from this mission the bass plays from the first bar, whatever the speed
     restEvery: 16,      // a one-bar rest at most once in this many bars, in the last of them
@@ -516,7 +518,7 @@ textarea { width: 100%; font: 12px/1.5 var(--mono); color: var(--text); backgrou
   // ---- State ----
   const S = {
     playing: false, state: 'stopped', mission: 1, distance: 0, speed: 1, auto: true, slowmo: 0, seat: 0,
-    sfxMode: 'v2', shipSeats: 12, rest: null, restShown: null, lastRest: null, since: {}, arpWas: false, leadVoice: 'hall', leadEntries: 0, leadHigh: false, overFrom: 0, launch: 0, leadSince: 0, leadRestUntil: 0, stepNow: 0,
+    sfxMode: 'v2', shipSeats: 12, rest: null, restShown: null, lastRest: null, since: {}, arpWas: false, leadVoice: 'hall', leadEntries: 0, leadEntry: 0, overFrom: 0, launch: 0, leadSince: 0, leadRestUntil: 0, stepNow: 0,
     gate: { pad: false, bass: false, drums: false, arp: false },
     muted: { pad: false, bass: false, drums: false, arp: false },
     force: {},          // per layer: 'on' (playing whatever the run says), 'off' (paused), or nothing (follows the run)
@@ -696,10 +698,11 @@ textarea { width: 100%; font: 12px/1.5 var(--mono); color: var(--text); backgrou
     },
   }
   const leadVoices = {}                                         // made the first time each is chosen
-  function leadVoice(preview = false) {
-    const key = S.leadVoice + (preview ? ':preview' : '')
-    return leadVoices[key] || (leadVoices[key] = LEAD_VOICES[S.leadVoice](preview ? user.lead : gate.lead))
+  function leadVoice(preview = false, name = S.leadVoice) {
+    const key = name + (preview ? ':preview' : '')
+    return leadVoices[key] || (leadVoices[key] = LEAD_VOICES[name](preview ? user.lead : gate.lead))
   }
+  const leadTurn = () => TUNE.leadTurns[S.leadEntry % TUNE.leadTurns.length]
 
   const arpDelay = new Tone.FeedbackDelay({ delayTime: 0.47, feedback: 0.32, wet: 0.28 }).connect(gate.arp)
   const arpFilter = new Tone.Filter(3200, 'lowpass').connect(arpDelay)
@@ -720,7 +723,8 @@ textarea { width: 100%; font: 12px/1.5 var(--mono); color: var(--text); backgrou
     if (S.state === 'melody') return id === 'lead'
     if (S.state === 'results') return id === 'pad'
     if (S.state === 'parts') return false                                  // layers on their own: only the ones switched on
-    if (S.state !== 'flying' && S.state !== 'menu') return false           // the start screen plays the whole soundtrack, as flying at menuSpeed
+    if (S.state === 'menu') return true                                    // the start screen plays every layer, at menuSpeed's tempo; each still waits its turn
+    if (S.state !== 'flying') return false
     if (id === 'bass' && S.state === 'flying' && S.mission >= TUNE.bassFromMission) return true
     const from = TUNE.from[id]
     const fast = musicSpeed() >= (S.gate[id] ? from - 0.05 : from)      // a little slack, so a layer does not flicker at its threshold
@@ -780,7 +784,7 @@ textarea { width: 100%; font: 12px/1.5 var(--mono); color: var(--text); backgrou
           if (on && !S.gate.lead && s < S.leadRestUntil) on = false
         }
         if (id === 'lead' && on && !S.gate.lead && s % 128 !== 0 && !forced('lead')) continue   // the melody starts only at the top of an eight-bar half
-        if (id === 'lead' && on && !S.gate.lead) { S.leadSince = s; S.leadHigh = S.leadEntries++ % 2 === 1 }   // the lower octave first, then the upper, in turn
+        if (id === 'lead' && on && !S.gate.lead) { S.leadSince = s; S.leadEntry = S.leadEntries++ }   // each entry takes the next turn: octaves and effects
         const was = S.gate[id]
         setGate(id, on, time)
         if (!was && S.gate[id]) S.since[id] = s
@@ -819,8 +823,8 @@ textarea { width: 100%; font: 12px/1.5 var(--mono); color: var(--text); backgrou
     if (tune) {
       // In a run the lead alternates octaves from one entry to the next; alone or forced, it plays as the editor shows.
       const asShown = S.state === 'melody' || forced('lead')
-      const want = asShown ? octave : S.leadHigh ? 'o3' : 'o2'             // in a run: 2–3 first, then 3–4
-      leadVoice().triggerAttackRelease(f(tune.note, (want === 'o3' ? 0 : -12) - (octave === 'o3' ? 0 : -12)), tune.len * 15 / T.bpm.value * 0.95, time, 0.9); hits.push('lead')
+      const turn = leadTurn(), want = asShown ? octave : turn.oct         // in a run the entries take turns; alone or switched on by hand, as shown
+      leadVoice(false, asShown ? S.leadVoice : turn.voice).triggerAttackRelease(f(tune.note, (want === 'o3' ? 0 : -12) - (octave === 'o3' ? 0 : -12)), tune.len * 15 / T.bpm.value * 0.95, time, 0.9); hits.push('lead')
     }
     if (s16 % 2 === 0 && !rests('arp')) { const i = s16 / 2; arp.triggerAttackRelease(f(ch.arp[ARP[i]]), '8n', time, i % 2 ? 0.65 : 1); hits.push('arp') }
     if (!document.hidden) draw.schedule(() => paint(s16, bar, ch, hits, s), time)
@@ -1160,7 +1164,8 @@ textarea { width: 100%; font: 12px/1.5 var(--mono); color: var(--text); backgrou
     await Tone.start()
     ensureSfx()
     resetFlight()
-    S.playing = true; S.state = 'flying'; S.rest = null; S.restShown = null; S.leadRestUntil = 0; S.lastRest = null; S.since = {}; S.leadEntries = 0; S.leadHigh = false
+    S.playing = true; S.state = 'flying'; S.rest = null; S.restShown = null; S.leadRestUntil = 0; S.lastRest = null; S.since = {}; S.leadEntries = 0; S.leadEntry = 0
+    for (const t of TUNE.leadTurns) leadVoice(false, t.voice)       // build the run's pianos now, so their reverbs are ready
     for (const id of IDS) { S.gate[id] = false; gate[id].gain.cancelScheduledValues(0); gate[id].gain.value = 0 }
     fade.gain.cancelScheduledValues(0); fade.gain.value = 1
     masterLP.frequency.value = 18000
@@ -1413,7 +1418,7 @@ textarea { width: 100%; font: 12px/1.5 var(--mono); color: var(--text); backgrou
       if (S.muted[l.id]) text = 'Paused'
       else if (!S.playing) text = 'Off'
       else if (on && want && S.restShown === l.id) { text = 'Resting'; cls = 'wait' }
-      else if (on && want) { text = l.id === 'lead' && inFlight() && !forced('lead') ? (S.leadHigh ? 'Playing 3–4' : 'Playing 2–3') : 'Playing'; cls = 'on' }
+      else if (on && want) { text = l.id === 'lead' && inFlight() && !forced('lead') ? (leadTurn().oct === 'o3' ? 'Playing 3–4' : 'Playing 2–3') : 'Playing'; cls = 'on' }
       else if (on && !want) { text = 'Leaving'; cls = 'wait' }
       else if (l.id === 'lead' && !on && S.playing && inFlight() && S.stepNow < S.leadRestUntil) { text = 'Pausing'; cls = 'wait' }
       else if (!on && want) { text = 'Coming in'; cls = 'wait' }
