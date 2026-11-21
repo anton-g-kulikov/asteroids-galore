@@ -707,87 +707,148 @@ Asked for by the owner on 2026-11-20. Both are built and live since 0.4.7 (2026-
 
 ## Story
 
-Proposed on 2026-11-21 and agreed in outline by the owner. **Not built.** The lines below are first drafts, and where they sit on screen has not been drawn.
+Proposed on 2026-11-21 and agreed in outline by the owner. Rewritten the same day for the game's new name, Lightboat (see [The name Lightboat](#the-name-lightboat)) and for a story mode beside arcade, which the owner asked about: "do we have enough to build a story mode (keeping the current as arcade)". On 2026-11-22 the owner decided what was mined (light0re) and that each mission has a moon of its own (`m00n` to `m06n`). The same day the owner numbered the missions like the moons, 00 to 06: **this section uses those numbers, while the rest of these notes still count missions and levels from 1,** so mission 00 here is level 1 there. **Not built, and none of the mode's rules are agreed:** they are the owner's to decide and are set out under [Choices for the owner](#choices-for-the-owner). The lines are first drafts.
+
+### Two ways to play
+
+- **Arcade** is the game as built: seven missions, one run, the board. It stays wordless.
+- **Story** is the same flying with the story told around it, on screens of its own. It is played to find out what happened and who can be brought out, not for a place on the board.
+- **Is there enough to build a story mode?** The frame is here: a premise, seven moons, voices that disagree, a turn after mission 03, a second turn in mission 06, and endings that depend on what the Pilot did. What is missing is the mode's rules (the choices below), an agreed script (a second draft of the whole first playthrough is in `story-script.md`, revised on 2026-11-22 after the Game Producer's review; the owner has read the review), and its screens, which have not been drawn.
+
+### The title
+
+- **The word is real.** Dictionary.com gives "lightboat" as a small lightship, an Americanism from 1825–35; Wiktionary gives it as a vessel that carries a light as an aid to navigation. A lightship is moored where the water is dangerous so that others can find their way past.
+- **Proposed: a lightboat is the kind of boat, not one ship.** A lightboat is the small rescue boat a tender carries, drawn in lines of light so that the people it comes for can see it. The Lantern carries three, of 4, 8 and 12 seats, and the Pilot flies one. So the title names what the player flies, whichever ship they choose.
+- **All three readings hold:** a boat of light, a light boat (the 4-seater is the lightest, and the Pilot may keep it), and one letter from "lifeboat".
+- **The dictionary sense is kept for the ending.** A lightship holds its place at the hazard. In mission 06 the Pilot who lets the way home pass is doing exactly that, and so, in one ending, is the Lantern.
+- **The alternatives:** the title names the Pilot's one ship (then the 8- and 12-seaters need a word of their own), or the tender (then the game is named after the ship the player never flies).
 
 ### The premise
 
-- **Galore is a place.** It was a mining moon, and it broke apart nine hours ago. The grey asteroids are its rubble. The coloured planetoids are the pieces people were living and working on.
-- **The Lantern** is the rescue tender that answered the call. It is too big to enter the field, so it sends in one small ship and waits on the far side of every wormhole. It carries three rescue ships, which is why a bigger one can be taken at a stop and why every ship flown is there for the last trip.
+- **Seven moons.** Decided by the owner on 2026-11-22: there is one mined moon per mission, numbered `m00n` to `m06n` (see [The moons' names](#the-moons-names)). One company opened them in that order, so `m00n` is the oldest and most mined out, and `m06n` is the working mine. Nine hours ago they began to break up. The grey asteroids are their rubble. The coloured planetoids are the pieces people were living and working on.
+- **What was mined: light0re.** Agreed by the owner on 2026-11-22, who named it. It is spelled with a zero, the owner's spelling, and never capitalised. The moons' cores held an ore that stores light. Everything in the game that is drawn in light is made of it: the lines of a lightboat's hull and the shield arcs. A moon was not mined for something in its rock: it was taken apart for its core, which is the owner's word for it, "harvested".
+- **The Pilot's part in it.** The boat that comes for these people is lit by what they dug. Nobody says so until the Foreman does, once, near the end.
+- **The Lantern** is the rescue tender that answered the call. It is too big to enter the fields, so it sends in a lightboat, keeps outside the chain of moons and waits on the far side of every wormhole. Its three lightboats are why a bigger one can be taken at a stop and why every boat flown is there for the last trip.
 - **The Pilot** is the player, addressed by their generated callsign, or as `PILOT` before the game has signed in.
-- **The drill.** A gravity drill under the mine never shut down. It is what broke the moon, bends the grid, tears the wormholes and pulls everything in faster the deeper the Pilot goes.
-- **The board** is the Lantern's roll of pilots who went in, with `HOME` or `LOST` against each. Nothing on it changes.
+- **The drill.** A gravity drill at `m06n` is still running. The richest light0re was at the core, so the drill went deeper than a moon can stand. It broke `m06n`, and its pull is taking the six older moons apart too: they had already been hollowed out. It bends the grid and pulls everything in faster the nearer the Pilot gets to it.
+- **The wormholes** are the mine's haul roads from moon to moon, opened by the drill to move light0re down the chain. They still open, but on no timetable any more. The road out of `m06n` is the one the light0re left by, and it leads home. This is the story's reason for a wormhole leading to the next moon, and for nobody knowing when the next one comes. *The writer's proposal; the owner has not seen it.*
+- **The list.** The company gave the Lantern a list of who was on its moons. It covers `m00n` to `m03n`. On paper `m04n`, `m05n` and `m06n` are worked by machines alone. The night shift, who were sent there to run the drill past its limit, are on nobody's list. *That the list stops at `m03n` is the writer's proposal: it is what makes mission 03 the turn.*
+- **What the night shift is doing.** They stayed at the drill on purpose, holding it back so that the others had time. They can slow it but not stop it: it runs faster the longer it goes. This is the story's reason for speed rising for as long as the Pilot stays, with no ceiling in mission 06. An earlier draft had the drill speed up for every one of them the Pilot took out. The game has no such rule (speed follows the distance flown), and a player would read it as a reason to rescue fewer, so the story no longer says it (the Producer's review, 2026-11-22).
 
-### Rules for the story
+### The voices
 
-- **Why, never how.** The story gives the Pilot a reason to fly. It never mentions rings, shields as objects to collect, steering, seats or the score. Rescues, the wormhole and gravity are still left to be discovered.
-- **Only where the game already stops.** Lines appear on the start screen, the stops between missions and the end screens. Nothing is added during flight and no new screen is added. A tap moves on exactly as it does today.
-- **Never needed.** The game must play the same for someone who reads none of it. This is what keeps "nothing to read" in [Direction](#direction) true.
-- **Nothing about the ship choice.** The picker has no caption and no prompt, and the story does not give it one: lines at the stops after missions 2, 4 and 6 are about people, not about ships.
-- **Missed crew are still out there.** Crew who drift past, or are thrown off by a hit, are not dead in the story: they are still waiting, and every new run goes back for them. Only crew lost with the ship are lost.
-- **Short.** One transmission per stop: a sender and at most three short lines. Survivors sign by what they did on Galore, not by name; names would go stale on replay.
+A mode needs voices that come back and want different things.
 
-### Before the first mission
+- **The Watch** is the Lantern's officer on watch. Careful, by the book, and wants the boat back. Signs as `LANTERN`.
+- **The First** is the first person the Pilot delivers, whoever that turns out to be. They stay by the Lantern's radio and keep the names of who is still out. They want everyone brought out. Until the Pilot has delivered someone, the Watch speaks alone.
+- **The Foreman** is the night shift's, heard faintly from mission 04. The Foreman wants the Pilot to turn back.
+- **Other survivors** speak once, after the mission they were saved in, and sign by what they did and the moon they were on, not by name.
 
-On the start screen, under the title:
+### The seven missions
+
+Each mission is flown at one moon, further down the chain and nearer the drill. The second name is what its people call it; those names are the writer's. What is told after one mission is what sends the Pilot into the next.
+
+| Mission | Where, and who is there | What is told around it | What it gives a reason for |
+|---|---|---|---|
+| 00 | `m00n`, the Edge: the survey crew who sent the call | The briefing. After it, the first thanks, and the First takes the radio | Single crew, one at a time |
+| 01 | `m01n`, the Drift: rig crews on neighbouring pieces | The First reads who is still out. The Watch has a bigger boat ready | Two crews at once; the first ship choice |
+| 02 | `m02n`, the Works: shift crews in twos and threes | A shift hand tells what the drill is doing | The grid and the wells |
+| 03 | `m03n`, the Town: families | **The turn.** The Watch: the list is done, come home. The First: the night shift is on nobody's list | Missions 00–03 against 04–06; the Lantern's first shields; the second ship choice |
+| 04 | `m04n`, the Fall: the night shift's outer crews | Everyone the Pilot brought out is cutting the Lantern's light0re into shields. The Foreman is heard for the first time: turn back | The higher speed; six shield drops |
+| 05 | `m05n`, the Throat | The Lantern is ordered out. The next way out leads home, not to the Lantern. The Pilot chooses a boat for the last trip | Four drops, then none; the fleet; mission 06's wormhole |
+| 06 | `m06n`, the Heart: the drill's own crew | **The second turn.** The night shift can slow the drill but not stop it: the longer the Pilot stays, the faster everything falls. An ending | The open-ended last mission |
+
+- **Older moons first.** `m00n` was mined out long ago and has a handful of people on it; `m06n` is where the work is. This is the story's reason for planetoids carrying more people in later missions, and for missions 04 to 06 starting faster: they are nearer the drill.
+- **The shields are the Lantern's own stock of light0re,** which is why it can count them and run out. They count down in the story as in the game: two in mission 03, six in mission 04, four in mission 05, none sent in mission 06. The lines give the reason for the shields and no counts, so they do not depend on `shieldDrops`.
+- **The shield beside every wormhole in mission 06** is raw light0re, torn out of the core by the drill where it tears space. Nobody sent it: the way home and the shield are born together, one each side.
+
+### Draft lines
+
+Every transmission of a first playthrough is in `story-script.md`, now in its second draft. The lines are kept there only, so that there is one copy to revise. The briefing, as a sample:
 
 > LANTERN TO [CALLSIGN]
-> The moon Galore broke apart nine hours ago.
+> Seven mined moons, m00n to m06n.
+> Nine hours ago they began to break up.
 > There are people alive on the pieces.
-> We are too big to go in. You are not.
-> We'll be waiting on the far side.
+> We are too big to go in. Your boat is not.
+> Show them a light. We'll be on the far side.
 
-- Shown until the player has delivered someone for the first time. After that the start screen carries at most one line, such as `They're still calling.`
-- A run opened from a share link already shows the shared run under the title. The briefing gives way to it.
+### Endings
 
-### The first thanks
+Four, with their lines in `story-script.md`. Which exist, and where the lines between them fall, depend on the choices below.
 
-On the stop after mission 1. Which line appears depends on what happened:
+| Ending | When |
+|---|---|
+| The list | The Pilot goes home when the list is done, after mission 03 |
+| Home | The Pilot takes the first way out of `m06n` |
+| The long way home | The Pilot lets the way home pass, and comes home with many left behind |
+| The light that stayed | The Pilot lets the way home pass, and comes home with few left behind |
 
-| What happened | Who speaks | The line |
+- **"Few left behind"** is no more than seven missed in the whole run, one per mission: the Producer's starting value, to be checked against real or scripted runs, because the pairs force misses.
+- **Where the Pilot comes in.** The way out of `m06n` leads home, so every ending but "The list" ends at home. The Lantern is ordered out after mission 05. If the Pilot takes the first way out, it has left as ordered and is home to meet them. If the Pilot stays on, it disobeys and holds its place outside `m06n` until they are through.
+- **"Lost at the Heart"** was a fifth ending, for a boat destroyed in mission 06. It exists only if a destroyed boat can end the story, which the script does not assume.
+
+### The moons' names
+
+Decided by the owner on 2026-11-22, in the owner's words "m00n, m01n, m02n, etc", with one moon per mission.
+
+| Mission | 00 | 01 | 02 | 03 | 04 | 05 | 06 |
+|---|---|---|---|---|---|---|---|
+| Moon | `m00n` | `m01n` | `m02n` | `m03n` | `m04n` | `m05n` | `m06n` |
+| Level, in the code and the rest of these notes | 1 | 2 | 3 | 4 | 5 | 6 | 7 |
+
+- **The zero stands for the letter o,** as in light0re. `m00n` reads as "moon", which is why the count starts at zero; the others are the same word with the number counting up.
+- **Always lower case.** In the HUD's capitals, `M00N` loses the look. *To see on screen.*
+- **A mission has its moon's number.** Decided by the owner on 2026-11-22 ("rename missions 00, 01, etc"): missions are 00 to 06, always two digits, so mission 00 is flown at `m00n` and the two numbers never differ.
+- **On screen the rename is built** (2026-11-22, by the Game Engineer; not yet released). The counter in flight reads `MISSION 00/06`, the stop between missions `MISSION 01 COMPLETE`, and the rows of the results tables run 00 to 06. Underneath, levels, saved runs, the rules and share links still count 1 to 7.
+- **The board now names a place, not a count.** A row says the mission a run reached, `REACHED 02`, and for the last mission `REACHED 06 · HOME` or `LOST`; it replaced `FINISHED n/7`. For the story this reads as how far down the chain of moons each pilot got, which is what a tender's roll of its pilots would record.
+- **Where the numbers appear:** the premise, the briefing, the survivors' signatures ("Survey crew, m00n") and a few lines. Whether a moon's number is shown during flight is a choice below.
+- **"etc".** The story uses seven moons. Whether the company has more elsewhere is left open.
+- **Dropped:** Galore, and the five names proposed on 2026-11-21 (Tallow, Harrow, Kessler, Lode, Marrow).
+
+### Choices for the owner
+
+Each is a rule of the mode. "Proposed" is the writer's suggestion, not a decision.
+
+| Choice | Options | Proposed |
 |---|---|---|
-| Everyone offered was saved | Survey crew, Galore outer ring | "We'd stopped listening for engines. Thank you. Our friends are further in." |
-| Some saved, some missed | Survey crew, Galore outer ring | "Thank you. We weren't alone at the edge. The others are still out there." |
-| Nobody saved | The Lantern | "No one aboard. They're still calling." |
+| Where a moon's name is shown | The mission's number already is the moon's. `m00n` itself: only on the story's screens; or also in flight, beside or in place of the word `MISSION`, and then in arcade too | Only on the story's screens, until it has been seen on screen |
+| What each moon's people call it | Keep the second names (the Edge to the Heart); or numbers only | Keep them, in survivors' mouths only: the Lantern uses the numbers |
+| Which ship the title names | The kind of boat; the Pilot's one ship; the tender | The kind of boat |
+| Screens of its own | Lines beside the results table, as first written; or a transmission screen between the results and the ship choice | A transmission screen. It ends the question of whether the lines fit beside the table and the ships |
+| When a lightboat is destroyed | The story ends, as in arcade; the mission is flown again in the same boat, as often as needed; or the Lantern's three boats are three tries, and a boat lost is gone from the rail | Fly the mission again in the same boat, which the Lantern recovers with the Pilot. The crew who were aboard stay lost and count in the ending. With arcade's rule most players would never read missions 04 to 06: a scripted average pilot finished mission 03 in under half its runs. The script gives the Lantern's line for each of the three |
+| The ship choice | Silent, as in arcade; or told | Told, as a choice about people and risk ("The eight is ready. More seats, and more boat to get through the rocks. Your call."), never how the picker works |
+| Going home after mission 03 | Not offered; or offered, as the ending "The list" | Offered. It makes going past the list something the Pilot chose |
+| The board | Story runs on the arcade board; or no board for story | No board: a story that lets the Pilot fly a mission again cannot share it. The story's roll is the Pilot's own: who is home, who is still out, who went down with a boat, and which endings have been reached |
+| What the endings depend on | Any of: whether the Pilot went past the list; whether they let the way home pass; how many were left behind; boats lost | The first three, with "few left behind" as no more than seven in the run |
+| Whether taking the night shift out speeds the drill | Not a rule today: speed follows the distance flown. Add it as a rule of story mode; or leave the story silent about it | Silent, as the script now is. Adding it is a rules and balance question, and it would give a reason to rescue fewer |
+| A second playthrough | The same story again; or a telling that knows it has been read | The briefing is skipped, the Pilot is greeted as someone who has been in before, and the First's lines change because the Pilot already knows what the list leaves out. The roll shows the endings not yet reached as unlit lamps |
+| Which mode a new player meets | Arcade on the first tap, story as a second entry on the start screen; or story first | Arcade on the first tap. It keeps "nothing to read" true for the game most players meet |
+| Whether arcade carries any of the story | Nothing; or the title and one line | Nothing but the title |
+| The same flying as arcade | The same missions, speeds and ships; or gentler numbers for story | Not the writer's to propose: a rules and balance question |
+| Tone | Dry and warm, as drafted; or lighter | Dry and warm. The reason to consider lighter was the old title |
 
-The same three cases apply at every later stop: a survivor speaks when someone was saved, and the Lantern speaks alone when nobody was.
+### Rules for the writing
 
-### Missions 2 to 7
+These hold whatever is chosen above.
 
-Each mission is a place deeper in the field, with different people stranded there. The line after a mission is what sends the Pilot into the next.
-
-| Mission | Where, and who is there | The line after it | What it gives a reason for |
-|---|---|---|---|
-| 1 | The Edge: the survey crew who sent the call | The first thanks, above | Single crew, one at a time |
-| 2 | The Drift: rig crews on neighbouring pieces | "You couldn't reach everyone. We saw. Nobody here blames you." (when someone was missed) | Two crews at once |
-| 3 | The Works: shift crews in twos and threes | "The gravity drill under the mine never shut down. It's pulling everything in." | The grid and the wells |
-| 4 | The Town: families | Lantern: "That's everyone on our list." A survivor: "The night shift was at the drill. They're on nobody's list." | The turn from missions 1–4 to 5–7; the Lantern's first shields |
-| 5 | The Fall: the night shift's outer crews | "We're throwing in every shield we can spare. Four left." | The higher speed; six shield drops, then four |
-| 6 | The Throat | "That was the last of our shields. We're full and pulling back. The next way out leads home." | No drops in mission 7; its wormhole |
-| 7 | The Heart: the drill's own crew | On `MADE IT HOME`: "[N] people are home. They know your callsign." | The open-ended last mission |
-
-- **Mission 4 is the turn.** Up to there the Pilot does what was asked. From mission 5 the Pilot goes in for people nobody listed, which is the story's reason for the part of the game played for the board.
-- **The shields count down in the story as in the game:** two in mission 4, six in mission 5, four in mission 6, none sent in mission 7. The numbers in the lines come from `shieldDrops` and must follow it when it is tuned.
-- **The shield beside every wormhole in mission 7** is thrown off by the drill where it tears space: the way home and the shield are born together, one each side.
-- **When the ship is destroyed,** on `GAME OVER` in any mission: "[N] people got out before your signal stopped. They're asking for your callsign." With nobody saved: "Signal lost. They're still calling."
-
-### Replays
-
-Players will see the stops hundreds of times.
-
-- **The full line** is shown the first few times a player reaches each stop, remembered on the device.
-- **After that,** one short line from a small pool for that stop, chosen by what happened: everyone saved, someone missed, nobody saved.
-- **The choice of line** uses the drawing's randomness, never the run's seed, so the story cannot change the deal.
+- **Why, never how.** The story gives the Pilot a reason to fly. It never teaches rings, steering, seats or the score. Rescues, the wormhole and gravity are still left to be discovered.
+- **Nothing to read while flying.** Lines appear only where the game has stopped.
+- **Missed crew are still out there.** Crew who drift past, or are thrown off by a hit, are not dead in the story: they are still waiting. Only crew lost with a boat are lost.
+- **Lines answer what happened.** Each stop has a line for someone missed, for everyone saved and for nobody saved. From mission 01 the line for someone missed is the usual one: every third rescue is a pair built so that one crew is left. The line for a clean mission is the rare one.
+- **The choice of line never touches the deal.** It uses the drawing's randomness, not the run's seed.
+- **Short.** A transmission is a sender and at most three short lines, and a screen holds at most three transmissions. A line is about 48 characters, the Producer's estimate of what fits across the field, to be measured once the screen is drawn.
 
 ### Not decided
 
-- **Whether the lines fit.** The stops after missions 2, 4 and 6 already hold the table and the ships, and the stop after mission 6 is the fullest. Each stop needs drawing with its line, on a short phone too, before anything is built.
-- **Tone.** The drafts are dry and warm. The title is playful; the owner has not yet said whether the story should be lighter.
-- **How the lines look:** capitals like the rest of the HUD, or sentence case so that they read as a voice; shown at once or typed out.
-- **A sound for a transmission,** which is the Composer's to propose.
-- **Whether the start screen keeps a line** once the briefing has gone.
-- **The pools of short lines** for replays are not written.
+Besides the choices above:
 
-When this is built, [What the player is told](#what-the-player-is-told) needs rewriting.
+- **The script.** A second draft of the first playthrough is in `story-script.md`, revised after the Producer's review and waiting for the owner. The changed lines for a second playthrough and the shorter lines for later runs are not written.
+- **How the lines look:** capitals like the rest of the HUD, or sentence case so that they read as a voice; shown at once or typed out.
+- **A sound for a transmission,** and whether the voices differ in sound. The Composer's to propose.
+- **The screens.** None is drawn: the transmission screen, the start screen with two modes, the roll.
+
+When this is built, [What the player is told](#what-the-player-is-told) and [Direction](#direction) need rewriting.
 
 ## The name Lightboat
 
