@@ -12,6 +12,7 @@ function fakeEngine() {
   const engine: MusicEngine = {
     start: () => void calls.push('start'),
     stop: fade => void calls.push(`stop ${fade}`),
+    gameOver: () => void calls.push('over'),
     dropLayers: fade => void calls.push(`drop ${fade}`),
     slowMotion: () => void calls.push('slow'),
     chord: () => 3,
@@ -55,13 +56,13 @@ test('MUS-06 the music follows the game', () => {
   Object.assign(t.g, { state: 'play', speed: 1.4 }); t.frame()
   expect(t.e.calls.filter(x => x === 'start')).toHaveLength(1)
   expect(t.e.last()).toBe('flying 1.4 0')
-  // destroyed: stopped in 0.3 s
+  // destroyed: the music fades and the game-over screen plays its bass (MUS-17)
   t.g.events.push({ kind: 'destroyed' }); t.g.state = 'over'; t.frame()
-  expect(t.e.calls.slice(-1)).toEqual([`stop ${MUSIC.stopOver}`])
-  expect(t.e.last()).toBe('silent 1.4 0')
+  expect(t.e.calls.slice(-1)).toEqual(['over'])
+  expect(t.e.last()).toBe('over 1.4 0')
   // a new run starts it again
   t.g.events.length = 0
-  Object.assign(t.g, { state: 'play', speed: 1 }); t.frame()
+  Object.assign(t.g, { state: 'launch', speed: 1 }); t.frame()
   expect(t.e.calls.slice(-1)).toEqual(['start'])
   // home: faded over 2.5 s
   t.g.events.push({ kind: 'home' }); t.g.state = 'won'; t.frame()
@@ -177,4 +178,35 @@ test('MUS-16 the music starts with the fly-in', () => {
   t.g.state = 'launch'; t.frame()
   expect(t.e.calls.slice(-1)).toEqual(['start'])
   expect(t.e.last()).toBe('flying 1 0')
+})
+
+test('MUS-17 the ship destroyed hands over to the game-over bass; a new run cuts it', () => {
+  const t = setup()
+  t.c.attach(t.e.engine)
+  Object.assign(t.g, { state: 'play', speed: 1.8 }); t.frame()
+  t.g.events.push({ kind: 'destroyed' }); t.g.state = 'over'; t.frame()
+  expect(t.e.calls.filter(c => c === 'over')).toHaveLength(1)
+  expect(t.e.calls.filter(c => c.startsWith('stop'))).toEqual([])        // faded by the engine, not stopped
+  t.g.events.length = 0
+  for (let i = 0; i < 5; i++) t.frame()
+  expect(t.e.last()).toBe('over 1.8 0')
+  expect(t.e.calls.filter(c => c === 'start')).toHaveLength(1)           // the bass plays on the running loop
+  // the music switch governs it
+  t.c.toggle()
+  expect(t.e.calls.slice(-1)).toEqual(['on false'])
+  t.c.toggle()
+  // a new run: the loop starts again from the top
+  t.g.state = 'launch'; t.frame()
+  expect(t.e.calls.slice(-1)).toEqual(['start'])
+  expect(t.e.last()).toBe('flying 1.8 0')
+  // home is as before: a 2.5 s fade to silence
+  t.g.events.push({ kind: 'home' }); t.g.state = 'won'; t.frame()
+  expect(t.e.calls.slice(-1)).toEqual([`stop ${MUSIC.stopHome}`])
+  expect(t.e.last()).toBe('silent 1.8 0')
+  // the music arriving on the game-over screen plays the bass
+  const late = setup()
+  late.g.state = 'over'; late.frame()
+  late.c.attach(late.e.engine)
+  expect(late.e.calls).toEqual(['on true', 'start'])
+  expect(late.e.last()).toBe('over 1 0')
 })

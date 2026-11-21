@@ -24,7 +24,11 @@ export const MUSIC = {
   level: -12,                                                  // the music's bus, in dB
   limiter: -1,                                                 // then a limiter, in dB
   drop: 0.5,                                                   // a wormhole drops all but the pad over this many seconds
-  stopOver: 0.3,                                               // a destroyed ship stops the music this fast
+  // The ship destroyed: the music fades out over `fade` while the tempo ramps to `bpm`; then the
+  // game-over screen's bass alone, a note of `len` seconds every `every` sixteenths, the first
+  // `first` sixteenths after the loss, on these roots in turn (the gap and the order are the Music
+  // Producer's reading of the owner's "very infrequent"; the rest is the owner's word, 2026-11-21).
+  over: { fade: 1.5, bpm: 60, every: 24, first: 8, len: 2.4, vel: 0.8, roots: ['A1', 'F1', 'C2', 'G1'] },
   stopHome: 2.5,                                               // home: it fades over this long
 }
 
@@ -101,23 +105,44 @@ export const INSTRUMENTS = {
   },
   duck: { to: 0.45, back: 0.24 },              // pad and bass under the kick: down to 45%, back in 0.24 s
   padLength: 0.92,                             // a pad chord lasts this share of its two bars
+  // the game-over screen's bass: its own voice, on the music's output after the fade
+  endBass: {
+    oscillator: { type: 'sawtooth' },
+    filter: { Q: 2, type: 'lowpass', rolloff: -24 },
+    envelope: { attack: 0.05, decay: 1.2, sustain: 0.3, release: 2.5 },
+    filterEnvelope: { attack: 0.04, decay: 1.0, sustain: 0.2, release: 2, baseFrequency: 90, octaves: 2.4 },
+    volume: -8,
+  },
+  endBassSend: 0.3,
 } as const
 
-/** What the music is doing: nothing, the run's loop, or the pad between missions. */
-export type Mode = 'silent' | 'flying' | 'results'
+/** What the music is doing: nothing, the run's loop, the pad between missions, or the game-over screen's bass. */
+export type Mode = 'silent' | 'flying' | 'results' | 'over'
 
 export const bpmFor = (speed: number): number => Math.min(MUSIC.tempo.max, MUSIC.tempo.base + MUSIC.tempo.perSpeed * (speed - 1))
+
+/**
+ * The game-over screen's bass on sixteenth `s` counted from the ship's loss: a root to play, with
+ * the chord it belongs to (for the sound effects), or null. A, F, C and G are chords 0 to 3.
+ */
+export function endBassStep(s: number): { note: string; chord: number } | null {
+  const { first, every, roots } = MUSIC.over
+  if (s < first || (s - first) % every !== 0) return null
+  const i = ((s - first) / every) % roots.length
+  return { note: roots[i], chord: i }
+}
 
 /** 0 with no slow motion, 1 at its depth, following the game's time scale. */
 export const slowDepth = (slowmo: number): number => (1 - timeScale(slowmo)) / (1 - SLOW_SCALE)
 
 /** Tempo, the pad's filter, the slow-motion low-pass and the arpeggio's echo for a moment of the game. */
 export function controlFor(mode: Mode, speed: number, depth: number) {
-  const bpm = (mode === 'results' ? MUSIC.tempo.results : bpmFor(speed)) * (1 - (1 - MUSIC.slow.tempo) * depth)
+  const base = mode === 'results' ? MUSIC.tempo.results : mode === 'over' ? MUSIC.over.bpm : bpmFor(speed)
+  const bpm = base * (1 - (1 - MUSIC.slow.tempo) * depth)
   return {
     bpm,
     arpDelay: 60 / bpm * 0.75,
-    padCutoff: mode === 'results' ? 520 : Math.min(4200, 600 + 900 * (speed - 1)),
+    padCutoff: mode === 'results' || mode === 'over' ? 520 : Math.min(4200, 600 + 900 * (speed - 1)),
     masterCutoff: 18000 * (MUSIC.slow.cutoff / 18000) ** depth,
   }
 }
@@ -239,6 +264,8 @@ export interface ControlTracker {
   reset(speed: number, mode?: Mode): void
   /** Each frame: what to change now. Usually nothing. */
   update(now: number, mode: Mode, speed: number): Ramp[]
+  /** The ship destroyed: one tempo ramp down to the game-over screen's, over the music's fade. */
+  gameOver(now: number): Ramp[]
   /** When slow motion starts: down and back up, scheduled at once. */
   slowMotion(now: number, mode: Mode, speed: number): Ramp[]
 }
@@ -251,7 +278,7 @@ export interface ControlTracker {
 export function createControlTracker(): ControlTracker {
   const applied = { bpm: 0, cut: 0 }
   let slowUntil = -1
-  const baseBpm = (mode: Mode, speed: number) => mode === 'results' ? MUSIC.tempo.results : bpmFor(speed)
+  const baseBpm = (mode: Mode, speed: number) => controlFor(mode, speed, 0).bpm
   return {
     reset(speed, mode = 'flying') { applied.bpm = baseBpm(mode, speed); applied.cut = 0; slowUntil = -1 },
     update(now, mode, speed) {
@@ -272,6 +299,11 @@ export function createControlTracker(): ControlTracker {
         ramps.push({ param: 'padCutoff', to: cut, over: CONTROL.ramp, at: now })
       }
       return ramps
+    },
+    gameOver(now) {
+      applied.bpm = MUSIC.over.bpm
+      slowUntil = -1
+      return [{ param: 'bpm', to: MUSIC.over.bpm, over: MUSIC.over.fade, at: now }]
     },
     slowMotion(now, mode, speed) {
       const bpm = baseBpm(mode, speed), back = now + SLOW_TIME - CONTROL.slowOut

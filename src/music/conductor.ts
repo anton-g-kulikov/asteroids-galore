@@ -9,6 +9,11 @@ export interface MusicEngine {
   start(): void
   /** Fades the music out over `fade` seconds and stops the loop. */
   stop(fade: number): void
+  /**
+   * The ship destroyed: fades the music out over MUSIC.over.fade with the tempo ramping to
+   * the game-over screen's, then plays that screen's bass alone until the loop is started again.
+   */
+  gameOver(): void
   /** Takes every layer but the pad out over `fade` seconds. */
   dropLayers(fade: number): void
   /** Slow motion has just started: the engine schedules its two ramps at once. */
@@ -46,11 +51,13 @@ export interface Conductor {
 const modeOf = (g: Game, drone: boolean): Mode =>
   g.state === 'play' || g.state === 'launch' ? 'flying'
     : g.state === 'between' || (g.state === 'menu' && drone) ? 'results'
+    : g.state === 'over' ? 'over'
     : 'silent'
 
 /**
  * Follows the game for the music: silent on the start screen until the note
- * is tapped there, then the drone; started by the fly-in of a run, the pad between missions, stopped by a lost ship or the way home. It
+ * is tapped there, then the drone; started by the fly-in of a run, the pad between missions, faded by a lost ship into the
+ * game-over screen's bass (cut by the next run), stopped by the way home. It
  * only reads the game: its state, speed, slow motion and the events the
  * sound effects also hear.
  */
@@ -93,11 +100,13 @@ export function createConductor(storage: Pick<Storage, 'getItem' | 'setItem'> | 
       for (const e of g.events) {            // read, not taken: the sound effects use them too
         if (!engine) break
         if (e.kind === 'enter') engine.dropLayers(MUSIC.drop)
-        if (e.kind === 'destroyed') { engine.stop(MUSIC.stopOver); started = false }
+        if (e.kind === 'destroyed') engine.gameOver()
         if (e.kind === 'home') { engine.stop(MUSIC.stopHome); started = false }
       }
+      const was = last.mode
       last = { mode: modeOf(g, drone), speed: g.speed, depth: g.state === 'play' ? slowDepth(g.slowmo) : 0, level: g.level }
       if (last.mode === 'silent') started = false
+      if (was === 'over' && last.mode === 'flying') started = false   // a new run cuts the game-over bass and starts the loop again
       follow()
       // slow motion is passed on once, as it starts: the engine schedules it whole
       if (engine && started && g.state === 'play' && g.slowmo > slowmo + 1e-6) engine.slowMotion()

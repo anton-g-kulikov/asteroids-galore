@@ -258,3 +258,22 @@ test('MUS-16 a loop started on the start screen or between missions starts at th
   expect(f.update(0, 'flying', 1).filter(r => r.param === 'bpm')).toEqual([])
   expect(controlFor('results', 1, 0).bpm).toBe(MUSIC.tempo.results)
 })
+
+test('MUS-17 the game-over bass: a note every 6 s on A, F, C, G, at 60 BPM after a 1.5 s fade', async () => {
+  const { createControlTracker, endBassStep } = await import('../../src/music/score')
+  expect(MUSIC.over).toEqual({ fade: 1.5, bpm: 60, every: 24, first: 8, len: 2.4, vel: 0.8, roots: ['A1', 'F1', 'C2', 'G1'] })
+  const notes = Array.from({ length: 24 * 5 }, (_, s) => endBassStep(s)).map((n, s) => n && [s, n.note, n.chord])
+    .filter(Boolean)
+  expect(notes).toEqual([[8, 'A1', 0], [32, 'F1', 1], [56, 'C2', 2], [80, 'G1', 3], [104, 'A1', 0]])
+  expect(60 / MUSIC.over.bpm / 4 * MUSIC.over.every).toBe(6)                     // seconds between notes at 60 BPM
+  expect(60 / MUSIC.over.bpm / 4 * MUSIC.over.first).toBe(2)
+  // the tempo: one ramp to 60 over the fade, then nothing more on the game-over screen
+  const t = createControlTracker()
+  t.reset(2)
+  expect(t.gameOver(5)).toEqual([{ param: 'bpm', to: 60, over: 1.5, at: 5 }])
+  const later: string[] = []
+  for (let i = 0; i < 600; i++) later.push(...t.update(5 + i / 60, 'over', 2).map(r => r.param))
+  expect(later.filter(p => p === 'bpm')).toEqual([])
+  // no layer plays on the game-over screen
+  for (const { id } of LAYERS) expect(wanted(id, 'over', 3, true, 4)).toBe(false)
+})

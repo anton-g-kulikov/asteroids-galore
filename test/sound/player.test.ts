@@ -163,3 +163,19 @@ test('SFX-06 once Tone.js has loaded, events and the pulse go to the v2 instrume
   t.g.events.push({ kind: 'shield' }); frame(t)
   expect(plans).toHaveLength(3)
 })
+
+test('SFX-09 in v2 a crew member thrown off by a hit has no cue of their own; crew left behind keep theirs', () => {
+  const t = setup()
+  const kinds: string[] = []
+  t.player.unlock()
+  t.player.attachEffects({ play: p => void kinds.push(p.notes.map(n => n.voice).join('+')), stopAll: () => {} }, () => 0)
+  t.g.events.push({ kind: 'hit', size: 30, shieldsLeft: 2 }, { kind: 'missed', count: 1 }); frame(t)
+  expect(kinds).toEqual(['pad+bass+arp'])                    // the hit's chord alone
+  t.g.events.push({ kind: 'missed', count: 1 }); frame(t)
+  expect(kinds.slice(1)).toEqual(['lead'])                   // left behind: the lead's falling note
+  // before Tone.js has loaded, the first sound effects play both, as before
+  const v1 = setup()
+  v1.player.unlock()
+  v1.g.events.push({ kind: 'hit', size: 30, shieldsLeft: 2 }, { kind: 'missed', count: 1 }); frame(v1)
+  expect(v1.played.map(p => p.sound)).toContain('missed')
+})

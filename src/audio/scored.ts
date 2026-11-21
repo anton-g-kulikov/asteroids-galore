@@ -62,13 +62,13 @@ export function scoredFor(e: SoundEvent, chord: number, semis: number): FxPlan {
       const f = fifth(76)
       return plan(Array.from({ length: e.count }, (_, i) => note('lead', [f], ms(i * 0.12), 0.3, 0.9, { slideTo: f - 7 })))
     }
-    case 'hit': {                                      // kick and snare sized by the rock, the bass on the root
+    case 'hit': {                                      // a chord apart from the drums: lower, longer and louder for a bigger rock
       const k = Math.max(0, Math.min(1, (e.size - HIT_V2.small) / (HIT_V2.big - HIT_V2.small)))
-      const r = root(33)
+      const r = root(lerp(k, 52, 45)), len = ms(lerp(k, 0.2, 0.45)), c = root(93)
       const notes = [
-        note('kick', [lerp(k, 33, 24) + semis], 0, lerp(k, 0.2, 0.5), lerp(k, 0.7, 1), { decay: lerp(k, 0.22, 0.5) }),
-        note('snare', [], 0.02, '16n', lerp(k, 0.7, 1), { decay: 0.16 }),
-        note('bass', [r], 0, lerp(k, 0.2, 0.4), lerp(k, 0.4, 0.65), { slideTo: r - 5 }),
+        note('pad', [r, r + 7, r + 12], 0, len, ms(lerp(k, 0.7, 1))),
+        note('bass', [r - 12], 0, len, ms(lerp(k, 0.5, 0.8)), { slideTo: r - 17 }),
+        note('arp', [c], 0.02, 0.09, 0.7, { slideTo: c - 24 }),   // the shield cracking, over before the warning at 0.12 s
       ]
       if (e.shieldsLeft === 0) { const f = fifth(76); notes.push(note('arp', [f], 0.12, 0.09), note('arp', [f - 7], 0.24, 0.16)) }   // the last shield: a warning
       return plan(notes)
@@ -94,13 +94,11 @@ export function scoredFor(e: SoundEvent, chord: number, semis: number): FxPlan {
         ...[69, 73, 76, 81].map((m, i) => note('arp', [m + semis], ms(i * 0.07), 0.12)),
         note('lead', [81 + semis], 0.3, 1.4, 0.5),
       ], true)
-    case 'destroyed': {                                // everything falls, over a long kick and a burst of snare
-      const r = root(33), f = fifth(76)
+    case 'destroyed': {                                // the biggest hit, held; the music fades out under it
+      const r = root(45)
       return plan([
-        note('kick', [21 + semis], 0, 0.9, 1, { decay: 0.9 }),
-        note('snare', [], 0, 0.7, 1, { decay: 0.7 }),
-        note('bass', [r], 0, 1.3, 0.65, { slideTo: r - 12 }),
-        note('lead', [f], 0, 1.1, 0.5, { slideTo: f - 24 }),
+        note('pad', [r, r + 7, r + 12], 0, 0.9, 1),
+        note('bass', [r - 12], 0, 1.1, 0.8, { slideTo: r - 24 }),
       ], true)
     }
     case 'choice':

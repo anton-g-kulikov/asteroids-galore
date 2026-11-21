@@ -1,7 +1,7 @@
 import * as Tone from 'tone'
 import type { MusicEngine } from './conductor'
 import {
-  INSTRUMENTS as I, LAYERS, MELODY_LENGTH, MUSIC, SEND, controlFor, createControlTracker, createSequencer,
+  INSTRUMENTS as I, LAYERS, MELODY_LENGTH, MUSIC, SEND, controlFor, createControlTracker, endBassStep, createSequencer,
   type LayerId, type Mode, type Note, type Ramp, type Sequencer,
 } from './score'
 
@@ -53,10 +53,17 @@ export function createMusicEngine(context: AudioContext): MusicEngine & { inspec
   const leadFilter = new Tone.Filter(I.leadFilter as Partial<Tone.FilterOptions>).connect(leadVibrato)
   const lead = new Tone.MonoSynth(I.lead as Partial<Tone.MonoSynthOptions>).connect(leadFilter)
 
+  // The game-over screen's bass: its own voice and echo, after the fade, so it plays while the
+  // loop is faded out; before the music switch, which governs it like the rest of the music.
+  const endVerb = new Tone.Reverb(I.reverb).connect(limiter)
+  const endBass = new Tone.MonoSynth(I.endBass as Partial<Tone.MonoSynthOptions>).connect(limiter)
+  endBass.connect(new Tone.Gain(I.endBassSend).connect(endVerb))
+
   let seq: Sequencer = createSequencer(Math.random)   // the rests: Math.random, never the run's seeded numbers
   const tracker = createControlTracker()
   let at: { mode: Mode; speed: number; depth: number; level: number } = { mode: 'silent', speed: 1, depth: 0, level: 1 }
   let step = 0, playing = false
+  let ending = false, overStep = 0               // the game-over bass, and its sixteenths since the ship was lost
   // the chord each recent sixteenth was scheduled with, for the sound effects: [audio time, chord]
   const chords: [number, number][] = []
 
@@ -88,6 +95,14 @@ export function createMusicEngine(context: AudioContext): MusicEngine & { inspec
 
   // Counted here, not read back from the transport at every sixteenth.
   T.scheduleRepeat(time => {
+    if (ending) {                                // the bass alone, from the counted steps
+      const n = endBassStep(overStep++)
+      if (n) {
+        endBass.triggerAttackRelease(n.note, MUSIC.over.len, time, MUSIC.over.vel)
+        chords.push([time, n.chord]); if (chords.length > 8) chords.shift()   // the sound effects follow its root
+      }
+      return
+    }
     chords.push([time, Math.floor(step / 32) % 4]); if (chords.length > 8) chords.shift()
     const st = seq.step(step++, at)
     for (const g of st.gates) rampGate(g.id, g.on, time)
@@ -109,6 +124,8 @@ export function createMusicEngine(context: AudioContext): MusicEngine & { inspec
   return {
     start() {
       seq = createSequencer(Math.random)
+      endBass.triggerRelease()                   // a new run cuts the game-over bass
+      ending = at.mode === 'over'; overStep = 0  // music arriving on the game-over screen plays its bass
       for (const { id } of LAYERS) { gate[id].gain.cancelScheduledValues(0); gate[id].gain.value = 0 }
       fade.gain.cancelScheduledValues(0); fade.gain.value = 1
       masterLP.frequency.cancelScheduledValues(0); masterLP.frequency.value = 18000
@@ -126,7 +143,17 @@ export function createMusicEngine(context: AudioContext): MusicEngine & { inspec
       fade.gain.cancelScheduledValues(t)
       fade.gain.rampTo(0, over, t)
       playing = false
+      ending = false
       setTimeout(() => { if (!playing) { T.stop(); pad.releaseAll() } }, over * 1000 + 80)
+    },
+    gameOver() {
+      if (!playing) return
+      const t = Tone.now()
+      fade.gain.cancelScheduledValues(t)
+      fade.gain.rampTo(0, MUSIC.over.fade, t)     // the loop fades out under the destroyed sound...
+      pad.releaseAll(t)
+      apply(tracker.gameOver(t))                  // ...as the tempo ramps down: one ramp
+      ending = true; overStep = 0
     },
     dropLayers(over) {
       const t = Tone.now(), ids = LAYERS.map(l => l.id).filter(id => id !== 'pad' && seq.gates[id])

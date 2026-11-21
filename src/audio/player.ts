@@ -90,7 +90,10 @@ export function createSoundPlayer(deps: PlayerDeps): SoundPlayer {
       const pitch = slow ? timeScale(g.slowmo) : 1
       // v2 stays in tune with the music: whole semitones, as the music drops them
       const semis = slow ? Math.round(MUSIC.slow.semis * slowDepth(g.slowmo)) : 0
-      for (const e of events) {
+      for (let i = 0; i < events.length; i++) {
+        const e = events[i]
+        // v2: a crew member thrown off by a hit is marked by the hit's chord alone
+        if (fx && e.kind === 'missed' && events[i - 1]?.kind === 'hit') continue
         if (fx) fx.play(scoredFor(e, chordNow(), semis))
         else play(e, pitch)
         if (e.kind === 'wormhole') pulseIn = PULSE.every

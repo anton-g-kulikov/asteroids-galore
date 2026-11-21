@@ -22,11 +22,11 @@ test('SFX-01 every event on the soundtrack\'s instruments, as in the sketch', ()
     { voice: 'lead', midi: [76], slideTo: 69, at: 0, len: 0.3, vel: 0.9 },
     { voice: 'lead', midi: [76], slideTo: 69, at: 0.12, len: 0.3, vel: 0.9 },
   ])
-  // last shield: two arpeggio notes falling a fifth
-  expect(by(scoredFor({ kind: 'hit', size: 30, shieldsLeft: 0 }, AM, 0).notes, 'arp')).toEqual([
+  // last shield: two arpeggio notes falling a fifth, after the shield's crack (SFX-08)
+  expect(by(scoredFor({ kind: 'hit', size: 30, shieldsLeft: 0 }, AM, 0).notes, 'arp').slice(1)).toEqual([
     { voice: 'arp', midi: [76], at: 0.12, len: 0.09, vel: 1 }, { voice: 'arp', midi: [69], at: 0.24, len: 0.16, vel: 1 },
   ])
-  expect(by(scoredFor({ kind: 'hit', size: 30, shieldsLeft: 1 }, AM, 0).notes, 'arp')).toEqual([])
+  expect(by(scoredFor({ kind: 'hit', size: 30, shieldsLeft: 1 }, AM, 0).notes, 'arp')).toHaveLength(1)   // the crack alone
   // shield: the arpeggio's root, fifth, octave
   expect(scoredFor({ kind: 'shield' }, AM, 0).notes.map(n => [n.voice, n.midi[0], n.at])).toEqual([['arp', 69, 0], ['arp', 76, 0.06], ['arp', 81, 0.12]])
   // pulse: the bass on the root, a soft kick under it, by its loudness
@@ -47,13 +47,7 @@ test('SFX-01 every event on the soundtrack\'s instruments, as in the sketch', ()
   expect(by(home.notes, 'pad')[0].midi).toEqual(['A3', 'C#4', 'E4', 'A4'].map(noteMidi))
   expect(by(home.notes, 'arp').map(n => n.midi[0])).toEqual([69, 73, 76, 81])
   expect(by(home.notes, 'lead')).toEqual([{ voice: 'lead', midi: [81], at: 0.3, len: 1.4, vel: 0.5 }])
-  // destroyed: a long kick, a burst of snare, bass and lead falling; it cuts the rest
-  const lost = scoredFor({ kind: 'destroyed' }, AM, 0)
-  expect(lost.cut).toBe(true)
-  expect(by(lost.notes, 'kick')).toEqual([{ voice: 'kick', midi: [21], at: 0, len: 0.9, vel: 1, decay: 0.9 }])
-  expect(by(lost.notes, 'snare')).toEqual([{ voice: 'snare', midi: [], at: 0, len: 0.7, vel: 1, decay: 0.7 }])
-  expect(by(lost.notes, 'bass')[0]).toMatchObject({ midi: [33], slideTo: 21, len: 1.3 })
-  expect(by(lost.notes, 'lead')[0]).toMatchObject({ midi: [76], slideTo: 52, len: 1.1 })
+  // destroyed: see SFX-09
   // the choice: a hat and one arpeggio note, five semitones lower for ship 2, two octaves for ship 3; the mark quieter
   const click = (ship: number, kind: 'choice' | 'mark' = 'choice') => scoredFor({ kind, ship }, AM, 0).notes
   expect(click(1).map(n => [n.voice, n.midi[0]])).toEqual([['hat', undefined], ['arp', 81]])
@@ -61,17 +55,8 @@ test('SFX-01 every event on the soundtrack\'s instruments, as in the sketch', ()
   expect(click(1, 'mark')[1].vel).toBeLessThan(click(1)[1].vel)
 })
 
-test('SFX-02 a hit is sized by the rock, and every kick and snare carries its own decay', () => {
-  const hit = (size: number) => scoredFor({ kind: 'hit', size, shieldsLeft: 2 }, AM, 0).notes
-  expect(by(hit(14), 'kick')).toEqual([{ voice: 'kick', midi: [33], at: 0, len: 0.2, vel: 0.7, decay: 0.22 }])
-  expect(by(hit(50), 'kick')).toEqual([{ voice: 'kick', midi: [24], at: 0, len: 0.5, vel: 1, decay: 0.5 }])
-  const mid = by(hit(32), 'kick')[0]
-  expect(mid.midi[0]).toBeCloseTo(28.5); expect(mid.decay!).toBeCloseTo(0.36)
-  expect(by(hit(5), 'kick')).toEqual(by(hit(14), 'kick'))               // outside the range: its ends
-  expect(by(hit(14), 'snare')).toEqual([{ voice: 'snare', midi: [], at: 0.02, len: '16n', vel: 0.7, decay: 0.16 }])
-  expect(by(hit(50), 'bass')).toEqual([{ voice: 'bass', midi: [33], slideTo: 28, at: 0, len: 0.4, vel: 0.65 }])
+test('SFX-02 the hit\'s size runs between the first sound effects\' rock sizes; the pulse\'s kick carries its own decay', () => {
   expect(HIT_V2).toEqual({ small: 14, big: 50 })
-  // the pulse after a destroyed sound gets its own short kick
   expect(scoredPulse(1, AM, 0).notes.find(n => n.voice === 'kick')!.decay).toBe(0.32)
 })
 
@@ -102,4 +87,37 @@ test('SFX-05 one instrument never starts two notes at the same instant', () => {
   // ship full waits for the last save
   expect(slots.afterBell(2, 0.12)).toBeCloseTo(2.06 + 0.12)
   expect(slots.afterBell(9, 0.12)).toBeCloseTo(9.12)
+})
+
+test('SFX-08 a hit is a chord on the pad and a falling bass, with the shield cracking on the arpeggio', () => {
+  const hit = (size: number, chord = AM, shieldsLeft = 2) => scoredFor({ kind: 'hit', size, shieldsLeft }, chord, 0).notes
+  expect(hit(14)).toEqual([
+    { voice: 'pad', midi: [57, 64, 69], at: 0, len: 0.2, vel: 0.7 },             // A minor's root nearest 52 is A3
+    { voice: 'bass', midi: [45], slideTo: 40, at: 0, len: 0.2, vel: 0.5 },
+    { voice: 'arp', midi: [93], slideTo: 69, at: 0.02, len: 0.09, vel: 0.7 },
+  ])
+  expect(hit(50).slice(0, 2)).toEqual([
+    { voice: 'pad', midi: [45, 52, 57], at: 0, len: 0.45, vel: 1 },
+    { voice: 'bass', midi: [33], slideTo: 28, at: 0, len: 0.45, vel: 0.8 },
+  ])
+  // between the sizes the target moves from 52 to 45 and the root is the nearest to it
+  expect(by(hit(20, C), 'pad')[0].midi[0]).toBe(48)                           // target 50.8: C3 (48) over C4 (60)
+  expect(by(hit(32), 'pad')[0].len).toBeCloseTo(0.325)
+  expect(hit(5)).toEqual(hit(14))
+  for (const size of [14, 30, 50]) {
+    expect(by(hit(size), 'kick')).toEqual([]); expect(by(hit(size), 'snare')).toEqual([]); expect(by(hit(size), 'lead')).toEqual([])
+  }
+  // the crack ends before the last shield's warning, which is unchanged
+  const last = by(hit(30, AM, 0), 'arp')
+  expect(last.map(n => [n.at, n.midi[0]])).toEqual([[0.02, 93], [0.12, 76], [0.24, 69]])
+  expect(last[0].at + (last[0].len as number)).toBeLessThan(0.12)
+})
+
+test('SFX-09 the ship destroyed is the biggest hit, held', () => {
+  const lost = scoredFor({ kind: 'destroyed' }, AM, 0)
+  expect(lost).toEqual({ cut: true, notes: [
+    { voice: 'pad', midi: [45, 52, 57], at: 0, len: 0.9, vel: 1 },
+    { voice: 'bass', midi: [33], slideTo: 21, at: 0, len: 1.1, vel: 0.8 },
+  ] })
+  expect(scoredFor({ kind: 'destroyed' }, F, 0).notes[0].midi).toEqual([41, 48, 53])
 })
