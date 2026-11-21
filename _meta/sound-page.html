@@ -1,0 +1,1329 @@
+<!doctype html>
+<!--
+  The sound page: the game's music and every sound effect, as they were designed and tuned by ear.
+  It is the sketch that src/music and src/audio/scored.ts were built from, and it is not part of the game:
+  nothing here is built or deployed. Open this file in a browser; it loads Tone.js 15.1.22 from jsDelivr.
+  The same page is published as a private artifact, which adds the three lines below itself.
+-->
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>body { margin: 0 } [hidden] { display: none !important }</style>
+<title>Asteroids Galore Sound</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<style>
+/* Layout: one column of instrument panels on the game's black field and violet grid; the console panel is the only one outlined in cyan. */
+:root {
+  color-scheme: dark;
+  --field: #000000;
+  --panel: rgba(5, 6, 12, 0.9);
+  --edge: rgba(150, 140, 255, 0.28);
+  --grid: rgba(150, 140, 255, 0.09);
+  --cyan: #5ff5ff;
+  --green: #5dffa0;
+  --yellow: #ffe66b;
+  --violet: #968cff;
+  --red: #ff7b54;
+  --magenta: #ff86ec;
+  --star: #7fa8a2;
+  --text: #d6efed;
+  --dim: #6f8f8b;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, "Roboto Mono", monospace;
+}
+* { box-sizing: border-box; }
+html, body { background: var(--field); color: var(--text); }
+body {
+  font: 14px/1.6 var(--mono);
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 48px 48px;
+}
+.wrap {
+  max-width: 800px;
+  margin: 0 auto;
+  padding-block: 32px 56px;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  display: grid;
+  gap: 20px;
+}
+header { display: grid; gap: 8px; }
+.eyebrow { color: var(--star); font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; }
+h1 {
+  margin: 0;
+  font-size: clamp(28px, 6vw, 40px);
+  line-height: 1.1;
+  letter-spacing: 0.04em;
+  color: var(--cyan);
+  text-shadow: 0 0 18px rgba(95, 245, 255, 0.45);
+  text-wrap: balance;
+}
+.lede { margin: 0; max-width: 64ch; color: var(--text); }
+h2 { margin: 0; font-size: 12px; font-weight: 600; letter-spacing: 0.16em; text-transform: uppercase; color: var(--star); }
+.panel {
+  border: 1px solid var(--edge);
+  border-radius: 4px;
+  background: var(--panel);
+  padding: 18px;
+  display: grid;
+  gap: 16px;
+  min-width: 0;
+}
+.console { border-color: rgba(95, 245, 255, 0.5); box-shadow: 0 0 26px rgba(95, 245, 255, 0.1); }
+.row { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+.between { justify-content: space-between; }
+button {
+  font: inherit;
+  font-size: 13px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: var(--c, var(--text));
+  background: transparent;
+  border: 1px solid currentColor;
+  border-radius: 3px;
+  padding: 10px 14px;
+  min-height: 44px;
+  cursor: pointer;
+  transition: background 0.12s, box-shadow 0.12s;
+}
+button:hover:not(:disabled) {
+  background: color-mix(in srgb, currentColor 12%, transparent);
+  box-shadow: 0 0 12px color-mix(in srgb, currentColor 35%, transparent);
+}
+button:disabled { opacity: 0.3; cursor: not-allowed; }
+button[aria-pressed="true"] { background: color-mix(in srgb, currentColor 18%, transparent); box-shadow: 0 0 12px color-mix(in srgb, currentColor 40%, transparent); }
+:focus-visible { outline: 2px solid var(--yellow); outline-offset: 2px; }
+.play { --c: var(--cyan); font-size: 16px; padding: 12px 26px; box-shadow: 0 0 14px rgba(95, 245, 255, 0.3); }
+.chip { font-size: 12px; letter-spacing: 0.12em; text-transform: uppercase; padding: 3px 9px; border: 1px solid currentColor; border-radius: 2px; color: var(--chip, var(--dim)); white-space: nowrap; }
+.readout { display: flex; flex-wrap: wrap; align-items: baseline; gap: 6px 22px; }
+.speed { font-size: clamp(44px, 10vw, 68px); font-weight: 700; line-height: 1; color: var(--cyan); text-shadow: 0 0 16px rgba(95, 245, 255, 0.5); font-variant-numeric: tabular-nums; }
+.stat { display: grid; gap: 0; }
+.stat b { font-size: 22px; font-weight: 600; color: var(--text); font-variant-numeric: tabular-nums; }
+.stat span { font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--dim); }
+.steps { display: grid; grid-template-columns: repeat(16, 1fr); gap: 4px; }
+.steps i { height: 10px; border: 1px solid var(--edge); border-radius: 1px; }
+.steps i:nth-child(4n+1) { border-color: rgba(150, 140, 255, 0.6); }
+.steps i.now { background: var(--cyan); border-color: var(--cyan); box-shadow: 0 0 8px var(--cyan); }
+.missions { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; }
+.missions button { --c: var(--cyan); padding: 8px 0; }
+.progress { display: grid; gap: 6px; }
+.bar { height: 6px; border: 1px solid var(--edge); border-radius: 1px; overflow: hidden; }
+.bar i { display: block; height: 100%; width: 0; background: var(--cyan); box-shadow: 0 0 10px var(--cyan); }
+.bar.past i { background: var(--yellow); box-shadow: 0 0 10px var(--yellow); }
+.meta { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 4px 16px; color: var(--dim); font-size: 12px; font-variant-numeric: tabular-nums; }
+.slider { display: grid; gap: 6px; }
+.slider label { display: flex; justify-content: space-between; gap: 12px; font-size: 12px; color: var(--dim); letter-spacing: 0.08em; text-transform: uppercase; }
+input[type="range"] { width: 100%; accent-color: var(--cyan); min-height: 28px; }
+.layers { display: grid; gap: 2px; }
+.layer {
+  display: grid;
+  grid-template-columns: 16px minmax(0, 1fr) auto auto;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 0;
+  border-bottom: 1px solid var(--grid);
+}
+.layer:last-child { border-bottom: 0; }
+.lamp { width: 12px; height: 12px; border-radius: 50%; border: 1px solid var(--c); transition: background 0.1s, box-shadow 0.1s; }
+.lamp.lit { background: var(--c); box-shadow: 0 0 10px var(--c); }
+.layer .name { color: var(--c); font-weight: 600; letter-spacing: 0.06em; }
+.layer .desc { color: var(--dim); font-size: 12px; }
+.layer button { padding: 6px 10px; min-height: 36px; font-size: 11px; }
+.status { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--dim); min-width: 11ch; text-align: right; font-variant-numeric: tabular-nums; }
+.status.on { color: var(--c); }
+.status.wait { color: var(--yellow); }
+.events { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 8px; }
+.events button { text-align: left; display: grid; gap: 2px; }
+.events small { text-transform: none; letter-spacing: 0; font-size: 11px; color: var(--dim); }
+.table-wrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-variant-numeric: tabular-nums; font-size: 13px; }
+th, td { padding: 8px 10px; text-align: right; border-bottom: 1px solid var(--grid); white-space: nowrap; }
+th:first-child, td:first-child { text-align: left; }
+th { font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--dim); }
+td.start { color: var(--green); }
+ul.plain { margin: 0; padding-left: 18px; display: grid; gap: 6px; max-width: 70ch; }
+.note { color: var(--dim); font-size: 12px; max-width: 70ch; margin: 0; }
+.error { border: 1px solid var(--red); color: var(--red); padding: 12px 14px; border-radius: 3px; }
+.board { display: grid; grid-template-columns: repeat(auto-fill, minmax(230px, 1fr)); gap: 10px; }
+.card { border: 1px solid var(--edge); border-radius: 3px; padding: 12px; display: grid; gap: 8px; align-content: start; min-width: 0; }
+.card-head { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; }
+.card-head b { color: var(--c); font-size: 13px; letter-spacing: 0.04em; }
+.card p { margin: 0; font-size: 12px; color: var(--dim); }
+.card .row { gap: 6px; }
+.card button { padding: 6px 10px; min-height: 36px; font-size: 11px; }
+.tag { font-size: 10px; letter-spacing: 0.1em; text-transform: uppercase; white-space: nowrap; }
+.tag.tune { color: var(--magenta); }
+.tag.same { color: var(--dim); }
+.roll-wrap { overflow-x: auto; border: 1px solid var(--edge); border-radius: 3px; background: rgba(0, 0, 0, 0.6); }
+.roll { display: grid; grid-template-columns: 40px auto; width: max-content; }
+.roll .chords { position: relative; height: 34px; border-bottom: 1px solid var(--edge); }
+.roll .chords span { position: absolute; top: 3px; font-size: 12px; color: var(--magenta); letter-spacing: 0.06em; }
+.roll .chords small { position: absolute; bottom: 2px; font-size: 10px; color: var(--dim); }
+.roll .keys div { height: var(--rh); line-height: var(--rh); font-size: 10px; text-align: right; padding-right: 6px; color: var(--dim); }
+.roll .keys div.c { color: var(--text); }
+.stage {
+  position: relative; touch-action: none; cursor: crosshair;
+  width: calc(var(--cw) * 32); height: calc(var(--rh) * 15);
+  background-image:
+    linear-gradient(90deg, rgba(150, 140, 255, 0.4) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(150, 140, 255, 0.2) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(150, 140, 255, 0.07) 1px, transparent 1px),
+    linear-gradient(rgba(150, 140, 255, 0.07) 1px, transparent 1px);
+  background-size: calc(var(--cw) * 8) 100%, calc(var(--cw) * 4) 100%, var(--cw) 100%, 100% var(--rh);
+}
+.stage .tint { position: absolute; background: rgba(255, 134, 236, 0.08); pointer-events: none; }
+.stage .note {
+  position: absolute; border-radius: 2px; pointer-events: none;
+  background: var(--magenta); color: #1a0016; font-size: 9px; font-weight: 700; line-height: calc(var(--rh) - 4px);
+  padding-left: 3px; overflow: hidden; white-space: nowrap; box-shadow: 0 0 8px rgba(255, 134, 236, 0.6);
+}
+.stage .note.pending { opacity: 0.6; }
+.stage .playhead { position: absolute; top: 0; bottom: 0; width: 2px; background: var(--cyan); box-shadow: 0 0 8px var(--cyan); pointer-events: none; }
+button[data-playing="true"]::after { content: " ▸"; }
+.check { display: flex; align-items: center; gap: 8px; cursor: pointer; }
+.check input { width: 18px; height: 18px; accent-color: var(--magenta); }
+textarea { width: 100%; font: 12px/1.5 var(--mono); color: var(--text); background: rgba(0, 0, 0, 0.6); border: 1px solid var(--edge); border-radius: 3px; padding: 10px; resize: vertical; }
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+@media (max-width: 520px) {
+  .layer { grid-template-columns: 16px minmax(0, 1fr) auto; }
+  .layer .status { grid-column: 2; text-align: left; }
+  .layer button { grid-column: 3; grid-row: 1 / span 2; }
+  .missions { grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
+}
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
+</style>
+
+<main class="wrap">
+  <header>
+    <div class="eyebrow">Asteroids Galore · sound</div>
+    <h1>Music and sound</h1>
+    <p class="lede">The game's music and every sound effect on one page. The music is one synthwave loop written with Tone.js: its tempo follows the ship's speed, and four more layers come in over the pad as a mission speeds up, a slow lead melody last. Press Play and mission 1 flies by itself at the game's real speed; play any sound effect on its own or over the music.</p>
+  </header>
+
+  <p class="error" id="error" hidden>The sound library did not load. Check the connection and reload the page.</p>
+
+  <section class="panel console" aria-label="Player">
+    <div class="row between">
+      <div class="row"><button class="play" id="play" type="button">Play</button><button type="button" id="drone" style="--c: var(--violet)" aria-pressed="false">Start screen drone</button></div>
+      <span class="chip" id="state">Stopped</span>
+    </div>
+    <div class="readout">
+      <div class="speed" id="speed">1.00×</div>
+      <div class="stat"><b id="bpm">96</b><span>BPM</span></div>
+      <div class="stat"><b id="chord">Am</b><span id="barLabel">Bar 1 / 8</span></div>
+    </div>
+    <div class="steps" id="steps" aria-hidden="true"></div>
+    <div class="missions" id="missions" role="group" aria-label="Mission"></div>
+    <div class="progress">
+      <div class="bar" id="bar"><i></i></div>
+      <div class="meta"><span id="dist">Mission 1 · 0 / 500 pc</span><span id="mode">Flying by itself</span></div>
+    </div>
+    <div class="slider">
+      <label for="speedSlider"><span>Speed, by hand</span><span id="sliderNote">drag to take over</span></label>
+      <input type="range" id="speedSlider" min="1" max="4.5" step="0.01" value="1">
+      <div class="row"><button type="button" id="resume" style="--c: var(--cyan)" hidden>Fly by itself again</button></div>
+    </div>
+  </section>
+
+  <section class="panel" aria-labelledby="sfxTitle">
+    <div class="row between">
+      <h2 id="sfxTitle">Sound effects</h2>
+      <div class="row" role="group" aria-label="Which version of the sounds">
+        <button type="button" data-mode="game" style="--c: var(--text)" aria-pressed="false">Live game</button>
+        <button type="button" data-mode="v1" style="--c: var(--magenta)" aria-pressed="false">v1 · chord</button>
+        <button type="button" data-mode="v2" style="--c: var(--cyan)" aria-pressed="true">v2 · soundtrack</button>
+      </div>
+    </div>
+    <p class="note">"Live game" is what the deployed game plays. "v1" keeps those sounds and tunes the pitched ones to the music's chord. "v2" plays every event on the soundtrack's own instruments (pad, bass, drums, arpeggio, lead), on notes of the chord the music is on <span id="chordNowNote"></span>; with the music stopped, that is A minor. A save, a miss and a hit never wait for the beat.</p>
+    <label class="check"><input type="checkbox" id="onBeat"> Slower sounds wait for the next eighth note: ship full, shield, wormhole, entering, home</label>
+    <div class="board" id="board">
+      <div class="card" style="--c: var(--green)">
+        <div class="card-head"><b>Crew saved</b><span class="tag tune" data-tag="save"></span></div>
+        <p><span data-desc="save"></span> <span id="seatNote"></span></p>
+        <div class="row"><button type="button" data-ev="save1">Save one</button><button type="button" data-ev="save3">Save three</button><button type="button" data-ev="empty">Empty</button></div>
+        <div class="row" role="group" aria-label="Seats"><button type="button" data-ev="seats4">4 seats</button><button type="button" data-ev="seats8">8</button><button type="button" data-ev="seats12">12</button></div>
+      </div>
+      <div class="card" style="--c: var(--green)">
+        <div class="card-head"><b>Ship full</b><span class="tag tune" data-tag="full"></span></div>
+        <p><span data-desc="full"></span></p>
+        <div class="row"><button type="button" data-ev="full">Play</button></div>
+      </div>
+      <div class="card" style="--c: var(--red)">
+        <div class="card-head"><b>Crew left behind</b><span class="tag tune" data-tag="missed"></span></div>
+        <p><span data-desc="missed"></span></p>
+        <div class="row"><button type="button" data-ev="missed1">One</button><button type="button" data-ev="missed3">Three</button></div>
+      </div>
+      <div class="card" style="--c: var(--yellow)">
+        <div class="card-head"><b>Hit a rock</b><span class="tag tune" data-tag="hit"></span></div>
+        <p><span data-desc="hit"></span></p>
+        <div class="row"><button type="button" data-ev="hitSmall">Small rock</button><button type="button" data-ev="hitBig">Big rock</button><button type="button" data-ev="hitLast">Last shield</button></div>
+      </div>
+      <div class="card" style="--c: var(--cyan)">
+        <div class="card-head"><b>Shield picked up</b><span class="tag tune" data-tag="shield"></span></div>
+        <p><span data-desc="shield"></span></p>
+        <div class="row"><button type="button" data-ev="shield">Play</button></div>
+      </div>
+      <div class="card" style="--c: var(--violet)">
+        <div class="card-head"><b>Wormhole appears</b><span class="tag tune" data-tag="pulse"></span></div>
+        <p><span data-desc="pulse"></span></p>
+        <div class="row"><button type="button" data-ev="pulseFar">Far</button><button type="button" data-ev="pulseNear">Near</button></div>
+      </div>
+      <div class="card" style="--c: var(--violet)">
+        <div class="card-head"><b>Entering a wormhole</b><span class="tag tune" data-tag="enter"></span></div>
+        <p><span data-desc="enter"></span></p>
+        <div class="row"><button type="button" data-ev="enter">Play</button></div>
+      </div>
+      <div class="card" style="--c: var(--green)">
+        <div class="card-head"><b>Made it home</b><span class="tag tune" data-tag="home"></span></div>
+        <p><span data-desc="home"></span></p>
+        <div class="row"><button type="button" data-ev="home">Play</button></div>
+      </div>
+      <div class="card" style="--c: var(--red)">
+        <div class="card-head"><b>Ship destroyed</b><span class="tag tune" data-tag="destroyed"></span></div>
+        <p><span data-desc="destroyed"></span></p>
+        <div class="row"><button type="button" data-ev="destroyed">Play</button></div>
+      </div>
+      <div class="card" style="--c: var(--text)">
+        <div class="card-head"><b>Choosing a ship</b><span class="tag tune" data-tag="click"></span></div>
+        <p><span data-desc="click"></span></p>
+        <div class="row"><button type="button" data-ev="click1">Ship 1</button><button type="button" data-ev="click2">2</button><button type="button" data-ev="click3">3</button></div>
+      </div>
+    </div>
+    <div class="slider">
+      <label for="level"><span>Music level against the sounds</span><span id="levelNote">−12 dB</span></label>
+      <input type="range" id="level" min="-30" max="0" step="1" value="-12">
+    </div>
+  </section>
+
+  <section class="panel" aria-labelledby="layersTitle">
+    <h2 id="layersTitle">Layers</h2>
+    <div class="layers" id="layers"></div>
+    <p class="note">A layer comes in or leaves only where the chord changes, every two bars, so it always lands on the beat.</p>
+  </section>
+
+  <section class="panel" aria-labelledby="melodyTitle" style="--c: var(--magenta)">
+    <div class="row between">
+      <h2 id="melodyTitle">Lead melody</h2>
+      <div class="row" role="group" aria-label="Which eight bars">
+        <button type="button" id="octLow" style="--c: var(--cyan)" aria-pressed="false">Octaves 3–4</button>
+        <button type="button" id="octHigh" style="--c: var(--cyan)" aria-pressed="false">Octaves 4–5</button>
+        <button type="button" id="halfA" style="--c: var(--magenta)" aria-pressed="true">Bars 1–8</button>
+        <button type="button" id="halfB" style="--c: var(--magenta)" aria-pressed="false">Bars 9–16</button>
+      </div>
+    </div>
+    <p class="note">Press on an empty square to place a note and drag right to hold it longer; press a note to remove it. One square is a beat. The lead plays one note at a time, so a new note cuts the one it overlaps. Tinted squares are notes of the chord underneath; every row is in A minor. The octave buttons move the whole melody an octave down or up; the text below always shows the notes as they sound. On a phone, swipe the chord row to scroll.</p>
+    <div class="roll-wrap"><div class="roll" id="roll"></div></div>
+    <p class="note">Play melody plays the lead alone, all sixteen bars in a loop from the eight bars shown, at 113 BPM, the tempo where the lead comes in during a run. Changes are heard on the next pass.</p>
+    <label class="check"><input type="checkbox" id="leadNow"> Hear the lead now, at any speed (from the next chord)</label>
+    <div class="row">
+      <button type="button" id="playMelody" class="play" style="--c: var(--magenta)">Play melody</button>
+      <button type="button" id="clearHalf" style="--c: var(--magenta)">Clear these 8 bars</button>
+      <button type="button" id="resetMelody" style="--c: var(--magenta)">Back to the saved melody</button>
+      <button type="button" id="copyMelody" style="--c: var(--magenta)">Copy melody</button>
+    </div>
+    <label for="melodyText" class="sr">The melody as text</label>
+    <textarea id="melodyText" rows="5" spellcheck="false"></textarea>
+    <div class="row"><button type="button" id="loadMelody" style="--c: var(--magenta)">Use this text</button><span class="note" id="melodyMsg">The text is what the game's music code reads: [start, note, length] in sixteenth notes.</span></div>
+  </section>
+
+  <section class="panel" aria-labelledby="eventsTitle">
+    <h2 id="eventsTitle">What happens in a run</h2>
+    <div class="events">
+      <button type="button" id="evSlow" style="--c: var(--violet)">Slow motion<small>Two crews come into view</small></button>
+      <button type="button" id="evEnter" style="--c: var(--violet)">Enter wormhole<small>To the results; pad only</small></button>
+      <button type="button" id="evNext" style="--c: var(--cyan)">Next mission<small>From the results</small></button>
+      <button type="button" id="evDestroyed" style="--c: var(--red)">Ship destroyed<small>A hit, a fade, then the end screen's slow bass</small></button>
+      <button type="button" id="evHome" style="--c: var(--green)">Made it home<small>The music fades out</small></button>
+    </div>
+  </section>
+
+  <section class="panel" aria-labelledby="whenTitle">
+    <h2 id="whenTitle">When the layers come in</h2>
+    <p class="note">Time from the start of each mission at the game's speed (start speed plus 1.3× over the target, src/game/tuning.ts), without slow motion. The lead then waits for the arpeggio and for the start of an eight-bar half, so it comes in up to about 20 seconds after its time here.</p>
+    <div class="table-wrap"><table id="when"></table></div>
+  </section>
+
+  <section class="panel" aria-labelledby="listenTitle">
+    <h2 id="listenTitle">What to listen for</h2>
+    <ul class="plain">
+      <li>Is code-made music good enough to keep, or is a recorded track the better route?</li>
+      <li>Does the tempo rise feel right? It runs from 96 BPM at 1× to 140 BPM at about 4.1×.</li>
+      <li>Do the layers come in at the right moments in the missions you play most?</li>
+      <li>With the music on, is a hit and a crew member left behind still clear?</li>
+      <li>Does the loop wear thin over a long mission 7?</li>
+    </ul>
+  </section>
+
+  <section class="panel" aria-labelledby="numbersTitle">
+    <h2 id="numbersTitle">Numbers to tune</h2>
+    <ul class="plain">
+      <li>Key: A minor, Am–F–C–G, two bars each. The game's save chord is C major, so it sits inside the same notes.</li>
+      <li>Tempo: 96 BPM at 1×, plus 14 BPM for each 1× of speed, at most 140. 90 BPM between missions.</li>
+      <li>Lead: a sixteen-bar melody (two eight-bar halves) on top of everything, and the last layer in: from 2.2×, only once the arpeggio has been playing, and always from the start of a half, so the melody is never joined in the middle. It plays at most 32 bars at a stretch (the melody twice), fading out over bars 31 and 32, then pauses for 16 bars before starting again from the top. It alternates octaves: 3–4 the first time it comes in, 4–5 after the pause, then 3–4 again, and so on through the run. It stops between missions and never takes the one-bar rest.</li>
+      <li>Layers: bass from 1.3× in mission 1 and from the first bar in missions 2–7, drums from 1.7×, arpeggio from 2.0×; sixteenth-note hats from 2.8×. The pad's filter opens with speed.</li>
+      <li>A rest: at most once every sixteen bars, in the last of them, one of the bass, drums or arpeggio drops out for one bar and comes back on the downbeat. Only a layer that has played at least sixteen bars since it came in can rest, and never the same one twice running.</li>
+      <li>Start screen: silent until the note is tapped, then the drone, which is the pad alone at 90 BPM with its filter closed, as between missions. A run starts from it without a break, and every mission opens with a 1.2 s fly-in.</li>
+      <li>End screen after the ship is destroyed: the music fades over 1.5 s, then the bass alone plays one long note every 6 seconds (A, F, C, G in turn) at 60 BPM, the first after 2 seconds, until the next run.</li>
+      <li>Slow motion: tempo down to 60%, new notes up to five semitones lower, everything muffled, back in 1.4 s.</li>
+      <li>Music level: −12 dB, with a limiter at −1 dB. The sounds play at the game's own level.</li>
+    </ul>
+    <p class="note">Tone.js 15.1.22 (MIT), loaded from jsDelivr. The sound buttons replay the game's own sound table as of 0.4.7. Nothing on this page is in the game yet.</p>
+  </section>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/tone@15.1.22/build/Tone.js"></script>
+<script>
+(() => {
+  const $ = id => document.getElementById(id)
+
+  // ---- The game's numbers (src/game/tuning.ts as of 0.4.7) ----
+  const MISSIONS = [[1, 500], [1, 750], [1, 1250], [1, 2000], [1.4, 2500], [1.8, 3000], [2.2, 3500]]   // start speed, target parsecs
+  const SPEED_GAIN = 1.3, SLOW_TIME = 1.4, SLOW_SCALE = 0.3
+  const timeScale = slowmo => slowmo <= 0 ? 1 : 1 - (1 - SLOW_SCALE) * Math.min(1, (SLOW_TIME - slowmo) / 0.2, slowmo / 0.45)
+
+  // ---- The music's numbers: a first guess, to tune by ear ----
+  const TUNE = {
+    tempo: { base: 96, perSpeed: 14, max: 140, results: 90 },
+    from: { pad: 0, bass: 1.3, drums: 1.7, arp: 2.0, lead: 2.2 },
+    hats16From: 2.8,
+    over: { bpm: 60, fade: 1.5, first: 8, every: 24, length: 2.4 },   // the end screen: one bass note every 24 sixteenths (6 s), the first after 2 s
+    bassFromMission: 2, // from this mission the bass plays from the first bar, whatever the speed
+    restEvery: 16,      // a one-bar rest at most once in this many bars, in the last of them
+    restAfter: 16,      // a layer can rest only after playing this many bars since it came in
+    leadBars: 32,      // the lead plays at most this many bars at a stretch (the owner's word)...
+    leadPause: 16,     // ...then rests this many before starting again from the top
+    leadFade: 2,       // the lead fades out over the last this-many bars of its stretch (bars 31-32)
+    slow: { tempo: 0.6, semis: -5, cutoff: 700 },
+  }
+  const bpmFor = v => Math.min(TUNE.tempo.max, TUNE.tempo.base + TUNE.tempo.perSpeed * (v - 1))
+
+  const LAYERS = [
+    { id: 'pad', name: 'Pad', desc: 'Always. Opens up as the ship speeds up.', color: 'var(--violet)', fadeIn: 2, fadeOut: 1.5 },
+    { id: 'bass', name: 'Bass', desc: 'A pulse on every eighth note.', color: 'var(--cyan)', fadeIn: 0.02, fadeOut: 1.2 },
+    { id: 'drums', name: 'Drums', desc: 'Four on the floor; the pad and bass duck under the kick.', color: 'var(--yellow)', fadeIn: 0.02, fadeOut: 1.2 },
+    { id: 'arp', name: 'Arpeggio', desc: 'Eighth notes through the chord, with an echo.', color: 'var(--green)', fadeIn: 0.4, fadeOut: 1.5 },
+    { id: 'lead', name: 'Lead', desc: 'A slow melody on top, with a little glide and vibrato. Comes in last, at the start of an eight-bar half.', color: 'var(--magenta)', fadeIn: 0.3, fadeOut: 1.5 },
+  ]
+  const IDS = LAYERS.map(l => l.id)
+
+  const CHORDS = [
+    { name: 'Am', bass: 'A1', pad: ['A3', 'C4', 'E4', 'B4'], arp: ['A4', 'C5', 'E5', 'G5', 'A5'] },
+    { name: 'F', bass: 'F1', pad: ['F3', 'A3', 'C4', 'E4'], arp: ['F4', 'A4', 'C5', 'E5', 'F5'] },
+    { name: 'C', bass: 'C2', pad: ['G3', 'C4', 'E4', 'G4'], arp: ['E4', 'G4', 'C5', 'E5', 'G5'] },
+    { name: 'G', bass: 'G1', pad: ['G3', 'B3', 'D4', 'G4'], arp: ['D4', 'G4', 'B4', 'D5', 'G5'] },
+  ]
+  function chordNow() { return S.playing && S.state !== 'melody' ? CHORDS[(Math.floor(S.stepNow / 16) % 8) >> 1] : CHORDS[0] }
+  const BASS = [0, 0, 12, 0, 0, 12, 0, 12]          // eighth notes, semitones above the root
+  const ARP = [0, 1, 2, 4, 3, 2, 1, 2]            // eighth notes, into the chord's five notes
+  // The lead: two eight-bar halves over Am–F–C–G. [start, note, length], in sixteenths from the half's first bar.
+  // The owner's melody (2026-11-21, third version): the first half now walks down D5 C5 B4 and back up to C5.
+  const DEFAULT_MELODY = [
+    [[0, 'A4', 4], [4, 'C5', 4], [8, 'E5', 24], [32, 'A4', 4], [36, 'C5', 4], [40, 'F5', 24],
+     [64, 'E5', 8], [72, 'G5', 16], [88, 'E5', 8], [96, 'D5', 8], [104, 'C5', 8], [112, 'B4', 8], [120, 'C5', 8]],
+    [[0, 'A4', 4], [4, 'C5', 4], [8, 'E5', 24], [32, 'A4', 4], [36, 'C5', 4], [40, 'F5', 24],
+     [64, 'E5', 8], [72, 'G5', 16], [88, 'E5', 8], [96, 'D5', 28]],
+  ]
+  // The notes the melody editor offers: two octaves of A minor, highest first.
+  const HIGH_ROWS = ['C6', 'B5', 'A5', 'G5', 'F5', 'E5', 'D5', 'C5', 'B4', 'A4', 'G4', 'F4', 'E4', 'D4', 'C4']
+  const shiftNote = (n, octaves) => n.replace(/-?\d+$/, d => String(+d + octaves))
+  const LOW_ROWS = HIGH_ROWS.map(n => shiftNote(n, -1))
+  let ROWS = HIGH_ROWS                                       // the editor's rows: octaves 4–5, or 3–4 an octave down
+  const MELODY_KEY = 'asteroids-galore-music-sketch-melody', OCTAVE_KEY = 'asteroids-galore-music-sketch-octave'
+  const isLow = m => m.some(h => h.some(n => !HIGH_ROWS.includes(n[1])))
+  const transposed = (m, octaves) => m.map(h => h.map(([a, n, l]) => [a, shiftNote(n, octaves), l]))
+  const copyMelody = m => m.map(h => h.map(n => [...n]))
+  function parseMelody(text) {
+    try {
+      const m = JSON.parse(text.replace(/'/g, '"').replace(/,\s*\]/g, ']'))
+      const ok = Array.isArray(m) && m.length === 2 && m.every(h => Array.isArray(h) && h.every(n =>
+        Array.isArray(n) && n.length === 3 && Number.isInteger(n[0]) && n[0] >= 0 && (HIGH_ROWS.includes(n[1]) || LOW_ROWS.includes(n[1])) &&
+        Number.isInteger(n[2]) && n[2] > 0 && n[0] + n[2] <= 128))
+      if (!ok || (isLow(m) && m.some(h => h.some(n => !LOW_ROWS.includes(n[1]))))) return null    // one two-octave range at a time
+      return m.map(h => h.slice().sort((a, b) => a[0] - b[0]))
+    } catch { return null }
+  }
+  function loadMelody() {
+    // A melody saved by this page is already at the pitch it sounds, in the octaves saved with it.
+    // One saved before the octave switch existed (or the built-in one) is in 4–5: it moves down to 3–4, the range on trial.
+    let m = null, saved = null
+    try { m = parseMelody(localStorage.getItem(MELODY_KEY) || ''); saved = localStorage.getItem(OCTAVE_KEY) } catch { /* no storage here */ }
+    if (m && saved) { ROWS = saved === 'low' ? LOW_ROWS : HIGH_ROWS; return m }
+    ROWS = LOW_ROWS
+    return transposed(m && !isLow(m) ? m : m || DEFAULT_MELODY, m && isLow(m) ? 0 : -1)
+  }
+  const buildMelody = m => m.map(half => new Map(half.map(([at, note, len]) => [at, { note, len }])))
+  let melody = loadMelody()
+  let MELODY = buildMelody(melody)
+
+  // ---- The table of when layers come in (needs no sound) ----
+  const clock = s => `${Math.floor(s / 60)}:${String(Math.round(s % 60)).padStart(2, '0')}`
+  // speed grows with distance, and distance with speed: v(t) = v0 · e^(13 t / target), so t = target / 13 · ln(v / v0)
+  const timeTo = (v, [v0, target]) => target / (10 * SPEED_GAIN) * Math.log(v / v0)
+  ;(() => {
+    const head = `<tr><th>Mission</th><th>Target</th><th>Bass ${TUNE.from.bass}×</th><th>Drums ${TUNE.from.drums}×</th><th>Arpeggio ${TUNE.from.arp}×</th><th>Lead ${TUNE.from.lead}×</th><th>At target</th></tr>`
+    const rows = MISSIONS.map((m, i) => {
+      const cell = v => v <= m[0] ? '<td class="start">from the start</td>' : `<td>${clock(timeTo(v, m))}</td>`
+      return `<tr><td>${i + 1}</td><td>${m[1].toLocaleString('en')} pc</td>${i + 1 >= TUNE.bassFromMission ? '<td class="start">from the start</td>' : cell(TUNE.from.bass)}${cell(TUNE.from.drums)}${cell(TUNE.from.arp)}${cell(TUNE.from.lead)}<td>${clock(timeTo(m[0] + SPEED_GAIN, m))}</td></tr>`
+    })
+    $('when').innerHTML = head + rows.join('')
+  })()
+
+  // ---- Page parts ----
+  const steps = $('steps')
+  for (let i = 0; i < 16; i++) steps.appendChild(document.createElement('i'))
+  const stepEls = [...steps.children]
+  const missionBtns = MISSIONS.map((_, i) => {
+    const b = document.createElement('button')
+    b.type = 'button'; b.textContent = String(i + 1); b.setAttribute('aria-label', `Mission ${i + 1}`)
+    b.addEventListener('click', () => chooseMission(i + 1))
+    $('missions').appendChild(b)
+    return b
+  })
+  const layerEls = {}
+  for (const l of LAYERS) {
+    const row = document.createElement('div')
+    row.className = 'layer'; row.style.setProperty('--c', l.color)
+    const from = l.id === 'pad' ? 'always' : `from ${TUNE.from[l.id]}×`
+    row.innerHTML = `<span class="lamp"></span><div><div class="name">${l.name} <span class="desc">· ${from}</span></div><div class="desc">${l.desc}</div></div><span class="status">Off</span><button type="button" aria-pressed="false">Mute</button>`
+    $('layers').appendChild(row)
+    const btn = row.querySelector('button')
+    btn.addEventListener('click', () => toggleMute(l.id))
+    layerEls[l.id] = { lamp: row.querySelector('.lamp'), status: row.querySelector('.status'), btn }
+  }
+
+  // ---- State ----
+  const S = {
+    playing: false, state: 'stopped', mission: 1, distance: 0, speed: 1, auto: true, slowmo: 0, seat: 0,
+    sfxMode: 'v2', shipSeats: 12, rest: null, restShown: null, lastRest: null, since: {}, arpWas: false, leadForced: false, leadEntries: 0, leadHigh: false, overFrom: 0, launch: 0, leadSince: 0, leadRestUntil: 0, stepNow: 0,
+    gate: { pad: false, bass: false, drums: false, arp: false },
+    muted: { pad: false, bass: false, drums: false, arp: false },
+  }
+
+  if (!window.Tone) {
+    $('error').hidden = false
+    $('play').disabled = true
+    for (const id of ['evSlow', 'evEnter', 'evNext', 'evDestroyed', 'evHome']) $(id).disabled = true
+    render()
+    return
+  }
+
+  // ---- The game's sounds, as the game makes them (src/audio/sounds.ts, synth.ts) ----
+  const chord = (notes, length, gain) => notes.map(from => ({ wave: 'sine', from, length, gain }))
+  const SFX = {
+    save: [{ wave: 'square', from: 520, to: 700, length: 0.07, gain: 0.18 }],
+    full: chord([523.25, 659.25, 783.99], 0.4, 0.16),
+    missed: [{ wave: 'triangle', from: 330, to: 150, length: 0.3, gain: 0.4 }],
+    impact: [{ wave: 'noise', from: 0, length: 0.2, gain: 0.5 }, { wave: 'sine', from: 130, to: 45, length: 0.22, gain: 0.7 }],
+    shieldBreak: [{ wave: 'square', from: 1500, to: 280, length: 0.12, gain: 0.12, at: 0.02 }],
+    shield: [{ wave: 'sine', from: 440, to: 1320, length: 0.22, gain: 0.35 }],
+    pulse: [{ wave: 'sine', from: 120, to: 95, length: 0.35, gain: 0.6 }],
+    enter: [{ wave: 'sawtooth', from: 180, to: 1600, length: 0.6, gain: 0.18 }, { wave: 'sine', from: 300, to: 2400, length: 0.6, gain: 0.2 }],
+    destroyed: [
+      { wave: 'noise', from: 7000, to: 900, length: 0.16, gain: 0.9 },
+      { wave: 'noise', from: 2400, to: 110, length: 1.7, gain: 0.85, at: 0.02 },
+      { wave: 'sine', from: 150, to: 30, length: 0.55, gain: 1 },
+      { wave: 'sine', from: 62, to: 26, length: 1.5, gain: 0.45, at: 0.06 },
+    ],
+    home: chord([523.25, 659.25, 783.99, 1046.5], 1.6, 0.14),
+    lastShield: [{ wave: 'square', from: 880, length: 0.09, gain: 0.14, at: 0.12 }, { wave: 'square', from: 587, length: 0.16, gain: 0.14, at: 0.24 }],
+    click: [{ wave: 'square', from: 900, length: 0.035, gain: 0.18 }],
+  }
+  const SFX_MASTER = 0.5
+  let sfxCtx = null, sfxOut = null, noise = null
+  const sfxPlaying = new Set()
+  function ensureSfx() {
+    if (!sfxCtx) {
+      sfxCtx = new (window.AudioContext || window.webkitAudioContext)()
+      sfxOut = sfxCtx.createGain(); sfxOut.gain.value = SFX_MASTER; sfxOut.connect(sfxCtx.destination)
+      noise = sfxCtx.createBuffer(1, sfxCtx.sampleRate * 2, sfxCtx.sampleRate)
+      const d = noise.getChannelData(0)
+      for (let i = 0; i < d.length; i++) d[i] = Math.random() * 2 - 1
+    }
+    if (sfxCtx.state !== 'running') sfxCtx.resume().catch(() => {})
+  }
+  function sfx(name, { pitch = 1, gain = 1, delay = 0, stretch = 1, stopOthers = false } = {}) {
+    ensureSfx()
+    if (stopOthers) for (const s of sfxPlaying) { try { s.stop() } catch { /* already stopped */ } }
+    const ctx = sfxCtx
+    for (const t of SFX[name]) {
+      const start = ctx.currentTime + 0.01 + delay + (t.at || 0) * stretch, end = start + t.length * stretch
+      let src, filter = null
+      if (t.wave === 'noise') {
+        src = ctx.createBufferSource(); src.buffer = noise
+        if (t.from > 0) {
+          filter = ctx.createBiquadFilter(); filter.type = 'lowpass'
+          filter.frequency.setValueAtTime(t.from, start)
+          filter.frequency.exponentialRampToValueAtTime(t.to || t.from, end)
+        }
+      } else {
+        src = ctx.createOscillator(); src.type = t.wave
+        src.frequency.setValueAtTime(t.from * pitch, start)
+        if (t.to) src.frequency.exponentialRampToValueAtTime(t.to * pitch, end)
+      }
+      const env = ctx.createGain()
+      env.gain.setValueAtTime(0, start)
+      env.gain.linearRampToValueAtTime(t.gain * gain, start + Math.min(0.01, t.length * stretch / 4))
+      env.gain.exponentialRampToValueAtTime(0.0001, end)
+      ;(filter ? src.connect(filter) : src).connect(env).connect(sfxOut)
+      src.onended = () => { src.disconnect(); if (filter) filter.disconnect(); env.disconnect(); sfxPlaying.delete(src) }
+      src.start(start); src.stop(end + 0.02)
+      sfxPlaying.add(src)
+    }
+  }
+
+  // ---- The music ----
+  const T = Tone.getTransport()
+  const draw = Tone.getDraw()
+  const limiter = new Tone.Limiter(-1).toDestination()
+  const masterLP = new Tone.Filter({ frequency: 18000, type: 'lowpass', rolloff: -12 }).connect(limiter)
+  const fade = new Tone.Gain(1).connect(masterLP)
+  const bus = new Tone.Volume(-12).connect(fade)
+  const reverb = new Tone.Reverb({ decay: 3.2, preDelay: 0.03, wet: 1 }).connect(bus)
+
+  const gate = {}, user = {}
+  const SEND = { pad: 0.35, lead: 0.32, bass: 0.04, drums: 0.12, arp: 0.3 }
+  for (const id of IDS) {
+    user[id] = new Tone.Gain(1).connect(bus)
+    user[id].connect(new Tone.Gain(SEND[id]).connect(reverb))
+    gate[id] = new Tone.Gain(0).connect(user[id])
+  }
+
+  // Pad: four detuned saws per note, a slow chorus, and a filter that opens with speed.
+  const padPump = new Tone.Gain(1).connect(gate.pad)
+  const padFilter = new Tone.Filter({ frequency: 600, type: 'lowpass', rolloff: -24, Q: 0.8 }).connect(padPump)
+  const chorus = new Tone.Chorus({ frequency: 0.5, delayTime: 3.5, depth: 0.6, wet: 0.5 }).connect(padFilter).start()
+  const pad = new Tone.PolySynth(Tone.Synth, {
+    oscillator: { type: 'fatsawtooth', count: 3, spread: 26 },
+    envelope: { attack: 0.9, decay: 0.5, sustain: 0.75, release: 2.2 },
+    volume: -16,
+  }).connect(chorus)
+
+  // Bass: a plucked saw on every eighth note.
+  const bassPump = new Tone.Gain(1).connect(gate.bass)
+  const bass = new Tone.MonoSynth({
+    oscillator: { type: 'sawtooth' },
+    filter: { Q: 3, type: 'lowpass', rolloff: -24 },
+    envelope: { attack: 0.004, decay: 0.18, sustain: 0.35, release: 0.08 },
+    filterEnvelope: { attack: 0.003, decay: 0.14, sustain: 0.15, release: 0.1, baseFrequency: 110, octaves: 3.2 },
+    volume: -6,
+  }).connect(bassPump)
+
+  // Drums: all synthesized.
+  const kick = new Tone.MembraneSynth({ pitchDecay: 0.035, octaves: 7, envelope: { attack: 0.001, decay: 0.32, sustain: 0, release: 0.05 }, volume: -9 }).connect(gate.drums)
+  const snareHP = new Tone.Filter(1200, 'highpass').connect(gate.drums)
+  const snare = new Tone.NoiseSynth({ noise: { type: 'white' }, envelope: { attack: 0.001, decay: 0.16, sustain: 0 }, volume: -15 }).connect(snareHP)
+  const snareBody = new Tone.MembraneSynth({ pitchDecay: 0.02, octaves: 2, envelope: { attack: 0.001, decay: 0.12, sustain: 0, release: 0.02 }, volume: -18 }).connect(gate.drums)
+  const hatHP = new Tone.Filter(7500, 'highpass').connect(gate.drums)
+  const hat = new Tone.NoiseSynth({ noise: { type: 'white' }, envelope: { attack: 0.001, decay: 0.045, sustain: 0 }, volume: -24 }).connect(hatHP)
+
+  // Arpeggio: a narrow pulse wave with a dotted-eighth echo.
+  // Lead: two detuned saws with a slow attack, a little glide between notes, vibrato and a quarter-note echo.
+  // The end screen after the ship is destroyed: the bass alone, long and soft, straight to the music's output.
+  const endBass = new Tone.MonoSynth({
+    oscillator: { type: 'sawtooth' }, filter: { Q: 2, type: 'lowpass', rolloff: -24 },
+    envelope: { attack: 0.05, decay: 1.2, sustain: 0.3, release: 2.5 },
+    filterEnvelope: { attack: 0.04, decay: 1.0, sustain: 0.2, release: 2, baseFrequency: 90, octaves: 2.4 }, volume: -8,
+  }).connect(bus)
+  endBass.connect(new Tone.Gain(0.3).connect(reverb))
+  const leadDelay = new Tone.FeedbackDelay({ delayTime: 0.62, feedback: 0.25, wet: 0.2 }).connect(gate.lead)
+  const leadVibrato = new Tone.Vibrato({ frequency: 5, depth: 0.08 }).connect(leadDelay)
+  const leadFilter = new Tone.Filter({ frequency: 2600, type: 'lowpass', rolloff: -12 }).connect(leadVibrato)
+  const LEAD_OPTS = {
+    portamento: 0.06,
+    oscillator: { type: 'fatsawtooth', count: 2, spread: 14 },
+    filter: { Q: 1, type: 'lowpass', rolloff: -12 },
+    envelope: { attack: 0.06, decay: 0.3, sustain: 0.8, release: 0.8 },
+    filterEnvelope: { attack: 0.08, decay: 0.4, sustain: 0.6, release: 0.8, baseFrequency: 600, octaves: 2.5 },
+    volume: -9,
+  }
+  const lead = new Tone.MonoSynth(LEAD_OPTS).connect(leadFilter)
+  const leadPreview = new Tone.MonoSynth(LEAD_OPTS).connect(user.lead)   // the note you place, heard at once
+
+  const arpDelay = new Tone.FeedbackDelay({ delayTime: 0.47, feedback: 0.32, wet: 0.28 }).connect(gate.arp)
+  const arpFilter = new Tone.Filter(3200, 'lowpass').connect(arpDelay)
+  const arp = new Tone.Synth({
+    oscillator: { type: 'pulse', width: 0.28 },
+    envelope: { attack: 0.004, decay: 0.22, sustain: 0.18, release: 0.15 },
+    volume: -21,
+  }).connect(arpFilter)
+
+  const depth = () => (1 - timeScale(S.slowmo)) / (1 - SLOW_SCALE)
+  const slowSemis = () => Math.round(TUNE.slow.semis * depth())
+
+  function wanted(id) {
+    if (S.state === 'melody') return id === 'lead'
+    if (id === 'lead' && S.leadForced && (S.state === 'flying' || S.state === 'results')) return true
+    if (S.state === 'results' || S.state === 'menu') return id === 'pad'      // the start screen's drone is the pad alone, as between missions
+    if (S.state !== 'flying') return false
+    if (id === 'bass' && S.mission >= TUNE.bassFromMission) return true
+    const from = TUNE.from[id]
+    const fast = S.speed >= (S.gate[id] ? from - 0.05 : from)      // a little slack, so a layer does not flicker at its threshold
+    if (id === 'lead') return fast && (S.gate.lead || S.arpWas)    // the lead waits until the arpeggio has been playing
+    return fast
+  }
+  function setGate(id, on, time, fadeTime) {
+    if (S.gate[id] === on) return
+    S.gate[id] = on
+    const l = LAYERS.find(x => x.id === id)
+    const g = gate[id].gain
+    g.cancelScheduledValues(time)
+    g.rampTo(on ? 1 : 0, fadeTime ?? (on ? l.fadeIn : l.fadeOut), time)
+  }
+  function duck(param, time) {
+    param.cancelScheduledValues(time)
+    param.setValueAtTime(0.45, time)
+    param.linearRampToValueAtTime(1, time + 0.24)
+  }
+
+  function tick(time) {
+    const s = step++
+    S.stepNow = s
+    if (S.state === 'over') {                                // only the slow bass: A, F, C, G, one note at a time
+      const k = s - S.overFrom - TUNE.over.first
+      if (k >= 0 && k % TUNE.over.every === 0) {
+        const ch = CHORDS[(k / TUNE.over.every) % 4]
+        endBass.triggerAttackRelease(ch.bass, TUNE.over.length, time, 0.8)
+        if (!document.hidden) draw.schedule(() => { $('chord').textContent = ch.name; $('barLabel').textContent = 'End screen' }, time)
+      }
+      return
+    }
+    const s16 = s % 16, bar = Math.floor(s / 16) % 8, ch = CHORDS[bar >> 1]
+    const chordStart = s16 === 0 && bar % 2 === 0
+    if (chordStart) {
+      S.arpWas = S.gate.arp                            // as it was before this chord change
+      for (const id of IDS) {
+        let on = wanted(id)
+        if (id === 'lead' && S.state === 'flying' && !S.leadForced) {
+          // at most leadBars at a stretch, then a rest of leadPause bars
+          if (on && S.gate.lead && s - S.leadSince === (TUNE.leadBars - TUNE.leadFade) * 16) {   // fade out over bars 31-32, not into the next loop
+            gate.lead.gain.cancelScheduledValues(time)
+            gate.lead.gain.rampTo(0, Tone.Time(`${TUNE.leadFade}m`).toSeconds(), time)
+          }
+          if (on && S.gate.lead && s - S.leadSince >= TUNE.leadBars * 16) { on = false; S.leadRestUntil = s + TUNE.leadPause * 16 }
+          if (on && !S.gate.lead && s < S.leadRestUntil) on = false
+        }
+        if (id === 'lead' && on && !S.gate.lead && s % 128 !== 0 && !S.leadForced) continue   // the melody starts only at the top of an eight-bar half
+        if (id === 'lead' && on && !S.gate.lead) { S.leadSince = s; S.leadHigh = S.leadEntries++ % 2 === 1 }   // octaves 3–4 first, then 4–5, in turn
+        const was = S.gate[id]
+        setGate(id, on, time)
+        if (!was && S.gate[id]) S.since[id] = s
+      }
+    }
+    if (s16 === 0) {
+      let rest = null
+      if (s % (TUNE.restEvery * 16) === (TUNE.restEvery - 1) * 16) {   // the last bar of each sixteen
+        const ready = ['bass', 'drums', 'arp'].filter(id =>
+          S.gate[id] && !S.muted[id] && s - (S.since[id] ?? s) >= TUNE.restAfter * 16 && id !== S.lastRest)
+        if (ready.length) { rest = ready[Math.floor(Math.random() * ready.length)]; S.lastRest = rest }
+      }
+      S.rest = rest
+      if (!document.hidden) draw.schedule(() => { S.restShown = rest }, time)
+    }
+    if (s16 === 0 && !chordStart && !S.gate.bass && wanted('bass') && S.mission >= TUNE.bassFromMission) { setGate('bass', true, time); S.since.bass = s }   // right away, at the next bar line
+    const rests = id => S.rest === id
+    const sh = slowSemis()
+    const f = (n, semis = 0) => Tone.Frequency(n).transpose(semis + sh).toFrequency()
+    const hits = []
+    if (chordStart) { pad.triggerAttackRelease(ch.pad.map(n => f(n)), Tone.Time('2m').toSeconds() * 0.92, time, 0.8); hits.push('pad') }
+    if (s16 % 2 === 0 && !rests('bass')) { const i = s16 / 2; bass.triggerAttackRelease(f(ch.bass, BASS[i]), '16n', time, i % 2 ? 0.7 : 1); hits.push('bass') }
+    if (s16 % 4 === 0 && !rests('drums')) {
+      kick.triggerAttackRelease(f('C1'), '8n', time); hits.push('drums')
+      if (S.gate.drums && !S.muted.drums) { duck(padPump.gain, time); duck(bassPump.gain, time) }
+    }
+    const fill = bar === 7 && s16 >= 13
+    if ((s16 === 4 || s16 === 12 || fill) && !rests('drums')) {
+      snare.triggerAttackRelease('16n', time, fill ? 0.4 + 0.2 * (s16 - 13) : 1)
+      snareBody.triggerAttackRelease(f('G2'), '16n', time)
+    }
+    if (rests('drums')) { /* resting */ }
+    else if (s16 % 4 === 2) hat.triggerAttackRelease('32n', time, 0.9)
+    else if (s16 % 2 === 1 && S.speed >= TUNE.hats16From && S.state === 'flying') hat.triggerAttackRelease('32n', time, 0.35)
+    const tune = MELODY[Math.floor(s / 128) % 2].get(s % 128)
+    if (tune) {
+      // In a run the lead alternates octaves from one entry to the next; alone or forced, it plays as the editor shows.
+      const shownLow = ROWS === LOW_ROWS, asShown = S.state === 'melody' || S.leadForced
+      const high = asShown ? !shownLow : S.leadHigh
+      lead.triggerAttackRelease(f(tune.note, (high ? 12 : 0) - (shownLow ? 0 : 12)), tune.len * 15 / T.bpm.value * 0.95, time, 0.9); hits.push('lead')
+    }
+    if (s16 % 2 === 0 && !rests('arp')) { const i = s16 / 2; arp.triggerAttackRelease(f(ch.arp[ARP[i]]), '8n', time, i % 2 ? 0.65 : 1); hits.push('arp') }
+    if (!document.hidden) draw.schedule(() => paint(s16, bar, ch, hits, s), time)
+  }
+  let step = 0
+  T.scheduleRepeat(tick, '16n', 0)
+
+  // ---- Sounds that follow the music's chord (a prototype) ----
+  const SCALE = [9, 11, 0, 2, 4, 5, 7]                       // A minor, as pitch classes
+  const midi = n => Tone.Frequency(n).toMidi()
+  const hz = m => Tone.Frequency(m, 'midi').toFrequency()
+  const near = (pc, target) => pc + 12 * Math.round((target - pc) / 12)     // that pitch class, in the octave nearest the target
+  const rootPc = ch => midi(ch.bass) % 12
+  function ladder(root, steps) { let m = root, n = 0; while (n < steps) { m++; if (SCALE.includes(m % 12)) n++ } return m }
+  const chordOut = new Tone.Gain(0.5).toDestination()        // v1's output, at the game's sound level
+  const voice = (type, decay, db) => new Tone.Synth({ oscillator: { type }, envelope: { attack: 0.004, decay, sustain: 0, release: 0.02 }, volume: db }).connect(chordOut)
+  const blip = voice('square', 0.065, -15), fall = voice('triangle', 0.28, -8), sweep = voice('sine', 0.2, -9)
+  const pulser = voice('sine', 0.33, -4), warpSaw = voice('sawtooth', 0.55, -15), warpSine = voice('sine', 0.55, -14)
+  const bell = new Tone.PolySynth(Tone.Synth, { oscillator: { type: 'sine' }, envelope: { attack: 0.01, decay: 0.35, sustain: 0.15, release: 0.4 }, volume: -16 }).connect(chordOut)
+  // One voice cannot start two notes at once: several crew saved together become a quick run, 60 ms apart.
+  const lastStart = new Map()
+  function glide(syn, m0, m1, len, t, velocity = 1) {
+    t = Math.max(t, (lastStart.get(syn) ?? 0) + 0.06); lastStart.set(syn, t)
+    syn.triggerAttackRelease(hz(m0), len, t, velocity)
+    if (m1 !== m0) syn.frequency.exponentialRampToValueAtTime(hz(m1), t + len)
+  }
+  const beep = voice('square', 0.14, -17)
+  let lastBell = 0
+  const soon = () => Tone.now() + 0.01
+  const onBeat = () => $('onBeat').checked && S.playing && T.state === 'started' ? T.nextSubdivision('8n') : soon()
+  const shift = () => S.playing ? slowSemis() : 0              // the same semitones the music drops in slow motion
+  const chorded = {
+    // A save is the chord itself (the owner's word), one inversion higher for each seat.
+    // The 12-seater starts an octave lower, so every ship's last seat ends near the same top.
+    save(seat, seats) {
+      const v = chordNow().pad.map(n => midi(n) + (seats > 8 ? 0 : 12) + shift())
+      for (let i = 0; i < seat - 1; i++) { v.sort((a, b) => a - b); v[0] += 12 }
+      const t = Math.max(soon(), lastBell + 0.06); lastBell = t                 // several at once roll, 60 ms apart
+      bell.triggerAttackRelease(v.map(hz), 0.22, t)
+    },
+    // Ship full, now that the chord is the save: a quick run up two octaves of the chord, ending on its root, held.
+    full() {
+      const notes = chordNow().pad.map(n => midi(n) + 12 + shift()).sort((a, b) => a - b)
+      const run = [...notes, ...notes.map(m => m + 12)]
+      let top = run[run.length - 1] + 1
+      while (((top - shift()) % 12 + 12) % 12 !== rootPc(chordNow())) top++
+      const t = $('onBeat').checked ? onBeat() : Math.max(soon(), lastBell) + 0.12
+      run.forEach((m, i) => bell.triggerAttackRelease(hz(m), 0.12, t + i * 0.04))
+      bell.triggerAttackRelease(hz(top), 0.6, t + run.length * 0.04)
+      lastBell = t + run.length * 0.04
+    },
+    missed(delay = 0) { const start = near((rootPc(chordNow()) + 7) % 12, 64) + shift(); glide(fall, start, start - 8, 0.3, soon() + delay) },
+    shield() { const r = near(rootPc(chordNow()), 69) + shift(); glide(sweep, r, r + 19, 0.22, onBeat()) },
+    pulse(gain = 1) { const r = near(rootPc(chordNow()), 45) + shift(); glide(pulser, r, r - 4, 0.35, onBeat(), gain) },
+    lastShield() { const f = near((rootPc(chordNow()) + 7) % 12, 76) + shift(), t = soon(); glide(beep, f, f, 0.09, t + 0.12); glide(beep, f - 7, f - 7, 0.16, t + 0.24) },   // a falling fifth, as in the game
+    enter() { const r = near(rootPc(chordNow()), 54) + shift(), t = onBeat(); glide(warpSaw, r, r + 36, 0.6, t); glide(warpSine, r + 7, r + 43, 0.6, t) },
+    home() { bell.triggerAttackRelease(['A4', 'C#5', 'E5', 'A5'], 1.6, onBeat()) },
+  }
+
+  // ---- v2: every event on the soundtrack's own instruments ----
+  // Separate copies of the instruments, with the music's settings, so a sound never depends on which layers are playing.
+  const fxOut = new Tone.Gain(0.5).toDestination()            // the game's sound level, apart from the music
+  const fxVerb = new Tone.Reverb({ decay: 2.2, preDelay: 0.02, wet: 1 }).connect(fxOut)
+  const wire = (node, send = 0.2) => { node.connect(fxOut); node.connect(new Tone.Gain(send).connect(fxVerb)); return node }
+  const xPad = new Tone.PolySynth(Tone.Synth, {               // the pad, with a quick attack
+    oscillator: { type: 'fatsawtooth', count: 3, spread: 26 },
+    envelope: { attack: 0.03, decay: 0.5, sustain: 0.7, release: 1.2 }, volume: -17,
+  }).connect(wire(new Tone.Filter({ frequency: 2400, type: 'lowpass', rolloff: -24, Q: 0.8 }), 0.35))
+  const xBass = new Tone.MonoSynth({
+    oscillator: { type: 'sawtooth' }, filter: { Q: 3, type: 'lowpass', rolloff: -24 },
+    envelope: { attack: 0.004, decay: 0.3, sustain: 0.35, release: 0.2 },
+    filterEnvelope: { attack: 0.003, decay: 0.2, sustain: 0.15, release: 0.2, baseFrequency: 110, octaves: 3.2 }, volume: -5,
+  }).connect(wire(new Tone.Gain(1), 0.05))
+  const xKick = new Tone.MembraneSynth({ pitchDecay: 0.035, octaves: 7, envelope: { attack: 0.001, decay: 0.32, sustain: 0, release: 0.05 }, volume: -8 }).connect(wire(new Tone.Gain(1), 0.08))
+  const xSnare = new Tone.NoiseSynth({ noise: { type: 'white' }, envelope: { attack: 0.001, decay: 0.16, sustain: 0 }, volume: -15 }).connect(wire(new Tone.Filter(1200, 'highpass'), 0.15))
+  const xHat = new Tone.NoiseSynth({ noise: { type: 'white' }, envelope: { attack: 0.001, decay: 0.045, sustain: 0 }, volume: -20 }).connect(wire(new Tone.Filter(7500, 'highpass'), 0.05))
+  const xArpEcho = wire(new Tone.FeedbackDelay({ delayTime: 0.19, feedback: 0.3, wet: 0.25 }), 0.3)
+  const xArp = new Tone.Synth({ oscillator: { type: 'pulse', width: 0.28 }, envelope: { attack: 0.004, decay: 0.22, sustain: 0.18, release: 0.15 }, volume: -15 })
+    .connect(new Tone.Filter(3200, 'lowpass').connect(xArpEcho))
+  const xLead = new Tone.MonoSynth({ ...LEAD_OPTS, envelope: { attack: 0.02, decay: 0.3, sustain: 0.8, release: 0.4 }, volume: -6 })
+    .connect(new Tone.Filter({ frequency: 2600, type: 'lowpass', rolloff: -12 }).connect(wire(new Tone.Vibrato({ frequency: 5, depth: 0.08 }), 0.3)))
+  // A voice that plays one note at a time cannot start two at once: each start is at least 30 ms after its last.
+  const slot = (syn, t, gap = 0.03) => { t = Math.max(t, (lastStart.get(syn) ?? 0) + gap); lastStart.set(syn, t); return t }
+  const tone = (syn, m, len, t, vel = 1) => { t = slot(syn, t); syn.triggerAttackRelease(hz(m), len, t, vel); return t }
+  const slide = (syn, m0, m1, len, t, vel = 1) => { t = tone(syn, m0, len, t, vel); syn.frequency.exponentialRampToValueAtTime(hz(m1), t + len); return t }
+  const burst = (syn, len, t, vel = 1) => syn.triggerAttackRelease(len, slot(syn, t), vel)
+  const chordPcs = () => [...new Set(chordNow().arp.map(n => midi(n) % 12))]
+  // The chord's notes going up from `low`, `count` of them.
+  function climb(low, count) { const pcs = chordPcs(), out = []; for (let m = low; out.length < count; m++) if (pcs.includes(((m - shift()) % 12 + 12) % 12)) out.push(m); return out }
+  const root = target => near(rootPc(chordNow()), target) + shift()
+  const fifth = target => near((rootPc(chordNow()) + 7) % 12, target) + shift()
+  const scored = {
+    // The owner's example: the chord itself, one inversion higher each seat.
+    save: (seat, seats) => chorded.save(seat, seats),
+    // The pad swells the chord and the lead holds its root on top.
+    full() {
+      const t = $('onBeat').checked ? onBeat() : Math.max(soon(), lastBell) + 0.12
+      xPad.triggerAttackRelease(chordNow().pad.map(n => hz(midi(n) + 12 + shift())), 0.5, t, 0.9)
+      tone(xLead, root(81), 0.6, t + 0.05, 0.6)
+    },
+    // The lead sighs: from the chord's fifth down to its root.
+    missed(delay = 0) { const f = fifth(76); slide(xLead, f, f - 7, 0.3, soon() + delay, 0.9) },
+    // A bass chord (the owner's word): the pad stabs root, fifth and octave down low while the bass drops from the root.
+    // Lower, longer and louder for a bigger rock. No drums, so it cannot be taken for the beat, and no lead.
+    // The shield cracking is the arpeggio's voice zipping down two octaves.
+    hit(big, last, long = false) {
+      const t = soon(), r = root(big ? 45 : 52), len = long ? 0.9 : big ? 0.45 : 0.2, vel = big ? 1 : 0.7
+      xPad.triggerAttackRelease([r, r + 7, r + 12].map(hz), len, t, vel)
+      slide(xBass, r - 12, r - 12 - (long ? 12 : 5), long ? 1.1 : len, t, big ? 0.8 : 0.5)
+      if (!long) slide(xArp, root(93), root(93) - 24, 0.09, t + 0.02, 0.7)
+      if (last) { const f = fifth(76); tone(xArp, f, 0.09, t + 0.12); tone(xArp, f - 7, 0.16, t + 0.24) }   // two warning notes on the arpeggio, falling a fifth
+    },
+    // The arpeggio runs up the chord: root, fifth, root.
+    shield() { const r = root(69), t = onBeat(); [r, r + 7, r + 12].forEach((m, i) => tone(xArp, m, 0.1, t + i * 0.06)) },
+    // The bass on the chord's root, an octave above the bass line, with a soft kick under it.
+    pulse(gain = 1) { const t = onBeat(), r = root(45); slide(xBass, r, r, 0.35, t, gain); tone(xKick, 28, 0.2, t, gain * 0.5) },
+    // The arpeggio races up three octaves of the chord while the lead slides up two.
+    enter() {
+      const t = onBeat(), r = root(57)
+      climb(r, 10).forEach((m, i) => tone(xArp, m, 0.07, t + i * 0.055, 0.6 + i * 0.04))
+      slide(xLead, r, r + 24, 0.6, t, 0.4)
+    },
+    // The whole band lands on A major: pad chord, bass A, lead on the high A, and a roll up the arpeggio.
+    home() {
+      const t = onBeat()
+      xPad.triggerAttackRelease(['A3', 'C#4', 'E4', 'A4'], 1.6, t)
+      slide(xBass, 33, 33, 1.2, t, 0.65)
+      ;[69, 73, 76, 81].forEach((m, i) => tone(xArp, m, 0.12, t + i * 0.07))
+      tone(xLead, 81, 1.4, t + 0.3, 0.5)
+    },
+    // The ship destroyed is the hit itself, at its biggest and held, with the bass falling an octave; the music fades under it.
+    destroyed() { scored.hit(true, false, true) },
+    // A hat tick and one arpeggio note: the root, lower for a bigger ship.
+    click(ship) { const t = soon(); burst(xHat, '32n', t); tone(xArp, root(81) - 12 * (ship - 1) + (ship === 2 ? 7 : 0), 0.06, t) },
+  }
+  const DESCS = {
+    save: { game: ['', 'A square blip, two semitones higher with every seat.'], v1: ['chord', 'The chord itself for each crew member, one inversion higher each seat, so the last seat is at the top.'], v2: ['chord', 'As v1: the chord itself, one inversion higher each seat. This is the example the others follow.'] },
+    full: { game: ['', 'A C-major chord after the last seat fills.'], v1: ['chord', 'A quick run up two octaves of the chord, ending on its root.'], v2: ['pad + lead', 'The pad swells the chord and the lead holds the root on top.'] },
+    missed: { game: ['', 'A falling triangle note for each one, 0.12 s apart.'], v1: ['chord', 'The same note, falling from the chord\'s fifth to just under its root.'], v2: ['lead', 'The lead sighs from the chord\'s fifth down to its root.'] },
+    hit: { game: ['', 'Noise and a thud sized by the rock, the shield cracking, the crew member thrown off; the last shield adds two beeps.'], v1: ['partly chord', 'The live impact and crack; the thrown-off note and the warning beeps follow the chord.'], v2: ['pad + bass + arpeggio', 'A bass chord: the pad stabs root, fifth and octave down low while the bass drops from the root, lower and longer for a bigger rock. The arpeggio zips down as the shield cracks. No drums and no lead. The last shield adds two arpeggio notes falling a fifth.'] },
+    shield: { game: ['', 'A sine sweep upward.'], v1: ['chord', 'The sweep, from the chord\'s root up to its fifth.'], v2: ['arpeggio', 'The arpeggio runs up the chord: root, fifth, root, with its echo.'] },
+    pulse: { game: ['', 'A low sine pulse every 0.9 s, quiet far away and loud near the ship.'], v1: ['chord', 'The pulse, on the chord\'s root.'], v2: ['bass + kick', 'The bass on the root, an octave above the bass line, over a soft kick.'] },
+    enter: { game: ['', 'A saw and a sine sweeping up; cuts the other sounds.'], v1: ['chord', 'The sweep, up three octaves from the chord\'s root.'], v2: ['arpeggio + lead', 'The arpeggio races up the chord while the lead slides up two octaves.'] },
+    home: { game: ['', 'A held C-major chord.'], v1: ['A major', 'A held A-major chord: a bright end to an A-minor run.'], v2: ['whole band', 'Pad, bass, arpeggio and lead land together on A major.'] },
+    destroyed: { game: ['', 'A crack, a boom closing to a rumble, and a deep thud.'], v1: ['as live', 'The live sound, unchanged.'], v2: ['pad + bass', 'The hit itself, at its biggest and held, with the bass falling an octave. In a run the music fades under it, and the end screen has its own slow bass.'] },
+    click: { game: ['', 'A click between missions; a bigger ship clicks lower.'], v1: ['as live', 'The live sound, unchanged.'], v2: ['hat + arpeggio', 'A hat tick and one arpeggio note on the chord, lower for a bigger ship.'] },
+  }
+
+  // ---- Melody editor: one column a beat, 32 beats for each eight bars ----
+  const CW = 20, RH = 18, BEATS = 32
+  const roll = $('roll')
+  roll.style.setProperty('--cw', CW + 'px'); roll.style.setProperty('--rh', RH + 'px')
+  const chordsRow = document.createElement('div'); chordsRow.className = 'chords'; chordsRow.style.width = CW * BEATS + 'px'
+  const keys = document.createElement('div'); keys.className = 'keys'
+  const stage = document.createElement('div'); stage.className = 'stage'
+  roll.append(document.createElement('div'), chordsRow, keys, stage)
+  CHORDS.forEach((c, k) => {
+    const label = document.createElement('span'); label.textContent = c.name; label.style.left = k * 8 * CW + 4 + 'px'; chordsRow.appendChild(label)
+    const tones = new Set(c.arp.map(n => n.replace(/\d/, '')))
+    ROWS.forEach((note, r) => {
+      if (!tones.has(note.replace(/\d/, ''))) return
+      const t = document.createElement('div'); t.className = 'tint'
+      Object.assign(t.style, { left: k * 8 * CW + 'px', top: r * RH + 'px', width: 8 * CW + 'px', height: RH + 'px' })
+      stage.appendChild(t)
+    })
+  })
+  for (let b = 0; b < 8; b++) {
+    const n = document.createElement('small'); n.dataset.bar = String(b); n.style.left = b * 4 * CW + 4 + 'px'; chordsRow.appendChild(n)
+  }
+  const labelKeys = () => keys.replaceChildren(...ROWS.map(note => { const d = document.createElement('div'); d.textContent = note; if (note[0] === 'C') d.className = 'c'; return d }))
+  labelKeys()
+  const notesLayer = document.createElement('div'); stage.appendChild(notesLayer)
+  const playhead = document.createElement('div'); playhead.className = 'playhead'; playhead.hidden = true; stage.appendChild(playhead)
+
+  let shown = 0, drag = null
+  const halfBtns = [$('halfA'), $('halfB')]
+  function showHalf(h) {
+    shown = h
+    halfBtns.forEach((b, i) => b.setAttribute('aria-pressed', String(i === h)))
+    chordsRow.querySelectorAll('small').forEach(el => { el.textContent = String(h * 8 + +el.dataset.bar + 1) })
+    drawNotes()
+  }
+  halfBtns.forEach((b, i) => b.addEventListener('click', () => showHalf(i)))
+
+  function drawNotes() {
+    const list = melody[shown].map(([at, note, len]) => ({ col: at / 4, row: ROWS.indexOf(note), len: len / 4, note, pending: false }))
+    if (drag && drag.add) list.push({ col: drag.start, row: drag.row, len: drag.len, note: ROWS[drag.row], pending: true })
+    notesLayer.replaceChildren(...list.filter(n => n.row >= 0).map(n => {
+      const d = document.createElement('div')
+      d.className = n.pending ? 'note pending' : 'note'
+      d.textContent = n.note
+      Object.assign(d.style, { left: n.col * CW + 1 + 'px', top: n.row * RH + 2 + 'px', width: n.len * CW - 2 + 'px', height: RH - 4 + 'px' })
+      return d
+    }))
+  }
+  function saveMelody() {
+    MELODY = buildMelody(melody)
+    const text = '[\n' + melody.map(h => '  [' + h.map(([a, n, l]) => `[${a}, '${n}', ${l}]`).join(', ') + ']').join(',\n') + ',\n]'
+    $('melodyText').value = text
+    try { localStorage.setItem(MELODY_KEY, text); localStorage.setItem(OCTAVE_KEY, ROWS === LOW_ROWS ? 'low' : 'high') } catch { /* kept for this visit only */ }
+    drawNotes()
+  }
+  function place(start, row, len) {
+    const a = start * 4, b = (start + len) * 4
+    const kept = []
+    for (const n of melody[shown]) {
+      const end = n[0] + n[2]
+      if (end <= a || n[0] >= b) kept.push(n)
+      else if (n[0] < a) kept.push([n[0], n[1], a - n[0]])     // cut short by the new note
+    }
+    kept.push([a, ROWS[row], len * 4])
+    melody[shown] = kept.sort((x, y) => x[0] - y[0])
+  }
+  const cellAt = e => {
+    const r = stage.getBoundingClientRect()
+    return { col: Math.floor((e.clientX - r.left) / CW), row: Math.floor((e.clientY - r.top) / RH) }
+  }
+  async function preview(note) {
+    try { await Tone.start(); leadPreview.triggerAttackRelease(note, 0.35) } catch { /* no sound yet */ }
+  }
+  stage.addEventListener('pointerdown', e => {
+    const { col, row } = cellAt(e)
+    if (col < 0 || col >= BEATS || row < 0 || row >= ROWS.length) return
+    e.preventDefault()
+    const hit = melody[shown].find(n => ROWS.indexOf(n[1]) === row && col >= n[0] / 4 && col < (n[0] + n[2]) / 4)
+    drag = hit ? { remove: hit } : { add: true, start: col, row, len: 1 }
+    stage.setPointerCapture(e.pointerId)
+    if (!hit) { preview(ROWS[row]); drawNotes() }
+  })
+  stage.addEventListener('pointermove', e => {
+    if (!drag || !drag.add) return
+    const len = Math.max(1, Math.min(BEATS - drag.start, cellAt(e).col - drag.start + 1))
+    if (len !== drag.len) { drag.len = len; drawNotes() }
+  })
+  stage.addEventListener('pointerup', () => {
+    if (!drag) return
+    if (drag.remove) melody[shown] = melody[shown].filter(n => n !== drag.remove)
+    else place(drag.start, drag.row, drag.len)
+    drag = null
+    saveMelody()
+  })
+  stage.addEventListener('pointercancel', () => { drag = null; drawNotes() })
+
+  function movePlayhead(s) {
+    const half = Math.floor(s / 128) % 2
+    halfBtns.forEach((b, i) => b.dataset.playing = String(S.playing && i === half))
+    playhead.hidden = !S.playing || half !== shown
+    playhead.style.left = Math.floor((s % 128) / 4) * CW + 'px'
+  }
+
+  $('leadNow').addEventListener('change', e => { S.leadForced = e.target.checked })
+  $('clearHalf').addEventListener('click', () => { melody[shown] = []; saveMelody() })
+  $('resetMelody').addEventListener('click', () => { melody = ROWS === LOW_ROWS ? transposed(DEFAULT_MELODY, -1) : copyMelody(DEFAULT_MELODY); saveMelody(); $('melodyMsg').textContent = 'Back to the saved melody.' })
+  $('copyMelody').addEventListener('click', () => {
+    const text = $('melodyText').value
+    const fallback = () => { $('melodyText').select(); $('melodyMsg').textContent = 'Copying is blocked here: the text is selected, so copy it by hand.' }
+    try { navigator.clipboard.writeText(text).then(() => { $('melodyMsg').textContent = 'Copied. Paste it into the chat to send it on.' }, fallback) } catch { fallback() }
+  })
+  $('loadMelody').addEventListener('click', () => {
+    const m = parseMelody($('melodyText').value)
+    if (!m) { $('melodyMsg').textContent = 'That text is not a melody this page can read: two lists of [start, note, length] in sixteenths, notes from the rows above, each half inside 128.'; return }
+    melody = m; setOctave(isLow(m), false); $('melodyMsg').textContent = 'Using the text.'
+  })
+  $('playMelody').addEventListener('click', () => { if (S.state === 'melody' && S.playing) stop(0.1); else playMelody() })
+  function setOctave(low, move) {
+    if (move && low !== (ROWS === LOW_ROWS)) melody = transposed(melody, low ? -1 : 1)
+    ROWS = low ? LOW_ROWS : HIGH_ROWS
+    try { localStorage.setItem(OCTAVE_KEY, low ? 'low' : 'high') } catch { /* kept for this visit only */ }
+    $('octLow').setAttribute('aria-pressed', String(low)); $('octHigh').setAttribute('aria-pressed', String(!low))
+    labelKeys(); saveMelody()
+  }
+  $('octLow').addEventListener('click', () => setOctave(true, true))
+  $('octHigh').addEventListener('click', () => setOctave(false, true))
+  $('octLow').setAttribute('aria-pressed', String(ROWS === LOW_ROWS)); $('octHigh').setAttribute('aria-pressed', String(ROWS === HIGH_ROWS))
+  showHalf(0)
+  saveMelody()
+
+  // ---- Lights ----
+  const lampTimers = {}
+  function paint(s16, bar, ch, hits, s) {
+    movePlayhead(s)
+    stepEls.forEach((el, i) => el.classList.toggle('now', i === s16))
+    $('chord').textContent = ch.name
+    $('barLabel').textContent = `Bar ${bar + 1} / 8`
+    for (const id of hits) {
+      if (!S.gate[id] || S.muted[id]) continue
+      const lamp = layerEls[id].lamp
+      lamp.classList.add('lit')
+      clearTimeout(lampTimers[id])
+      lampTimers[id] = setTimeout(() => lamp.classList.remove('lit'), id === 'pad' ? 400 : 90)
+    }
+  }
+
+  // ---- Flight and control ----
+  const mission = () => MISSIONS[S.mission - 1]
+  function resetFlight() { S.distance = 0; S.speed = mission()[0]; S.auto = true; S.slowmo = 0; S.launch = 1.2 }   // every mission starts with a 1.2 s fly-in
+
+  // Tone keeps every tempo change it is given for the whole session (its tempo
+  // timeline is never trimmed), so the tempo and the filters change only when
+  // they have moved enough to hear, never on every frame.
+  const applied = { bpm: 0, cut: 0 }
+  const MELODY_BPM = bpmFor(TUNE.from.lead)
+  const baseBpm = () => S.state === 'over' ? TUNE.over.bpm : S.state === 'results' || S.state === 'menu' ? TUNE.tempo.results : S.state === 'melody' ? MELODY_BPM : bpmFor(S.speed)
+  function control() {
+    if (!S.playing || S.slowmo > 0) return           // slow motion schedules its own two ramps
+    const bpm = baseBpm()
+    if (Math.abs(bpm - applied.bpm) >= 0.5) {
+      applied.bpm = bpm
+      T.bpm.rampTo(bpm, 0.5)
+      arpDelay.delayTime.rampTo(60 / bpm * 0.75, 0.5)
+      leadDelay.delayTime.rampTo(60 / bpm, 0.5)
+    }
+    if (S.state === 'over') return
+    const cut = S.state === 'results' || S.state === 'menu' ? 520 : Math.min(4200, 600 + 900 * (S.speed - 1))
+    if (Math.abs(cut - applied.cut) / cut >= 0.03) { applied.cut = cut; padFilter.frequency.rampTo(cut, 0.5) }
+  }
+  function slowMotion() {
+    const now = Tone.now(), back = now + SLOW_TIME - 0.45, bpm = baseBpm()
+    S.slowmo = SLOW_TIME
+    T.bpm.rampTo(bpm * TUNE.slow.tempo, 0.2, now)
+    T.bpm.rampTo(bpm, 0.45, back)
+    masterLP.frequency.rampTo(TUNE.slow.cutoff, 0.2, now)
+    masterLP.frequency.rampTo(18000, 0.45, back)
+    applied.bpm = bpm
+  }
+
+  async function play() {
+    await Tone.start()
+    ensureSfx()
+    resetFlight()
+    S.playing = true; S.state = 'flying'; S.rest = null; S.restShown = null; S.leadRestUntil = 0; S.lastRest = null; S.since = {}; S.leadEntries = 0; S.leadHigh = false
+    for (const id of IDS) { S.gate[id] = false; gate[id].gain.cancelScheduledValues(0); gate[id].gain.value = 0 }
+    fade.gain.cancelScheduledValues(0); fade.gain.value = 1
+    masterLP.frequency.value = 18000
+    padPump.gain.value = 1; bassPump.gain.value = 1
+    T.bpm.value = bpmFor(S.speed)
+    T.position = 0; step = 0
+    applied.bpm = S.speed && bpmFor(S.speed); applied.cut = 0
+    T.start(Tone.now() + 0.08)
+  }
+  // The lead alone, looping both halves, from the half on screen.
+  async function playMelody() {
+    await Tone.start()
+    ensureSfx()
+    if (T.state === 'started') T.stop()
+    pad.releaseAll()
+    S.playing = true; S.state = 'melody'; S.slowmo = 0; S.rest = null; S.restShown = null
+    for (const id of IDS) { S.gate[id] = id === 'lead'; gate[id].gain.cancelScheduledValues(0); gate[id].gain.value = id === 'lead' ? 1 : 0 }
+    fade.gain.cancelScheduledValues(0); fade.gain.value = 1
+    masterLP.frequency.cancelScheduledValues(0); masterLP.frequency.value = 18000
+    padPump.gain.value = 1; bassPump.gain.value = 1
+    T.bpm.value = MELODY_BPM; applied.bpm = MELODY_BPM
+    arpDelay.delayTime.value = 60 / MELODY_BPM * 0.75; leadDelay.delayTime.value = 60 / MELODY_BPM
+    T.position = 0; step = shown * 128
+    T.start(Tone.now() + 0.08)
+  }
+  function stop(fadeTime = 0.12, state = 'stopped') {
+    const t = Tone.now()
+    fade.gain.cancelScheduledValues(t)
+    fade.gain.rampTo(0, fadeTime, t)
+    S.playing = false; S.state = state; S.slowmo = 0; S.restShown = null
+    setTimeout(() => { if (!S.playing) { T.stop(); pad.releaseAll() } }, fadeTime * 1000 + 80)
+  }
+
+  function chooseMission(n) {
+    S.mission = n
+    resetFlight()
+    if (S.playing && S.state === 'results') S.state = 'flying'
+  }
+  function toggleMute(id) {
+    S.muted[id] = !S.muted[id]
+    user[id].gain.rampTo(S.muted[id] ? 0 : 1, 0.05)
+  }
+
+  $('play').addEventListener('click', () => {
+    if (S.playing && S.state === 'menu') { resetFlight(); S.state = 'flying' }      // a run starts from the drone without a break
+    else if (S.playing) stop()
+    else play()
+  })
+  // The start screen: the drone is the pad alone at 90 BPM, as the game plays it once the note is tapped there.
+  async function toMenu() {
+    if (S.playing && S.state === 'menu') { stop(1); return }
+    if (S.playing) {
+      const t = Tone.now()
+      for (const id of IDS) if (id !== 'pad') setGate(id, false, t, 1)
+      S.state = 'menu'; S.slowmo = 0; S.rest = null; S.restShown = null
+      return
+    }
+    await play()
+    S.state = 'menu'
+    T.bpm.value = TUNE.tempo.results; applied.bpm = TUNE.tempo.results
+  }
+  $('drone').addEventListener('click', toMenu)
+  $('speedSlider').addEventListener('input', e => { S.auto = false; S.speed = +e.target.value })
+  $('resume').addEventListener('click', () => {
+    const [v0, target] = mission()
+    S.distance = Math.max(0, (S.speed - v0) / SPEED_GAIN * target)
+    S.auto = true
+  })
+  $('evSlow').addEventListener('click', slowMotion)
+  $('evEnter').addEventListener('click', () => {
+    playEvent('enter')
+    const t = Tone.now()
+    for (const id of IDS) if (id !== 'pad') setGate(id, false, t, 0.5)
+    S.state = 'results'; S.slowmo = 0
+  })
+  $('evNext').addEventListener('click', () => {
+    S.mission = Math.min(MISSIONS.length, S.mission + 1)
+    resetFlight(); S.state = 'flying'
+  })
+  // The ship destroyed: the hit, the music fading under it, then the end screen's own slow bass until Stop.
+  $('evDestroyed').addEventListener('click', () => {
+    playEvent('destroyed')
+    const t = Tone.now()
+    for (const id of IDS) setGate(id, false, t, TUNE.over.fade)
+    pad.releaseAll(t)
+    S.state = 'over'; S.slowmo = 0; S.rest = null; S.restShown = null; S.overFrom = step
+    T.bpm.rampTo(TUNE.over.bpm, TUNE.over.fade, t); applied.bpm = TUNE.over.bpm
+  })
+  $('evHome').addEventListener('click', () => { playEvent('home'); stop(2.5, 'home') })
+  $('level').addEventListener('input', e => {
+    bus.volume.rampTo(+e.target.value, 0.05)
+    $('levelNote').textContent = `${String(e.target.value).replace('-', '−')} dB`
+  })
+
+  // ---- Sound effects board: every game sound, as in the game or following the chord ----
+  const CLICK_PITCH = [1, 0.75, 0.56]                                   // src/audio/sounds.ts
+  const HIT = { pitch: [1.3, 0.65], gain: [0.55, 1], stretch: [0.7, 1.7] }   // small rock to big rock
+  const pitchNow = () => timeScale(S.slowmo)                           // the game lowers sounds that start during slow motion
+  const stopNative = () => { for (const x of sfxPlaying) { try { x.stop() } catch { /* already stopped */ } } }
+  function playEvent(kind, o = {}) {
+    const mode = S.sfxMode, p = pitchNow(), set = mode === 'v2' ? scored : chorded
+    if (mode === 'game') {
+      switch (kind) {
+        case 'save': sfx('save', { pitch: 2 ** ((o.seat - 1) * 2 / 12) * p }); break
+        case 'full': sfx('full', { delay: 0.08, pitch: p }); break
+        case 'missed': for (let i = 0; i < (o.count || 1); i++) sfx('missed', { delay: i * 0.12, pitch: p }); break
+        case 'hit': nativeHit(o, p); if (o.last) sfx('lastShield', { pitch: p }); sfx('missed', { pitch: p }); break
+        case 'shield': sfx('shield', { pitch: p }); break
+        case 'pulse': sfx('pulse', { gain: o.gain, pitch: p }); break
+        case 'enter': sfx('enter', { stopOthers: true }); break
+        case 'home': sfx('home', { stopOthers: true }); break
+        case 'destroyed': sfx('destroyed', { stopOthers: true }); break
+        case 'click': sfx('click', { pitch: CLICK_PITCH[o.ship - 1] }); break
+      }
+      return
+    }
+    switch (kind) {
+      case 'save': set.save(o.seat, S.shipSeats); break
+      case 'full': set.full(); break
+      case 'missed': for (let i = 0; i < (o.count || 1); i++) set.missed(i * 0.12); break
+      case 'hit':
+        if (mode === 'v2') scored.hit(!!o.big, !!o.last)                 // the chord says it all: no falling lead note for the crew member thrown off
+        else { nativeHit(o, p); if (o.last) chorded.lastShield(); chorded.missed() }
+        break
+      case 'shield': set.shield(); break
+      case 'pulse': set.pulse(o.gain); break
+      case 'enter': stopNative(); set.enter(); break
+      case 'home': stopNative(); set.home(); break
+      case 'destroyed': if (mode === 'v2') { stopNative(); scored.destroyed() } else sfx('destroyed', { stopOthers: true }); break
+      case 'click': if (mode === 'v2') scored.click(o.ship); else sfx('click', { pitch: CLICK_PITCH[o.ship - 1] }); break
+    }
+  }
+  function nativeHit(o, p) {
+    const k = o.big ? 1 : 0, along = ([a, b]) => a + (b - a) * k
+    sfx('impact', { pitch: along(HIT.pitch) * p, gain: along(HIT.gain), stretch: along(HIT.stretch) })
+    sfx('shieldBreak', { pitch: p })
+  }
+  function saveCrew(n) {                                                // a full ship is sent no crew
+    for (let i = 0; i < n && S.seat < S.shipSeats; i++) {
+      S.seat++
+      playEvent('save', { seat: S.seat })
+      if (S.seat === S.shipSeats) playEvent('full')
+    }
+  }
+  $('board').addEventListener('click', async e => {
+    const b = e.target.closest('button[data-ev]')
+    if (!b) return
+    await Tone.start(); ensureSfx()
+    const ev = b.dataset.ev
+    if (ev === 'save1') saveCrew(1)
+    else if (ev === 'save3') saveCrew(3)
+    else if (ev === 'empty') S.seat = 0
+    else if (ev.startsWith('seats')) { S.shipSeats = +ev.slice(5); S.seat = Math.min(S.seat, S.shipSeats) }
+    else if (ev === 'missed1') playEvent('missed', { count: 1 })
+    else if (ev === 'missed3') playEvent('missed', { count: 3 })
+    else if (ev === 'hitSmall') playEvent('hit')
+    else if (ev === 'hitBig') playEvent('hit', { big: true })
+    else if (ev === 'hitLast') playEvent('hit', { big: true, last: true })
+    else if (ev === 'pulseFar') playEvent('pulse', { gain: 0.2 })
+    else if (ev === 'pulseNear') playEvent('pulse', { gain: 1 })
+    else if (ev.startsWith('click')) playEvent('click', { ship: +ev.slice(5) })
+    else playEvent(ev)                                                  // full, shield, enter, home, destroyed
+  })
+  const modeBtns = [...document.querySelectorAll('[data-mode]')]
+  modeBtns.forEach(b => b.addEventListener('click', () => { S.sfxMode = b.dataset.mode; describe() }))
+  function describe() {
+    for (const [k, d] of Object.entries(DESCS)) {
+      document.querySelector(`[data-tag="${k}"]`).textContent = d[S.sfxMode][0]
+      document.querySelector(`[data-desc="${k}"]`).textContent = d[S.sfxMode][1]
+    }
+  }
+  describe()
+
+  // ---- Timing: flight and control run on a timer, drawing on animation frames ----
+  let last = performance.now()
+  setInterval(() => {
+    const now = performance.now(), dt = Math.min(0.25, (now - last) / 1000); last = now
+    if (S.slowmo > 0) S.slowmo = Math.max(0, S.slowmo - dt)
+    if (S.playing && S.state === 'flying' && S.launch > 0) S.launch = Math.max(0, S.launch - dt)
+    else if (S.playing && S.state === 'flying' && S.auto) {
+      const [v0, target] = mission()
+      S.distance += dt * timeScale(S.slowmo) * S.speed * 10
+      S.speed = v0 + SPEED_GAIN * S.distance / target
+    }
+    control()
+  }, 50)
+  let lastDraw = 0
+  const loop = now => { if (now - lastDraw > 66) { lastDraw = now; render() } requestAnimationFrame(loop) }
+  requestAnimationFrame(loop)
+  document.addEventListener('click', () => render())
+
+  // test hook: levels in dB per layer, and the state
+  window.__sketch = { S, bpm: () => T.bpm.value, transport: () => T.state, tempoEvents: () => T.bpm._param?._events?.length, layerOut: user, chordOut, fxOut, endBass }
+
+  render()
+  function setText(el, text) { if (el.textContent !== text) el.textContent = text }
+  function setAttr(el, name, value) { if (el.getAttribute(name) !== value) el.setAttribute(name, value) }
+  function render() {
+    const labels = { stopped: 'Stopped', flying: S.slowmo > 0 ? 'Slow motion' : S.launch > 0 ? 'Fly-in' : 'Flying', results: 'Between missions', over: 'Destroyed', home: 'Home', melody: 'Melody alone', menu: 'Start screen' }
+    const chipColor = { stopped: 'var(--dim)', flying: S.slowmo > 0 ? 'var(--violet)' : 'var(--cyan)', results: 'var(--violet)', over: 'var(--red)', home: 'var(--green)', melody: 'var(--magenta)', menu: 'var(--violet)' }
+    const st = $('state')
+    setText(st, labels[S.state]); st.style.setProperty('--chip', chipColor[S.state])
+    setText($('play'), S.playing && S.state === 'menu' ? 'Start a run' : S.playing ? 'Stop' : S.state === 'stopped' ? 'Play' : 'Play again')
+    setAttr($('drone'), 'aria-pressed', String(S.playing && S.state === 'menu'))
+    setText($('drone'), S.playing && S.state === 'menu' ? 'Stop the drone' : 'Start screen drone')
+    setText($('playMelody'), S.playing && S.state === 'melody' ? 'Stop melody' : 'Play melody')
+    setText($('chordNowNote'), `(now ${chordNow().name})`)
+    document.querySelectorAll('[data-mode]').forEach(b => setAttr(b, 'aria-pressed', String(b.dataset.mode === S.sfxMode)))
+    setText($('seatNote'), S.seat >= S.shipSeats ? `Ship full: ${S.shipSeats} of ${S.shipSeats}. A full ship is sent no crew.` : `${S.seat} of ${S.shipSeats} seats taken.`)
+    for (const n of [4, 8, 12]) setAttr(document.querySelector(`[data-ev="seats${n}"]`), 'aria-pressed', String(S.shipSeats === n))
+    setText($('speed'), `${S.speed.toFixed(2)}×`)
+    if (window.Tone && S.playing) setText($('bpm'), String(Math.round(Tone.getTransport().bpm.value)))
+    else setText($('bpm'), String(Math.round(bpmFor(S.speed))))
+    missionBtns.forEach((b, i) => setAttr(b, 'aria-pressed', String(i + 1 === S.mission)))
+    const [, target] = MISSIONS[S.mission - 1]
+    const past = S.distance > target
+    $('bar').classList.toggle('past', past)
+    const w = `${Math.min(100, S.distance / target * 100).toFixed(1)}%`
+    if ($('bar').firstElementChild.style.width !== w) $('bar').firstElementChild.style.width = w
+    setText($('dist'), past
+      ? `Mission ${S.mission} · ${Math.round(S.distance).toLocaleString('en')} pc · staying on`
+      : `Mission ${S.mission} · ${Math.round(S.distance).toLocaleString('en')} / ${target.toLocaleString('en')} pc`)
+    setText($('mode'), S.auto ? 'Flying by itself' : 'Speed set by hand')
+    $('resume').hidden = S.auto
+    setText($('sliderNote'), S.auto ? 'drag to take over' : 'by hand')
+    const slider = $('speedSlider')
+    if (S.auto && document.activeElement !== slider) slider.value = String(Math.min(4.5, S.speed))
+    const flying = S.playing && S.state === 'flying'
+    $('evSlow').disabled = !flying
+    $('evEnter').disabled = !flying
+    $('evNext').disabled = !(S.playing && S.state === 'results') || S.mission >= MISSIONS.length
+    $('evDestroyed').disabled = !flying
+    $('evHome').disabled = !flying
+    for (const l of LAYERS) {
+      const el = layerEls[l.id]
+      const on = S.gate[l.id], want = S.playing && wanted(l.id)
+      let text = 'Off', cls = ''
+      if (S.muted[l.id]) text = 'Muted'
+      else if (!S.playing) text = 'Off'
+      else if (on && want && S.restShown === l.id) { text = 'Resting'; cls = 'wait' }
+      else if (on && want) { text = l.id === 'lead' && S.state === 'flying' && !S.leadForced ? (S.leadHigh ? 'Playing 4–5' : 'Playing 3–4') : 'Playing'; cls = 'on' }
+      else if (on && !want) { text = 'Leaving'; cls = 'wait' }
+      else if (l.id === 'lead' && !on && S.playing && S.state === 'flying' && S.stepNow < S.leadRestUntil) { text = 'Pausing'; cls = 'wait' }
+      else if (!on && want) { text = 'Coming in'; cls = 'wait' }
+      setText(el.status, text)
+      setAttr(el.status, 'class', `status ${cls}`)
+      setAttr(el.btn, 'aria-pressed', String(S.muted[l.id]))
+      setText(el.btn, S.muted[l.id] ? 'Unmute' : 'Mute')
+    }
+  }
+})()
+</script>
