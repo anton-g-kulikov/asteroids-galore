@@ -34,7 +34,7 @@ service cloud.firestore {
       allow create: if signedInAs(request.resource.data.userId) && validRun(request.resource.data);
 
       function validRun(run) {
-        return run.keys().hasOnly(['userId', 'callsign', 'createdAt', 'appVersion', 'outcome', 'score', 'distance', 'level', 'finalDistance', 'saved', 'lost', 'missed', 'durationSeconds', 'ship', 'ships'])
+        return run.keys().hasOnly(['userId', 'callsign', 'createdAt', 'appVersion', 'outcome', 'score', 'distance', 'level', 'finalDistance', 'saved', 'lost', 'missed', 'durationSeconds', 'ship', 'ships', 'fpsAvg', 'fpsLow'])
           && run.keys().hasAll(['userId', 'callsign', 'createdAt', 'appVersion', 'outcome', 'score', 'distance', 'level', 'finalDistance', 'saved', 'lost', 'missed', 'durationSeconds', 'ship', 'ships'])
           && run.createdAt == request.time
           && validCallsign(run.callsign)
@@ -58,7 +58,12 @@ service cloud.firestore {
           && wholeNumber(run.score, 0, 1000000000)
           && run.score <= run.distance * run.saved
           && wholeNumber(run.missed, 0, 10000)
-          && run.durationSeconds is number && run.durationSeconds >= 0 && run.durationSeconds <= 86400;
+          && run.durationSeconds is number && run.durationSeconds >= 0 && run.durationSeconds <= 86400
+          // The frame rate the run was flown at (src/fps/runFrames.ts): both or neither, so a
+          // client from before them still saves.
+          && (run.keys().hasAll(['fpsAvg', 'fpsLow'])
+              ? wholeNumber(run.fpsAvg, 0, 1000) && wholeNumber(run.fpsLow, 0, 1000)
+              : !run.keys().hasAny(['fpsAvg', 'fpsLow']));
       }
     }
 

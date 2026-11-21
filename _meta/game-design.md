@@ -42,7 +42,7 @@ There is one best, the highest score, saved on the device together with how that
 
 When the game is connected to the cloud and the board has loaded, both end screens show a `LEADERBOARD` pill in the top left corner, mirroring `SHARE` on the right. A tap on it opens the leaderboard over the end screen and does not start a new run. The next tap, or Space, Enter or Escape, goes back to the end screen; that does not start a run either.
 
-The leaderboard is `TOP SCORES`: the ten highest best scores, one global board for all time. Players are listed by callsign: two words and a number, generated from the player's anonymous account, so nobody types a name and the same account always keeps the same one. Under each callsign a small line says how many missions that run finished: `FINISHED 2/7` for a run lost in mission 3. A run that reached mission 7 also says how it ended and the parsecs flown there: `FINISHED 7/7 · HOME · 5,400 pc · 16 SEATS` for a run that went home, `FINISHED 6/7 · LOST · 7,100 pc · 2 SEATS` for one destroyed in mission 7. The seats are those of the ship chosen for mission 7 (see [The choice](#the-choice)); an entry saved before ships were recorded leaves them out. The board then tells how far each player got, who got out in time and in what. The player's own row is gold, which is also how they learn their callsign. A player outside the top ten gets an extra row with their rank. A player whose best is 0 is not listed.
+The leaderboard is `TOP SCORES`: the ten highest best scores, one global board for all time. Players are listed by callsign: two words and a number, generated from the player's anonymous account, so nobody types a name and the same account always keeps the same one. Under each callsign a small line names the mission that run reached, in the 00–06 naming (since 2026-11-22, the owner's choice; it was a count, `FINISHED 2/7`): `REACHED 02` for a run lost in mission 02 (level 3). A run that reached the last mission also says how it ended and the parsecs flown there: `REACHED 06 · HOME · 5,400 pc · 12 SEATS` for a run that went home, `REACHED 06 · LOST · 7,100 pc · 4 SEATS` for one destroyed in it. The seats are those of the ship chosen for mission 7 (see [The choice](#the-choice)); an entry saved before ships were recorded leaves them out. The board then tells how far each player got, who got out in time and in what. The player's own row is gold, which is also how they learn their callsign. A player outside the top ten gets an extra row with their rank. A player whose best is 0 is not listed.
 
 The board starts again whenever scores stop being comparable: entries are ranked by a field whose name changes with the scoring (`best6` since the three ships of 2026-11-20; `best5` before it, from the ship numbers of the same day; `best4`, from the five ships of 2026-11-16; `best3` from the linear penalty of 2026-11-15; `best` and `bestScore` earlier), so entries that only hold an earlier score are not listed, and a player's first new entry replaces their old one. Nothing is deleted. The best kept on the device moves to a new key at the same time.
 
@@ -84,7 +84,9 @@ More shields can be found from mission 4 on. A drop is a glowing shield arc drif
 
 ## Levels
 
-There are 7 levels. **The player knows them as missions:** everything on screen says `MISSION` — the counter in the corner (`MISSION 2/7`) and the results screen between them. The code and these notes keep the word level.
+There are 7 levels. **The player knows them as missions:** everything on screen says `MISSION` — the counter in the corner (`MISSION 01/06`) and the results screen between them. The code and these notes keep the word level.
+
+**Since 2026-11-22 the missions are named 00 to 06** (the owner's word), to match the moons m00n to m06n (see [Story](#story)). Built in the game as it is now: the counter in flight reads `MISSION 00/06` (the owner chose it over `MISSION 00` alone, which the Game Designer preferred because a fraction reads as progress), the stop's title `MISSION 01 COMPLETE`, the results tables name each row 00 to 06, and the board names the mission a run reached. In these notes "level" stays the code's count, 1 to 7, and a mission number from 1 to 7 means that level; mission 00 is level 1. The sections written before the rename are not renumbered.
 
 | Level | Parsecs to fly | Starting speed | Shield drops | Ship choice after it |
 |---|---|---|---|---|
@@ -287,7 +289,7 @@ One board of best scores, for all time.
 
 - **When the choice to go home bites:** when the run in hand is already ahead of the player's own best. A run below it has nothing to lose, which is how a record chase works.
 - **Players will gamble deeper than the model says,** because a failed attempt costs only that run. The wait between wormholes is tuned from what players do on runs that are ahead of their best.
-- **Each row shows how many missions the run finished,** and for a run that reached mission 7 how it ended and how far it went there, for example `FINISHED 7/7 · HOME · 5,400 pc` or `FINISHED 6/7 · LOST · 7,100 pc`. The board then tells who got out in time.
+- **Each row names the mission the run reached** (in the 00–06 naming since 2026-11-22; it was a count, `FINISHED 6/7`), and for a run that reached the last mission how it ended and how far it went there, for example `REACHED 06 · HOME · 5,400 pc` or `REACHED 06 · LOST · 7,100 pc`. The board then tells who got out in time.
 
 An all-time board needs three things:
 
@@ -701,6 +703,8 @@ Asked for by the owner on 2026-11-20. Both are built and live since 0.4.7 (2026-
 - **The logo and the favicon are redrawn in the vector-glow look (live since 0.4.7).** The app icons (`public/icons`) and `public/favicon.svg` show the ship as the game draws it: a black hull in cyan lines of light with a cyan cockpit glass set inside the nose and a yellow flame, on the black field. The large icons also show ship 1's four seats full (green dots), the violet grid and a few stars (the rock was taken out on 2026-11-21, for the name Lightboat); the favicon is the ship alone with a heavier line, so it reads at 16 px. The glow is drawn as wider, fainter copies of each outline, because ImageMagick ignores SVG filters. `npm run icons` redraws them. A phone that has the game installed keeps its old icon until the phone refreshes it.
 - **Still open:** whether the owner also wants a way to cap or lower the frame rate; this builds only the display.
 
+**Saved with each run since 2026-11-22** (the owner's word). Every run saved to Firestore carries `fpsAvg`, the frames drawn per second over its flight, and `fpsLow`, its slowest whole second. Flight is the fly-ins and the missions, not the stops or the end screen. The reading on screen does not need to be on. It shows which devices struggle, for example with the piano's two reverbs. The rules take both fields or neither, so an older client still saves. Nothing reads them in the game yet; they are for looking at the data.
+
 ## Story
 
 Proposed on 2026-11-21 and agreed in outline by the owner. **Not built.** The lines below are first drafts, and where they sit on screen has not been drawn.
@@ -793,6 +797,7 @@ Decided by the owner on 2026-11-21: the game is called **Lightboat**. "Asteroids
 
 - **It reads three ways,** all true of the game: a boat of light (the ship is drawn in lines of light), a light boat (the small, nimble ship the player may keep), and one letter from "lifeboat" (the rescue).
 - **It works without the story,** and it sits well with the story's rescue tender, the *Lantern*.
+- **In the story the first reading is literal.** The lines of a lightboat's hull are made of light0re, the light-storing ore the moon was mined for (the owner's word for it, 2026-11-22; see [Story](#story)).
 - **The old name carries a risk.** "Asteroids" is a long-standing Atari trademark for video games, and stores act on trademark complaints.
 - **It is a rare real word** for a small lightship, a vessel that carries a light as an aid to navigation. The Game Writer found it in Dictionary.com (an Americanism of 1825–35) and in Wiktionary; it was not found as an entry of its own in Merriam-Webster.
 
@@ -817,7 +822,7 @@ A search of public databases, not legal clearance.
 
 Renamed, because players see it:
 
-- **The start screen title:** the word `LIGHTBOAT` outlined in the ship's cyan line of light (`#5ff5ff`), black inside so the grid does not show through, one colour, 58 units at weight 800, centred with its baseline a third of the way down plus 26: the owner's choice from the Game Designer's three designs ("C, but without a ship"). It replaces the two lines `ASTEROIDS` over `GALORE`.
+- **The start screen title:** the word drawn as `LIGHTB0AT`, with a digit zero in place of the O (the owner: "let's try 0 instead of O", kept cyan with its glow), outlined in the ship's cyan line of light (`#5ff5ff`), black inside so the grid does not show through, one colour, 58 units at weight 800, centred with its baseline a third of the way down plus 26: the owner's choice from the Game Designer's three designs ("C, but without a ship"). It replaces the two lines `ASTEROIDS` over `GALORE`. The zero is the device font's own, so it is slashed on Apple devices and may be dotted or plain elsewhere; the Game Designer has offered the owner a drawn zero to make it the same everywhere. Only the drawn title has the zero: the page, the app's name, the share text and the README spell it Lightboat.
 - **The page:** its title, the canvas label and the Apple home-screen title, all `Lightboat`.
 - **The installed app:** name and short name `Lightboat`. A phone that already has the app keeps showing the old name until it refreshes the app's details, which can take a day or a reinstall: a stale name is not a failed deploy.
 - **The share message and its title:** "Made it home in Lightboat: …" and "I saved … crew in Lightboat …".

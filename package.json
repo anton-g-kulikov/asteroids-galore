@@ -1,7 +1,7 @@
 {
   "name": "asteroids-galore",
   "private": true,
-  "version": "0.5.0",
+  "version": "0.5.1",
   "type": "module",
   "description": "A small top-down space dodger for phones",
   "scripts": {

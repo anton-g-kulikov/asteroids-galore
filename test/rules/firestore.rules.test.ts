@@ -159,3 +159,15 @@ test('RULES-07 everything else is closed', async () => {
   await assertFails(setDoc(doc(as('ann'), 'other/x'), { a: 1 }))
   await assertFails(getDoc(doc(as('ann'), 'other/x')))
 })
+
+test('RULES-11 a run may carry its frame rate: both or neither, whole numbers from 0 to 1000', async () => {
+  const db = as('ann')
+  await assertSucceeds(setDoc(doc(db, 'runs/fps1'), run('ann', { fpsAvg: 58, fpsLow: 41 })))
+  await assertSucceeds(setDoc(doc(db, 'runs/fps2'), run('ann')))                                   // a client from before still saves
+  await assertFails(setDoc(doc(db, 'runs/fps3'), run('ann', { fpsAvg: 58 })))                      // one without the other
+  await assertFails(setDoc(doc(db, 'runs/fps4'), run('ann', { fpsLow: 41 })))
+  await assertFails(setDoc(doc(db, 'runs/fps5'), run('ann', { fpsAvg: 58.5, fpsLow: 41 })))        // whole numbers
+  await assertFails(setDoc(doc(db, 'runs/fps6'), run('ann', { fpsAvg: -1, fpsLow: 0 })))
+  await assertFails(setDoc(doc(db, 'runs/fps7'), run('ann', { fpsAvg: 2000, fpsLow: 41 })))
+  await assertFails(setDoc(doc(db, 'runs/fps8'), run('ann', { fpsAvg: '58', fpsLow: 41 })))
+})

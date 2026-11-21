@@ -5,6 +5,7 @@ import { SOUNDS } from './audio/sounds'
 import { createWebAudio, hasWebAudio } from './audio/webAudio'
 import { drawFpsButton, drawFpsReading, onFpsButton, showsFpsButton } from './fps/fpsButton'
 import { createFpsSwitch, createFrameMeter } from './fps/meter'
+import { createRunFrames } from './fps/runFrames'
 import { createConductor } from './music/conductor'
 import { drawMusicButton, onMusicButton, showsMusicButton } from './music/musicButton'
 import { startCloud } from './cloud'
@@ -63,6 +64,8 @@ function loadMusic() {
 // It counts frames drawn, and never touches the simulation.
 const fps = createFpsSwitch(store)
 const frames = createFrameMeter()
+const runFrames = createRunFrames()   // the frame rate each run was flown at, saved with it
+let lastState = game.state
 document.addEventListener('visibilitychange', () => sound.setHidden(document.visibilityState === 'hidden'))
 window.addEventListener('pagehide', () => sound.setHidden(true))
 window.addEventListener('pageshow', () => sound.setHidden(false))
@@ -101,7 +104,7 @@ let runCount = 0
 let sharePointer: number | null = null
 
 function runEnded() {
-  const run = lastRun = runSummary(game)
+  const run = lastRun = { ...runSummary(game), ...runFrames.result() }
   const mine = ++runCount
   lastRunId = null
   game.shareReady = false
@@ -221,12 +224,17 @@ function step() {
 let last = performance.now(), owed = 0
 function frame(now: number) {
   const raw = (now - last) / 1000
-  if (raw < 1) frames.frame(raw)                 // a frame actually drawn; a long gap is the tab coming back, not a stutter
+  if (raw < 1) {                                 // a frame actually drawn; a long gap is the tab coming back, not a stutter
+    frames.frame(raw)
+    runFrames.frame(raw, game.state === 'launch' || game.state === 'play')
+  }
   let dt = Math.min(0.25, raw)                   // clamp: no jumps after tab switch
   last = now
   if (Math.abs(dt - STEP) < 0.002) dt = STEP     // a 60 Hz screen: exactly one step per frame, no stutter
   owed += dt
   while (owed >= STEP - 1e-9) { owed -= STEP; step() }
+  if (game.state === 'launch' && lastState !== 'launch' && game.level === 1) runFrames.start()   // a run's first fly-in
+  lastState = game.state
   game.shareNote = Math.max(0, game.shareNote - dt)
   updater?.tick(game.state)
   music.frame(game)                              // reads the events; the sound effects then take them

@@ -16,6 +16,9 @@ export interface RunResult extends RunEnd {
   /** The ship each mission was flown in, in order; the unfinished one included. The choices are inputs: with the seed they say what was played. */
   ships: number[]
   durationSeconds: number
+  /** Frames the screen drew per second in flight: the average, and the slowest whole second. Added by the page (src/fps/runFrames.ts), not the simulation. */
+  fpsAvg?: number
+  fpsLow?: number
 }
 
 /** How the run ended: what the board shows beside its score. */

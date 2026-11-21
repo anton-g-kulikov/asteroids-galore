@@ -38,12 +38,12 @@ test('HUD-11 the leaderboard screen: every row by score with how the run ended, 
   for (const state of ['over', 'won'] as const) {
     const text = drawnText(state, rows, { boardOpen: true })
     expect(text).toEqual([
-      'TOP SCORES', '1', 'COSMIC OTTER 42', '25,680', 'FINISHED 7/7 · HOME · 5,400 pc · 12 SEATS', '2', 'LUNAR FOX 07', '640', 'FINISHED 2/7', 'TAP TO GO BACK',
+      'TOP SCORES', '1', 'COSMIC OTTER 42', '25,680', 'REACHED 06 · HOME · 5,400 pc · 12 SEATS', '2', 'LUNAR FOX 07', '640', 'REACHED 02', 'TAP TO GO BACK',
     ])
   }
-  expect(endNote({ outcome: 'over', level: 7, finalDistance: 7100, ship: 1 })).toBe('FINISHED 6/7 · LOST · 7,100 pc · 4 SEATS')
-  expect(endNote({ outcome: 'over', level: 7, finalDistance: 7100, ship: 0 })).toBe('FINISHED 6/7 · LOST · 7,100 pc')   // an entry from before ships were recorded
-  expect(endNote({ outcome: 'over', level: 1, finalDistance: 0, ship: 1 })).toBe('FINISHED 0/7')
+  expect(endNote({ outcome: 'over', level: 7, finalDistance: 7100, ship: 1 })).toBe('REACHED 06 · LOST · 7,100 pc · 4 SEATS')
+  expect(endNote({ outcome: 'over', level: 7, finalDistance: 7100, ship: 0 })).toBe('REACHED 06 · LOST · 7,100 pc')   // an entry from before ships were recorded
+  expect(endNote({ outcome: 'over', level: 1, finalDistance: 0, ship: 1 })).toBe('REACHED 00')
   // an entry that does not say how its run ended: the row without a note
   expect(drawnText('over', [{ ...rows[0], end: null }], { boardOpen: true })).toEqual(['TOP SCORES', '1', 'COSMIC OTTER 42', '25,680', 'TAP TO GO BACK'])
   // no board to show: the end screen stays, even if the flag is somehow set
@@ -67,8 +67,8 @@ test('HUD-02 an end screen is a table with a sum per mission, then the score the
   // each row: mission, distance, crew saved as a multiplier, what the missed cost, its score
   expect(won.slice(0, 16)).toEqual([
     'MADE IT HOME', 'MISSION', 'DISTANCE', 'SAVED', 'MISSED', 'SCORE',
-    '1', '361 pc', '×2', '1 (−5%)', '686',
-    '2', '1779 pc', '×10', '6 (−30%)', '12,453',
+    '00', '361 pc', '×2', '1 (−5%)', '686',
+    '01', '1779 pc', '×10', '6 (−30%)', '12,453',
   ])
   expect(won).toEqual(expect.arrayContaining(['SCORE', '13,139', 'NOT SAVED', '7 MISSED']))
   expect(won.join(' ')).not.toMatch(/WENT DOWN|LOST|TOTAL/)
@@ -78,7 +78,7 @@ test('HUD-02 an end screen is a table with a sum per mission, then the score the
     distance: 1000, saved: 9, lost: 3, missed: 2,
     results: [{ level: 1, ship: 1, saved: 9, missed: 0, distance: 600 }, { level: 2, ship: 1, saved: 0, lost: 3, missed: 2, distance: 400 }],
   })
-  expect(over.slice(6, 16)).toEqual(['1', '600 pc', '×9', '—', '5,400', '2', '400 pc', '−3', '2', '—'])
+  expect(over.slice(6, 16)).toEqual(['00', '600 pc', '×9', '—', '5,400', '01', '400 pc', '−3', '2', '—'])
   expect(over.join(' ')).not.toMatch(/−1,200|4,200/)   // nothing is taken off what was banked
   expect(over).toEqual(expect.arrayContaining(['GAME OVER', '5,400', 'NOT SAVED', '3 WENT DOWN WITH THE SHIP', '2 MISSED']))
 
@@ -92,7 +92,7 @@ test('HUD-02 an end screen is a table with a sum per mission, then the score the
 
   // seven missions fit above the prompt on the fixed field
   const seven = drawnText('won', null, { results: [1, 2, 3, 4, 5, 6, 7].map(level => ({ level, ship: 1, saved: 2, missed: 0, distance: 500 })) })
-  expect(seven.slice(6, 41).filter((_, i) => i % 5 === 0)).toEqual(['1', '2', '3', '4', '5', '6', '7'])
+  expect(seven.slice(6, 41).filter((_, i) => i % 5 === 0)).toEqual(['00', '01', '02', '03', '04', '05', '06'])
   expect(seven).toContain('7,000')
 
   // a missed crew member costs 5% in every ship, whatever the mission
@@ -113,7 +113,7 @@ test('HUD-03 no board, or an empty one: no link and no board', () => {
 const banked = [{ level: 1, ship: 1, saved: 3, missed: 0, distance: 400 }]
 
 test('HUD-13 in play: the mission out of 7 top left, one dot per seat top right, and no row of shields', () => {
-  expect(drawnText('play', null, { level: 5 })).toContain('MISSION 5/7')
+  expect(drawnText('play', null, { level: 5 })).toContain('MISSION 04/06')   // missions are named 00 to 06 (MNAME-01)
   const dots = (shipType: number, shields: number) => {
     const g = createGame(createRecords(null))
     Object.assign(g, { state: 'play', shipType, shields, time: 9 })
@@ -179,9 +179,9 @@ test('HUD-10 between levels: every mission so far as a sum, and the run\'s score
     results: [{ level: 1, ship: 1, saved: 2, missed: 1, distance: 361 }, { level: 2, ship: 1, saved: 3, missed: 0, distance: 520 }],
   })
   expect(text).toEqual([
-    'MISSION 2 COMPLETE', 'MISSION', 'DISTANCE', 'SAVED', 'MISSED', 'SCORE',
-    '1', '361 pc', '×2', '1 (−5%)', '686',     // the same table as the end screen: every mission flown
-    '2', '520 pc', '×3', '—', '1,560',         // the one just finished comes last
+    'MISSION 01 COMPLETE', 'MISSION', 'DISTANCE', 'SAVED', 'MISSED', 'SCORE',
+    '00', '361 pc', '×2', '1 (−5%)', '686',    // the same table as the end screen: every mission flown
+    '01', '520 pc', '×3', '—', '1,560',        // the one just finished comes last
     'TOTAL', '2,246',                          // the run so far: 686 + 1,560
   ])                                           // two ships are on offer: no prompt and no caption beside them
   // after mission 1 nothing is on offer: the prompt
@@ -189,7 +189,7 @@ test('HUD-10 between levels: every mission so far as a sum, and the run\'s score
   // after the first mission there is one row; after the sixth, six
   expect(drawnText('between', null, { level: 1, results: [{ level: 1, ship: 1, saved: 2, missed: 0, distance: 500 }] })).toHaveLength(14)
   const six = drawnText('between', null, { level: 6, results: [1, 2, 3, 4, 5, 6].map(level => ({ level, ship: 1, saved: 2, missed: 0, distance: 500 })) })
-  expect(six.slice(6, 36).filter((_, i) => i % 5 === 0)).toEqual(['1', '2', '3', '4', '5', '6'])
+  expect(six.slice(6, 36).filter((_, i) => i % 5 === 0)).toEqual(['00', '01', '02', '03', '04', '05'])
   expect(six.slice(-3)).toEqual(['TOTAL', '6,000', 'TAP TO CONTINUE'])
 })
 
@@ -221,7 +221,7 @@ test('HUD-06 the start screen shows a shared run', () => {
 })
 
 test('HUD-07 the start screen: title, controls, and at the foot the version and the seed of the next run', () => {
-  expect(drawnText('menu', null, { seed: 0x4f2a9c })).toEqual(['LIGHTBOAT', 'hold left', 'hold right', `v${version} · SEED 4F2A9C`, 'TAP TO START'])
+  expect(drawnText('menu', null, { seed: 0x4f2a9c })).toEqual(['LIGHTB0AT', 'hold left', 'hold right', `v${version} · SEED 4F2A9C`, 'TAP TO START'])
   expect(drawnText('menu', null, { seed: 0x2a })).toContain(`v${version} · SEED 00002A`)
   for (const state of ['play', 'between', 'over', 'won'] as const) expect(drawnText(state, null).join(' ')).not.toContain('SEED')
 })
@@ -301,4 +301,18 @@ test('HUD-16 the fleet before mission 7 is a row of the ships flown, with the on
   // a run that never upgraded has one ship: nothing to choose, the prompt as after mission 1
   expect(shipCards(between([1, 1, 1, 1, 1, 1]))).toEqual([])
   expect(drawnCards(between([1, 1, 1, 1, 1, 1])).text.slice(-1)).toEqual(['TAP TO CONTINUE'])
+})
+
+test('MNAME-01 missions are shown as 00 to 06: level n is named n - 1, in two digits', async () => {
+  const { missionName } = await import('../../src/render/hud')
+  expect([1, 2, 7].map(missionName)).toEqual(['00', '01', '06'])
+  expect(drawnText('play', null, { level: 1 })).toContain('MISSION 00/06')
+  expect(drawnText('play', null, { level: 7 })).toContain('MISSION 06/06')
+  expect(drawnText('between', null, { level: 3, results: [1, 2, 3].map(level => ({ level, ship: 1, saved: 1, missed: 0, distance: 100 })) }).slice(0, 1)).toEqual(['MISSION 02 COMPLETE'])
+  // the end screen's table names each mission flown the same way
+  const end = drawnText('over', null, { results: [{ level: 1, ship: 1, saved: 1, missed: 0, distance: 100 }, { level: 2, ship: 1, saved: 0, lost: 2, missed: 0, distance: 50 }] })
+  expect(end).toEqual(expect.arrayContaining(['00', '01']))
+  expect(end).not.toContain('1')
+  // the board names the mission a run reached
+  expect(endNote({ outcome: 'over', level: 3, finalDistance: 0, ship: 2 })).toBe('REACHED 02')
 })

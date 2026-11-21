@@ -28,6 +28,8 @@ The seven-mission run is built (see `game-design.md`). What is left of that plan
 
 ## Done
 
+- Frame rate saved with each run (2026-11-22, v0.5.1): the run's average frames per second in flight and its slowest whole second, as `fpsAvg` and `fpsLow`; the Firestore rules accept both or neither. **The rules must be deployed before the client:** the GitHub deploy publishes Hosting only, so run `npm run deploy` (it deploys the rules too), or deploy the rules first.
+- Missions named 00 to 06 on screen (2026-11-22, v0.5.1): the counter in flight (`MISSION 00/06`), the stop's title, the results tables, and the board naming the mission a run reached (`REACHED 02`); levels stay 1 to 7 underneath. With it, the drawn title reads LIGHTB0AT.
 - The name Lightboat (2026-11-21, v0.5.0): the title (the word outlined in the ship's line of light), the page, the installed app's name and the share message; the address and the device keys keep the old name. The app icons lose the rock. See "The name Lightboat" in `game-design.md`.
 - Crew left behind on the piano (2026-11-21, v0.4.14): two sad piano notes per crew member, stepping down the A-minor scale, in place of the synth lead's falling note. Relayed by the Game Composer on the owner's word.
 - The lead's melody starts from its top on every entry, takes a turn per pass, and its echoes keep time (2026-11-21, v0.4.14): fixes the live bug where an entry at the loop's second half began mid-melody and faded on its bars 7–8. Relayed by the Game Composer on the owner's word.

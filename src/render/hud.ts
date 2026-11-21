@@ -33,7 +33,7 @@ function drawPlayHud(ctx: CanvasRenderingContext2D, g: Game, top: number): void 
   // board it is what they are worth, in green with a plus: banked at the next
   // wormhole, gone if the ship is lost first. With the seats empty it is the
   // score. Before anything is banked and with nobody aboard there is no number.
-  text(ctx, `MISSION ${g.level}/${LAST_LEVEL}`, 14, top - 8 * U, 13 * U, 'rgba(127,220,255,.9)', 'left', 700)
+  text(ctx, `MISSION ${missionName(g.level)}/${missionName(LAST_LEVEL)}`, 14, top - 8 * U, 13 * U, 'rgba(127,220,255,.9)', 'left', 700)
   const score = scoreOf(g), pending = g.onboard ? pendingScore(g) : 0
   if (pending) text(ctx, `+${fmt(pending)}`, 14, top + 18 * U, 24 * U, 'rgba(93,255,160,.9)', 'left')
   else if (score) text(ctx, fmt(score), 14, top + 18 * U, 24 * U, '#ffffff', 'left')
@@ -65,8 +65,9 @@ function drawPlayHud(ctx: CanvasRenderingContext2D, g: Game, top: number): void 
 function drawMenu(ctx: CanvasRenderingContext2D, g: Game): void {
   const { W, H, U } = g
   const best = g.records.best
-  // The title: the word outlined in the ship's line of light, black inside (the owner's choice, 2026-11-21)
-  outlined(ctx, 'LIGHTBOAT', W / 2, H * 0.3 + 26 * U, 58 * U)
+  // The title: the word outlined in the ship's line of light, black inside, with a digit zero for the O
+  // (the owner's choices, 2026-11-21); everywhere else the name is spelt Lightboat
+  outlined(ctx, 'LIGHTB0AT', W / 2, H * 0.3 + 26 * U, 58 * U)
   if (best) text(ctx, `BEST ${fmt(best)}`, W / 2, H * 0.3 + 84 * U, 15 * U, '#ffd166', 'center', 700)
   drawTouchHints(ctx, g, 0.55)
   text(ctx, 'hold left', W / 2 - W * 0.3, H * 0.8 + 62 * U, 13 * U, 'rgba(255,255,255,.7)', 'center', 600)
@@ -149,9 +150,9 @@ function drawTableHead(ctx: CanvasRenderingContext2D, g: Game, first: string, y:
 function drawBetween(ctx: CanvasRenderingContext2D, g: Game): void {
   const { W, H, U } = g
   const top = H * 0.17, head = top + 48 * U, line = 24 * U, n = g.results.length
-  text(ctx, `MISSION ${g.level} COMPLETE`, W / 2, top, 30 * U, '#7fdcff', 'center', 800)
+  text(ctx, `MISSION ${missionName(g.level)} COMPLETE`, W / 2, top, 30 * U, '#7fdcff', 'center', 800)
   drawTableHead(ctx, g, 'MISSION', head)
-  g.results.forEach((r, i) => drawMissionRow(ctx, g, r, String(r.level), head + (i + 1) * line, 15 * U, i === n - 1 ? 0.95 : 0.6))
+  g.results.forEach((r, i) => drawMissionRow(ctx, g, r, missionName(r.level), head + (i + 1) * line, 15 * U, i === n - 1 ? 0.95 : 0.6))
   const total = head + (n + 1) * line + 14 * U
   text(ctx, 'TOTAL', W / 2 + TABLE[0] * U, total, 12 * U, '#ffffff', 'center', 800)
   text(ctx, fmt(scoreOf(g)), W / 2 + TABLE[4] * U, total, 21 * U, '#ffffff', 'center', 800)
@@ -217,7 +218,7 @@ function drawEnd(ctx: CanvasRenderingContext2D, g: Game): void {
   const top = H * 0.17, head = top + 48 * U, line = 24 * U
   text(ctx, won ? 'MADE IT HOME' : 'GAME OVER', W / 2, top, 30 * U, won ? '#5dffa0' : ORANGE, 'center', 800)
   drawTableHead(ctx, g, 'MISSION', head)
-  g.results.forEach((r, i) => drawMissionRow(ctx, g, r, String(r.level), head + (i + 1) * line, 15 * U, 0.6))
+  g.results.forEach((r, i) => drawMissionRow(ctx, g, r, missionName(r.level), head + (i + 1) * line, 15 * U, 0.6))
 
   let y = drawScore(ctx, g, head + (g.results.length + 1) * line + 22 * U)
   // the best sits right under the score it is compared with
@@ -275,13 +276,19 @@ function drawBoardButton(ctx: CanvasRenderingContext2D, g: Game): void {
 }
 
 /**
- * How a run ended, as the board says it: how many missions it finished, and
+ * How a run ended, as the board says it: the mission it reached, and
  * for a run that reached the last one, whether it got home and how deep into
  * that mission it went.
  */
+/**
+ * The name a player sees for mission `level`: 00 to 06, to match the moons m00n to m06n (the owner's
+ * word, 2026-11-22). Underneath, levels are still counted 1 to 7.
+ */
+export const missionName = (level: number): string => String(level - 1).padStart(2, '0')
+
 export function endNote(end: RunEnd): string {
   const won = end.outcome === 'won'
-  const finished = `FINISHED ${won ? LAST_LEVEL : end.level - 1}/${LAST_LEVEL}`
+  const finished = `REACHED ${missionName(end.level)}`   // the mission the run got to (the owner's choice)
   if (end.level < LAST_LEVEL) return finished
   // a run that reached the last mission also says which ship it chose for it
   const ship = end.ship ? ` · ${shipSeats(end.ship)} SEATS` : ''
