@@ -129,6 +129,7 @@ input[type="range"] { width: 100%; accent-color: var(--cyan); min-height: 28px; 
 .layer .name { color: var(--c); font-weight: 600; letter-spacing: 0.06em; }
 .layer .desc { color: var(--dim); font-size: 12px; }
 .layer button { padding: 6px 10px; min-height: 36px; font-size: 11px; }
+.layer .ctl { display: flex; gap: 6px; }
 .status { font-size: 11px; letter-spacing: 0.12em; text-transform: uppercase; color: var(--dim); min-width: 11ch; text-align: right; font-variant-numeric: tabular-nums; }
 .status.on { color: var(--c); }
 .status.wait { color: var(--yellow); }
@@ -187,7 +188,7 @@ textarea { width: 100%; font: 12px/1.5 var(--mono); color: var(--text); backgrou
 @media (max-width: 520px) {
   .layer { grid-template-columns: 16px minmax(0, 1fr) auto; }
   .layer .status { grid-column: 2; text-align: left; }
-  .layer button { grid-column: 3; grid-row: 1 / span 2; }
+  .layer .ctl { grid-column: 3; grid-row: 1 / span 2; flex-direction: column; }
   .missions { grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; }
 }
 @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
@@ -296,17 +297,20 @@ textarea { width: 100%; font: 12px/1.5 var(--mono); color: var(--text); backgrou
   </section>
 
   <section class="panel" aria-labelledby="layersTitle">
-    <h2 id="layersTitle">Layers</h2>
+    <div class="row between">
+      <h2 id="layersTitle">Layers</h2>
+      <button type="button" id="allAuto" style="--c: var(--text)">All back to the run</button>
+    </div>
     <div class="layers" id="layers"></div>
-    <p class="note">A layer comes in or leaves only where the chord changes, every two bars, so it always lands on the beat.</p>
+    <p class="note">Play starts a layer now, whatever the speed, and works with nothing else playing: the tempo then follows the speed slider. Pause silences it. Press the lit button again to hand the layer back to the run, where it comes in or leaves only at a chord change, every two bars.</p>
   </section>
 
   <section class="panel" aria-labelledby="melodyTitle" style="--c: var(--magenta)">
     <div class="row between">
       <h2 id="melodyTitle">Lead melody</h2>
       <div class="row" role="group" aria-label="Which eight bars">
-        <button type="button" id="octLow" style="--c: var(--cyan)" aria-pressed="false">Octaves 3–4</button>
-        <button type="button" id="octHigh" style="--c: var(--cyan)" aria-pressed="false">Octaves 4–5</button>
+        <button type="button" data-oct="o2" style="--c: var(--cyan)" aria-pressed="false">Octaves 2–3</button>
+        <button type="button" data-oct="o3" style="--c: var(--cyan)" aria-pressed="false">Octaves 3–4</button>
         <button type="button" id="halfA" style="--c: var(--magenta)" aria-pressed="true">Bars 1–8</button>
         <button type="button" id="halfB" style="--c: var(--magenta)" aria-pressed="false">Bars 9–16</button>
       </div>
@@ -314,14 +318,13 @@ textarea { width: 100%; font: 12px/1.5 var(--mono); color: var(--text); backgrou
     <p class="note">Press on an empty square to place a note and drag right to hold it longer; press a note to remove it. One square is a beat. The lead plays one note at a time, so a new note cuts the one it overlaps. Tinted squares are notes of the chord underneath; every row is in A minor. The octave buttons move the whole melody an octave down or up; the text below always shows the notes as they sound. On a phone, swipe the chord row to scroll.</p>
     <div class="roll-wrap"><div class="roll" id="roll"></div></div>
     <p class="note">Play melody plays the lead alone, all sixteen bars in a loop from the eight bars shown, at 113 BPM, the tempo where the lead comes in during a run. Changes are heard on the next pass.</p>
-    <div class="row" role="group" aria-label="The lead's instrument">
-      <span class="note">Instrument:</span>
-      <button type="button" data-voice="synth" style="--c: var(--magenta)" aria-pressed="true">Synth lead</button>
-      <button type="button" data-voice="piano" style="--c: var(--magenta)" aria-pressed="false">Piano, long reverb</button>
-      <button type="button" data-voice="guitar" style="--c: var(--magenta)" aria-pressed="false">Nylon guitar</button>
-      <button type="button" data-voice="violin" style="--c: var(--magenta)" aria-pressed="false">Violin</button>
+    <div class="row" role="group" aria-label="The piano's effects">
+      <span class="note">Piano:</span>
+      <button type="button" data-voice="hall" style="--c: var(--magenta)" aria-pressed="true">Long reverb</button>
+      <button type="button" data-voice="echo" style="--c: var(--magenta)" aria-pressed="false">Longer echo</button>
+      <button type="button" data-voice="cathedral" style="--c: var(--magenta)" aria-pressed="false">More reverb</button>
     </div>
-    <p class="note">The three new instruments are synthesized likenesses, like every sound on this page: no recordings are used. The game still plays the synth lead.</p>
+<p class="note">The lead is a piano, synthesized like every sound on this page. Long reverb: a 7 s reverb with a short echo. Longer echo: echoes 0.8 s apart that die away slowly, in a smaller room. More reverb: a 12 s reverb, more of it than of the note, and no echo. The game still plays the synth lead.</p>
     <label class="check"><input type="checkbox" id="leadNow"> Hear the lead now, at any speed (from the next chord)</label>
     <div class="row">
       <button type="button" id="playMelody" class="play" style="--c: var(--magenta)">Play melody</button>
@@ -367,7 +370,8 @@ textarea { width: 100%; font: 12px/1.5 var(--mono); color: var(--text); backgrou
     <ul class="plain">
       <li>Key: A minor, Am–F–C–G, two bars each. The game's save chord is C major, so it sits inside the same notes.</li>
       <li>Tempo: 96 BPM at 1×, plus 14 BPM for each 1× of speed, at most 140. 90 BPM between missions.</li>
-      <li>Lead: a sixteen-bar melody (two eight-bar halves) on top of everything, and the last layer in: from 2.2×, only once the arpeggio has played 4 bars, and always from the start of a half, so the melody is never joined in the middle. It plays at most 32 bars at a stretch (the melody twice), fading out over bars 31 and 32, then pauses for 16 bars before starting again from the top. It alternates octaves: 3–4 the first time it comes in, 4–5 after the pause, then 3–4 again, and so on through the run. It stops between missions and never takes the one-bar rest.</li>
+      <li>Lead instrument: a piano, on trial here in three sets of effects; the synth lead is what the game plays today.</li>
+      <li>Lead: a sixteen-bar melody (two eight-bar halves) on top of everything, and the last layer in: from 2.2×, only once the arpeggio has played 4 bars, and always from the start of a half, so the melody is never joined in the middle. It plays at most 32 bars at a stretch (the melody twice), fading out over bars 31 and 32, then pauses for 16 bars before starting again from the top. It alternates octaves: 2–3 the first time it comes in, 3–4 after the pause, then 2–3 again, and so on through the run. (The game alternates 3–4 and 4–5 today.)</li>
       <li>Layer order: each layer waits for the one under it. The arpeggio comes in only after the drums have played 4 bars, and the lead only after the arpeggio has played 4 bars. At full speed from a standstill: drums at bar 1, arpeggio at bar 5, lead at bar 9.</li>
       <li>Layers: bass from 1.3× in mission 1 and from the first bar in missions 2–7, drums from 1.7×, arpeggio from 2.0×; sixteenth-note hats from 2.8×. The pad's filter opens with speed.</li>
       <li>A rest: at most once every sixteen bars, in the last of them, one of the bass, drums or arpeggio drops out for one bar and comes back on the downbeat. Only a layer that has played at least sixteen bars since it came in can rest, and never the same one twice running.</li>
@@ -413,7 +417,7 @@ textarea { width: 100%; font: 12px/1.5 var(--mono); color: var(--text); backgrou
     { id: 'bass', name: 'Bass', desc: 'A pulse on every eighth note.', color: 'var(--cyan)', fadeIn: 0.02, fadeOut: 1.2 },
     { id: 'drums', name: 'Drums', desc: 'Four on the floor; the pad and bass duck under the kick.', color: 'var(--yellow)', fadeIn: 0.02, fadeOut: 1.2 },
     { id: 'arp', name: 'Arpeggio', desc: 'Eighth notes through the chord, with an echo.', color: 'var(--green)', fadeIn: 0.4, fadeOut: 1.5 },
-    { id: 'lead', name: 'Lead', desc: 'A slow melody on top, with a little glide and vibrato. Comes in last, at the start of an eight-bar half.', color: 'var(--magenta)', fadeIn: 0.3, fadeOut: 1.5 },
+    { id: 'lead', name: 'Lead', desc: 'A slow melody on top, on a piano. Comes in last, at the start of an eight-bar half.', color: 'var(--magenta)', fadeIn: 0.3, fadeOut: 1.5 },
   ]
   const IDS = LAYERS.map(l => l.id)
 
@@ -435,32 +439,38 @@ textarea { width: 100%; font: 12px/1.5 var(--mono); color: var(--text); backgrou
      [64, 'E5', 8], [72, 'G5', 16], [88, 'E5', 8], [96, 'D5', 28]],
   ]
   // The notes the melody editor offers: two octaves of A minor, highest first.
-  const HIGH_ROWS = ['C6', 'B5', 'A5', 'G5', 'F5', 'E5', 'D5', 'C5', 'B4', 'A4', 'G4', 'F4', 'E4', 'D4', 'C4']
+  const ROWS_45 = ['C6', 'B5', 'A5', 'G5', 'F5', 'E5', 'D5', 'C5', 'B4', 'A4', 'G4', 'F4', 'E4', 'D4', 'C4']   // as the built-in melody is written
   const shiftNote = (n, octaves) => n.replace(/-?\d+$/, d => String(+d + octaves))
-  const LOW_ROWS = HIGH_ROWS.map(n => shiftNote(n, -1))
-  let ROWS = HIGH_ROWS                                       // the editor's rows: octaves 4–5, or 3–4 an octave down
+  // The editor's two ranges: octaves 3–4, or 2–3 an octave further down. Notes are stored as they sound.
+  const RANGES = { o3: ROWS_45.map(n => shiftNote(n, -1)), o2: ROWS_45.map(n => shiftNote(n, -2)) }
+  let octave = 'o3', ROWS = RANGES.o3
   const MELODY_KEY = 'asteroids-galore-music-sketch-melody', OCTAVE_KEY = 'asteroids-galore-music-sketch-octave'
-  const isLow = m => m.some(h => h.some(n => !HIGH_ROWS.includes(n[1])))
+  const fits = (m, rows) => m.every(h => h.every(n => rows.includes(n[1])))
+  // Which range a melody is written in: the one shown if it fits, else 3–4, 2–3, or the old 4–5.
+  const rangeOf = m => fits(m, ROWS) ? octave : fits(m, RANGES.o3) ? 'o3' : fits(m, RANGES.o2) ? 'o2' : fits(m, ROWS_45) ? 'o45' : null
   const transposed = (m, octaves) => m.map(h => h.map(([a, n, l]) => [a, shiftNote(n, octaves), l]))
   const copyMelody = m => m.map(h => h.map(n => [...n]))
   function parseMelody(text) {
     try {
       const m = JSON.parse(text.replace(/'/g, '"').replace(/,\s*\]/g, ']'))
       const ok = Array.isArray(m) && m.length === 2 && m.every(h => Array.isArray(h) && h.every(n =>
-        Array.isArray(n) && n.length === 3 && Number.isInteger(n[0]) && n[0] >= 0 && (HIGH_ROWS.includes(n[1]) || LOW_ROWS.includes(n[1])) &&
+        Array.isArray(n) && n.length === 3 && Number.isInteger(n[0]) && n[0] >= 0 && typeof n[1] === 'string' &&
         Number.isInteger(n[2]) && n[2] > 0 && n[0] + n[2] <= 128))
-      if (!ok || (isLow(m) && m.some(h => h.some(n => !LOW_ROWS.includes(n[1]))))) return null    // one two-octave range at a time
+      if (!ok || !rangeOf(m)) return null                    // every note inside one two-octave range
       return m.map(h => h.slice().sort((a, b) => a[0] - b[0]))
     } catch { return null }
   }
   function loadMelody() {
-    // A melody saved by this page is already at the pitch it sounds, in the octaves saved with it.
-    // One saved before the octave switch existed (or the built-in one) is in 4–5: it moves down to 3–4, the range on trial.
+    // A melody saved by this page is already at the pitch it sounds, with its range saved beside it.
+    // One from before (or the built-in one) is written in octaves 4–5 and moves down to 3–4.
     let m = null, saved = null
     try { m = parseMelody(localStorage.getItem(MELODY_KEY) || ''); saved = localStorage.getItem(OCTAVE_KEY) } catch { /* no storage here */ }
-    if (m && saved) { ROWS = saved === 'low' ? LOW_ROWS : HIGH_ROWS; return m }
-    ROWS = LOW_ROWS
-    return transposed(m && !isLow(m) ? m : m || DEFAULT_MELODY, m && isLow(m) ? 0 : -1)
+    if (m && (saved === 'o2' || saved === 'o3') && fits(m, RANGES[saved])) { octave = saved; ROWS = RANGES[saved]; return m }
+    if (m && saved === 'low' && fits(m, RANGES.o3)) return m                    // an earlier version's name for 3–4
+    if (m && fits(m, ROWS_45) && saved !== 'low') return transposed(m, -1)      // 4–5, from before the octave buttons or from 'high'
+    if (m && rangeOf(m) === 'o2') { octave = 'o2'; ROWS = RANGES.o2; return m }
+    if (m && rangeOf(m) === 'o3') return m
+    return transposed(DEFAULT_MELODY, -1)
   }
   const buildMelody = m => m.map(half => new Map(half.map(([at, note, len]) => [at, { note, len }])))
   let melody = loadMelody()
@@ -495,19 +505,21 @@ textarea { width: 100%; font: 12px/1.5 var(--mono); color: var(--text); backgrou
     const row = document.createElement('div')
     row.className = 'layer'; row.style.setProperty('--c', l.color)
     const from = l.id === 'pad' ? 'always' : `from ${TUNE.from[l.id]}×`
-    row.innerHTML = `<span class="lamp"></span><div><div class="name">${l.name} <span class="desc">· ${from}</span></div><div class="desc">${l.desc}</div></div><span class="status">Off</span><button type="button" aria-pressed="false">Mute</button>`
+    row.innerHTML = `<span class="lamp"></span><div><div class="name">${l.name} <span class="desc">· ${from}</span></div><div class="desc">${l.desc}</div></div><span class="status">Off</span><div class="ctl"><button type="button" data-act="on" aria-pressed="false" aria-label="Play ${l.name}">Play</button><button type="button" data-act="off" aria-pressed="false" aria-label="Pause ${l.name}">Pause</button></div>`
     $('layers').appendChild(row)
-    const btn = row.querySelector('button')
-    btn.addEventListener('click', () => toggleMute(l.id))
-    layerEls[l.id] = { lamp: row.querySelector('.lamp'), status: row.querySelector('.status'), btn }
+    const [onBtn, offBtn] = row.querySelectorAll('.ctl button')
+    onBtn.addEventListener('click', () => forceLayer(l.id, 'on'))
+    offBtn.addEventListener('click', () => forceLayer(l.id, 'off'))
+    layerEls[l.id] = { lamp: row.querySelector('.lamp'), status: row.querySelector('.status'), onBtn, offBtn }
   }
 
   // ---- State ----
   const S = {
     playing: false, state: 'stopped', mission: 1, distance: 0, speed: 1, auto: true, slowmo: 0, seat: 0,
-    sfxMode: 'v2', shipSeats: 12, rest: null, restShown: null, lastRest: null, since: {}, arpWas: false, leadForced: false, leadVoice: 'synth', leadEntries: 0, leadHigh: false, overFrom: 0, launch: 0, leadSince: 0, leadRestUntil: 0, stepNow: 0,
+    sfxMode: 'v2', shipSeats: 12, rest: null, restShown: null, lastRest: null, since: {}, arpWas: false, leadVoice: 'hall', leadEntries: 0, leadHigh: false, overFrom: 0, launch: 0, leadSince: 0, leadRestUntil: 0, stepNow: 0,
     gate: { pad: false, bass: false, drums: false, arp: false },
     muted: { pad: false, bass: false, drums: false, arp: false },
+    force: {},          // per layer: 'on' (playing whatever the run says), 'off' (paused), or nothing (follows the run)
   }
 
   if (!window.Tone) {
@@ -650,40 +662,37 @@ textarea { width: 100%; font: 12px/1.5 var(--mono); color: var(--text); backgrou
   const lead = new Tone.MonoSynth(LEAD_OPTS).connect(leadFilter)
   const leadPreview = new Tone.MonoSynth(LEAD_OPTS).connect(user.lead)   // the note you place, heard at once
 
-  // Other instruments to try for the lead. All are synthesized, like everything here: there are no recordings.
-  // Each is built twice: once into the lead's layer, once for the note you place in the editor.
+  // The lead is a piano (the owner's word), tried here with three sets of effects. It is synthesized, like everything
+  // on this page: a string tone with eight harmonics that rings on, under a short bright hammer strike.
+  // Each version is built twice: once into the lead's layer, once for the note you place in the editor.
+  function pianoInto(out) {
+    const body = new Tone.PolySynth(Tone.Synth, {
+      oscillator: { type: 'custom', partials: [1, 0.8, 0.55, 0.4, 0.28, 0.18, 0.12, 0.08] },
+      envelope: { attack: 0.003, decay: 2.6, sustain: 0, release: 1.6 }, volume: 0,
+    }).connect(out)
+    const hammer = new Tone.PolySynth(Tone.FMSynth, {
+      harmonicity: 3, modulationIndex: 6, oscillator: { type: 'sine' }, modulation: { type: 'sine' },
+      envelope: { attack: 0.001, decay: 0.35, sustain: 0, release: 0.3 },
+      modulationEnvelope: { attack: 0.001, decay: 0.12, sustain: 0, release: 0.1 }, volume: -6,
+    }).connect(out)
+    return { triggerAttackRelease(f, d, t, v) { body.triggerAttackRelease(f, d, t, v); hammer.triggerAttackRelease(f, d, t, v) } }
+  }
+  const TRIM = { hall: 0, echo: 1, cathedral: 3 }      // dB, so the three versions are equally loud on average
+  const trim = (key, dest) => new Tone.Gain(Tone.dbToGain(TRIM[key])).connect(dest)
   const LEAD_VOICES = {
-    synth: dest => dest === gate.lead ? lead : leadPreview,
-    // Piano: a struck tone that rings on (FM, mellow), in a long reverb with an echo.
-    piano(dest) {
-      const verb = new Tone.Reverb({ decay: 7, preDelay: 0.03, wet: 0.5 }).connect(dest)
-      const echo = new Tone.FeedbackDelay({ delayTime: 0.4, feedback: 0.45, wet: 0.3 }).connect(verb)
-      return new Tone.PolySynth(Tone.FMSynth, {
-        harmonicity: 2, modulationIndex: 1.4, oscillator: { type: 'sine' }, modulation: { type: 'sine' },
-        envelope: { attack: 0.004, decay: 2.2, sustain: 0, release: 1.6 },
-        modulationEnvelope: { attack: 0.002, decay: 0.5, sustain: 0, release: 0.5 }, volume: -8,
-      }).connect(echo)
+    // Long reverb: a 7 s hall with a short echo. The version heard so far.
+    hall(dest) {
+      const verb = new Tone.Reverb({ decay: 7, preDelay: 0.03, wet: 0.38 }).connect(trim('hall', dest))
+      return pianoInto(new Tone.FeedbackDelay({ delayTime: 0.4, feedback: 0.45, wet: 0.3 }).connect(verb))
     },
-    // Nylon guitar: a plucked string. Bright for an instant, then mellow as it rings out.
-    guitar(dest) {
-      const verb = new Tone.Reverb({ decay: 1.8, wet: 0.22 }).connect(dest)
-      return new Tone.PolySynth(Tone.MonoSynth, {
-        oscillator: { type: 'custom', partials: [1, 0.55, 0.32, 0.18, 0.1, 0.05] },
-        filter: { Q: 1, type: 'lowpass', rolloff: -12 },
-        envelope: { attack: 0.002, decay: 1.3, sustain: 0, release: 0.9 },
-        filterEnvelope: { attack: 0.001, decay: 0.22, sustain: 0.12, release: 0.5, baseFrequency: 350, octaves: 3.6 }, volume: -10,
-      }).connect(verb)
+    // Longer echo: repeats 0.8 s apart that take a long time to die away, in a smaller room.
+    echo(dest) {
+      const verb = new Tone.Reverb({ decay: 3, preDelay: 0.02, wet: 0.22 }).connect(trim('echo', dest))
+      return pianoInto(new Tone.FeedbackDelay({ delayTime: 0.8, feedback: 0.6, wet: 0.42 }).connect(verb))
     },
-    // Violin: a bowed string. A slow bow attack, vibrato, a glide between notes and a body resonance.
-    violin(dest) {
-      const verb = new Tone.Reverb({ decay: 2.6, wet: 0.28 }).connect(dest)
-      const body = new Tone.Filter({ type: 'peaking', frequency: 1100, Q: 1.2, gain: 7 }).connect(verb)
-      const vib = new Tone.Vibrato({ frequency: 5.6, depth: 0.14 }).connect(body)
-      return new Tone.MonoSynth({
-        portamento: 0.07, oscillator: { type: 'sawtooth' }, filter: { Q: 1, type: 'lowpass', rolloff: -24 },
-        envelope: { attack: 0.14, decay: 0.2, sustain: 0.9, release: 0.5 },
-        filterEnvelope: { attack: 0.18, decay: 0.3, sustain: 0.8, release: 0.5, baseFrequency: 900, octaves: 1.8 }, volume: -15,
-      }).connect(vib)
+    // More reverb: a 12 s space with more of it than of the note, and no echo.
+    cathedral(dest) {
+      return pianoInto(new Tone.Reverb({ decay: 12, preDelay: 0.05, wet: 0.62 }).connect(trim('cathedral', dest)))
     },
   }
   const leadVoices = {}                                         // made the first time each is chosen
@@ -705,10 +714,12 @@ textarea { width: 100%; font: 12px/1.5 var(--mono); color: var(--text); backgrou
 
   const musicSpeed = () => S.state === 'menu' ? TUNE.menuSpeed : S.speed
   const inFlight = () => S.state === 'flying' || S.state === 'menu'
+  const forced = id => S.force[id] === 'on'
   function wanted(id) {
+    if (forced(id)) return true
     if (S.state === 'melody') return id === 'lead'
-    if (id === 'lead' && S.leadForced && (S.state === 'flying' || S.state === 'results')) return true
     if (S.state === 'results') return id === 'pad'
+    if (S.state === 'parts') return false                                  // layers on their own: only the ones switched on
     if (S.state !== 'flying' && S.state !== 'menu') return false           // the start screen plays the whole soundtrack, as flying at menuSpeed
     if (id === 'bass' && S.state === 'flying' && S.mission >= TUNE.bassFromMission) return true
     const from = TUNE.from[id]
@@ -732,6 +743,15 @@ textarea { width: 100%; font: 12px/1.5 var(--mono); color: var(--text); backgrou
   function tick(time) {
     const s = step++
     S.stepNow = s
+    for (const id of IDS) {                                  // a layer switched on by hand starts on this sixteenth, not at the next chord
+      if (!forced(id) || S.gate[id] || S.state === 'over') continue
+      setGate(id, true, time, 0.03); S.since[id] = s
+      if (id === 'lead') S.leadSince = s
+      if (id === 'pad' && s % 32 !== 0) {                    // the pad's chord is struck every two bars: strike it now for what is left of it
+        const left = 32 - s % 32, chord = CHORDS[(Math.floor(s / 16) % 8) >> 1]
+        pad.triggerAttackRelease(chord.pad.map(n => Tone.Frequency(n).transpose(slowSemis()).toFrequency()), left * 15 / T.bpm.value * 0.92, time, 0.8)
+      }
+    }
     if (S.state === 'over') {                                // only the slow bass: A, F, C, G, one note at a time
       const k = s - S.overFrom - TUNE.over.first
       if (k >= 0 && k % TUNE.over.every === 0) {
@@ -748,9 +768,9 @@ textarea { width: 100%; font: 12px/1.5 var(--mono); color: var(--text); backgrou
       for (const id of IDS) {
         let on = wanted(id)
         const under = id === 'arp' ? 'drums' : id === 'lead' ? 'arp' : null   // each layer waits for the one under it
-        if (on && !S.gate[id] && under && !(id === 'lead' && S.leadForced) && S.state !== 'melody' &&
+        if (on && !S.gate[id] && under && !forced(id) && S.state !== 'melody' &&
             (!S.gate[under] || s - (S.since[under] ?? s) < TUNE.layerWait * 16)) on = false
-        if (id === 'lead' && inFlight() && !S.leadForced) {
+        if (id === 'lead' && inFlight() && !forced('lead')) {
           // at most leadBars at a stretch, then a rest of leadPause bars
           if (on && S.gate.lead && s - S.leadSince === (TUNE.leadBars - TUNE.leadFade) * 16) {   // fade out over bars 31-32, not into the next loop
             gate.lead.gain.cancelScheduledValues(time)
@@ -759,8 +779,8 @@ textarea { width: 100%; font: 12px/1.5 var(--mono); color: var(--text); backgrou
           if (on && S.gate.lead && s - S.leadSince >= TUNE.leadBars * 16) { on = false; S.leadRestUntil = s + TUNE.leadPause * 16 }
           if (on && !S.gate.lead && s < S.leadRestUntil) on = false
         }
-        if (id === 'lead' && on && !S.gate.lead && s % 128 !== 0 && !S.leadForced) continue   // the melody starts only at the top of an eight-bar half
-        if (id === 'lead' && on && !S.gate.lead) { S.leadSince = s; S.leadHigh = S.leadEntries++ % 2 === 1 }   // octaves 3–4 first, then 4–5, in turn
+        if (id === 'lead' && on && !S.gate.lead && s % 128 !== 0 && !forced('lead')) continue   // the melody starts only at the top of an eight-bar half
+        if (id === 'lead' && on && !S.gate.lead) { S.leadSince = s; S.leadHigh = S.leadEntries++ % 2 === 1 }   // the lower octave first, then the upper, in turn
         const was = S.gate[id]
         setGate(id, on, time)
         if (!was && S.gate[id]) S.since[id] = s
@@ -798,9 +818,9 @@ textarea { width: 100%; font: 12px/1.5 var(--mono); color: var(--text); backgrou
     const tune = MELODY[Math.floor(s / 128) % 2].get(s % 128)
     if (tune) {
       // In a run the lead alternates octaves from one entry to the next; alone or forced, it plays as the editor shows.
-      const shownLow = ROWS === LOW_ROWS, asShown = S.state === 'melody' || S.leadForced
-      const high = asShown ? !shownLow : S.leadHigh
-      leadVoice().triggerAttackRelease(f(tune.note, (high ? 12 : 0) - (shownLow ? 0 : 12)), tune.len * 15 / T.bpm.value * 0.95, time, 0.9); hits.push('lead')
+      const asShown = S.state === 'melody' || forced('lead')
+      const want = asShown ? octave : S.leadHigh ? 'o3' : 'o2'             // in a run: 2–3 first, then 3–4
+      leadVoice().triggerAttackRelease(f(tune.note, (want === 'o3' ? 0 : -12) - (octave === 'o3' ? 0 : -12)), tune.len * 15 / T.bpm.value * 0.95, time, 0.9); hits.push('lead')
     }
     if (s16 % 2 === 0 && !rests('arp')) { const i = s16 / 2; arp.triggerAttackRelease(f(ch.arp[ARP[i]]), '8n', time, i % 2 ? 0.65 : 1); hits.push('arp') }
     if (!document.hidden) draw.schedule(() => paint(s16, bar, ch, hits, s), time)
@@ -1000,7 +1020,7 @@ textarea { width: 100%; font: 12px/1.5 var(--mono); color: var(--text); backgrou
     MELODY = buildMelody(melody)
     const text = '[\n' + melody.map(h => '  [' + h.map(([a, n, l]) => `[${a}, '${n}', ${l}]`).join(', ') + ']').join(',\n') + ',\n]'
     $('melodyText').value = text
-    try { localStorage.setItem(MELODY_KEY, text); localStorage.setItem(OCTAVE_KEY, ROWS === LOW_ROWS ? 'low' : 'high') } catch { /* kept for this visit only */ }
+    try { localStorage.setItem(MELODY_KEY, text); localStorage.setItem(OCTAVE_KEY, octave) } catch { /* kept for this visit only */ }
     drawNotes()
   }
   function place(start, row, len) {
@@ -1057,9 +1077,9 @@ textarea { width: 100%; font: 12px/1.5 var(--mono); color: var(--text); backgrou
     voiceBtns.forEach(x => x.setAttribute('aria-pressed', String(x === b)))
     leadVoice(); leadVoice(true)                                // build it now, so its reverb is ready before the next note
   }))
-  $('leadNow').addEventListener('change', e => { S.leadForced = e.target.checked })
+  $('leadNow').addEventListener('change', e => { if (e.target.checked !== forced('lead')) forceLayer('lead', 'on') })
   $('clearHalf').addEventListener('click', () => { melody[shown] = []; saveMelody() })
-  $('resetMelody').addEventListener('click', () => { melody = ROWS === LOW_ROWS ? transposed(DEFAULT_MELODY, -1) : copyMelody(DEFAULT_MELODY); saveMelody(); $('melodyMsg').textContent = 'Back to the saved melody.' })
+  $('resetMelody').addEventListener('click', () => { melody = transposed(DEFAULT_MELODY, octave === 'o3' ? -1 : -2); saveMelody(); $('melodyMsg').textContent = 'Back to the saved melody.' })
   $('copyMelody').addEventListener('click', () => {
     const text = $('melodyText').value
     const fallback = () => { $('melodyText').select(); $('melodyMsg').textContent = 'Copying is blocked here: the text is selected, so copy it by hand.' }
@@ -1067,20 +1087,23 @@ textarea { width: 100%; font: 12px/1.5 var(--mono); color: var(--text); backgrou
   })
   $('loadMelody').addEventListener('click', () => {
     const m = parseMelody($('melodyText').value)
-    if (!m) { $('melodyMsg').textContent = 'That text is not a melody this page can read: two lists of [start, note, length] in sixteenths, notes from the rows above, each half inside 128.'; return }
-    melody = m; setOctave(isLow(m), false); $('melodyMsg').textContent = 'Using the text.'
+    if (!m) { $('melodyMsg').textContent = 'That text is not a melody this page can read: two lists of [start, note, length] in sixteenths, every note inside one two-octave range, each half inside 128.'; return }
+    const r = rangeOf(m)
+    melody = r === 'o45' ? transposed(m, -1) : m
+    setOctave(r === 'o45' ? 'o3' : r, false); $('melodyMsg').textContent = r === 'o45' ? 'Using the text, moved down an octave to 3–4.' : 'Using the text.'
   })
   $('playMelody').addEventListener('click', () => { if (S.state === 'melody' && S.playing) stop(0.1); else playMelody() })
-  function setOctave(low, move) {
-    if (move && low !== (ROWS === LOW_ROWS)) melody = transposed(melody, low ? -1 : 1)
-    ROWS = low ? LOW_ROWS : HIGH_ROWS
-    try { localStorage.setItem(OCTAVE_KEY, low ? 'low' : 'high') } catch { /* kept for this visit only */ }
-    $('octLow').setAttribute('aria-pressed', String(low)); $('octHigh').setAttribute('aria-pressed', String(!low))
+  const octBtns = [...document.querySelectorAll('[data-oct]')]
+  function setOctave(key, move) {
+    if (move && key !== octave) melody = transposed(melody, key === 'o2' ? -1 : 1)
+    octave = key; ROWS = RANGES[key]
+    octBtns.forEach(b => b.setAttribute('aria-pressed', String(b.dataset.oct === octave)))
     labelKeys(); saveMelody()
   }
-  $('octLow').addEventListener('click', () => setOctave(true, true))
-  $('octHigh').addEventListener('click', () => setOctave(false, true))
-  $('octLow').setAttribute('aria-pressed', String(ROWS === LOW_ROWS)); $('octHigh').setAttribute('aria-pressed', String(ROWS === HIGH_ROWS))
+  octBtns.forEach(b => {
+    b.addEventListener('click', () => setOctave(b.dataset.oct, true))
+    b.setAttribute('aria-pressed', String(b.dataset.oct === octave))
+  })
   showHalf(0)
   saveMelody()
 
@@ -1176,10 +1199,26 @@ textarea { width: 100%; font: 12px/1.5 var(--mono); color: var(--text); backgrou
     resetFlight()
     if (S.playing && S.state === 'results') S.state = 'flying'
   }
-  function toggleMute(id) {
-    S.muted[id] = !S.muted[id]
+  // Play / Pause on a layer. Pressing the lit one again hands the layer back to the run.
+  async function forceLayer(id, what) {
+    const next = S.force[id] === what ? undefined : what
+    S.force[id] = next
+    S.muted[id] = next === 'off'
     user[id].gain.rampTo(S.muted[id] ? 0 : 1, 0.05)
+    if (id === 'lead') $('leadNow').checked = next === 'on'
+    if (next === 'on' && !S.playing) {                       // nothing is playing: start the layers on their own
+      const speed = S.speed
+      await play()
+      S.state = 'parts'; S.auto = false; S.launch = 0; S.speed = speed
+      T.bpm.value = bpmFor(speed); applied.bpm = bpmFor(speed)
+    }
+    if (S.playing && S.state === 'parts' && !IDS.some(forced)) stop(0.3)      // the last one was switched off
   }
+  $('allAuto').addEventListener('click', () => {
+    for (const id of IDS) { S.force[id] = undefined; S.muted[id] = false; user[id].gain.rampTo(1, 0.05) }
+    $('leadNow').checked = false
+    if (S.playing && S.state === 'parts') stop(0.3)
+  })
 
   $('play').addEventListener('click', () => {
     if (S.playing && S.state === 'menu') { resetFlight(); S.state = 'flying' }      // a run starts from the start screen's music without a break: layers leave at their chord changes as the speed drops
@@ -1332,8 +1371,8 @@ textarea { width: 100%; font: 12px/1.5 var(--mono); color: var(--text); backgrou
   function setText(el, text) { if (el.textContent !== text) el.textContent = text }
   function setAttr(el, name, value) { if (el.getAttribute(name) !== value) el.setAttribute(name, value) }
   function render() {
-    const labels = { stopped: 'Stopped', flying: S.slowmo > 0 ? 'Slow motion' : S.launch > 0 ? 'Fly-in' : 'Flying', results: 'Between missions', over: 'Destroyed', home: 'Home', melody: 'Melody alone', menu: 'Start screen' }
-    const chipColor = { stopped: 'var(--dim)', flying: S.slowmo > 0 ? 'var(--violet)' : 'var(--cyan)', results: 'var(--violet)', over: 'var(--red)', home: 'var(--green)', melody: 'var(--magenta)', menu: 'var(--violet)' }
+    const labels = { stopped: 'Stopped', flying: S.slowmo > 0 ? 'Slow motion' : S.launch > 0 ? 'Fly-in' : 'Flying', results: 'Between missions', over: 'Destroyed', home: 'Home', melody: 'Melody alone', menu: 'Start screen', parts: 'Layers alone' }
+    const chipColor = { stopped: 'var(--dim)', flying: S.slowmo > 0 ? 'var(--violet)' : 'var(--cyan)', results: 'var(--violet)', over: 'var(--red)', home: 'var(--green)', melody: 'var(--magenta)', menu: 'var(--violet)', parts: 'var(--cyan)' }
     const st = $('state')
     setText(st, labels[S.state]); st.style.setProperty('--chip', chipColor[S.state])
     setText($('play'), S.playing && S.state === 'menu' ? 'Start a run' : S.playing ? 'Stop' : S.state === 'stopped' ? 'Play' : 'Play again')
@@ -1371,17 +1410,17 @@ textarea { width: 100%; font: 12px/1.5 var(--mono); color: var(--text); backgrou
       const el = layerEls[l.id]
       const on = S.gate[l.id], want = S.playing && wanted(l.id)
       let text = 'Off', cls = ''
-      if (S.muted[l.id]) text = 'Muted'
+      if (S.muted[l.id]) text = 'Paused'
       else if (!S.playing) text = 'Off'
       else if (on && want && S.restShown === l.id) { text = 'Resting'; cls = 'wait' }
-      else if (on && want) { text = l.id === 'lead' && inFlight() && !S.leadForced ? (S.leadHigh ? 'Playing 4–5' : 'Playing 3–4') : 'Playing'; cls = 'on' }
+      else if (on && want) { text = l.id === 'lead' && inFlight() && !forced('lead') ? (S.leadHigh ? 'Playing 3–4' : 'Playing 2–3') : 'Playing'; cls = 'on' }
       else if (on && !want) { text = 'Leaving'; cls = 'wait' }
       else if (l.id === 'lead' && !on && S.playing && inFlight() && S.stepNow < S.leadRestUntil) { text = 'Pausing'; cls = 'wait' }
       else if (!on && want) { text = 'Coming in'; cls = 'wait' }
       setText(el.status, text)
       setAttr(el.status, 'class', `status ${cls}`)
-      setAttr(el.btn, 'aria-pressed', String(S.muted[l.id]))
-      setText(el.btn, S.muted[l.id] ? 'Unmute' : 'Mute')
+      setAttr(el.onBtn, 'aria-pressed', String(S.force[l.id] === 'on'))
+      setAttr(el.offBtn, 'aria-pressed', String(S.force[l.id] === 'off'))
     }
   }
 })()
