@@ -22,5 +22,6 @@ export function createWebAudio(): Audio | null {
     synth: createSynth(ctx, master),
     resume: () => void ctx.resume().catch(() => {}),
     suspend: () => void ctx.suspend().catch(() => {}),
+    context: ctx,
   }
 }

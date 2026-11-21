@@ -133,3 +133,33 @@ test('AUD-07 entering a wormhole and losing the ship cut off what is still playi
   frame(t)
   expect(t.log).not.toContain('stopAll')
 })
+
+test('SFX-06 once Tone.js has loaded, events and the pulse go to the v2 instruments with the chord and semitones', () => {
+  const t = setup()
+  const plans: { cut: boolean; first: string }[] = []
+  const cut: string[] = []
+  t.player.unlock()
+  // before: as before
+  t.g.events.push({ kind: 'shield' }); frame(t)
+  expect(t.played.map(p => p.sound)).toEqual(['shield'])
+  // after: to v2, on the chord the music reports
+  let chord = 2
+  t.player.attachEffects({ play: p => void plans.push({ cut: p.cut, first: `${p.notes[0].voice} ${p.notes[0].midi[0]}` }), stopAll: () => void cut.push('cut') }, () => chord)
+  t.g.events.push({ kind: 'shield' }); frame(t)
+  expect(plans).toEqual([{ cut: false, first: 'arp 72' }])               // C major's root nearest A4: C5
+  expect(t.played).toHaveLength(1)                                       // nothing more on the old synth
+  // slow motion: whole semitones
+  Object.assign(t.g, { state: 'play', slowmo: SLOW_TIME - 0.5 }); chord = 0
+  t.g.events.push({ kind: 'shield' }); frame(t)
+  expect(plans[1].first).toBe('arp 64')                                  // A4 less 5
+  t.g.slowmo = 0
+  // the pulse
+  t.g.wormhole = { x: 200, y: 0, r: 30 }; frame(t)
+  expect(plans[2].first).toBe('bass 45')
+  t.g.wormhole = null
+  // muted: nothing, and v2 is cut
+  t.player.toggleMute()
+  expect(cut).toEqual(['cut'])
+  t.g.events.push({ kind: 'shield' }); frame(t)
+  expect(plans).toHaveLength(3)
+})

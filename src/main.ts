@@ -5,6 +5,8 @@ import { SOUNDS } from './audio/sounds'
 import { createWebAudio, hasWebAudio } from './audio/webAudio'
 import { drawFpsButton, drawFpsReading, onFpsButton, showsFpsButton } from './fps/fpsButton'
 import { createFpsSwitch, createFrameMeter } from './fps/meter'
+import { createConductor } from './music/conductor'
+import { drawMusicButton, onMusicButton, showsMusicButton } from './music/musicButton'
 import { startCloud } from './cloud'
 import { shareIdFromPath, shareMessage, shareResult, shareUrl } from './cloud/share'
 import { createDebugHook } from './debugHook'
@@ -36,6 +38,23 @@ const input = createInput()
 // Browsers allow audio only after a tap or a key, so the first one starts it.
 const sound = createSoundPlayer({ storage: store, createAudio: createWebAudio })
 const canPlaySound = hasWebAudio()
+
+// Music: its own switch, independent of the sound effects. Tone.js is big, so it
+// is loaded only once the first tap has started the audio; until it arrives the
+// game plays without music. It shares the sound effects' audio context.
+const music = createConductor(store)
+let musicLoading = false
+function loadMusic() {
+  const context = sound.context
+  if (musicLoading || !context) return
+  musicLoading = true
+  Promise.all([import('./music/engine'), import('./music/effects')])
+    .then(([m, fx]) => {
+      music.attach(m.createMusicEngine(context))
+      sound.attachEffects(fx.createEffects(context), () => music.chord())   // the sound effects follow the music's chord
+    })
+    .catch(error => console.warn('Music unavailable', error))
+}
 
 // The frame-rate display: off by default, switched by the gauge on the start screen.
 // It counts frames drawn, and never touches the simulation.
@@ -124,6 +143,9 @@ if (sharedId) cloud?.loadShared(sharedId).then(run => { game.shared = run })
 window.addEventListener('pointerdown', e => {
   e.preventDefault()
   sound.unlock()
+  loadMusic()
+  // the music switch: only a switch, not a start or a choice
+  if (onMusicButton(game, (e.clientX - view.x) / view.scale, (e.clientY - view.y) / view.scale, canPlaySound)) { music.toggle(); return }
   // the frame-rate switch: only a switch, not a start
   if (onFpsButton(game, (e.clientX - view.x) / view.scale, (e.clientY - view.y) / view.scale)) { fps.toggle(); return }
   // only a mute: not a start, a steer, a choice of ship or a move on
@@ -157,7 +179,9 @@ const sideOf = (key: string) =>
 
 window.addEventListener('keydown', e => {
   sound.unlock()
-  if (e.key === 'm' || e.key === 'M') { if (!e.repeat) sound.toggleMute(); return }
+  loadMusic()
+  if (e.key === 'm' || e.key === 'M') { if (!e.repeat) sound.toggleMute(); return }   // the sound effects
+  if (e.key === 'n' || e.key === 'N') { if (!e.repeat) music.toggle(); return }      // the music
   if (e.key === 'Escape') { closeBoard(); return }
   const side = sideOf(e.key)
   if (side) { input.key(side, true); if (!e.repeat) chooseSide(game, side === 'left' ? -1 : 1) }
@@ -197,9 +221,11 @@ function frame(now: number) {
   while (owed >= STEP - 1e-9) { owed -= STEP; step() }
   game.shareNote = Math.max(0, game.shareNote - dt)
   updater?.tick(game.state)
+  music.frame(game)                              // reads the events; the sound effects then take them
   sound.frame(game, dt)
   render(ctx, game)
   if (showsMute(game, canPlaySound)) drawMuteButton(ctx, game, sound.muted)
+  if (showsMusicButton(game, canPlaySound)) drawMusicButton(ctx, game, music.on)
   if (showsFpsButton(game)) drawFpsButton(ctx, game, fps.on)
   if (fps.on) drawFpsReading(ctx, game, frames.reading())   // on every screen: it sits alone in the bottom left corner
   requestAnimationFrame(frame)

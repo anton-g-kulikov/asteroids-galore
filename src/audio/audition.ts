@@ -1,20 +1,31 @@
 // The listening page (audition.html, on the dev server only): a button for
 // every sound, and for the events as the game plays them.
 import type { SoundEvent } from '../game/events'
-import { SLOW_SCALE } from '../game/tuning'
-import { createSoundPlayer } from './player'
-import { SOUNDS, type SoundName } from './sounds'
+import { createGame } from '../game/game'
+import { createRecords } from '../game/records'
+import { SLOW_SCALE, SLOW_TIME } from '../game/tuning'
+import { createConductor } from '../music/conductor'
+import { MUSIC } from '../music/score'
+import { createSoundPlayer, type EffectsOut } from './player'
+import { scoredFor, scoredPulse } from './scored'
+import { PULSE, SOUNDS, type SoundName } from './sounds'
 import { createWebAudio } from './webAudio'
 
 const player = createSoundPlayer({ storage: null, createAudio: createWebAudio })
 const slow = document.getElementById('slow') as HTMLInputElement
 const pitch = () => (slow.checked ? SLOW_SCALE : 1)
+// Which set the event buttons play: v2 (what the game plays once Tone.js has loaded) or the live set before it (v1).
+const setV2 = document.getElementById('setV2') as HTMLInputElement
+let fx: EffectsOut | null = null
+const v2 = () => setV2.checked && fx !== null
+const semis = () => (slow.checked ? MUSIC.slow.semis : 0)
+const playEvent = (e: SoundEvent) => { if (v2()) fx!.play(scoredFor(e, music.chord(), semis())); else player.audition(e, pitch()) }
 
 type Item = { label: string; note: string; play: () => void }
 const sound = (name: SoundName, note: string): Item => ({ label: name, note, play: () => player.audition(name, pitch()) })
-const event = (label: string, note: string, e: SoundEvent): Item => ({ label, note, play: () => player.audition(e, pitch()) })
+const event = (label: string, note: string, e: SoundEvent): Item => ({ label, note, play: () => playEvent(e) })
 const sequence = (label: string, note: string, events: SoundEvent[], gap: number): Item => ({
-  label, note, play: () => events.forEach((e, i) => setTimeout(() => player.audition(e, pitch()), i * gap * 1000)),
+  label, note, play: () => events.forEach((e, i) => setTimeout(() => playEvent(e), i * gap * 1000)),
 })
 
 const groups: [string, Item[]][] = [
@@ -52,7 +63,10 @@ const groups: [string, Item[]][] = [
 
 // the pulse coming closer: louder each time, as in the game
 const closer = groups[2][1][1]
-closer.play = () => [0, 0.35, 0.7, 1].forEach((near, i) => setTimeout(() => player.auditionPulse(near, pitch()), i * 900))
+closer.play = () => [0, 0.35, 0.7, 1].forEach((near, i) => setTimeout(() => {
+  if (v2()) fx!.play(scoredPulse(PULSE.quiet + (PULSE.loud - PULSE.quiet) * near, music.chord(), semis()))
+  else player.auditionPulse(near, pitch())
+}, i * 900))
 
 const list = document.getElementById('list')!
 for (const [title, items] of groups) {
@@ -61,7 +75,60 @@ for (const [title, items] of groups) {
   for (const item of items) {
     const b = document.createElement('button')
     b.innerHTML = `${item.label}<small>${item.note}</small>`
-    b.addEventListener('click', () => { player.unlock(); item.play() })
+    b.addEventListener('click', () => { startAudio(); item.play() })
     grid.append(b)
   }
 }
+
+// ---- The music, through the same conductor the game uses ----
+const music = createConductor(null)
+const game = createGame(createRecords(null))
+let loading = false
+function startAudio() {
+  player.unlock()
+  if (loading || !player.context) return
+  loading = true
+  void Promise.all([import('../music/engine'), import('../music/effects')]).then(([m, effects]) => {
+    const engine = m.createMusicEngine(player.context!)
+    music.attach(engine)
+    fx = effects.createEffects(player.context!)
+    player.attachEffects(fx, () => music.chord())   // the music section's run plays v2, as the game does
+    ;(window as unknown as { __music: () => unknown }).__music = () => engine.inspect()   // for checking by hand
+  })
+}
+const speedInput = document.getElementById('speed') as HTMLInputElement
+const rise = document.getElementById('rise') as HTMLInputElement
+const speedNote = document.getElementById('speedNote')!
+speedInput.addEventListener('input', () => { rise.checked = false; game.speed = +speedInput.value })
+
+const controls: [string, string, () => void][] = [
+  ['Start a run', 'from 1x, silent start screen before', () => { Object.assign(game, { state: 'play', speed: 1, slowmo: 0, level: 1 }); speedInput.value = '1'; rise.checked = true }],
+  ['Slow motion', 'as when two crews come into view', () => { if (game.state === 'play') game.slowmo = SLOW_TIME }],
+  ['Into a wormhole', 'all but the pad drop; the stop between missions', () => { if (game.state === 'play') { game.events.push({ kind: 'enter' }); game.state = 'between' } }],
+  ['Next mission', 'from mission 2 the bass is in at once', () => { if (game.state === 'between') { game.level = Math.min(7, game.level + 1); game.state = 'play' } }],
+  ['Ship destroyed', 'the music stops in 0.3 s', () => { if (game.state === 'play') { game.events.push({ kind: 'destroyed' }); game.state = 'over' } }],
+  ['Made it home', 'the music fades over 2.5 s', () => { if (game.state === 'play') { game.events.push({ kind: 'home' }); game.state = 'won' } }],
+  ['Music on / off', 'its own switch, apart from the sound effects', () => music.toggle()],
+]
+const grid = document.getElementById('music')!
+for (const [label, note, act] of controls) {
+  const b = document.createElement('button')
+  b.innerHTML = `${label}<small>${note}</small>`
+  b.addEventListener('click', () => { startAudio(); act() })
+  grid.append(b)
+}
+
+let last = performance.now()
+function frame(now: number) {
+  const dt = Math.min(0.25, (now - last) / 1000); last = now
+  if (game.state === 'play') {
+    if (game.slowmo > 0) game.slowmo = Math.max(0, game.slowmo - dt)
+    if (rise.checked) game.speed = Math.min(4.5, game.speed + dt * 0.03)   // about a mission's rise
+    speedInput.value = String(game.speed)
+  }
+  speedNote.textContent = `${game.speed.toFixed(2)}x`
+  music.frame(game)
+  player.frame(game, dt)            // plays the wormhole, destroyed and home sounds, and empties the events
+  requestAnimationFrame(frame)
+}
+requestAnimationFrame(frame)

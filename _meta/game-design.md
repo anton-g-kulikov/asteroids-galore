@@ -594,37 +594,60 @@ Asked for by the owner on 2026-11-20. Step 1 of the [order of work](#order-of-wo
 
 ### Sound effects
 
-Built on 2026-11-20. Made in the browser with the Web Audio API when they are played: no files to download and no licences. Each sound is a handful of numbers in one table, `SOUNDS` in `src/audio/sounds.ts`, next to the few numbers that shape how events use them (`SAVE_STEP`, `MISSED_GAP`, `HIT`, `CLICK_PITCH`, `PULSE`, `MASTER`). Nobody has heard them yet: they are a first set, to be tuned by ear.
+Two sets, both built. **v2** is what the game plays once Tone.js has loaded, a moment after the first tap: every event on copies of the soundtrack's own instruments, on notes of the chord the music is on. **v1**, the first set, plays until then, so the effects are never silent, and stays for comparison on the listening page ("Keep current SFX as v.1", the owner's word).
+
+#### v2 · on the soundtrack's instruments
+
+Built on 2026-11-21 and live since 0.4.8, from the sketch the owner approved after listening ("Yes, send v2"). What each event plays is in `src/audio/scored.ts` (no audio needed, so it is tested); the instruments are in `src/music/effects.ts`. They are separate copies of the music's pad, bass, kick, snare, hat, arpeggio and lead, plus a sine bell for the save, on the effects' own output (0.5, with a small reverb of 2.2 s). So a sound is the same whichever music layers are in, and with the music switched off.
+
+The chord is the one the music is playing at that moment; with the music not loaded, switched off or silent, it is A minor. "Root" and "fifth" are that chord's notes in the octave nearest the target the sketch gives.
 
 | Event | Sound as built |
 |---|---|
-| Crew saved | A short square-wave blip; one per person, each a whole tone above the last as the seats fill |
-| Ship full | A soft major chord, once, just after the last save note |
-| Crew left behind | A low falling note, once per person, a beat apart |
-| Hit by a rock | Noise burst and a thud that scale with the rock: the smallest (radius 14) is short and high, the biggest (radius 50) long, low and loud (`HIT`); then a short falling crackle for the shield breaking |
-| The last shield taken | The same, with two falling warning beeps on top: the next hit destroys the ship |
-| Crew member thrown off by a hit | After the hit, the same falling note as a crew member left behind |
-| Seat opened by a hit | Nothing of its own: the hit says it |
-| Shield picked up | A bright rising sweep |
-| Two crews, or a crew-or-shield row | Every sound that starts during the slow motion plays lower, by the game's time scale, then at normal pitch again |
-| Wormhole appears | A soft low pulse, repeating every 0.9 seconds while it is on the field, louder as it nears the ship |
-| Wormhole entered | A sweep upward; it cuts off whatever is still playing |
-| Ship destroyed | A blow: a sharp crack, a boom whose low-pass closes down to a rumble over a second and a half, and a deep thud under both; it cuts off the rest |
-| Made it home | The save chord with an octave on top, held |
-| Keep or upgrade, fleet | A click for the choice, lower for a bigger ship; moving the fleet's mark is the same click, quieter |
+| Crew saved | The chord itself on the bell, 0.22 s, one inversion higher for each seat. The 4- and 8-seaters start an octave above the pad, the 12-seater at the pad's octave, so every ship's last seat ends near the same top. Several at once roll 60 ms apart |
+| Ship full | The pad plays the chord's voicing an octave up for 0.5 s, and the lead holds the root on top for 0.6 s. It starts 0.12 s after the last save |
+| Crew left behind, or thrown off by a hit | The lead sighs from the chord's fifth down to its root over 0.3 s; several are 0.12 s apart. The two costs sound alike on purpose |
+| Hit by a rock | The kick, lower, louder and longer for a bigger rock (radius 14 to 50: MIDI 33 with a 0.22 s decay up to 24 with 0.5 s), the snare a moment later as the shield cracking, and the bass on the root sliding down 5 semitones |
+| The last shield taken | The same, with two arpeggio notes falling a fifth, at 0.12 and 0.24 s |
+| Shield picked up | The arpeggio's root, fifth and octave, 0.06 s apart |
+| Wormhole on the field | The bass on the root for 0.35 s with a soft kick under it, every 0.9 s, from quiet at the top of the field to loud near the ship |
+| Wormhole entered | Ten chord notes climbing on the arpeggio, 0.055 s apart and growing louder, while the lead slides two octaves up; it cuts what is still playing |
+| Ship destroyed | A long kick, a burst of snare, the bass falling an octave and the lead two octaves; it cuts what is still playing |
+| Made it home | The whole band on A major: the pad, the bass on A, a roll up the arpeggio and the lead on high A |
+| Keep or upgrade, fleet | A hat tick and one arpeggio note: ship 1 the root, ship 2 five semitones lower, ship 3 two octaves lower; moving the fleet's mark is quieter |
+| Slow motion | Every v2 sound plays lower by the music's whole semitones (up to 5), so it stays in tune with it |
 
-- **Pitch carries the count.** Save notes climb as the ship fills, so a player hears how full the ship is without looking.
-- **The two costs sound alike on purpose.** A crew member left behind and a crew member thrown off by a hit both cost 5%, so both end on the same falling note.
-- **The slow motion lowers new sounds only.** Sounds already playing keep their pitch; they are short, so the drop is heard at once.
-- **The deal does not change.** The simulation only appends events (`src/game/events.ts`) at the moments it already buzzed or counted; it never reads them back and they draw nothing from the seeded numbers. The golden traces came out identical. The sound code (`src/audio/`) reads the events, the slow motion and where the wormhole is, and writes nothing back.
-- **Trying a sound by ear:** `npm run dev` and open `/audition.html`: a button for every sound and for the events as the game plays them (three saves, filling the 12-seater, hits by small, middle and big rocks, a hit on the last shield, the pulse coming closer), with a box to hear them as in slow motion. The page is on the dev server only, not in the build. In the game itself, after one tap on the page, in the browser console, `__sound.play('save')` plays one sound (`__sound.play('save', 1.5)` higher), and `__sound.event({ kind: 'missed', count: 3 })` plays what an event sounds like. `__sound.sounds` lists the names.
+- **Nothing on the beat.** The sketch could make the slower sounds wait for the next eighth note; that is off, as the owner has not chosen it.
+- **Two fixes over the sketch.** The kick's and snare's decay are set for every trigger, so a pulse after an explosion gets its own short kick. No instrument starts two notes at the same instant: each start is at least 30 ms after the last (60 ms for the bell).
+- **Open, raised by the Music Producer with the owner:** with the music's own instruments, a hit may be taken for the drum beat, or a pulse for the bass line.
+
+#### v1 · the set before
+
+Built on 2026-11-20 with the Web Audio API, no files: each sound is a handful of numbers in `SOUNDS` in `src/audio/sounds.ts`, with `SAVE_STEP`, `MISSED_GAP`, `HIT`, `CLICK_PITCH`, `PULSE` and `MASTER`. A square blip per crew member saved, climbing a whole tone per seat; a major chord when the ship fills; a low falling note per crew member left behind or thrown off; a noise burst and thud sized by the rock, with a crackle for the shield and warning beeps on the last; a rising sweep for a shield; a low pulse for a wormhole; a sweep up into it; an explosion that closes into a rumble; a held chord for home; a click per ship chosen. Slow motion lowers its sounds by the game's time scale.
+
+#### For both
+
+- **The deal does not change.** The simulation only appends events (`src/game/events.ts`); it never reads them back, and they draw nothing from the seeded numbers. The sound code reads the events, the slow motion, where the wormhole is and the music's chord, and writes nothing back. The golden traces are unchanged.
+- **Trying them by ear:** `npm run dev` and open `/audition.html`, which has a button for every event and a switch between v2 and v1. Start the music's run there to hear v2 on chords other than A minor. In the game itself, `__sound.play('save')` and `__sound.event({ kind: 'missed', count: 3 })` in the console play v1's sounds.
 
 ### Music
 
-- **One loop in layers.** The run is 5 to 12 minutes and gets faster, so the track loops cleanly and comes as three or four layers that play together. The game brings a layer in as the mission's speed rises and takes them out for the results screen.
-- **Where it comes from:** a commissioned track, with a licensed placeholder until it arrives. A ready-made track is rarely supplied in layers that loop. A generated track is possible if the plan it was made under allows use in a published game; the terms have to be read at the time.
-- **Mission 7 has no end of its own,** so its layers must hold for several minutes without a build that runs out.
-- **Files:** one compressed loop per layer, a few hundred kilobytes each. They are the first large files in an app that works offline, so they are fetched after the game is playable, and the game plays without them.
+Built on 2026-11-21 and live since 0.4.8. Made in code with Tone.js (`tone` 15.1.22, MIT), on the owner's word, from the sketch the owner listened to: no audio files. Every musical number is the sketch's, carried over as it was, in one place: `src/music/score.ts`.
+
+- **One synthwave loop** in A minor, Am–F–C–G two bars each. The game's save and home chords are C major, so the music shares their notes.
+- **Layers by speed** (`g.speed`): the pad always; the bass from 1.3× in mission 1, and from mission 2 on from the start of the mission, whatever the speed: it comes in at the first bar line instead of waiting for a chord change (the owner's word; `MUSIC.bassFromMission`). The drums from 1.7×, the arpeggio from 2.0×, sixteenth-note hats from 2.8×. A layer comes in or leaves only at a chord change, every two bars, and leaves only 0.05× below where it came in, so it does not flicker. The pad and bass duck under the kick.
+- **The lead comes in last.** A slow melody on top, sixteen bars in two halves, in G4–G5, as the owner wrote it in the sketch's melody editor; the second half ends on a held D5. It needs 2.2×, the arpeggio playing since an earlier chord change, and the first bar of an eight-bar half, so the melody always starts from its top. In missions 1–4 the speed reaches 2.2× only about two seconds before the target, so the lead mostly plays for players who stay on; in missions 5–7 it comes in during the mission.
+- **The lead plays at most 32 bars at a stretch,** two passes of its melody, on the owner's word. It fades to silence over bars 31–32 (`MUSIC.leadFade`), so the fade ends with the stretch instead of reaching into the next pass, then rests for 16 bars before coming back from the top of a half under its usual rules. The 16-bar rest is a first guess (`MUSIC.leadBars`, `MUSIC.leadPause`). Leaving early because the speed dropped starts the count afresh.
+- **Tempo:** 96 BPM at 1×, +14 BPM per 1×, at most 140; 90 BPM between missions.
+- **A rest:** at most once in every 16 bars, always in the last of them, one layer among bass, drums and arpeggio drops out for that bar and is back on the next downbeat. Only a layer that has played at least 16 bars since it came in can rest, never the same layer twice running, chosen at random from those ready (`MUSIC.restEvery`, `MUSIC.restAfter`). So each new instrument is heard for a while before it rests, on the owner's word. The lead never rests this way. The randomness is `Math.random`, never the run's seeded numbers.
+- **Slow motion:** the tempo drops to 60% and a low-pass closes to 700 Hz over 0.2 s, and both come back over the last 0.45 s. New notes play up to 5 semitones lower, following the game's time scale.
+- **Through a run:** silent on the start screen; a run starts it. A wormhole drops all but the pad over 0.5 s, and the stop between missions plays the pad alone at 90 BPM with its filter closed. The next mission flies on from there. A destroyed ship stops it in 0.3 s under the explosion; the way home fades it over 2.5 s under the home chord.
+- **Level:** the music's own bus at −12 dB, then a limiter at −1 dB. The sound effects keep their own level.
+- **Its own switch.** A note icon just left of the sound-effects speaker, on the start screen and the stops between missions, with a slash when off; `N` on a keyboard. It is independent of the sound-effects mute, as the owner asked: either can be off while the other plays. On by default, remembered on the device.
+- **Loaded after the game.** Tone.js and the music are one chunk of 263 KB (65 KB gzipped); the game's own code is 49 KB (19 KB gzipped). It is loaded only after the first tap has started the audio, and the game plays without music until it arrives. It shares the sound effects' audio context, so the same tap starts both and leaving the page pauses both. The service worker caches it with the rest, so it plays offline.
+- **It changes the music only when that is heard.** Tone.js keeps every tempo change for the whole session, so the tempo and the echoes change only when the tempo has moved 0.5 BPM, and the pad filter when it has moved 3%. Slow motion schedules its two ramps at once when it starts. A simulated 12-minute run schedules fewer than 400 tempo changes, and a new run starts the tempo's history afresh.
+- **Nothing in the simulation changes.** The music reads the game's state, speed, slow motion and the events the sound effects hear (`src/music/conductor.ts`), and the golden traces are unchanged.
+- **Hearing it outside a run:** `npm run dev` and open `/audition.html`. It has a run that speeds up by itself or is set by hand, slow motion, a wormhole, the next mission, a destroyed ship, home and the music switch, all through the game's own conductor. `__music()` in the console there reports the transport, the tempo and how many tempo changes Tone.js is holding.
 
 ### Effects to add
 
@@ -654,7 +677,7 @@ Screen shake, the flash, the sparks and the stretching stars stay as they are.
 
 1. Sound effects and the mute control: no files, and they close the two silent events. **Built on 2026-11-20.**
 2. The effects for a crew member left behind and for the wormhole.
-3. Music, once a track exists.
+3. Music, once a track exists. **Built on 2026-11-21 in code with Tone.js**, from the owner's sketch, instead of a track.
 
 ### Not decided
 
