@@ -224,6 +224,10 @@ textarea { width: 100%; font: 12px/1.5 var(--mono); color: var(--text); backgrou
       <input type="range" id="speedSlider" min="1" max="4.5" step="0.01" value="1">
       <div class="row"><button type="button" id="resume" style="--c: var(--cyan)" hidden>Fly by itself again</button></div>
     </div>
+    <div class="slider">
+      <label for="menuBpm"><span>Start screen tempo</span><span id="menuBpmNote">96 BPM</span></label>
+      <input type="range" id="menuBpm" min="70" max="125" step="1" value="96">
+    </div>
   </section>
 
   <section class="panel" aria-labelledby="sfxTitle">
@@ -375,7 +379,7 @@ textarea { width: 100%; font: 12px/1.5 var(--mono); color: var(--text); backgrou
       <li>Layer order: each layer waits for the one under it. The arpeggio comes in only after the drums have played 4 bars, and the lead only after the arpeggio has played 4 bars. At full speed from a standstill: drums at bar 1, arpeggio at bar 5, lead at bar 9.</li>
       <li>Layers: bass from 1.3× in mission 1 and from the first bar in missions 2–7, drums from 1.7×, arpeggio from 2.0×; sixteenth-note hats from 2.8×. The pad's filter opens with speed.</li>
       <li>A rest: at most once every sixteen bars, in the last of them, one of the bass, drums or arpeggio drops out for one bar and comes back on the downbeat. Only a layer that has played at least sixteen bars since it came in can rest, and never the same one twice running.</li>
-<li>Start screen: silent until the note is tapped, then the whole soundtrack at the tempo of 2× (110 BPM). Every layer plays there whatever its speed threshold, each waiting its turn: pad, bass and drums from bar 1, the arpeggio at bar 5, the lead at bar 9. The fast hi-hats of 2.8× stay out. A run starts from it without a break: the layers leave at their chord changes as the speed drops to the run's, and every mission opens with a 1.2 s fly-in.</li>
+<li>Start screen: silent until the note is tapped, then the whole soundtrack at 96 BPM, the tempo of 1× (it was 110). The slider under the player tries other tempos. Every layer plays there whatever its speed threshold, each waiting its turn: pad, bass and drums from bar 1, the arpeggio at bar 5, the lead at bar 9. The pad stays as bright as at 2×, and the fast hi-hats of 2.8× stay out. A run starts from it without a break: the layers leave at their chord changes as the speed drops to the run's, and every mission opens with a 1.2 s fly-in.</li>
       <li>End screen after the ship is destroyed: the music fades over 1.5 s, then the bass alone plays one long note every 6 seconds (A, F, C, G in turn) at 60 BPM, the first after 2 seconds, until the next run.</li>
       <li>Slow motion: tempo down to 60%, new notes up to five semitones lower, everything muffled, back in 1.4 s.</li>
       <li>Music level: −12 dB, with a limiter at −1 dB. The sounds play at the game's own level.</li>
@@ -402,7 +406,8 @@ textarea { width: 100%; font: 12px/1.5 var(--mono); color: var(--text); backgrou
     // The lead's entries in a run, in turn (the owner's word): its octaves and the piano's effects. The fourth entry is the first again.
     leadTurns: [{ oct: 'o2', voice: 'hall' }, { oct: 'o3', voice: 'echo' }, { oct: 'o3', voice: 'echo' }],
     layerWait: 4,       // the arpeggio waits for 4 bars of drums, the lead for 4 bars of arpeggio (the owner's word)
-    menuSpeed: 2.0,     // the start screen's music takes its tempo from this speed (the owner's word): 110 BPM. Every layer plays there, whatever its threshold
+    menuSpeed: 2.0,     // the start screen's pad is as bright as at this speed; every layer plays there, whatever its threshold
+    menuBpm: 96,        // the start screen's tempo: slowed from 110 on the owner's word (96 is the tempo of 1×)
     over: { bpm: 60, fade: 1.5, first: 8, every: 24, length: 2.4 },   // the end screen: one bass note every 24 sixteenths (6 s), the first after 2 s
     bassFromMission: 2, // from this mission the bass plays from the first bar, whatever the speed
     restEvery: 16,      // a one-bar rest at most once in this many bars, in the last of them
@@ -518,7 +523,7 @@ textarea { width: 100%; font: 12px/1.5 var(--mono); color: var(--text); backgrou
   // ---- State ----
   const S = {
     playing: false, state: 'stopped', mission: 1, distance: 0, speed: 1, auto: true, slowmo: 0, seat: 0,
-    sfxMode: 'v2', shipSeats: 12, rest: null, restShown: null, lastRest: null, since: {}, arpWas: false, leadVoice: 'hall', leadEntries: 0, leadEntry: 0, overFrom: 0, launch: 0, leadSince: 0, leadRestUntil: 0, stepNow: 0,
+    sfxMode: 'v2', shipSeats: 12, rest: null, restShown: null, lastRest: null, since: {}, arpWas: false, menuBpm: 96, leadVoice: 'hall', leadEntries: 0, leadEntry: 0, overFrom: 0, launch: 0, leadSince: 0, leadRestUntil: 0, stepNow: 0,
     gate: { pad: false, bass: false, drums: false, arp: false },
     muted: { pad: false, bass: false, drums: false, arp: false },
     force: {},          // per layer: 'on' (playing whatever the run says), 'off' (paused), or nothing (follows the run)
@@ -670,12 +675,12 @@ textarea { width: 100%; font: 12px/1.5 var(--mono); color: var(--text); backgrou
   function pianoInto(out) {
     const body = new Tone.PolySynth(Tone.Synth, {
       oscillator: { type: 'custom', partials: [1, 0.8, 0.55, 0.4, 0.28, 0.18, 0.12, 0.08] },
-      envelope: { attack: 0.003, decay: 2.6, sustain: 0, release: 1.6 }, volume: 0,
+      envelope: { attack: 0.003, decay: 2.6, sustain: 0, release: 1.6 }, volume: -4,   // balanced against the other layers by measurement: just under the bass
     }).connect(out)
     const hammer = new Tone.PolySynth(Tone.FMSynth, {
       harmonicity: 3, modulationIndex: 6, oscillator: { type: 'sine' }, modulation: { type: 'sine' },
       envelope: { attack: 0.001, decay: 0.35, sustain: 0, release: 0.3 },
-      modulationEnvelope: { attack: 0.001, decay: 0.12, sustain: 0, release: 0.1 }, volume: -6,
+      modulationEnvelope: { attack: 0.001, decay: 0.12, sustain: 0, release: 0.1 }, volume: -10,
     }).connect(out)
     return { triggerAttackRelease(f, d, t, v) { body.triggerAttackRelease(f, d, t, v); hammer.triggerAttackRelease(f, d, t, v) } }
   }
@@ -1136,7 +1141,7 @@ textarea { width: 100%; font: 12px/1.5 var(--mono); color: var(--text); backgrou
   // they have moved enough to hear, never on every frame.
   const applied = { bpm: 0, cut: 0 }
   const MELODY_BPM = bpmFor(TUNE.from.lead)
-  const baseBpm = () => S.state === 'over' ? TUNE.over.bpm : S.state === 'results' ? TUNE.tempo.results : S.state === 'melody' ? MELODY_BPM : bpmFor(musicSpeed())
+  const baseBpm = () => S.state === 'over' ? TUNE.over.bpm : S.state === 'results' ? TUNE.tempo.results : S.state === 'melody' ? MELODY_BPM : S.state === 'menu' ? S.menuBpm : bpmFor(musicSpeed())
   function control() {
     if (!S.playing || S.slowmo > 0) return           // slow motion schedules its own two ramps
     const bpm = baseBpm()
@@ -1236,10 +1241,11 @@ textarea { width: 100%; font: 12px/1.5 var(--mono); color: var(--text); backgrou
     if (S.playing) { S.state = 'menu'; S.slowmo = 0; return }          // layers come in at their chord changes
     await play()
     S.state = 'menu'
-    const bpm = bpmFor(TUNE.menuSpeed)
+    const bpm = S.menuBpm
     T.bpm.value = bpm; applied.bpm = bpm
   }
   $('drone').addEventListener('click', toMenu)
+  $('menuBpm').addEventListener('input', e => { S.menuBpm = +e.target.value; $('menuBpmNote').textContent = `${e.target.value} BPM` })
   $('speedSlider').addEventListener('input', e => { S.auto = false; S.speed = +e.target.value })
   $('resume').addEventListener('click', () => {
     const [v0, target] = mission()
@@ -1388,7 +1394,7 @@ textarea { width: 100%; font: 12px/1.5 var(--mono); color: var(--text); backgrou
     document.querySelectorAll('[data-mode]').forEach(b => setAttr(b, 'aria-pressed', String(b.dataset.mode === S.sfxMode)))
     setText($('seatNote'), S.seat >= S.shipSeats ? `Ship full: ${S.shipSeats} of ${S.shipSeats}. A full ship is sent no crew.` : `${S.seat} of ${S.shipSeats} seats taken.`)
     for (const n of [4, 8, 12]) setAttr(document.querySelector(`[data-ev="seats${n}"]`), 'aria-pressed', String(S.shipSeats === n))
-    setText($('speed'), `${musicSpeed().toFixed(2)}×`)
+    setText($('speed'), S.state === 'menu' ? 'START' : `${musicSpeed().toFixed(2)}×`)
     if (window.Tone && S.playing) setText($('bpm'), String(Math.round(Tone.getTransport().bpm.value)))
     else setText($('bpm'), String(Math.round(bpmFor(musicSpeed()))))
     missionBtns.forEach((b, i) => setAttr(b, 'aria-pressed', String(i + 1 === S.mission)))
