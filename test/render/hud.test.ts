@@ -238,7 +238,7 @@ function between(ships: number[], extra: Partial<Game> = {}): Game {
 
 // Counts the seat dots and frames drawn, and where the frames are.
 function drawnCards(g: Game) {
-  let fill = '', width = 0
+  let stroke = '', width = 0
   const seen = { seats: 0, frames: [] as number[], widths: [] as number[], text: [] as string[] }
   let pending: number[] | null = null
   const ctx = new Proxy({}, {
@@ -247,9 +247,9 @@ function drawnCards(g: Game) {
       if (prop === 'roundRect' && Number(args[3]) > 100) pending = args as number[]
       if (prop === 'stroke' && pending) { seen.frames.push(pending[0]); seen.widths.push(width); pending = null }
       if (prop === 'beginPath') pending = null
-      if (prop === 'fill' && fill === '#8fc4cc') seen.seats++
+      if (prop === 'stroke' && stroke === '#8fc4cc') seen.seats++   // a free seat is an empty circle
     },
-    set: (_t, prop, value) => { if (prop === 'fillStyle') fill = String(value); if (prop === 'lineWidth') width = Number(value); return true },
+    set: (_t, prop, value) => { if (prop === 'strokeStyle') stroke = String(value); if (prop === 'lineWidth') width = Number(value); return true },
   }) as CanvasRenderingContext2D
   drawHud(ctx, g)
   return seen

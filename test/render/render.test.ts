@@ -6,12 +6,12 @@ import { look, render, shipAlpha } from '../../src/render/render'
 
 const game = (state: GameState, stateTime = 0): Game => Object.assign(createGame(createRecords(null)), { state, stateTime })
 
-// Renders onto a context that remembers the strength each cockpit (an ellipse) was drawn at.
+// Renders onto a context that remembers the strength each cockpit (known by the right side of its glass) was drawn at.
 function cockpits(g: Game): number[] {
   let alpha = 1
   const seen: number[] = []
   const ctx = new Proxy({}, {
-    get: (_t, p) => p === 'measureText' ? () => ({ width: 10 }) : (...args: unknown[]) => { if (p === 'ellipse' && args[2] === g.ship.r * 0.17) seen.push(alpha) },
+    get: (_t, p) => p === 'measureText' ? () => ({ width: 10 }) : (...args: unknown[]) => { if (p === 'quadraticCurveTo' && args[2] === g.ship.r * 0.191) seen.push(alpha) },
     set: (_t, p, v) => { if (p === 'globalAlpha') alpha = v as number; return true },
   }) as CanvasRenderingContext2D
   render(ctx, g)

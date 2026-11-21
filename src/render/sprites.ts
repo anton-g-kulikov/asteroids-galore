@@ -222,10 +222,15 @@ export function drawHull(ctx: CanvasRenderingContext2D, r: number, type: number,
   ctx.quadraticCurveTo(-r * 0.55, -r * 0.2, 0, -r * 1.35)
   ctx.fill(); ctx.stroke()
   glow(ctx)
-  // cockpit
+  // cockpit: the glass follows the nose. It is the top third of the hull's own
+  // outline at two-thirds size, set inside it, with a lower edge that sags
+  // towards the seats.
   ctx.fillStyle = LINE
   ctx.beginPath()
-  ctx.ellipse(0, -r * 0.62, r * 0.17, r * 0.27, 0, 0, Math.PI * 2)
+  ctx.moveTo(0, -r * 1.143)
+  ctx.quadraticCurveTo(r * 0.12, -r * 0.892, r * 0.191, -r * 0.649)
+  ctx.quadraticCurveTo(0, -r * 0.489, -r * 0.191, -r * 0.649)
+  ctx.quadraticCurveTo(-r * 0.12, -r * 0.892, 0, -r * 1.143)
   ctx.fill()
   // passenger deck: one seat per dot, filling from the back as crew come
   // aboard. Every ship's seats are a full rectangle, in rows of two or three.
@@ -233,15 +238,23 @@ export function drawHull(ctx: CanvasRenderingContext2D, r: number, type: number,
   // The seats keep clear of the hull's lines and of the cockpit glass: the
   // lowest row stops short of the tail, the highest short of the glass.
   const p = Math.min(0.72 * r / Math.max(2, cols), 1.0 * r / rows)
-  // the pair sits midway between the cockpit glass and the tail
-  const back = cols === 1 ? r * 0.25 + p / 2 : r * 0.6
+  // the block of seats sits midway between the glass and the tail
+  const back = r * 0.17 + (rows - 1) * p / 2
   for (let i = 0; i < cols * rows; i++) {
     const cx = (i % cols - (cols - 1) / 2) * p
     const cy = back - Math.floor(i / cols) * p
     const taken = i < onboard
-    ctx.fillStyle = taken ? '#5dffa0' : SEAT_FREE
-    if (taken) glow(ctx, '#5dffa0', p * 0.6)
-    ctx.beginPath(); ctx.arc(cx, cy, p * (taken ? 0.36 : 0.28), 0, Math.PI * 2); ctx.fill()
+    // a free seat is an empty circle, a taken one a glowing green disc
+    ctx.beginPath(); ctx.arc(cx, cy, p * (taken ? 0.4 : 0.32), 0, Math.PI * 2)
+    if (taken) {
+      ctx.fillStyle = '#5dffa0'
+      glow(ctx, '#5dffa0', p * 0.6)
+      ctx.fill()
+    } else {
+      ctx.strokeStyle = SEAT_FREE
+      ctx.lineWidth = Math.max(1, p * 0.1)
+      ctx.stroke()
+    }
     glow(ctx)
   }
 }

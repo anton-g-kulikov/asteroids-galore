@@ -22,8 +22,8 @@ function halo(color, width, spread, shapes) {
 function ship(r, { seats = true, line = 0.09 } = {}) {
   const p = (...xy) => xy.map(v => +(v * r).toFixed(2)).join(' ')
   const n = v => (v * r).toFixed(2)
-  const dots = seats ? [[-0.18, 0.6], [0.18, 0.6], [-0.18, 0.24], [0.18, 0.24]]
-    .map(([x, y]) => `<circle cx="${n(x)}" cy="${n(y)}" r="${n(0.13)}"/>`).join('') : ''
+  const dots = seats ? [[-0.18, 0.35], [0.18, 0.35], [-0.18, -0.01], [0.18, -0.01]]
+    .map(([x, y]) => `<circle cx="${n(x)}" cy="${n(y)}" r="${n(0.144)}"/>`).join('') : ''
   const flame = `<path d="M${p(-0.32, 0.75)} L${p(0, 2.0)} L${p(0.32, 0.75)} Z"/>`
   const hull = `<path d="M${p(0, -0.2)} L${p(1.15, 0.95)} L${p(0.3, 0.7)} L${p(-0.3, 0.7)} L${p(-1.15, 0.95)} Z"/>
       <path d="M${p(0, -1.35)} Q${p(0.55, -0.2)} ${p(0.42, 0.85)} L${p(-0.42, 0.85)} Q${p(-0.55, -0.2)} ${p(0, -1.35)} Z"/>`
@@ -31,7 +31,7 @@ function ship(r, { seats = true, line = 0.09 } = {}) {
     ${halo('#ffe66b', 0, r * 0.3, flame)}<g fill="#ffe66b">${flame}</g>
     ${halo(LINE, r * line, r * 0.3, hull)}
     <g fill="${BG}" stroke="${LINE}" stroke-width="${n(line)}" stroke-linejoin="round">${hull}</g>
-    <ellipse fill="${LINE}" cx="0" cy="${n(-0.62)}" rx="${n(0.17)}" ry="${n(0.27)}"/>
+    <path fill="${LINE}" d="M${p(0, -1.143)} Q${p(0.12, -0.892)} ${p(0.191, -0.649)} Q${p(0, -0.489)} ${p(-0.191, -0.649)} Q${p(-0.12, -0.892)} ${p(0, -1.143)} Z"/>
     ${halo('#5dffa0', 0, r * 0.1, dots)}<g fill="#5dffa0">${dots}</g>`
 }
 

@@ -17,7 +17,7 @@
       <path d="M0 -159.3 Q64.9 -23.6 49.56 100.3 L-49.56 100.3 Q-64.9 -23.6 0 -159.3 Z"/></g></g>
     <g fill="#000000" stroke="#5ff5ff" stroke-width="16.52" stroke-linejoin="round"><path d="M0 -23.6 L135.7 112.1 L35.4 82.6 L-35.4 82.6 L-135.7 112.1 Z"/>
       <path d="M0 -159.3 Q64.9 -23.6 49.56 100.3 L-49.56 100.3 Q-64.9 -23.6 0 -159.3 Z"/></g>
-    <ellipse fill="#5ff5ff" cx="0" cy="-73.16" rx="20.06" ry="31.86"/>
+    <path fill="#5ff5ff" d="M0 -134.87 Q14.16 -105.26 22.54 -76.58 Q0 -57.7 -22.54 -76.58 Q-14.16 -105.26 0 -134.87 Z"/>
     <g fill="none" stroke="#5dffa0" stroke-opacity=".075" stroke-linejoin="round" stroke-linecap="round"><g stroke-width="0.85"></g><g stroke-width="2.57"></g><g stroke-width="4.91"></g><g stroke-width="7.79"></g><g stroke-width="11.13"></g><g stroke-width="14.89"></g><g stroke-width="19.06"></g><g stroke-width="23.60"></g></g><g fill="#5dffa0"></g></g>
   </g>
 </svg>
