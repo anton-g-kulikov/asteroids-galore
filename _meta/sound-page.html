@@ -204,7 +204,7 @@ textarea { width: 100%; font: 12px/1.5 var(--mono); color: var(--text); backgrou
 
   <section class="panel console" aria-label="Player">
     <div class="row between">
-      <div class="row"><button class="play" id="play" type="button">Play</button><button type="button" id="drone" style="--c: var(--violet)" aria-pressed="false">Start screen drone</button></div>
+      <div class="row"><button class="play" id="play" type="button">Play</button><button type="button" id="drone" style="--c: var(--violet)" aria-pressed="false">Start screen music</button></div>
       <span class="chip" id="state">Stopped</span>
     </div>
     <div class="readout">
@@ -314,6 +314,14 @@ textarea { width: 100%; font: 12px/1.5 var(--mono); color: var(--text); backgrou
     <p class="note">Press on an empty square to place a note and drag right to hold it longer; press a note to remove it. One square is a beat. The lead plays one note at a time, so a new note cuts the one it overlaps. Tinted squares are notes of the chord underneath; every row is in A minor. The octave buttons move the whole melody an octave down or up; the text below always shows the notes as they sound. On a phone, swipe the chord row to scroll.</p>
     <div class="roll-wrap"><div class="roll" id="roll"></div></div>
     <p class="note">Play melody plays the lead alone, all sixteen bars in a loop from the eight bars shown, at 113 BPM, the tempo where the lead comes in during a run. Changes are heard on the next pass.</p>
+    <div class="row" role="group" aria-label="The lead's instrument">
+      <span class="note">Instrument:</span>
+      <button type="button" data-voice="synth" style="--c: var(--magenta)" aria-pressed="true">Synth lead</button>
+      <button type="button" data-voice="piano" style="--c: var(--magenta)" aria-pressed="false">Piano, long reverb</button>
+      <button type="button" data-voice="guitar" style="--c: var(--magenta)" aria-pressed="false">Nylon guitar</button>
+      <button type="button" data-voice="violin" style="--c: var(--magenta)" aria-pressed="false">Violin</button>
+    </div>
+    <p class="note">The three new instruments are synthesized likenesses, like every sound on this page: no recordings are used. The game still plays the synth lead.</p>
     <label class="check"><input type="checkbox" id="leadNow"> Hear the lead now, at any speed (from the next chord)</label>
     <div class="row">
       <button type="button" id="playMelody" class="play" style="--c: var(--magenta)">Play melody</button>
@@ -359,10 +367,11 @@ textarea { width: 100%; font: 12px/1.5 var(--mono); color: var(--text); backgrou
     <ul class="plain">
       <li>Key: A minor, Am–F–C–G, two bars each. The game's save chord is C major, so it sits inside the same notes.</li>
       <li>Tempo: 96 BPM at 1×, plus 14 BPM for each 1× of speed, at most 140. 90 BPM between missions.</li>
-      <li>Lead: a sixteen-bar melody (two eight-bar halves) on top of everything, and the last layer in: from 2.2×, only once the arpeggio has been playing, and always from the start of a half, so the melody is never joined in the middle. It plays at most 32 bars at a stretch (the melody twice), fading out over bars 31 and 32, then pauses for 16 bars before starting again from the top. It alternates octaves: 3–4 the first time it comes in, 4–5 after the pause, then 3–4 again, and so on through the run. It stops between missions and never takes the one-bar rest.</li>
+      <li>Lead: a sixteen-bar melody (two eight-bar halves) on top of everything, and the last layer in: from 2.2×, only once the arpeggio has played 4 bars, and always from the start of a half, so the melody is never joined in the middle. It plays at most 32 bars at a stretch (the melody twice), fading out over bars 31 and 32, then pauses for 16 bars before starting again from the top. It alternates octaves: 3–4 the first time it comes in, 4–5 after the pause, then 3–4 again, and so on through the run. It stops between missions and never takes the one-bar rest.</li>
+      <li>Layer order: each layer waits for the one under it. The arpeggio comes in only after the drums have played 4 bars, and the lead only after the arpeggio has played 4 bars. At full speed from a standstill: drums at bar 1, arpeggio at bar 5, lead at bar 9.</li>
       <li>Layers: bass from 1.3× in mission 1 and from the first bar in missions 2–7, drums from 1.7×, arpeggio from 2.0×; sixteenth-note hats from 2.8×. The pad's filter opens with speed.</li>
       <li>A rest: at most once every sixteen bars, in the last of them, one of the bass, drums or arpeggio drops out for one bar and comes back on the downbeat. Only a layer that has played at least sixteen bars since it came in can rest, and never the same one twice running.</li>
-      <li>Start screen: silent until the note is tapped, then the drone, which is the pad alone at 90 BPM with its filter closed, as between missions. A run starts from it without a break, and every mission opens with a 1.2 s fly-in.</li>
+<li>Start screen: silent until the note is tapped, then the whole soundtrack, played as if flying at 2.8×: every layer, about 121 BPM, with the lead coming in after its usual wait. A run starts from it without a break: the layers leave at their chord changes as the speed drops to the run's, and every mission opens with a 1.2 s fly-in.</li>
       <li>End screen after the ship is destroyed: the music fades over 1.5 s, then the bass alone plays one long note every 6 seconds (A, F, C, G in turn) at 60 BPM, the first after 2 seconds, until the next run.</li>
       <li>Slow motion: tempo down to 60%, new notes up to five semitones lower, everything muffled, back in 1.4 s.</li>
       <li>Music level: −12 dB, with a limiter at −1 dB. The sounds play at the game's own level.</li>
@@ -386,6 +395,8 @@ textarea { width: 100%; font: 12px/1.5 var(--mono); color: var(--text); backgrou
     tempo: { base: 96, perSpeed: 14, max: 140, results: 90 },
     from: { pad: 0, bass: 1.3, drums: 1.7, arp: 2.0, lead: 2.2 },
     hats16From: 2.8,
+    layerWait: 4,       // the arpeggio waits for 4 bars of drums, the lead for 4 bars of arpeggio (the owner's word)
+    menuSpeed: 2.8,     // the start screen's music plays as if flying at this speed: every layer (the owner's word)
     over: { bpm: 60, fade: 1.5, first: 8, every: 24, length: 2.4 },   // the end screen: one bass note every 24 sixteenths (6 s), the first after 2 s
     bassFromMission: 2, // from this mission the bass plays from the first bar, whatever the speed
     restEvery: 16,      // a one-bar rest at most once in this many bars, in the last of them
@@ -494,7 +505,7 @@ textarea { width: 100%; font: 12px/1.5 var(--mono); color: var(--text); backgrou
   // ---- State ----
   const S = {
     playing: false, state: 'stopped', mission: 1, distance: 0, speed: 1, auto: true, slowmo: 0, seat: 0,
-    sfxMode: 'v2', shipSeats: 12, rest: null, restShown: null, lastRest: null, since: {}, arpWas: false, leadForced: false, leadEntries: 0, leadHigh: false, overFrom: 0, launch: 0, leadSince: 0, leadRestUntil: 0, stepNow: 0,
+    sfxMode: 'v2', shipSeats: 12, rest: null, restShown: null, lastRest: null, since: {}, arpWas: false, leadForced: false, leadVoice: 'synth', leadEntries: 0, leadHigh: false, overFrom: 0, launch: 0, leadSince: 0, leadRestUntil: 0, stepNow: 0,
     gate: { pad: false, bass: false, drums: false, arp: false },
     muted: { pad: false, bass: false, drums: false, arp: false },
   }
@@ -639,6 +650,48 @@ textarea { width: 100%; font: 12px/1.5 var(--mono); color: var(--text); backgrou
   const lead = new Tone.MonoSynth(LEAD_OPTS).connect(leadFilter)
   const leadPreview = new Tone.MonoSynth(LEAD_OPTS).connect(user.lead)   // the note you place, heard at once
 
+  // Other instruments to try for the lead. All are synthesized, like everything here: there are no recordings.
+  // Each is built twice: once into the lead's layer, once for the note you place in the editor.
+  const LEAD_VOICES = {
+    synth: dest => dest === gate.lead ? lead : leadPreview,
+    // Piano: a struck tone that rings on (FM, mellow), in a long reverb with an echo.
+    piano(dest) {
+      const verb = new Tone.Reverb({ decay: 7, preDelay: 0.03, wet: 0.5 }).connect(dest)
+      const echo = new Tone.FeedbackDelay({ delayTime: 0.4, feedback: 0.45, wet: 0.3 }).connect(verb)
+      return new Tone.PolySynth(Tone.FMSynth, {
+        harmonicity: 2, modulationIndex: 1.4, oscillator: { type: 'sine' }, modulation: { type: 'sine' },
+        envelope: { attack: 0.004, decay: 2.2, sustain: 0, release: 1.6 },
+        modulationEnvelope: { attack: 0.002, decay: 0.5, sustain: 0, release: 0.5 }, volume: -8,
+      }).connect(echo)
+    },
+    // Nylon guitar: a plucked string. Bright for an instant, then mellow as it rings out.
+    guitar(dest) {
+      const verb = new Tone.Reverb({ decay: 1.8, wet: 0.22 }).connect(dest)
+      return new Tone.PolySynth(Tone.MonoSynth, {
+        oscillator: { type: 'custom', partials: [1, 0.55, 0.32, 0.18, 0.1, 0.05] },
+        filter: { Q: 1, type: 'lowpass', rolloff: -12 },
+        envelope: { attack: 0.002, decay: 1.3, sustain: 0, release: 0.9 },
+        filterEnvelope: { attack: 0.001, decay: 0.22, sustain: 0.12, release: 0.5, baseFrequency: 350, octaves: 3.6 }, volume: -10,
+      }).connect(verb)
+    },
+    // Violin: a bowed string. A slow bow attack, vibrato, a glide between notes and a body resonance.
+    violin(dest) {
+      const verb = new Tone.Reverb({ decay: 2.6, wet: 0.28 }).connect(dest)
+      const body = new Tone.Filter({ type: 'peaking', frequency: 1100, Q: 1.2, gain: 7 }).connect(verb)
+      const vib = new Tone.Vibrato({ frequency: 5.6, depth: 0.14 }).connect(body)
+      return new Tone.MonoSynth({
+        portamento: 0.07, oscillator: { type: 'sawtooth' }, filter: { Q: 1, type: 'lowpass', rolloff: -24 },
+        envelope: { attack: 0.14, decay: 0.2, sustain: 0.9, release: 0.5 },
+        filterEnvelope: { attack: 0.18, decay: 0.3, sustain: 0.8, release: 0.5, baseFrequency: 900, octaves: 1.8 }, volume: -15,
+      }).connect(vib)
+    },
+  }
+  const leadVoices = {}                                         // made the first time each is chosen
+  function leadVoice(preview = false) {
+    const key = S.leadVoice + (preview ? ':preview' : '')
+    return leadVoices[key] || (leadVoices[key] = LEAD_VOICES[S.leadVoice](preview ? user.lead : gate.lead))
+  }
+
   const arpDelay = new Tone.FeedbackDelay({ delayTime: 0.47, feedback: 0.32, wet: 0.28 }).connect(gate.arp)
   const arpFilter = new Tone.Filter(3200, 'lowpass').connect(arpDelay)
   const arp = new Tone.Synth({
@@ -650,15 +703,16 @@ textarea { width: 100%; font: 12px/1.5 var(--mono); color: var(--text); backgrou
   const depth = () => (1 - timeScale(S.slowmo)) / (1 - SLOW_SCALE)
   const slowSemis = () => Math.round(TUNE.slow.semis * depth())
 
+  const musicSpeed = () => S.state === 'menu' ? TUNE.menuSpeed : S.speed
+  const inFlight = () => S.state === 'flying' || S.state === 'menu'
   function wanted(id) {
     if (S.state === 'melody') return id === 'lead'
     if (id === 'lead' && S.leadForced && (S.state === 'flying' || S.state === 'results')) return true
-    if (S.state === 'results' || S.state === 'menu') return id === 'pad'      // the start screen's drone is the pad alone, as between missions
-    if (S.state !== 'flying') return false
-    if (id === 'bass' && S.mission >= TUNE.bassFromMission) return true
+    if (S.state === 'results') return id === 'pad'
+    if (S.state !== 'flying' && S.state !== 'menu') return false           // the start screen plays the whole soundtrack, as flying at menuSpeed
+    if (id === 'bass' && S.state === 'flying' && S.mission >= TUNE.bassFromMission) return true
     const from = TUNE.from[id]
-    const fast = S.speed >= (S.gate[id] ? from - 0.05 : from)      // a little slack, so a layer does not flicker at its threshold
-    if (id === 'lead') return fast && (S.gate.lead || S.arpWas)    // the lead waits until the arpeggio has been playing
+    const fast = musicSpeed() >= (S.gate[id] ? from - 0.05 : from)      // a little slack, so a layer does not flicker at its threshold
     return fast
   }
   function setGate(id, on, time, fadeTime) {
@@ -693,7 +747,10 @@ textarea { width: 100%; font: 12px/1.5 var(--mono); color: var(--text); backgrou
       S.arpWas = S.gate.arp                            // as it was before this chord change
       for (const id of IDS) {
         let on = wanted(id)
-        if (id === 'lead' && S.state === 'flying' && !S.leadForced) {
+        const under = id === 'arp' ? 'drums' : id === 'lead' ? 'arp' : null   // each layer waits for the one under it
+        if (on && !S.gate[id] && under && !(id === 'lead' && S.leadForced) && S.state !== 'melody' &&
+            (!S.gate[under] || s - (S.since[under] ?? s) < TUNE.layerWait * 16)) on = false
+        if (id === 'lead' && inFlight() && !S.leadForced) {
           // at most leadBars at a stretch, then a rest of leadPause bars
           if (on && S.gate.lead && s - S.leadSince === (TUNE.leadBars - TUNE.leadFade) * 16) {   // fade out over bars 31-32, not into the next loop
             gate.lead.gain.cancelScheduledValues(time)
@@ -737,13 +794,13 @@ textarea { width: 100%; font: 12px/1.5 var(--mono); color: var(--text); backgrou
     }
     if (rests('drums')) { /* resting */ }
     else if (s16 % 4 === 2) hat.triggerAttackRelease('32n', time, 0.9)
-    else if (s16 % 2 === 1 && S.speed >= TUNE.hats16From && S.state === 'flying') hat.triggerAttackRelease('32n', time, 0.35)
+    else if (s16 % 2 === 1 && musicSpeed() >= TUNE.hats16From && inFlight()) hat.triggerAttackRelease('32n', time, 0.35)
     const tune = MELODY[Math.floor(s / 128) % 2].get(s % 128)
     if (tune) {
       // In a run the lead alternates octaves from one entry to the next; alone or forced, it plays as the editor shows.
       const shownLow = ROWS === LOW_ROWS, asShown = S.state === 'melody' || S.leadForced
       const high = asShown ? !shownLow : S.leadHigh
-      lead.triggerAttackRelease(f(tune.note, (high ? 12 : 0) - (shownLow ? 0 : 12)), tune.len * 15 / T.bpm.value * 0.95, time, 0.9); hits.push('lead')
+      leadVoice().triggerAttackRelease(f(tune.note, (high ? 12 : 0) - (shownLow ? 0 : 12)), tune.len * 15 / T.bpm.value * 0.95, time, 0.9); hits.push('lead')
     }
     if (s16 % 2 === 0 && !rests('arp')) { const i = s16 / 2; arp.triggerAttackRelease(f(ch.arp[ARP[i]]), '8n', time, i % 2 ? 0.65 : 1); hits.push('arp') }
     if (!document.hidden) draw.schedule(() => paint(s16, bar, ch, hits, s), time)
@@ -962,7 +1019,7 @@ textarea { width: 100%; font: 12px/1.5 var(--mono); color: var(--text); backgrou
     return { col: Math.floor((e.clientX - r.left) / CW), row: Math.floor((e.clientY - r.top) / RH) }
   }
   async function preview(note) {
-    try { await Tone.start(); leadPreview.triggerAttackRelease(note, 0.35) } catch { /* no sound yet */ }
+    try { await Tone.start(); leadVoice(true).triggerAttackRelease(note, 0.35) } catch { /* no sound yet */ }
   }
   stage.addEventListener('pointerdown', e => {
     const { col, row } = cellAt(e)
@@ -994,6 +1051,12 @@ textarea { width: 100%; font: 12px/1.5 var(--mono); color: var(--text); backgrou
     playhead.style.left = Math.floor((s % 128) / 4) * CW + 'px'
   }
 
+  const voiceBtns = [...document.querySelectorAll('[data-voice]')]
+  voiceBtns.forEach(b => b.addEventListener('click', () => {
+    S.leadVoice = b.dataset.voice
+    voiceBtns.forEach(x => x.setAttribute('aria-pressed', String(x === b)))
+    leadVoice(); leadVoice(true)                                // build it now, so its reverb is ready before the next note
+  }))
   $('leadNow').addEventListener('change', e => { S.leadForced = e.target.checked })
   $('clearHalf').addEventListener('click', () => { melody[shown] = []; saveMelody() })
   $('resetMelody').addEventListener('click', () => { melody = ROWS === LOW_ROWS ? transposed(DEFAULT_MELODY, -1) : copyMelody(DEFAULT_MELODY); saveMelody(); $('melodyMsg').textContent = 'Back to the saved melody.' })
@@ -1046,7 +1109,7 @@ textarea { width: 100%; font: 12px/1.5 var(--mono); color: var(--text); backgrou
   // they have moved enough to hear, never on every frame.
   const applied = { bpm: 0, cut: 0 }
   const MELODY_BPM = bpmFor(TUNE.from.lead)
-  const baseBpm = () => S.state === 'over' ? TUNE.over.bpm : S.state === 'results' || S.state === 'menu' ? TUNE.tempo.results : S.state === 'melody' ? MELODY_BPM : bpmFor(S.speed)
+  const baseBpm = () => S.state === 'over' ? TUNE.over.bpm : S.state === 'results' ? TUNE.tempo.results : S.state === 'melody' ? MELODY_BPM : bpmFor(musicSpeed())
   function control() {
     if (!S.playing || S.slowmo > 0) return           // slow motion schedules its own two ramps
     const bpm = baseBpm()
@@ -1057,7 +1120,7 @@ textarea { width: 100%; font: 12px/1.5 var(--mono); color: var(--text); backgrou
       leadDelay.delayTime.rampTo(60 / bpm, 0.5)
     }
     if (S.state === 'over') return
-    const cut = S.state === 'results' || S.state === 'menu' ? 520 : Math.min(4200, 600 + 900 * (S.speed - 1))
+    const cut = S.state === 'results' ? 520 : Math.min(4200, 600 + 900 * (musicSpeed() - 1))
     if (Math.abs(cut - applied.cut) / cut >= 0.03) { applied.cut = cut; padFilter.frequency.rampTo(cut, 0.5) }
   }
   function slowMotion() {
@@ -1119,22 +1182,18 @@ textarea { width: 100%; font: 12px/1.5 var(--mono); color: var(--text); backgrou
   }
 
   $('play').addEventListener('click', () => {
-    if (S.playing && S.state === 'menu') { resetFlight(); S.state = 'flying' }      // a run starts from the drone without a break
+    if (S.playing && S.state === 'menu') { resetFlight(); S.state = 'flying' }      // a run starts from the start screen's music without a break: layers leave at their chord changes as the speed drops
     else if (S.playing) stop()
     else play()
   })
-  // The start screen: the drone is the pad alone at 90 BPM, as the game plays it once the note is tapped there.
+  // The start screen: once its note is tapped the game plays the whole soundtrack there, as if flying at menuSpeed.
   async function toMenu() {
     if (S.playing && S.state === 'menu') { stop(1); return }
-    if (S.playing) {
-      const t = Tone.now()
-      for (const id of IDS) if (id !== 'pad') setGate(id, false, t, 1)
-      S.state = 'menu'; S.slowmo = 0; S.rest = null; S.restShown = null
-      return
-    }
+    if (S.playing) { S.state = 'menu'; S.slowmo = 0; return }          // layers come in at their chord changes
     await play()
     S.state = 'menu'
-    T.bpm.value = TUNE.tempo.results; applied.bpm = TUNE.tempo.results
+    const bpm = bpmFor(TUNE.menuSpeed)
+    T.bpm.value = bpm; applied.bpm = bpm
   }
   $('drone').addEventListener('click', toMenu)
   $('speedSlider').addEventListener('input', e => { S.auto = false; S.speed = +e.target.value })
@@ -1279,15 +1338,15 @@ textarea { width: 100%; font: 12px/1.5 var(--mono); color: var(--text); backgrou
     setText(st, labels[S.state]); st.style.setProperty('--chip', chipColor[S.state])
     setText($('play'), S.playing && S.state === 'menu' ? 'Start a run' : S.playing ? 'Stop' : S.state === 'stopped' ? 'Play' : 'Play again')
     setAttr($('drone'), 'aria-pressed', String(S.playing && S.state === 'menu'))
-    setText($('drone'), S.playing && S.state === 'menu' ? 'Stop the drone' : 'Start screen drone')
+    setText($('drone'), S.playing && S.state === 'menu' ? 'Stop the music' : 'Start screen music')
     setText($('playMelody'), S.playing && S.state === 'melody' ? 'Stop melody' : 'Play melody')
     setText($('chordNowNote'), `(now ${chordNow().name})`)
     document.querySelectorAll('[data-mode]').forEach(b => setAttr(b, 'aria-pressed', String(b.dataset.mode === S.sfxMode)))
     setText($('seatNote'), S.seat >= S.shipSeats ? `Ship full: ${S.shipSeats} of ${S.shipSeats}. A full ship is sent no crew.` : `${S.seat} of ${S.shipSeats} seats taken.`)
     for (const n of [4, 8, 12]) setAttr(document.querySelector(`[data-ev="seats${n}"]`), 'aria-pressed', String(S.shipSeats === n))
-    setText($('speed'), `${S.speed.toFixed(2)}×`)
+    setText($('speed'), `${musicSpeed().toFixed(2)}×`)
     if (window.Tone && S.playing) setText($('bpm'), String(Math.round(Tone.getTransport().bpm.value)))
-    else setText($('bpm'), String(Math.round(bpmFor(S.speed))))
+    else setText($('bpm'), String(Math.round(bpmFor(musicSpeed()))))
     missionBtns.forEach((b, i) => setAttr(b, 'aria-pressed', String(i + 1 === S.mission)))
     const [, target] = MISSIONS[S.mission - 1]
     const past = S.distance > target
@@ -1315,9 +1374,9 @@ textarea { width: 100%; font: 12px/1.5 var(--mono); color: var(--text); backgrou
       if (S.muted[l.id]) text = 'Muted'
       else if (!S.playing) text = 'Off'
       else if (on && want && S.restShown === l.id) { text = 'Resting'; cls = 'wait' }
-      else if (on && want) { text = l.id === 'lead' && S.state === 'flying' && !S.leadForced ? (S.leadHigh ? 'Playing 4–5' : 'Playing 3–4') : 'Playing'; cls = 'on' }
+      else if (on && want) { text = l.id === 'lead' && inFlight() && !S.leadForced ? (S.leadHigh ? 'Playing 4–5' : 'Playing 3–4') : 'Playing'; cls = 'on' }
       else if (on && !want) { text = 'Leaving'; cls = 'wait' }
-      else if (l.id === 'lead' && !on && S.playing && S.state === 'flying' && S.stepNow < S.leadRestUntil) { text = 'Pausing'; cls = 'wait' }
+      else if (l.id === 'lead' && !on && S.playing && inFlight() && S.stepNow < S.leadRestUntil) { text = 'Pausing'; cls = 'wait' }
       else if (!on && want) { text = 'Coming in'; cls = 'wait' }
       setText(el.status, text)
       setAttr(el.status, 'class', `status ${cls}`)
