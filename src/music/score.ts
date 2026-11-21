@@ -17,6 +17,7 @@ export const MUSIC = {
   leadBars: 32,                                                // the lead plays at most this many bars at a stretch (the owner's word)...
   leadPause: 16,                                               // ...then rests this many before starting again from the top
   leadFade: 2,                                                 // and fades out over its last this-many bars (the owner's word)
+  leadLow: -12,                                                // its entries alternate this far down and as written, the lower first (the owner's word)
   restEvery: 16,                                               // a one-bar rest at most once in this many bars, in the last of them
   restAfter: 16,                                               // a layer can rest only after playing this many bars since it came in
   bassFromMission: 2,                                          // from this mission the bass plays from the start, whatever the speed (the owner's word)
@@ -53,11 +54,12 @@ export const BASS = [0, 0, 12, 0, 0, 12, 0, 12]   // eighth notes, semitones abo
 export const ARP = [0, 1, 2, 4, 3, 2, 1, 2]       // eighth notes, into the chord's five notes
 
 /**
- * The lead's melody, as the owner wrote it (2026-11-21): two eight-bar halves over Am–F–C–G, as
+ * The lead's melody, as the owner wrote it (2026-11-21; the first half's last bars rewritten the same day
+ * as four half-bar notes, D5 C5 B4 C5): two eight-bar halves over Am–F–C–G, as
  * [start, note, length], in sixteenths from the half's first bar. The halves are the same on purpose.
  */
 export const MELODY: [number, string, number][][] = [
-  [[0, 'A4', 4], [4, 'C5', 4], [8, 'E5', 24], [32, 'A4', 4], [36, 'C5', 4], [40, 'F5', 24], [64, 'E5', 8], [72, 'G5', 16], [88, 'E5', 8], [96, 'D5', 24], [120, 'B4', 4], [124, 'G4', 4]],
+  [[0, 'A4', 4], [4, 'C5', 4], [8, 'E5', 24], [32, 'A4', 4], [36, 'C5', 4], [40, 'F5', 24], [64, 'E5', 8], [72, 'G5', 16], [88, 'E5', 8], [96, 'D5', 8], [104, 'C5', 8], [112, 'B4', 8], [120, 'C5', 8]],
   [[0, 'A4', 4], [4, 'C5', 4], [8, 'E5', 24], [32, 'A4', 4], [36, 'C5', 4], [40, 'F5', 24], [64, 'E5', 8], [72, 'G5', 16], [88, 'E5', 8], [96, 'D5', 28]],
 ]
 /** A melody note lasts this share of its written length. */
@@ -187,6 +189,9 @@ export function createSequencer(rand: () => number): Sequencer {
   let rest: LayerId | null = null, lastRest: LayerId | null = null
   const since: Partial<Record<LayerId, number>> = {}   // the step each layer last came in
   let leadSince = -1, leadRestUntil = -1          // when the lead came in; until when it rests after a full stretch
+  // The lead alternates octaves from one entry to the next, the lower first (the owner's word, 2026-11-21):
+  // every entry counts, whatever ended the last; a new sequencer (a new run) starts low again.
+  let leadEntries = 0, leadHigh = false
   return {
     gates,
     drop(ids) { for (const id of ids) gates[id] = false },
@@ -206,7 +211,7 @@ export function createSequencer(rand: () => number): Sequencer {
             if (on && gates.lead && s - leadSince === (MUSIC.leadBars - MUSIC.leadFade) * 16) fades.push({ id: 'lead', bars: MUSIC.leadFade })
             // it comes in last: once the arpeggio has been playing, only at the top of a half, and not while resting
             if (on && !gates.lead && (!arpWas || s % HALF !== 0 || s < leadRestUntil)) on = false
-            if (on && !gates.lead) leadSince = s
+            if (on && !gates.lead) { leadSince = s; leadHigh = leadEntries++ % 2 === 1 }
           }
           if (on && !gates[id]) since[id] = s
           if (on !== gates[id]) { gates[id] = on; changes.push({ id, on }) }
@@ -247,7 +252,7 @@ export function createSequencer(rand: () => number): Sequencer {
       }
       if (s16 % 2 === 0 && rest !== 'arp') { const i = s16 / 2; play('arp', [ch.arp[ARP[i]]], '8n', i % 2 ? 0.65 : 1) }
       const tune = melodyAt[Math.floor(s / HALF) % 2].get(s % HALF)   // the lead never rests
-      if (tune) notes.push({ voice: 'lead', notes: [tune.note], semis: sh, dur: 'melody', vel: 0.9, len: tune.len })
+      if (tune) notes.push({ voice: 'lead', notes: [tune.note], semis: sh + (leadHigh ? 0 : MUSIC.leadLow), dur: 'melody', vel: 0.9, len: tune.len })
       return { gates: changes, fades, notes, duck, rest }
     },
   }

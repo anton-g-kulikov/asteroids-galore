@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest'
-import { ARP, BASS, CHORDS, LAYERS, MUSIC, bpmFor, controlFor, createSequencer, slowDepth, wanted, type Mode } from '../../src/music/score'
+import { ARP, BASS, CHORDS, LAYERS, MELODY, MUSIC, bpmFor, controlFor, createSequencer, slowDepth, wanted, type Mode } from '../../src/music/score'
 import { SLOW_TIME } from '../../src/game/tuning'
 
 const plan = (mode: Mode, speed: number, steps: number, rand = () => 0.3, depth = 0) => {
@@ -152,7 +152,8 @@ test('MUS-11 tempo and filters change only when they have moved enough to hear; 
 
 test('MUS-12 the lead plays the melody, and comes in last, from the top of a half', async () => {
   const { MELODY } = await import('../../src/music/score')
-  // the melody: two eight-bar halves of [start, note, length in sixteenths], in G4–G5, each ending within its 128 sixteenths
+  // the melody: two eight-bar halves of [start, note, length in sixteenths], in A4–G5, each ending within its 128 sixteenths
+  expect(MELODY[0].slice(-4)).toEqual([[96, 'D5', 8], [104, 'C5', 8], [112, 'B4', 8], [120, 'C5', 8]])   // the first half ends on four half-bar notes
   expect(MELODY[1][MELODY[1].length - 1]).toEqual([96, 'D5', 28])   // the owner's latest: the second half ends on a held D5
   expect(MELODY).toHaveLength(2)
   for (const half of MELODY) for (const [at, note, len] of half) {
@@ -190,7 +191,7 @@ test('MUS-12 the lead plays the melody, and comes in last, from the top of a hal
   const deep = createSequencer(() => 0.9)
   let note
   for (let s = 0; s <= 128; s++) note = deep.step(s, { mode: 'flying', speed: 2.5, depth: s === 128 ? 1 : 0 }).notes.find(n => n.voice === 'lead')
-  expect(note!.semis).toBe(MUSIC.slow.semis)
+  expect(note!.semis).toBe(MUSIC.slow.semis + MUSIC.leadLow)   // the first entry is the lower octave (MUS-18)
 })
 
 test('MUS-13 the lead plays at most 32 bars, then rests 16 before starting again from the top', () => {
@@ -276,4 +277,29 @@ test('MUS-17 the game-over bass: a note every 6 s on A, F, C, G, at 60 BPM after
   expect(later.filter(p => p === 'bpm')).toEqual([])
   // no layer plays on the game-over screen
   for (const { id } of LAYERS) expect(wanted(id, 'over', 3, true, 4)).toBe(false)
+})
+
+test('MUS-18 the lead alternates octaves from entry to entry, the lower first', () => {
+  const lead = (st: ReturnType<typeof plan>[number]) => st.notes.find(n => n.voice === 'lead')
+  // at a steady 2.5x the lead comes in at 128, 896 and 1664 (MUS-13): low, high, low
+  const steps = plan('flying', 2.5, 1700, () => 0.9)
+  expect(MUSIC.leadLow).toBe(-12)
+  expect([128, 896, 1664].map(s => lead(steps[s])!.semis)).toEqual([-12, 0, -12])
+  expect(lead(steps[128])!.notes).toEqual([MELODY[1][0][1]])          // the same notes, an octave down
+  // every note of an entry is in its octave
+  const first = steps.slice(128, 640).map(lead).filter(Boolean).map(n => n!.semis)
+  expect(new Set(first)).toEqual(new Set([-12]))
+  // slow motion's drop adds to it
+  const slow = createSequencer(() => 0.9)
+  let slowLead: number | undefined
+  for (let s = 0; s <= 128; s++) { const st = slow.step(s, { mode: 'flying', speed: 2.5, depth: s === 128 ? 1 : 0 }); if (s === 128) slowLead = lead(st)!.semis }
+  expect(slowLead).toBe(-12 + MUSIC.slow.semis)
+  // an entry ended by the speed dropping counts too
+  const seq = createSequencer(() => 0.9)
+  const entries: number[] = []
+  for (let s = 0; s < 1200; s++) {
+    const st = seq.step(s, { mode: 'flying', speed: s >= 300 && s < 384 ? 1.5 : 2.5, depth: 0 })
+    if (st.gates.some(g => g.id === 'lead' && g.on)) entries.push(lead(st)!.semis)
+  }
+  expect(entries).toEqual([-12, 0])                                   // in at 128 low, out at 320, back at 512 high
 })
