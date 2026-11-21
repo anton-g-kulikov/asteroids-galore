@@ -172,7 +172,7 @@ test('SFX-09 in v2 a crew member thrown off by a hit has no cue of their own; cr
   t.g.events.push({ kind: 'hit', size: 30, shieldsLeft: 2 }, { kind: 'missed', count: 1 }); frame(t)
   expect(kinds).toEqual(['pad+bass+arp'])                    // the hit's chord alone
   t.g.events.push({ kind: 'missed', count: 1 }); frame(t)
-  expect(kinds.slice(1)).toEqual(['lead'])                   // left behind: the lead's falling note
+  expect(kinds.slice(1)).toEqual(['piano+piano'])            // left behind: two piano notes (SFX-10)
   // before Tone.js has loaded, the first sound effects play both, as before
   const v1 = setup()
   v1.player.unlock()

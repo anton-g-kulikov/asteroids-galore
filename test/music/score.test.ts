@@ -1,5 +1,5 @@
 import { expect, test } from 'vitest'
-import { ARP, BASS, CHORDS, LAYERS, MELODY, MUSIC, bpmFor, controlFor, createSequencer, slowDepth, wanted, type Mode } from '../../src/music/score'
+import { ARP, BASS, CHORDS, INSTRUMENTS, createControlTracker, LAYERS, MELODY, MUSIC, bpmFor, controlFor, createSequencer, slowDepth, wanted, type Mode } from '../../src/music/score'
 import { SLOW_TIME } from '../../src/game/tuning'
 
 const plan = (mode: Mode, speed: number, steps: number, rand = () => 0.3, depth = 0) => {
@@ -47,15 +47,16 @@ test('MUS-03 layers come in by speed, with slack, only at a chord change', () =>
   expect(wanted('bass', 'flying', 1.24, true)).toBe(false)
   expect(['pad', 'bass', 'drums', 'arp', 'lead'].map(id => wanted(id as never, 'results', 4, true))).toEqual([true, false, false, false, false])
   expect(['pad', 'bass', 'drums', 'arp', 'lead'].map(id => wanted(id as never, 'silent', 4, true))).toEqual([false, false, false, false, false])
-  // a run at 2.5x: all but the lead come in on step 0, and gates change at no other step than a chord start
-  const steps = plan('flying', 2.5, 64)
-  expect(steps[0].gates.map(g => g.id).sort()).toEqual(['arp', 'bass', 'drums', 'pad'])
+  // a run at 2.5x: pad, bass and drums come in on step 0, the arpeggio 4 bars later (MUS-19), and gates change at no other step than a chord start
+  const steps = plan('flying', 2.5, 96)
+  expect(steps[0].gates.map(g => g.id).sort()).toEqual(['bass', 'drums', 'pad'])
+  expect(steps[64].gates.map(g => g.id)).toEqual(['arp'])
   steps.forEach((st, s) => { if (s % 32 !== 0) expect(st.gates).toEqual([]) })
   // speed rising mid-chord waits for the next chord
   const seq = createSequencer(() => 0.3)
   seq.step(0, { mode: 'flying', speed: 1, depth: 0 })
   for (let s = 1; s < 32; s++) expect(seq.step(s, { mode: 'flying', speed: 2, depth: 0 }).gates).toEqual([])
-  expect(seq.step(32, { mode: 'flying', speed: 2, depth: 0 }).gates.map(g => g.id).sort()).toEqual(['arp', 'bass', 'drums'])
+  expect(seq.step(32, { mode: 'flying', speed: 2, depth: 0 }).gates.map(g => g.id).sort()).toEqual(['bass', 'drums'])   // the arpeggio waits for 4 bars of drums
 })
 
 test('MUS-04 a one-bar rest at most once in 16 bars, in the last, for a layer that has played 16 bars, never twice running', () => {
@@ -117,7 +118,7 @@ test('MUS-11 tempo and filters change only when they have moved enough to hear; 
   expect(ramps).toEqual(['padCutoff'])
   // the tempo moves only in steps of 0.5 BPM or more, over 0.5 s, with the echo
   const first = t.update(10, 'flying', 1.05)
-  expect(first.map(r => r.param).sort()).toEqual(['arpDelay', 'bpm', 'leadDelay', 'padCutoff'])
+  expect(first.map(r => r.param).sort()).toEqual(['arpDelay', 'bpm', 'leadEcho', 'leadHall', 'padCutoff'])   // the echoes follow the tempo (MUS-22)
   expect(first.find(r => r.param === 'bpm')).toEqual({ param: 'bpm', to: bpmFor(1.05), over: 0.5, at: 10 })
   expect(t.update(10.1, 'flying', 1.07).filter(r => r.param === 'bpm')).toEqual([])   // 0.28 BPM: not yet
   // slow motion: two ramps each for tempo and the master low-pass, and nothing else until it ends
@@ -169,10 +170,10 @@ test('MUS-12 the lead plays the melody, and comes in last, from the top of a hal
   // at 2.5x from the start the arpeggio comes in on step 0, so the lead waits for the next half: step 128
   const fast = plan('flying', 2.5, 300, () => 0.9)
   expect(leadAt(fast).findIndex(x => x === true)).toBe(128)
-  // the half follows the loop, as in the sketch: step 128 starts the second half, step 256 the first again
+  // the melody starts from its first bar when the lead comes in (MUS-21)
   const lead = (st: ReturnType<typeof plan>[number]) => st.notes.find(n => n.voice === 'lead')
-  expect(lead(fast[128])).toMatchObject({ notes: [MELODY[1][0][1]], len: MELODY[1][0][2], dur: 'melody' })
-  expect(lead(fast[256])).toMatchObject({ notes: [MELODY[0][0][1]], len: MELODY[0][0][2] })
+  expect(lead(fast[128])).toMatchObject({ notes: [MELODY[0][0][1]], len: MELODY[0][0][2], dur: 'melody' })
+  expect(lead(fast[0])).toBeUndefined()                               // and plays nothing while it is out
   // below 2.2x: no lead, however long
   expect(leadAt(plan('flying', 2.1, 600, () => 0.9)).includes(true)).toBe(false)
   // the arpeggio must have been playing since an earlier chord change: here it comes in on step 0,
@@ -191,7 +192,7 @@ test('MUS-12 the lead plays the melody, and comes in last, from the top of a hal
   const deep = createSequencer(() => 0.9)
   let note
   for (let s = 0; s <= 128; s++) note = deep.step(s, { mode: 'flying', speed: 2.5, depth: s === 128 ? 1 : 0 }).notes.find(n => n.voice === 'lead')
-  expect(note!.semis).toBe(MUSIC.slow.semis + MUSIC.leadLow)   // the first entry is the lower octave (MUS-18)
+  expect(note!.semis).toBe(MUSIC.slow.semis + MUSIC.leadTurns[0].semis)   // the first entry is the first turn (MUS-18)
 })
 
 test('MUS-13 the lead plays at most 32 bars, then rests 16 before starting again from the top', () => {
@@ -279,27 +280,119 @@ test('MUS-17 the game-over bass: a note every 6 s on A, F, C, G, at 60 BPM after
   for (const { id } of LAYERS) expect(wanted(id, 'over', 3, true, 4)).toBe(false)
 })
 
-test('MUS-18 the lead alternates octaves from entry to entry, the lower first', () => {
+test('MUS-18 the lead takes a turn for each time the melody is played through: low with the long reverb, then higher with the longer echo twice', () => {
+  expect(MUSIC.leadTurns).toEqual([{ semis: -24, fx: 'hall' }, { semis: -12, fx: 'echo' }, { semis: -12, fx: 'echo' }])
   const lead = (st: ReturnType<typeof plan>[number]) => st.notes.find(n => n.voice === 'lead')
-  // at a steady 2.5x the lead comes in at 128, 896 and 1664 (MUS-13): low, high, low
-  const steps = plan('flying', 2.5, 1700, () => 0.9)
-  expect(MUSIC.leadLow).toBe(-12)
-  expect([128, 896, 1664].map(s => lead(steps[s])!.semis)).toEqual([-12, 0, -12])
-  expect(lead(steps[128])!.notes).toEqual([MELODY[1][0][1]])          // the same notes, an octave down
-  // every note of an entry is in its octave
-  const first = steps.slice(128, 640).map(lead).filter(Boolean).map(n => n!.semis)
-  expect(new Set(first)).toEqual(new Set([-12]))
+  // at a steady 2.5x the lead comes in at 128, 896, 1664, 2432 (MUS-13), each stretch two passes of 256:
+  // the passes take turns 1 2 | 3 1 | 2 3 | 1 2
+  const steps = plan('flying', 2.5, 2700, () => 0.9)
+  const passes = [128, 384, 896, 1152, 1664, 1920, 2432, 2688]
+  expect(passes.map(s => `${lead(steps[s])!.semis} ${lead(steps[s])!.fx}`)).toEqual([
+    '-24 hall', '-12 echo', '-12 echo', '-24 hall', '-12 echo', '-12 echo', '-24 hall', '-12 echo',
+  ])
+  // every note of a pass is in its turn
+  expect(new Set(steps.slice(128, 384).map(lead).filter(Boolean).map(n => n!.fx))).toEqual(new Set(['hall']))
+  expect(new Set(steps.slice(384, 640).map(lead).filter(Boolean).map(n => n!.fx))).toEqual(new Set(['echo']))
+  // never as written any more
+  expect(steps.map(lead).filter(Boolean).some(n => n!.semis === 0)).toBe(false)
   // slow motion's drop adds to it
   const slow = createSequencer(() => 0.9)
   let slowLead: number | undefined
   for (let s = 0; s <= 128; s++) { const st = slow.step(s, { mode: 'flying', speed: 2.5, depth: s === 128 ? 1 : 0 }); if (s === 128) slowLead = lead(st)!.semis }
-  expect(slowLead).toBe(-12 + MUSIC.slow.semis)
-  // an entry ended by the speed dropping counts too
+  expect(slowLead).toBe(-24 + MUSIC.slow.semis)
+  // a pass cut short by the speed dropping counts as played: the next entry takes the next turn
   const seq = createSequencer(() => 0.9)
-  const entries: number[] = []
+  const entries: string[] = []
   for (let s = 0; s < 1200; s++) {
     const st = seq.step(s, { mode: 'flying', speed: s >= 300 && s < 384 ? 1.5 : 2.5, depth: 0 })
-    if (st.gates.some(g => g.id === 'lead' && g.on)) entries.push(lead(st)!.semis)
+    if (st.gates.some(g => g.id === 'lead' && g.on)) entries.push(lead(st)!.fx!)
   }
-  expect(entries).toEqual([-12, 0])                                   // in at 128 low, out at 320, back at 512 high
+  expect(entries).toEqual(['hall', 'echo'])                           // in at 128, out at 320 mid-pass, back at 512 on turn 2
+})
+
+test('MUS-21 the melody starts from its first bar when the lead comes in, so the fade falls on its last two bars', () => {
+  const lead = (st: ReturnType<typeof plan>[number]) => st.notes.find(n => n.voice === 'lead')
+  // entering at 128 (the top of the loop's second half): the first half from 128, the second from 256, then the first again
+  const steps = plan('flying', 2.5, 700, () => 0.9)
+  const heard = steps.flatMap((st, s) => { const n = lead(st); return n ? [[s, n.notes[0], n.len]] : [] })
+  const want = [0, 1, 0, 1].flatMap((half, k) => MELODY[half].map(([at, note, len]) => [128 + k * 128 + at, note, len]))
+  expect(heard).toEqual(want.filter(([s]) => (s as number) < 640))
+  // the 32 bars are the melody twice through, and the two-bar fade starts at its bar 15 the second time
+  const fade = steps.findIndex(st => st.fades.length > 0)
+  expect(fade).toBe(128 + 256 + 14 * 16)
+  // on the start screen too, where the lead always comes in at step 128
+  const menu = plan('menu', 1, 300, () => 0.9)
+  expect(lead(menu[128])!.notes).toEqual([MELODY[0][0][1]])
+  expect(menu.slice(128, 256).flatMap(st => { const n = lead(st); return n ? [n.notes[0]] : [] }).slice(-4)).toEqual(['D5', 'C5', 'B4', 'C5'])   // the first half's ending
+})
+
+test('MUS-22 the piano\'s echoes keep time with the music: three quarters of a beat and one and a half beats', () => {
+  expect([INSTRUMENTS.leadFx.hall.beats, INSTRUMENTS.leadFx.echo.beats]).toEqual([0.75, 1.5])
+  expect(INSTRUMENTS.leadFx.hall.delay.maxDelay).toBeGreaterThanOrEqual(2.5)
+  expect(INSTRUMENTS.leadFx.echo.delay.maxDelay).toBeGreaterThanOrEqual(2.5)
+  expect(60 / 60 * 1.5).toBeLessThanOrEqual(2.5)                     // room for the longer echo at the slowest tempo (the game-over 60 BPM)
+  const t = createControlTracker()
+  t.reset(1)
+  const ramps = t.update(1, 'flying', 2)                              // 96 to 110 BPM
+  expect(ramps.find(r => r.param === 'leadHall')).toEqual({ param: 'leadHall', to: 60 / 110 * 0.75, over: 0.5, at: 1 })
+  expect(ramps.find(r => r.param === 'leadEcho')).toEqual({ param: 'leadEcho', to: 60 / 110 * 1.5, over: 0.5, at: 1 })
+  expect(t.update(1.1, 'flying', 2.01).filter(r => r.param.startsWith('lead'))).toEqual([])   // on the tempo's 0.5 BPM steps only
+})
+
+test('MUS-19 the drums play 4 bars before the arpeggio comes in, the arpeggio 4 before the lead', () => {
+  expect(MUSIC.layerWait).toBe(4)
+  const entries = (steps: ReturnType<typeof plan>) => {
+    const at: Record<string, number> = {}
+    steps.forEach((st, s) => st.gates.forEach(g => { if (g.on && at[g.id] === undefined) at[g.id] = s }))
+    return at
+  }
+  // at full speed from the first step: drums at bar 1, arpeggio at bar 5, lead at bar 9 (the top of the second half)
+  const full = entries(plan('flying', 2.8, 300, () => 0.9))
+  expect([full.drums, full.arp, full.lead]).toEqual([0, 64, 128])
+  // speeding up past the arpeggio's speed just after the drums came in: the arpeggio still waits its 4 bars
+  const seq = createSequencer(() => 0.9)
+  const at: Record<string, number> = {}
+  for (let s = 0; s < 600; s++) {
+    const speed = s < 32 ? 1.8 : 2.4                       // drums in at 0; past 2.0 from the next chord change
+    for (const g of seq.step(s, { mode: 'flying', speed, depth: 0 }).gates) if (g.on && at[g.id] === undefined) at[g.id] = s
+  }
+  expect(at.drums).toBe(0)
+  expect(at.arp).toBe(64)                                  // not at 32: the drums had played only 2 bars
+  expect(at.lead! - at.arp!).toBeGreaterThanOrEqual(64)
+  // every entry, over a long run with the speed going up and down, keeps both gaps
+  const run = createSequencer(() => 0.5)
+  const since: Record<string, number> = {}
+  for (let s = 0; s < 6000; s++) {
+    const speed = 1.5 + 1.4 * Math.abs(Math.sin(s / 700))
+    for (const g of run.step(s, { mode: 'flying', speed, depth: 0 }).gates) {
+      if (!g.on) { delete since[g.id]; continue }
+      if (g.id === 'arp') expect(s - since.drums).toBeGreaterThanOrEqual(64)
+      if (g.id === 'lead') expect(s - since.arp).toBeGreaterThanOrEqual(64)
+      since[g.id] = s
+    }
+  }
+})
+
+test('MUS-15 the start screen: every layer at 96 BPM with the pad as bright as at 2x, each waiting its turn, the first turn first', () => {
+  expect([MUSIC.menuSpeed, MUSIC.menuBpm]).toEqual([2, 96])
+  expect(controlFor('menu', 1, 0).padCutoff).toBe(controlFor('flying', 2, 0).padCutoff)   // the pad's filter of 2x, whatever the game's speed
+  expect(controlFor('menu', 3, 0).bpm).toBe(96)                                            // its own tempo
+  expect(controlFor('menu', 1, 1).bpm).toBeCloseTo(96 * MUSIC.slow.tempo)
+  for (const { id } of LAYERS) expect(wanted(id, 'menu', 1, false)).toBe(true)
+  const steps = plan('menu', 1, 1200, () => 0.9)
+  const changes = steps.flatMap((st, s) => st.gates.map(g => [s, g.id, g.on]))
+  expect(changes.slice(0, 5)).toEqual([[0, 'pad', true], [0, 'bass', true], [0, 'drums', true], [64, 'arp', true], [128, 'lead', true]])
+  expect(changes[5]).toEqual([640, 'lead', false])                                         // its 32 bars, then the pause, as in a run
+  expect(steps[128].notes.find(n => n.voice === 'lead')).toMatchObject({ semis: -24, fx: 'hall' })   // the first turn first
+  expect(steps.some(st => st.notes.some(n => n.voice === 'hat' && n.vel < 0.5))).toBe(false)   // no sixteenth hats: they follow the run's speed
+  // a run starting from it: the run's speed decides again, and the layers leave at the next chord change
+  const seq = createSequencer(() => 0.9)
+  for (let s = 0; s < 200; s++) seq.step(s, { mode: 'menu', speed: 1, depth: 0 })
+  const left = [...Array(64)].flatMap((_, i) => seq.step(200 + i, { mode: 'flying', speed: 1, depth: 0 }).gates)
+  expect(left.filter(g => !g.on).map(g => g.id).sort()).toEqual(['arp', 'bass', 'drums', 'lead'])
+})
+
+test('MUS-20 the piano lead sits under the bass: body at -4 dB, hammer at -10', () => {
+  expect([INSTRUMENTS.pianoBody.volume, INSTRUMENTS.pianoHammer.volume]).toEqual([-4, -10])
+  expect([INSTRUMENTS.leadFx.hall.trim, INSTRUMENTS.leadFx.echo.trim]).toEqual([0, 1])
 })

@@ -2,7 +2,7 @@ import * as Tone from 'tone'
 import type { MusicEngine } from './conductor'
 import {
   INSTRUMENTS as I, LAYERS, MELODY_LENGTH, MUSIC, SEND, controlFor, createControlTracker, endBassStep, createSequencer,
-  type LayerId, type Mode, type Note, type Ramp, type Sequencer,
+  type LayerId, type LeadFx, type Mode, type Note, type Ramp, type Sequencer,
 } from './score'
 
 // The music, made by Tone.js. This is the only file that imports it, and it is
@@ -47,11 +47,20 @@ export function createMusicEngine(context: AudioContext): MusicEngine & { inspec
   // Arpeggio: a narrow pulse with a dotted-eighth echo.
   const arpDelay = new Tone.FeedbackDelay(I.arpDelay).connect(gate.arp)
   const arp = new Tone.Synth(I.arp as Partial<Tone.SynthOptions>).connect(new Tone.Filter(I.arpLowpass, 'lowpass').connect(arpDelay))
-  // Lead: a slow melody on top, with glide, vibrato and a quarter-note echo.
-  const leadDelay = new Tone.FeedbackDelay(I.leadDelay).connect(gate.lead)
-  const leadVibrato = new Tone.Vibrato(I.leadVibrato).connect(leadDelay)
-  const leadFilter = new Tone.Filter(I.leadFilter as Partial<Tone.FilterOptions>).connect(leadVibrato)
-  const lead = new Tone.MonoSynth(I.lead as Partial<Tone.MonoSynthOptions>).connect(leadFilter)
+  // Lead: a slow melody on top, on a piano, through one of two sets of effects by turn. Both are built
+  // now, as the music loads (their reverbs take a moment to build), and both stay up, so one turn's
+  // tail rings on while the next plays.
+  const piano = {} as Record<LeadFx, { body: Tone.PolySynth; hammer: Tone.PolySynth; delay: Tone.FeedbackDelay }>
+  for (const fx of ['hall', 'echo'] as const) {
+    const f = I.leadFx[fx]
+    const verb = new Tone.Reverb(f.reverb).connect(new Tone.Gain(Tone.dbToGain(f.trim)).connect(gate.lead))
+    const delay = new Tone.FeedbackDelay(f.delay).connect(verb)
+    piano[fx] = {
+      body: new Tone.PolySynth(Tone.Synth, I.pianoBody as unknown as Partial<Tone.SynthOptions>).connect(delay),
+      hammer: new Tone.PolySynth(Tone.FMSynth, I.pianoHammer as unknown as Partial<Tone.FMSynthOptions>).connect(delay),
+      delay,
+    }
+  }
 
   // The game-over screen's bass: its own voice and echo, after the fade, so it plays while the
   // loop is faded out; before the music switch, which governs it like the rest of the music.
@@ -89,7 +98,10 @@ export function createMusicEngine(context: AudioContext): MusicEngine & { inspec
       case 'snareBody': snareBody.triggerAttackRelease(hz(n.notes[0], n.semis), n.dur, time); break
       case 'hat': hat.triggerAttackRelease(n.dur, time, n.vel); break
       case 'arp': arp.triggerAttackRelease(hz(n.notes[0], n.semis), n.dur, time, n.vel); break
-      case 'lead': lead.triggerAttackRelease(hz(n.notes[0], n.semis), (n.len ?? 4) * 15 / T.bpm.value * MELODY_LENGTH, time, n.vel); break
+      case 'lead': {
+        const p = piano[n.fx ?? 'hall'], f = hz(n.notes[0], n.semis), d = (n.len ?? 4) * 15 / T.bpm.value * MELODY_LENGTH
+        p.body.triggerAttackRelease(f, d, time, n.vel); p.hammer.triggerAttackRelease(f, d, time, n.vel); break
+      }
     }
   }
 
@@ -115,7 +127,8 @@ export function createMusicEngine(context: AudioContext): MusicEngine & { inspec
     for (const r of ramps) {
       if (r.param === 'bpm') T.bpm.rampTo(r.to, r.over, r.at)
       else if (r.param === 'arpDelay') arpDelay.delayTime.rampTo(r.to, r.over, r.at)
-      else if (r.param === 'leadDelay') leadDelay.delayTime.rampTo(r.to, r.over, r.at)
+      else if (r.param === 'leadHall') piano.hall.delay.delayTime.rampTo(r.to, r.over, r.at)
+      else if (r.param === 'leadEcho') piano.echo.delay.delayTime.rampTo(r.to, r.over, r.at)
       else if (r.param === 'padCutoff') padFilter.frequency.rampTo(r.to, r.over, r.at)
       else masterLP.frequency.rampTo(r.to, r.over, r.at)
     }
@@ -132,8 +145,11 @@ export function createMusicEngine(context: AudioContext): MusicEngine & { inspec
       padPump.gain.value = 1; bassPump.gain.value = 1
       T.stop()
       T.bpm.cancelScheduledValues(0)
-      T.bpm.value = controlFor(at.mode, at.speed, 0).bpm      // a drone on the start screen starts at its own tempo
+      T.bpm.value = controlFor(at.mode, at.speed, 0).bpm      // starting at the tempo of what it starts with, not ramping to it
       tracker.reset(at.speed, at.mode)
+      const beat = 60 / T.bpm.value                // the echoes on the beat from the first bar
+      arpDelay.delayTime.value = beat * 0.75
+      for (const fx of ['hall', 'echo'] as const) piano[fx].delay.delayTime.value = beat * I.leadFx[fx].beats
       T.position = 0; step = 0
       T.start(Tone.now() + 0.08)
       playing = true

@@ -34,8 +34,8 @@ export interface Conductor {
   readonly on: boolean
   toggle(): void
   /**
-   * A tap on the note. On the start screen it starts the drone, switching the
-   * music on if it was off, and switches it off only once the drone is playing.
+   * A tap on the note. On the start screen it starts the whole soundtrack, switching the
+   * music on if it was off, and switches it off only once it is playing.
    * Elsewhere it toggles.
    */
   press(g: Game): void
@@ -47,16 +47,17 @@ export interface Conductor {
   chord(): number
 }
 
-// The start screen plays the drone (the pad alone, as between missions) once the note has been tapped there.
-const modeOf = (g: Game, drone: boolean): Mode =>
+// The start screen plays every layer, at MUSIC.menuBpm, once the note has been tapped there.
+const modeOf = (g: Game, menuMusic: boolean): Mode =>
   g.state === 'play' || g.state === 'launch' ? 'flying'
-    : g.state === 'between' || (g.state === 'menu' && drone) ? 'results'
+    : g.state === 'menu' && menuMusic ? 'menu'
+    : g.state === 'between' ? 'results'
     : g.state === 'over' ? 'over'
     : 'silent'
 
 /**
  * Follows the game for the music: silent on the start screen until the note
- * is tapped there, then the drone; started by the fly-in of a run, the pad between missions, faded by a lost ship into the
+ * is tapped there, then the whole soundtrack; started by the fly-in of a run, the pad between missions, faded by a lost ship into the
  * game-over screen's bass (cut by the next run), stopped by the way home. It
  * only reads the game: its state, speed, slow motion and the events the
  * sound effects also hear.
@@ -66,7 +67,7 @@ export function createConductor(storage: Pick<Storage, 'getItem' | 'setItem'> | 
   try { on = storage?.getItem(MUSIC_KEY) !== '0' } catch { /* storage blocked: on */ }
   let engine: MusicEngine | null = null
   let started = false
-  let drone = false                           // the note was tapped on the start screen
+  let menuMusic = false                           // the note was tapped on the start screen: play it there
   let slowmo = 0                               // the game's slow motion last frame, to see it start
   let last: { mode: Mode; speed: number; depth: number; level: number } = { mode: 'silent', speed: 1, depth: 0, level: 1 }
 
@@ -87,8 +88,8 @@ export function createConductor(storage: Pick<Storage, 'getItem' | 'setItem'> | 
     toggle,
     press(g) {
       if (g.state !== 'menu') return toggle()
-      if (!on || drone) toggle()
-      drone = true
+      if (!on || menuMusic) toggle()
+      menuMusic = true
     },
     chord: () => (engine && on && started ? engine.chord() : 0),
     attach(e) {
@@ -104,7 +105,7 @@ export function createConductor(storage: Pick<Storage, 'getItem' | 'setItem'> | 
         if (e.kind === 'home') { engine.stop(MUSIC.stopHome); started = false }
       }
       const was = last.mode
-      last = { mode: modeOf(g, drone), speed: g.speed, depth: g.state === 'play' ? slowDepth(g.slowmo) : 0, level: g.level }
+      last = { mode: modeOf(g, menuMusic), speed: g.speed, depth: g.state === 'play' ? slowDepth(g.slowmo) : 0, level: g.level }
       if (last.mode === 'silent') started = false
       if (was === 'over' && last.mode === 'flying') started = false   // a new run cuts the game-over bass and starts the loop again
       follow()

@@ -130,21 +130,21 @@ test('SFX-07 the effects follow the music\'s chord, or A minor when there is non
   expect(t.c.chord()).toBe(0)                                  // the music switched off
 })
 
-test('MUS-15 on the start screen the note starts the drone', () => {
+test('MUS-15 on the start screen the note starts the whole soundtrack, at the tempo of 2x', () => {
   const t = setup()
   t.c.attach(t.e.engine)
   t.frame()
   expect(t.e.calls).toEqual(['on true'])                       // silent until the note is tapped
   t.c.press(t.g); t.frame()
-  expect(t.c.on).toBe(true)                                    // a tap that starts the drone does not switch it off
+  expect(t.c.on).toBe(true)                                    // a tap that starts the music does not switch it off
   expect(t.e.calls.slice(-1)).toEqual(['start'])
-  expect(t.e.last()).toBe('results 1 0')                       // the pad alone, as between missions
+  expect(t.e.last()).toBe('menu 1 0')                          // the start screen's own mode: every layer at 2x's tempo (score.test MUS-15)
   t.c.press(t.g); t.frame()
   expect(t.c.on).toBe(false)                                   // while it plays, the note switches the music off
   expect(t.e.calls.slice(-1)).toEqual(['on false'])
   t.c.press(t.g); t.frame()
   expect(t.c.on).toBe(true)
-  // the drone carries on into the run: the loop is not started again
+  // it carries on into the run, the layers leaving as the speed drops: the loop is not started again
   t.g.state = 'launch'; t.frame()
   expect(t.e.last()).toBe('flying 1 0')
   t.g.state = 'play'; t.frame()

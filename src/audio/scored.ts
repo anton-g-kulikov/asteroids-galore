@@ -7,7 +7,7 @@ import { CHORDS } from '../music/score'
 // audio: it says which instrument plays which notes, when, for how long and
 // how loud. src/music/effects.ts plays them with Tone.js.
 
-export type FxVoice = 'bell' | 'pad' | 'bass' | 'kick' | 'snare' | 'hat' | 'arp' | 'lead'
+export type FxVoice = 'bell' | 'pad' | 'bass' | 'kick' | 'snare' | 'hat' | 'arp' | 'lead' | 'piano'
 
 /** One instrument's part in a sound. Times in seconds from now; MIDI note numbers; `len` may be a Tone.js length. */
 export interface FxNote {
@@ -23,6 +23,9 @@ export interface FxNote {
 
 /** A whole sound. `cut` stops whatever is still playing first. */
 export interface FxPlan { notes: FxNote[]; cut: boolean }
+
+/** Crew left behind (2026-11-21, the owner: "sad piano notes"): falling half and whole steps down the A-minor scale. */
+export const SIGHS: [string, string][] = [['F5', 'E5'], ['D5', 'C5'], ['B4', 'A4']]
 
 /** The rock sizes a hit scales between, as for the first sound effects. */
 export const HIT_V2 = { small: 14, big: 50 }
@@ -58,10 +61,11 @@ export function scoredFor(e: SoundEvent, chord: number, semis: number): FxPlan {
         note('pad', voicing.map(m => m + 12 + semis), 0.12, 0.5, 0.9, { afterBell: true }),
         note('lead', [root(81)], 0.17, 0.6, 0.6, { afterBell: true }),
       ])
-    case 'missed': {                                   // the lead sighs from the chord's fifth down to its root
-      const f = fifth(76)
-      return plan(Array.from({ length: e.count }, (_, i) => note('lead', [f], ms(i * 0.12), 0.3, 0.9, { slideTo: f - 7 })))
-    }
+    case 'missed':                                     // two sad piano notes each, stepping down the scale; fixed in the key
+      return plan(Array.from({ length: e.count }, (_, i) => {
+        const [hi, lo] = SIGHS[i % 3].map(n => noteMidi(n) - 12 * Math.floor(i / 3) + semis), t = ms(i * 0.32)
+        return [note('piano', [hi], t, 0.2, 0.85), note('piano', [lo], ms(t + 0.16), 0.7, 0.65)]
+      }).flat())
     case 'hit': {                                      // a chord apart from the drums: lower, longer and louder for a bigger rock
       const k = Math.max(0, Math.min(1, (e.size - HIT_V2.small) / (HIT_V2.big - HIT_V2.small)))
       const r = root(lerp(k, 52, 45)), len = ms(lerp(k, 0.2, 0.45)), c = root(93)
@@ -127,13 +131,13 @@ export function scoredPulse(gain: number, chord: number, semis: number): FxPlan 
 /**
  * When each instrument may start: never two notes at the same instant on one
  * instrument (Tone.js refuses), at least 30 ms apart, and 60 ms for the save's
- * bell so saves at once roll. The pad plays chords, so it needs no spacing.
+ * bell so saves at once roll. The pad and the piano play chords, so they need no spacing.
  */
 export function createSlots() {
   const last = new Map<FxVoice, number>()
   return {
     start(voice: FxVoice, t: number): number {
-      if (voice === 'pad') return t
+      if (voice === 'pad' || voice === 'piano') return t   // they play chords and overlapping notes
       const gap = voice === 'bell' ? 0.06 : 0.03
       const at = Math.max(t, (last.get(voice) ?? -Infinity) + gap)
       last.set(voice, at)

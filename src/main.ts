@@ -19,6 +19,7 @@ import { timeScale } from './game/timeScale'
 import { STEP } from './game/tuning'
 import { boardButtonRect, hasBoard, shareButtonRect } from './render/hud'
 import { render } from './render/render'
+import { browserFullscreen, createFullscreenKeeper } from './pwa/fullscreen'
 import type { Updater } from './pwa/updates'
 
 const canvas = document.getElementById('game') as HTMLCanvasElement
@@ -72,6 +73,9 @@ let updater: Updater | null = null
 if (import.meta.env.PROD && 'serviceWorker' in navigator) {
   import('./pwa/register').then(m => { updater = m.startServiceWorker() })
 }
+
+// Installed as an app: the first tap covers the whole screen (see pwa/fullscreen.ts).
+const fullscreen = createFullscreenKeeper(browserFullscreen())
 
 // ---------- Layout ----------
 // The play field never changes shape: the window only decides how big it is drawn.
@@ -146,6 +150,7 @@ window.addEventListener('pointerdown', e => {
   e.preventDefault()
   sound.unlock()
   loadMusic()
+  fullscreen.tap()
   // the music switch: only a switch, not a start or a choice
   if (onMusicButton(game, (e.clientX - view.x) / view.scale, (e.clientY - view.y) / view.scale, canPlaySound)) { music.press(game); return }
   // the frame-rate switch: only a switch, not a start
@@ -182,6 +187,7 @@ const sideOf = (key: string) =>
 window.addEventListener('keydown', e => {
   sound.unlock()
   loadMusic()
+  fullscreen.tap()
   if (e.key === 'm' || e.key === 'M') { if (!e.repeat) sound.toggleMute(); return }   // the sound effects
   if (e.key === 'n' || e.key === 'N') { if (!e.repeat) music.press(game); return }   // the music: on the start screen, the drone
   if (e.key === 'Escape') { closeBoard(); return }

@@ -17,10 +17,10 @@ test('SFX-01 every event on the soundtrack\'s instruments, as in the sketch', ()
   const full = scoredFor({ kind: 'full' }, AM, 0)
   expect(by(full.notes, 'pad')).toEqual([{ voice: 'pad', midi: pad.map(m => m + 12), at: 0.12, len: 0.5, vel: 0.9, afterBell: true }])
   expect(by(full.notes, 'lead')).toEqual([{ voice: 'lead', midi: [81], at: 0.17, len: 0.6, vel: 0.6, afterBell: true }])
-  // missed: the lead slides a fifth down, one after another
-  expect(scoredFor({ kind: 'missed', count: 2 }, AM, 0).notes).toEqual([
-    { voice: 'lead', midi: [76], slideTo: 69, at: 0, len: 0.3, vel: 0.9 },
-    { voice: 'lead', midi: [76], slideTo: 69, at: 0.12, len: 0.3, vel: 0.9 },
+  // missed: two piano notes per crew member, stepping down the scale (SFX-10)
+  expect(scoredFor({ kind: 'missed', count: 1 }, AM, 0).notes).toEqual([
+    { voice: 'piano', midi: [77], at: 0, len: 0.2, vel: 0.85 },
+    { voice: 'piano', midi: [76], at: 0.16, len: 0.7, vel: 0.65 },
   ])
   // last shield: two arpeggio notes falling a fifth, after the shield's crack (SFX-08)
   expect(by(scoredFor({ kind: 'hit', size: 30, shieldsLeft: 0 }, AM, 0).notes, 'arp').slice(1)).toEqual([
@@ -64,7 +64,7 @@ test('SFX-03 the notes follow the chord, in the octave nearest the target', () =
   const shield = (chord: number) => scoredFor({ kind: 'shield' }, chord, 0).notes[0].midi[0]
   expect([shield(AM), shield(F), shield(C), shield(G)]).toEqual([69, 65, 72, 67])      // root nearest A4: A4, F4, C5, G4
   const missed = (chord: number) => scoredFor({ kind: 'missed', count: 1 }, chord, 0).notes[0].midi[0]
-  expect([missed(AM), missed(F), missed(C), missed(G)]).toEqual([76, 72, 79, 74])      // fifth nearest E5: E5, C5, G5, D5
+  expect([missed(AM), missed(F), missed(C), missed(G)]).toEqual([77, 77, 77, 77])      // crew left behind is fixed in the key (SFX-10)
   expect(scoredFor({ kind: 'save', seat: 1, seats: 4 }, G, 0).notes[0].midi).toEqual(['G3', 'B3', 'D4', 'G4'].map(m => noteMidi(m) + 12))
   expect(scoredFor({ kind: 'enter' }, C, 0).notes.filter(n => n.voice === 'arp').map(n => n.midi[0]).slice(0, 4)).toEqual([60, 64, 67, 72])   // root nearest A3 is C4, then C major's E, G, C
 })
@@ -120,4 +120,27 @@ test('SFX-09 the ship destroyed is the biggest hit, held', () => {
     { voice: 'bass', midi: [33], slideTo: 21, at: 0, len: 1.1, vel: 0.8 },
   ] })
   expect(scoredFor({ kind: 'destroyed' }, F, 0).notes[0].midi).toEqual([41, 48, 53])
+})
+
+test('SFX-10 crew left behind: two sad piano notes each, stepping down the scale', () => {
+  const pairs = (count: number, semis = 0) => {
+    const n = scoredFor({ kind: 'missed', count }, AM, semis).notes
+    return Array.from({ length: count }, (_, i) => [n[2 * i].midi[0], n[2 * i + 1].midi[0], n[2 * i].at, n[2 * i + 1].at])
+  }
+  const m = noteMidi
+  expect(pairs(4)).toEqual([
+    [m('F5'), m('E5'), 0, 0.16],
+    [m('D5'), m('C5'), 0.32, 0.48],
+    [m('B4'), m('A4'), 0.64, 0.8],
+    [m('F4'), m('E4'), 0.96, 1.12],                                    // a fourth starts again an octave down
+  ])
+  for (const n of scoredFor({ kind: 'missed', count: 2 }, AM, 0).notes) expect(n.voice).toBe('piano')
+  const [first, second] = scoredFor({ kind: 'missed', count: 1 }, AM, 0).notes
+  expect([first.len, first.vel, second.len, second.vel]).toEqual([0.2, 0.85, 0.7, 0.65])
+  // the same over every chord, and lowered in slow motion by whole semitones
+  for (const chord of [AM, F, C, G]) expect(scoredFor({ kind: 'missed', count: 3 }, chord, 0)).toEqual(scoredFor({ kind: 'missed', count: 3 }, AM, 0))
+  expect(pairs(1, -5)[0].slice(0, 2)).toEqual([m('F5') - 5, m('E5') - 5])
+  // the piano plays chords and overlapping notes: it needs no spacing
+  const slots = createSlots()
+  expect([slots.start('piano', 1), slots.start('piano', 1)]).toEqual([1, 1])
 })

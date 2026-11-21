@@ -108,7 +108,10 @@ function nextLevel(g: Game, ship: number): void {
   g.spawnTimer = Math.max(g.spawnTimer, 1.2)    // short breather
   g.rescueTimer = 4
   buzz([40, 60, 40])
-  setState(g, 'launch')                         // the ship flies in from below, as at the start of a run
+  // the ship flies in from below, as at the start of a run: at the centre and straight, nothing kept from the last mission
+  g.ship.x = g.W / 2; g.ship.vx = 0
+  g.wells = [newWell(g, g.ship.x)]
+  setState(g, 'launch')
   g.ship.y = launchY(g, 0)
 }
 

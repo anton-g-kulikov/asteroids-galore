@@ -606,7 +606,7 @@ The chord is the one the music is playing at that moment; with the music not loa
 |---|---|
 | Crew saved | The chord itself on the bell, 0.22 s, one inversion higher for each seat. The 4- and 8-seaters start an octave above the pad, the 12-seater at the pad's octave, so every ship's last seat ends near the same top. Several at once roll 60 ms apart |
 | Ship full | The pad plays the chord's voicing an octave up for 0.5 s, and the lead holds the root on top for 0.6 s. It starts 0.12 s after the last save |
-| Crew left behind | The lead sighs from the chord's fifth down to its root over 0.3 s; several are 0.12 s apart. A crew member thrown off by a hit has no cue of their own since 2026-11-21: the hit's chord marks it (they still count as missed) |
+| Crew left behind | Since 2026-11-21, "sad piano notes" (the owner): for each crew member two notes on the lead's piano (its own instance on the effects' output, −3 dB, a 0.5 send to their reverb, no echo), the first for 0.2 s, the second 0.16 s later and held 0.7 s, a step lower; the pairs step down the A-minor scale, F5–E5, D5–C5, B4–A4, a fourth starting again an octave lower, 0.32 s apart. Fixed in the key, not the chord: the falling half step sits over all four. Each event starts again from F–E. A crew member thrown off by a hit has no cue of their own since 2026-11-21: the hit's chord marks it (they still count as missed) |
 | Hit by a rock | Since 2026-11-21, to stand out from the drums (the owner: a chord, not the lead's dropping note): the pad stabs the chord's root, fifth and octave, lower, longer and louder for a bigger rock (radius 14 to 50: rooted nearest MIDI 52, 0.2 s, velocity 0.7, down to nearest 45, 0.45 s, velocity 1; the target moves with the radius and the root is the nearest to it); the bass an octave under it slides down 5 semitones over the same length (velocity 0.5 to 0.8); the shield cracks on the arpeggio, from the root nearest MIDI 93 down two octaves in 0.09 s, 0.02 s after the hit, over before the last-shield warning. No kick or snare |
 | The last shield taken | The same, with two arpeggio notes falling a fifth, at 0.12 and 0.24 s |
 | Shield picked up | The arpeggio's root, fifth and octave, 0.06 s apart |
@@ -634,10 +634,11 @@ Built on 2026-11-20 with the Web Audio API, no files: each sound is a handful of
 
 Built on 2026-11-21 and live since 0.4.8. Made in code with Tone.js (`tone` 15.1.22, MIT), on the owner's word, from the sketch the owner listened to: no audio files. Every musical number is the sketch's, carried over as it was, in one place: `src/music/score.ts`. The sketch is kept in `_meta/sound-page.html`: the music, the lead's melody editor and every sound effect on one page, to open in a browser and tune by ear before a change is built.
 
-- **The start screen and the fly-in** (2026-11-21, the owner's word): the start screen is silent until the note is tapped there; that tap starts the whole soundtrack (every layer, as flying at 2.8×, `MUSIC.menuSpeed`, so about 121 BPM, with the lead coming in after its usual wait; the owner's word, replacing the pad-alone drone of 0.4.9) instead of switching the music off, and switches it on if it was off. Every mission starts with the ship flying in from below the field for 1.2 s, at the x where it left the stop between missions (the first mission at the centre); nothing of the mission runs until it arrives. The music starts with the first mission's fly-in, so Tone.js loads and the soundtrack and effects come up under it, and music already playing carries on into the run, its layers leaving at their chord changes as the speed drops to the run's. The note and the speaker are on every screen that waits for a tap: the start screen, the stops between missions and the end screens, where they sit in the bottom right corner.
+- **The start screen and the fly-in** (2026-11-21, the owner's word): the start screen is silent until the note is tapped there; that tap starts the whole soundtrack at 96 BPM (`MUSIC.menuBpm`; the owner asked for it slower than the first 110, and confirmed 96 after hearing it on the sound page) with the pad's filter as bright as at 2× (`MUSIC.menuSpeed`), with every layer whatever its speed threshold, each still waiting its turn: pad, bass and drums at bar 1, the arpeggio at bar 5, the lead at bar 9 on its first turn, then its 32 bars, pause and turns as in a run; no sixteenth hats, which follow the run's speed (the owner's word; it replaced the pad-alone drone of 0.4.9, a brief 2.8× and then a 2× without the lead) instead of switching the music off, and switches it on if it was off. Every mission starts with the ship flying in from below the field for 1.2 s, at the centre and perfectly straight, every time: nothing of the last mission's position, drift or bank is kept, and its gravity well starts afresh (the owner's word, 2026-11-21); nothing of the mission runs until it arrives. The music starts with the first mission's fly-in, so Tone.js loads and the soundtrack and effects come up under it, and music already playing carries on into the run, its layers leaving at their chord changes as the speed drops to the run's. The note and the speaker are on every screen that waits for a tap: the start screen, the stops between missions and the end screens, where they sit in the bottom right corner.
 - **One synthwave loop** in A minor, Am–F–C–G two bars each. The game's save and home chords are C major, so the music shares their notes.
 - **Layers by speed** (`g.speed`): the pad always; the bass from 1.3× in mission 1, and from mission 2 on from the start of the mission, whatever the speed: it comes in at the first bar line instead of waiting for a chord change (the owner's word; `MUSIC.bassFromMission`). The drums from 1.7×, the arpeggio from 2.0×, sixteenth-note hats from 2.8×. A layer comes in or leaves only at a chord change, every two bars, and leaves only 0.05× below where it came in, so it does not flicker. The pad and bass duck under the kick.
-- **The lead comes in last.** A slow melody on top, sixteen bars in two halves, in A4–G5, as the owner wrote it in the sketch's melody editor; the first half ends on four half-bar notes, D5 C5 B4 C5 (rewritten by the owner on 2026-11-21 after 0.4.11, in place of a held D5 with B4 and G4), and the second on a held D5. **Its entries alternate octaves** (the owner's word, 2026-11-21): the first time it comes in during a run it plays an octave down (A3–G4), the next time as written, then down again, whatever ended the last entry, so the count carries across missions and each run starts low (`MUSIC.leadLow`). Only the pitch changes. It needs 2.2×, the arpeggio playing since an earlier chord change, and the first bar of an eight-bar half, so the melody always starts from its top. In missions 1–4 the speed reaches 2.2× only about two seconds before the target, so the lead mostly plays for players who stay on; in missions 5–7 it comes in during the mission.
+- **Each layer waits for the one under it** (the owner's word, 2026-11-21): the arpeggio comes in only after the drums have played at least 4 bars, and the lead only after the arpeggio has played at least 4 bars (`MUSIC.layerWait`). From a standstill at full speed, and on the start screen: drums at bar 1, arpeggio at bar 5, lead at bar 9.
+- **The lead comes in last.** A slow melody on top, sixteen bars in two halves, in A4–G5, as the owner wrote it in the sketch's melody editor; the first half ends on four half-bar notes, D5 C5 B4 C5 (rewritten by the owner on 2026-11-21 after 0.4.11, in place of a held D5 with B4 and G4), and the second on a held D5. **It is a piano, and its entries take turns** (the owner's word, 2026-11-21, after trying piano, guitar and violin: "Use the piano, scratch everything else"). The piano is synthesized: a string tone with eight harmonics that rings on (the harmonics are what make it audible in the low octave), under a short bright FM hammer strike, with no glide, so notes ring over each other. Its body is at −4 dB and its hammer at −10 dB, balanced on a meter against the other layers (the owner: "balance lead volume with other tracks"), and confirmed by ear on the sound page; it had been the loudest layer by 3 dB. Each time the melody is played through (16 bars) takes the next of three turns (`MUSIC.leadTurns`; the owner's word, 2026-11-21, read per pass after the first build played the low octave twice in a row): two octaves down (A2–G3) through the long reverb (an echo of three quarters of a beat into a 7 s hall), then one octave down (A3–G4) through the longer echo (repeats one and a half beats apart that take long to die, into a 3 s room, 1 dB up to match), twice, then round again. A 32-bar stretch is two passes, so stretches go 1 2, then 3 1, then 2 3; a pass cut short by the lead leaving still counts. The count carries across missions and the start screen, and each run starts at the first turn. It is never played as written in A4–G5 any more. **The melody starts from its first bar whenever the lead comes in** (a fix, 2026-11-21: it used to follow the loop, so an entry at the loop's second half began mid-melody and the fade landed on its bars 7–8); so the fade falls on bars 15–16 of the second time through, as the owner asked. Both chains are built when the music loads and stay up, so one pass's tail rings on into the next. **The echoes keep time with the music** (the owner: the fixed echoes sounded strange at 96 BPM, better pulsing as at 110), changed on the tempo's 0.5 BPM steps like the arpeggio's, with room for 2.5 s. Crew left behind plays on a copy of this piano since 2026-11-21; ship full, entering a wormhole and made it home still borrow the old synth lead's voice: the owner has not asked for them to change. **To check on a phone:** two convolution reverbs (7 s and 3 s) are new work for its audio thread; listen for crackle and watch the frame-rate reading. It needs 2.2×, the arpeggio having played at least 4 bars, and the first bar of an eight-bar half, so the melody always starts from its top. In missions 1–4 the speed reaches 2.2× only about two seconds before the target, so the lead mostly plays for players who stay on; in missions 5–7 it comes in during the mission.
 - **The lead plays at most 32 bars at a stretch,** two passes of its melody, on the owner's word. It fades to silence over bars 31–32 (`MUSIC.leadFade`), so the fade ends with the stretch instead of reaching into the next pass, then rests for 16 bars before coming back from the top of a half under its usual rules. The 16-bar rest is a first guess (`MUSIC.leadBars`, `MUSIC.leadPause`). Leaving early because the speed dropped starts the count afresh.
 - **Tempo:** 96 BPM at 1×, +14 BPM per 1×, at most 140; 90 BPM between missions.
 - **A rest:** at most once in every 16 bars, always in the last of them, one layer among bass, drums and arpeggio drops out for that bar and is back on the next downbeat. Only a layer that has played at least 16 bars since it came in can rest, never the same layer twice running, chosen at random from those ready (`MUSIC.restEvery`, `MUSIC.restAfter`). So each new instrument is heard for a while before it rests, on the owner's word. The lead never rests this way. The randomness is `Math.random`, never the run's seeded numbers.
@@ -699,6 +700,90 @@ Asked for by the owner on 2026-11-20. Both are built and live since 0.4.7 (2026-
   - **In code:** `src/fps/meter.ts` (the meter and the switch) and `src/fps/fpsButton.ts` (the gauge and the reading), drawn after the frame like the mute speaker, so `src/render` does not change.
 - **The logo and the favicon are redrawn in the vector-glow look (live since 0.4.7).** The app icons (`public/icons`) and `public/favicon.svg` show the ship as the game draws it: a black hull in cyan lines of light with a cyan cockpit glass set inside the nose and a yellow flame, on the black field. The large icons also show ship 1's four seats full (green dots), the violet grid, a few stars and one dark-filled rock; the favicon is the ship alone with a heavier line, so it reads at 16 px. The glow is drawn as wider, fainter copies of each outline, because ImageMagick ignores SVG filters. `npm run icons` redraws them. A phone that has the game installed keeps its old icon until the phone refreshes it.
 - **Still open:** whether the owner also wants a way to cap or lower the frame rate; this builds only the display.
+
+## Story
+
+Proposed on 2026-11-21 and agreed in outline by the owner. **Not built.** The lines below are first drafts, and where they sit on screen has not been drawn.
+
+### The premise
+
+- **Galore is a place.** It was a mining moon, and it broke apart nine hours ago. The grey asteroids are its rubble. The coloured planetoids are the pieces people were living and working on.
+- **The Lantern** is the rescue tender that answered the call. It is too big to enter the field, so it sends in one small ship and waits on the far side of every wormhole. It carries three rescue ships, which is why a bigger one can be taken at a stop and why every ship flown is there for the last trip.
+- **The Pilot** is the player, addressed by their generated callsign, or as `PILOT` before the game has signed in.
+- **The drill.** A gravity drill under the mine never shut down. It is what broke the moon, bends the grid, tears the wormholes and pulls everything in faster the deeper the Pilot goes.
+- **The board** is the Lantern's roll of pilots who went in, with `HOME` or `LOST` against each. Nothing on it changes.
+
+### Rules for the story
+
+- **Why, never how.** The story gives the Pilot a reason to fly. It never mentions rings, shields as objects to collect, steering, seats or the score. Rescues, the wormhole and gravity are still left to be discovered.
+- **Only where the game already stops.** Lines appear on the start screen, the stops between missions and the end screens. Nothing is added during flight and no new screen is added. A tap moves on exactly as it does today.
+- **Never needed.** The game must play the same for someone who reads none of it. This is what keeps "nothing to read" in [Direction](#direction) true.
+- **Nothing about the ship choice.** The picker has no caption and no prompt, and the story does not give it one: lines at the stops after missions 2, 4 and 6 are about people, not about ships.
+- **Missed crew are still out there.** Crew who drift past, or are thrown off by a hit, are not dead in the story: they are still waiting, and every new run goes back for them. Only crew lost with the ship are lost.
+- **Short.** One transmission per stop: a sender and at most three short lines. Survivors sign by what they did on Galore, not by name; names would go stale on replay.
+
+### Before the first mission
+
+On the start screen, under the title:
+
+> LANTERN TO [CALLSIGN]
+> The moon Galore broke apart nine hours ago.
+> There are people alive on the pieces.
+> We are too big to go in. You are not.
+> We'll be waiting on the far side.
+
+- Shown until the player has delivered someone for the first time. After that the start screen carries at most one line, such as `They're still calling.`
+- A run opened from a share link already shows the shared run under the title. The briefing gives way to it.
+
+### The first thanks
+
+On the stop after mission 1. Which line appears depends on what happened:
+
+| What happened | Who speaks | The line |
+|---|---|---|
+| Everyone offered was saved | Survey crew, Galore outer ring | "We'd stopped listening for engines. Thank you. Our friends are further in." |
+| Some saved, some missed | Survey crew, Galore outer ring | "Thank you. We weren't alone at the edge. The others are still out there." |
+| Nobody saved | The Lantern | "No one aboard. They're still calling." |
+
+The same three cases apply at every later stop: a survivor speaks when someone was saved, and the Lantern speaks alone when nobody was.
+
+### Missions 2 to 7
+
+Each mission is a place deeper in the field, with different people stranded there. The line after a mission is what sends the Pilot into the next.
+
+| Mission | Where, and who is there | The line after it | What it gives a reason for |
+|---|---|---|---|
+| 1 | The Edge: the survey crew who sent the call | The first thanks, above | Single crew, one at a time |
+| 2 | The Drift: rig crews on neighbouring pieces | "You couldn't reach everyone. We saw. Nobody here blames you." (when someone was missed) | Two crews at once |
+| 3 | The Works: shift crews in twos and threes | "The gravity drill under the mine never shut down. It's pulling everything in." | The grid and the wells |
+| 4 | The Town: families | Lantern: "That's everyone on our list." A survivor: "The night shift was at the drill. They're on nobody's list." | The turn from missions 1–4 to 5–7; the Lantern's first shields |
+| 5 | The Fall: the night shift's outer crews | "We're throwing in every shield we can spare. Four left." | The higher speed; six shield drops, then four |
+| 6 | The Throat | "That was the last of our shields. We're full and pulling back. The next way out leads home." | No drops in mission 7; its wormhole |
+| 7 | The Heart: the drill's own crew | On `MADE IT HOME`: "[N] people are home. They know your callsign." | The open-ended last mission |
+
+- **Mission 4 is the turn.** Up to there the Pilot does what was asked. From mission 5 the Pilot goes in for people nobody listed, which is the story's reason for the part of the game played for the board.
+- **The shields count down in the story as in the game:** two in mission 4, six in mission 5, four in mission 6, none sent in mission 7. The numbers in the lines come from `shieldDrops` and must follow it when it is tuned.
+- **The shield beside every wormhole in mission 7** is thrown off by the drill where it tears space: the way home and the shield are born together, one each side.
+- **When the ship is destroyed,** on `GAME OVER` in any mission: "[N] people got out before your signal stopped. They're asking for your callsign." With nobody saved: "Signal lost. They're still calling."
+
+### Replays
+
+Players will see the stops hundreds of times.
+
+- **The full line** is shown the first few times a player reaches each stop, remembered on the device.
+- **After that,** one short line from a small pool for that stop, chosen by what happened: everyone saved, someone missed, nobody saved.
+- **The choice of line** uses the drawing's randomness, never the run's seed, so the story cannot change the deal.
+
+### Not decided
+
+- **Whether the lines fit.** The stops after missions 2, 4 and 6 already hold the table and the ships, and the stop after mission 6 is the fullest. Each stop needs drawing with its line, on a short phone too, before anything is built.
+- **Tone.** The drafts are dry and warm. The title is playful; the owner has not yet said whether the story should be lighter.
+- **How the lines look:** capitals like the rest of the HUD, or sentence case so that they read as a voice; shown at once or typed out.
+- **A sound for a transmission,** which is the Composer's to propose.
+- **Whether the start screen keeps a line** once the briefing has gone.
+- **The pools of short lines** for replays are not written.
+
+When this is built, [What the player is told](#what-the-player-is-told) needs rewriting.
 
 ## Tuning
 

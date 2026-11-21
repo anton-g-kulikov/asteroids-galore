@@ -13,13 +13,19 @@ export const MUSIC = {
   tempo: { base: 96, perSpeed: 14, max: 140, results: 90 },   // BPM at 1x, per 1x more, at most, between missions
   from: { pad: 0, bass: 1.3, drums: 1.7, arp: 2.0, lead: 2.2 }, // the speed at which each layer comes in
   hats16From: 2.8,                                             // sixteenth-note hats from this speed
+  layerWait: 4,                                                // the arpeggio waits for 4 bars of drums, the lead for 4 bars of arpeggio (the owner's word)
   slack: 0.05,                                                 // a layer leaves only this far below where it came in
   leadBars: 32,                                                // the lead plays at most this many bars at a stretch (the owner's word)...
   leadPause: 16,                                               // ...then rests this many before starting again from the top
   leadFade: 2,                                                 // and fades out over its last this-many bars (the owner's word)
-  leadLow: -12,                                                // its entries alternate this far down and as written, the lower first (the owner's word)
+  // The lead's entries take turns, in a cycle of three: semitones from the melody as written, and which
+  // effects it plays through (the owner's word, 2026-11-21: two octaves down with the long reverb, then
+  // one octave down with the longer echo, twice).
+  leadTurns: [{ semis: -24, fx: 'hall' }, { semis: -12, fx: 'echo' }, { semis: -12, fx: 'echo' }] as { semis: number; fx: LeadFx }[],
   restEvery: 16,                                               // a one-bar rest at most once in this many bars, in the last of them
   restAfter: 16,                                               // a layer can rest only after playing this many bars since it came in
+  menuSpeed: 2.0,                                              // the start screen's music, once its note is tapped, has every layer and the pad's filter of this speed...
+  menuBpm: 96,                                                 // ...at this tempo (the owner: "slow down the start screen music"; 96 heard and confirmed on the sound page)
   bassFromMission: 2,                                          // from this mission the bass plays from the start, whatever the speed (the owner's word)
   slow: { tempo: 0.6, semis: -5, cutoff: 700 },                // slow motion at its depth
   level: -12,                                                  // the music's bus, in dB
@@ -34,6 +40,9 @@ export const MUSIC = {
 }
 
 export type LayerId = 'pad' | 'bass' | 'drums' | 'arp' | 'lead'
+
+/** The lead's two sets of effects: the long reverb, or the longer echo. */
+export type LeadFx = 'hall' | 'echo'
 
 /** Fades, in seconds, as a layer comes in and leaves. */
 export const LAYERS: { id: LayerId; fadeIn: number; fadeOut: number }[] = [
@@ -93,17 +102,22 @@ export const INSTRUMENTS = {
   arpDelay: { delayTime: 0.47, feedback: 0.32, wet: 0.28 },
   arpLowpass: 3200,
   arp: { oscillator: { type: 'pulse', width: 0.28 }, envelope: { attack: 0.004, decay: 0.22, sustain: 0.18, release: 0.15 }, volume: -21 },
-  // the lead: two detuned saws with a slow attack, a little glide, vibrato and a quarter-note echo
-  leadDelay: { delayTime: 0.62, feedback: 0.25, wet: 0.2 },
-  leadVibrato: { frequency: 5, depth: 0.08 },
-  leadFilter: { frequency: 2600, type: 'lowpass', rolloff: -12 },
-  lead: {
-    portamento: 0.06,
-    oscillator: { type: 'fatsawtooth', count: 2, spread: 14 },
-    filter: { Q: 1, type: 'lowpass', rolloff: -12 },
-    envelope: { attack: 0.06, decay: 0.3, sustain: 0.8, release: 0.8 },
-    filterEnvelope: { attack: 0.08, decay: 0.4, sustain: 0.6, release: 0.8, baseFrequency: 600, octaves: 2.5 },
-    volume: -9,
+  // the lead: a synthesized piano, a string tone with eight harmonics that rings on under a short
+  // bright hammer strike (the owner's choice, 2026-11-21); no glide, so notes ring over each other
+  pianoBody: {
+    oscillator: { type: 'custom', partials: [1, 0.8, 0.55, 0.4, 0.28, 0.18, 0.12, 0.08] },
+    envelope: { attack: 0.003, decay: 2.6, sustain: 0, release: 1.6 }, volume: -4,   // balanced on a meter (the owner: "balance lead volume with other tracks")
+  },
+  pianoHammer: {
+    harmonicity: 3, modulationIndex: 6, oscillator: { type: 'sine' }, modulation: { type: 'sine' },
+    envelope: { attack: 0.001, decay: 0.35, sustain: 0, release: 0.3 },
+    modulationEnvelope: { attack: 0.001, decay: 0.12, sustain: 0, release: 0.1 }, volume: -10,
+  },
+  // its two sets of effects, by turn: an echo into a reverb, then a level so both are as loud on average
+  leadFx: {
+    // echoes of `beats` beats, set from the tempo (the owner liked them pulsing with it); room for 2.5 s
+    hall: { beats: 0.75, delay: { delayTime: 0.47, maxDelay: 2.5, feedback: 0.45, wet: 0.3 }, reverb: { decay: 7, preDelay: 0.03, wet: 0.38 }, trim: 0 },
+    echo: { beats: 1.5, delay: { delayTime: 0.94, maxDelay: 2.5, feedback: 0.6, wet: 0.42 }, reverb: { decay: 3, preDelay: 0.02, wet: 0.22 }, trim: 1 },
   },
   duck: { to: 0.45, back: 0.24 },              // pad and bass under the kick: down to 45%, back in 0.24 s
   padLength: 0.92,                             // a pad chord lasts this share of its two bars
@@ -118,8 +132,11 @@ export const INSTRUMENTS = {
   endBassSend: 0.3,
 } as const
 
-/** What the music is doing: nothing, the run's loop, the pad between missions, or the game-over screen's bass. */
-export type Mode = 'silent' | 'flying' | 'results' | 'over'
+/**
+ * What the music is doing: nothing, the run's loop, the start screen's loop (every layer, at the tempo
+ * of MUSIC.menuSpeed), the pad between missions, or the game-over screen's bass.
+ */
+export type Mode = 'silent' | 'flying' | 'menu' | 'results' | 'over'
 
 export const bpmFor = (speed: number): number => Math.min(MUSIC.tempo.max, MUSIC.tempo.base + MUSIC.tempo.perSpeed * (speed - 1))
 
@@ -139,7 +156,8 @@ export const slowDepth = (slowmo: number): number => (1 - timeScale(slowmo)) / (
 
 /** Tempo, the pad's filter, the slow-motion low-pass and the arpeggio's echo for a moment of the game. */
 export function controlFor(mode: Mode, speed: number, depth: number) {
-  const base = mode === 'results' ? MUSIC.tempo.results : mode === 'over' ? MUSIC.over.bpm : bpmFor(speed)
+  if (mode === 'menu') speed = MUSIC.menuSpeed          // the start screen: the pad's filter of 2x, at its own tempo
+  const base = mode === 'results' ? MUSIC.tempo.results : mode === 'over' ? MUSIC.over.bpm : mode === 'menu' ? MUSIC.menuBpm : bpmFor(speed)
   const bpm = base * (1 - (1 - MUSIC.slow.tempo) * depth)
   return {
     bpm,
@@ -156,6 +174,7 @@ export function controlFor(mode: Mode, speed: number, depth: number) {
  */
 export function wanted(id: LayerId, mode: Mode, speed: number, on: boolean, level = 1): boolean {
   if (mode === 'results') return id === 'pad'
+  if (mode === 'menu') return true                      // the start screen: every layer, each still waiting its turn in the sequencer
   if (mode !== 'flying') return false
   if (id === 'bass' && level >= MUSIC.bassFromMission) return true
   const from = MUSIC.from[id]
@@ -165,7 +184,7 @@ export function wanted(id: LayerId, mode: Mode, speed: number, on: boolean, leve
 export type Voice = 'pad' | 'bass' | 'kick' | 'snare' | 'snareBody' | 'hat' | 'arp' | 'lead'
 
 /** A note to play now. `dur` is a Tone.js length, 'pad' for a pad chord, or 'melody' for `len` sixteenths at the current tempo. */
-export interface Note { voice: Voice; notes: string[]; semis: number; dur: string; vel: number; len?: number }
+export interface Note { voice: Voice; notes: string[]; semis: number; dur: string; vel: number; len?: number; fx?: LeadFx }
 
 export interface Step {
   gates: { id: LayerId; on: boolean }[]   // layers coming in or leaving now
@@ -189,29 +208,33 @@ export function createSequencer(rand: () => number): Sequencer {
   let rest: LayerId | null = null, lastRest: LayerId | null = null
   const since: Partial<Record<LayerId, number>> = {}   // the step each layer last came in
   let leadSince = -1, leadRestUntil = -1          // when the lead came in; until when it rests after a full stretch
-  // The lead alternates octaves from one entry to the next, the lower first (the owner's word, 2026-11-21):
-  // every entry counts, whatever ended the last; a new sequencer (a new run) starts low again.
-  let leadEntries = 0, leadHigh = false
+  // Each time the melody is played through (16 bars, counted from the lead's entry) takes the next of
+  // MUSIC.leadTurns, and the lead leaving counts as the end of a pass, however far it got. A new
+  // sequencer (a new run) starts at the first turn again.
+  let leadPass = 0
   return {
     gates,
-    drop(ids) { for (const id of ids) gates[id] = false },
+    drop(ids) { for (const id of ids) { if (id === 'lead' && gates.lead) leadPass++; gates[id] = false } },
     step(s, { mode, speed, depth, level = 1 }) {
       const s16 = s % 16, bar = Math.floor(s / 16) % 8, ch = CHORDS[bar >> 1]
       const chordStart = s16 === 0 && bar % 2 === 0
       const changes: Step['gates'] = []
       const fades: Step['fades'] = []
       if (chordStart) {
-        const arpWas = gates.arp                 // as it was before this chord change
         for (const { id } of LAYERS) {
           let on = wanted(id, mode, speed, gates[id], level)
+          // each layer waits for the one under it to have played `layerWait` bars
+          const under = id === 'arp' ? 'drums' : id === 'lead' ? 'arp' : null
+          if (on && !gates[id] && under && (!gates[under] || s - (since[under] ?? s) < MUSIC.layerWait * 16)) on = false
           if (id === 'lead') {
             // at most `leadBars` at a stretch, then a rest of `leadPause` bars
             if (on && gates.lead && s - leadSince >= MUSIC.leadBars * 16) { on = false; leadRestUntil = s + MUSIC.leadPause * 16 }
             // ...fading out over its last bars, so the fade ends with the stretch rather than reaching into the next
             if (on && gates.lead && s - leadSince === (MUSIC.leadBars - MUSIC.leadFade) * 16) fades.push({ id: 'lead', bars: MUSIC.leadFade })
-            // it comes in last: once the arpeggio has been playing, only at the top of a half, and not while resting
-            if (on && !gates.lead && (!arpWas || s % HALF !== 0 || s < leadRestUntil)) on = false
-            if (on && !gates.lead) { leadSince = s; leadHigh = leadEntries++ % 2 === 1 }
+            // it comes in last: after the arpeggio's 4 bars (above), only at the top of a half, and not while resting
+            if (on && !gates.lead && (s % HALF !== 0 || s < leadRestUntil)) on = false
+            if (on && !gates.lead) leadSince = s
+            if (!on && gates.lead) leadPass++
           }
           if (on && !gates[id]) since[id] = s
           if (on !== gates[id]) { gates[id] = on; changes.push({ id, on }) }
@@ -251,15 +274,20 @@ export function createSequencer(rand: () => number): Sequencer {
         else if (s16 % 2 === 1 && speed >= MUSIC.hats16From && mode === 'flying') play('hat', [], '32n', 0.35)
       }
       if (s16 % 2 === 0 && rest !== 'arp') { const i = s16 / 2; play('arp', [ch.arp[ARP[i]]], '8n', i % 2 ? 0.65 : 1) }
-      const tune = melodyAt[Math.floor(s / HALF) % 2].get(s % HALF)   // the lead never rests
-      if (tune) notes.push({ voice: 'lead', notes: [tune.note], semis: sh + (leadHigh ? 0 : MUSIC.leadLow), dur: 'melody', vel: 0.9, len: tune.len })
+      if (gates.lead) {                          // the lead never rests; the melody is counted from its entry
+        const pos = (s - leadSince) % (2 * HALF)
+        if (pos === 0 && s !== leadSince) leadPass++
+        const turn = MUSIC.leadTurns[leadPass % MUSIC.leadTurns.length]
+        const tune = melodyAt[Math.floor(pos / HALF)].get(pos % HALF)
+        if (tune) notes.push({ voice: 'lead', notes: [tune.note], semis: sh + turn.semis, dur: 'melody', vel: 0.9, len: tune.len, fx: turn.fx })
+      }
       return { gates: changes, fades, notes, duck, rest }
     },
   }
 }
 
 /** A change to schedule: ramp `param` to `to` over `over` seconds, starting at `at` (seconds, the audio clock). */
-export interface Ramp { param: 'bpm' | 'arpDelay' | 'leadDelay' | 'padCutoff' | 'master'; to: number; over: number; at: number }
+export interface Ramp { param: 'bpm' | 'arpDelay' | 'leadHall' | 'leadEcho' | 'padCutoff' | 'master'; to: number; over: number; at: number }
 
 /** How far a value must move before it is changed, and how fast it then ramps. */
 export const CONTROL = { bpmStep: 0.5, cutoffStep: 0.03, ramp: 0.5, slowIn: 0.2, slowOut: 0.45 }
@@ -295,7 +323,8 @@ export function createControlTracker(): ControlTracker {
         ramps.push(
           { param: 'bpm', to: bpm, over: CONTROL.ramp, at: now },
           { param: 'arpDelay', to: 60 / bpm * 0.75, over: CONTROL.ramp, at: now },   // a dotted eighth
-          { param: 'leadDelay', to: 60 / bpm, over: CONTROL.ramp, at: now },         // a quarter
+          { param: 'leadHall', to: 60 / bpm * INSTRUMENTS.leadFx.hall.beats, over: CONTROL.ramp, at: now },
+          { param: 'leadEcho', to: 60 / bpm * INSTRUMENTS.leadFx.echo.beats, over: CONTROL.ramp, at: now },
         )
       }
       const cut = controlFor(mode, speed, 0).padCutoff

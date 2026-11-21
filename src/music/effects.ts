@@ -1,6 +1,7 @@
 import * as Tone from 'tone'
 import type { EffectsOut } from '../audio/player'
 import { createSlots, type FxNote, type FxPlan } from '../audio/scored'
+import { INSTRUMENTS } from './score'
 
 // The sound effects, v2, played with Tone.js: separate copies of the
 // soundtrack's instruments, with the music's settings and the sketch's levels,
@@ -39,6 +40,13 @@ export function createEffects(context: AudioContext): EffectsOut {
     volume: -6,
   } as Partial<Tone.MonoSynthOptions>).connect(new Tone.Filter({ frequency: 2600, type: 'lowpass', rolloff: -12 }).connect(wire(new Tone.Vibrato({ frequency: 5, depth: 0.08 }), 0.3)))
 
+  // the lead's piano, as the effects' own instance: crew left behind (−3 dB, set by measurement; no echo)
+  const pianoOut = wire(new Tone.Gain(Tone.dbToGain(-3)), 0.5)
+  const piano = [
+    new Tone.PolySynth(Tone.Synth, INSTRUMENTS.pianoBody as unknown as Partial<Tone.SynthOptions>).connect(pianoOut),
+    new Tone.PolySynth(Tone.FMSynth, INSTRUMENTS.pianoHammer as unknown as Partial<Tone.FMSynthOptions>).connect(pianoOut),
+  ]
+
   const slots = createSlots()
   const hz = (m: number) => Tone.Frequency(m, 'midi').toFrequency()
   const mono = { bass, arp, lead } as const
@@ -46,6 +54,9 @@ export function createEffects(context: AudioContext): EffectsOut {
   function play(n: FxNote, now: number) {
     const t = slots.start(n.voice, n.afterBell ? slots.afterBell(now, n.at) : now + n.at)
     switch (n.voice) {
+      case 'piano':
+        for (const p of piano) p.triggerAttackRelease(n.midi.map(hz), n.len, t, n.vel)
+        break
       case 'bell': case 'pad':
         (n.voice === 'bell' ? bell : pad).triggerAttackRelease(n.midi.map(hz), n.len, t, n.vel); break
       case 'kick':
@@ -66,7 +77,7 @@ export function createEffects(context: AudioContext): EffectsOut {
 
   function stopAll() {
     const now = Tone.now()
-    bell.releaseAll(now); pad.releaseAll(now)
+    bell.releaseAll(now); pad.releaseAll(now); for (const p of piano) p.releaseAll(now)
     for (const syn of [bass, arp, lead, kick, snare, hat]) syn.triggerRelease(now)
   }
 

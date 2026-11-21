@@ -111,11 +111,14 @@ test('LAUNCH-03 the fly-in draws the play HUD', async () => {
 test('LAUNCH-04 every mission starts with the fly-in, and plays as it did without it', () => {
   const g = fresh(4242)
   startGame(g)
+  g.spawnTimer = 999; g.rescueTimer = 999
+  for (let i = 0; i < 12; i++) step(g, 1)                    // off to the right, drifting and banked
+  expect(g.ship.x).toBeGreaterThan(g.W / 2 + 5)
+  expect(g.ship.vx).toBeGreaterThan(0)
   g.wormhole = { x: g.ship.x, y: g.ship.y, r: 30 }
-  step(g)                                                    // into the wormhole
+  step(g, 1)                                                 // into the wormhole
   expect(g.state).toBe('between')
   g.stateTime = 1
-  const x = g.ship.x
   tryStart(g)
   expect([g.state, g.level]).toEqual(['launch', 2])
   expect(g.ship.y).toBeGreaterThan(g.H + g.ship.r)
@@ -124,7 +127,8 @@ test('LAUNCH-04 every mission starts with the fly-in, and plays as it did withou
   while (g.stateTime < LAUNCH_TIME - 1e-9) { step(g, -1); tryStart(g); steps++ }   // steering and taps are ignored
   expect(g.state).toBe('launch')
   expect(steps * STEP).toBeCloseTo(LAUNCH_TIME, 1)
-  expect(g.ship.x).toBe(x)                                  // where it left the stop
+  expect([g.ship.x, g.ship.vx]).toEqual([g.W / 2, 0])      // at the centre, perfectly straight: nothing kept from the last mission
+  expect(g.wells.map(w => w.x)).toEqual([g.W / 2])          // and its well with it
   // nothing of the mission ran during the fly-in
   for (const k of ['speed', 'distance', 'levelTime', 'wormTimer', 'rescueTimer', 'spawnTimer', 'shields', 'level', 'shipType'] as const) expect(g[k]).toBe(flown[k])
   step(g)
