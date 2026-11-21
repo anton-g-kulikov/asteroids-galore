@@ -1,4 +1,4 @@
-import { muteButtonRect, showsMute } from '../audio/muteButton'
+import { iconStyle, muteButtonRect, showsMute } from '../audio/muteButton'
 import type { Game } from '../game/types'
 
 // The music switch: a note just left of the sound-effects speaker, on the
@@ -19,13 +19,12 @@ export function onMusicButton(g: Game, x: number, y: number, audio: boolean): bo
   return x >= r.x && x <= r.x + r.w && y >= r.y && y <= r.y + r.h
 }
 
-/** An eighth note; crossed out when the music is off. */
+/** An eighth note, lit when the music is on; crossed out when it is off. */
 export function drawMusicButton(ctx: CanvasRenderingContext2D, g: Game, on: boolean): void {
   const { U } = g
   const r = musicButtonRect(g), cx = r.x + r.w / 2, cy = r.y + r.h / 2, s = 7 * U
   ctx.save()
-  ctx.globalAlpha = 0.7
-  ctx.fillStyle = ctx.strokeStyle = '#ffffff'
+  iconStyle(ctx, on)
   ctx.lineWidth = 1.6 * U
   ctx.lineCap = 'round'
   const hx = cx - s * 0.35, hy = cy + s * 0.7

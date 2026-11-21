@@ -66,3 +66,27 @@ test('MUTE-03 a tap on the icon is only a mute; anywhere else it is not taken', 
     expect(onMuteButton(g, r.x + r.w / 2, r.y + r.h / 2, true)).toBe(false)
   }
 })
+
+test('MUTE-05 the speaker, the note and the gauge light up the same way when on', async () => {
+  const { drawMusicButton } = await import('../../src/music/musicButton')
+  const { drawFpsButton } = await import('../../src/fps/fpsButton')
+  // what a drawing set as its colour and strength
+  const look = (draw: (ctx: CanvasRenderingContext2D) => void) => {
+    const seen: Record<string, unknown> = {}
+    const ctx = new Proxy({}, {
+      get: () => () => {},
+      set: (_t, p, v) => { if (p === 'strokeStyle' || p === 'fillStyle' || p === 'globalAlpha') seen[String(p)] = v; return true },
+    }) as CanvasRenderingContext2D
+    draw(ctx)
+    return seen
+  }
+  const g = game('menu')
+  const on = { globalAlpha: 0.95, strokeStyle: '#7fdcff', fillStyle: '#7fdcff' }
+  const off = { globalAlpha: 0.7, strokeStyle: '#ffffff', fillStyle: '#ffffff' }
+  expect(look(ctx => drawMuteButton(ctx, g, false))).toEqual(on)       // sound on
+  expect(look(ctx => drawMuteButton(ctx, g, true))).toEqual(off)       // muted
+  expect(look(ctx => drawMusicButton(ctx, g, true))).toEqual(on)
+  expect(look(ctx => drawMusicButton(ctx, g, false))).toEqual(off)
+  expect(look(ctx => drawFpsButton(ctx, g, true))).toEqual(on)
+  expect(look(ctx => drawFpsButton(ctx, g, false))).toEqual(off)
+})

@@ -7,6 +7,15 @@ import type { Game } from '../game/types'
 // so the drawing code does not need to know about sound. `M` on a keyboard
 // toggles it anywhere.
 
+/**
+ * The look every corner switch shares (speaker, music note, frame-rate gauge):
+ * light blue and bright when on, dimmer white when off.
+ */
+export function iconStyle(ctx: CanvasRenderingContext2D, on: boolean): void {
+  ctx.globalAlpha = on ? 0.95 : 0.7
+  ctx.strokeStyle = ctx.fillStyle = on ? '#7fdcff' : '#ffffff'
+}
+
 /** Where the icon is, in play-field units; a tap anywhere in it toggles sound. */
 export function muteButtonRect(g: Game): { x: number; y: number; w: number; h: number } {
   const { W, U } = g
@@ -39,8 +48,7 @@ export function drawMuteButton(ctx: CanvasRenderingContext2D, g: Game, muted: bo
   const { U } = g
   const r = muteButtonRect(g), cx = r.x + r.w / 2, cy = r.y + r.h / 2, s = 7 * U
   ctx.save()
-  ctx.globalAlpha = 0.7
-  ctx.fillStyle = ctx.strokeStyle = '#ffffff'
+  iconStyle(ctx, !muted)
   ctx.lineWidth = 1.6 * U
   ctx.lineCap = 'round'
   // the speaker

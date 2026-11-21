@@ -270,12 +270,14 @@ export function drawFlame(ctx: CanvasRenderingContext2D, g: Game): void {
   ctx.restore()
 }
 
-export function drawShip(ctx: CanvasRenderingContext2D, g: Game): void {
+/** The ship with its shields; `alpha` fades all of it. */
+export function drawShip(ctx: CanvasRenderingContext2D, g: Game, alpha = 1): void {
   const { ship, W, clock } = g
   const r = ship.r
   ctx.save()
   ctx.translate(ship.x, ship.y)
   ctx.rotate(Math.max(-0.45, Math.min(0.45, ship.vx / (W * 1.4) * 0.45)))
+  ctx.globalAlpha = alpha
   drawHull(ctx, r, g.shipType, g.onboard)
   // shields: one arc per shield left, stacked ahead of the nose
   ctx.lineCap = 'round'
@@ -286,7 +288,7 @@ export function drawShip(ctx: CanvasRenderingContext2D, g: Game): void {
   const safe = g.grace > 0 && g.state === 'play'
   const blink = safe ? (Math.sin(clock * 28) > 0 ? 0.95 : 0.25) : 1
   for (let n = 0; n < g.shields + (safe ? 1 : 0); n++) {
-    ctx.globalAlpha = n < g.shields ? blink : blink * 0.6 * Math.min(1, g.grace / GRACE * 1.5)
+    ctx.globalAlpha = alpha * (n < g.shields ? blink : blink * 0.6 * Math.min(1, g.grace / GRACE * 1.5))
     ctx.lineWidth = r * 0.14
     ctx.beginPath()
     ctx.arc(0, -r * 0.2, r * (1.75 + n * 0.34), -Math.PI / 2 - SHIELD_SPREAD, -Math.PI / 2 + SHIELD_SPREAD)

@@ -3,8 +3,14 @@ import { drawHud } from './hud'
 import { drawAsteroid, drawCastaway, drawDrop, drawFlame, drawGrid, drawShip, drawWormhole } from './sprites'
 import { text } from './text'
 
-/** How the field is drawn. `starStretch`: how much a near star lengthens for each 1× of speed above the starting speed. */
-export const look = { starStretch: 4 }
+/**
+ * How the field is drawn. `starStretch`: how much a near star lengthens for each 1× of speed above
+ * the starting speed. `shipFade`: seconds the ship takes to fade away on the stop between missions.
+ */
+export const look = { starStretch: 4, shipFade: 0.8 }
+
+/** How strongly the ship is drawn: whole, except on the stop between missions, where it fades away. */
+export const shipAlpha = (g: Game): number => g.state === 'between' ? Math.max(0, 1 - g.stateTime / look.shipFade) : 1
 
 /** Draws one frame. Reads the game, never changes it. */
 export function render(ctx: CanvasRenderingContext2D, g: Game): void {
@@ -38,7 +44,7 @@ export function render(ctx: CanvasRenderingContext2D, g: Game): void {
   }
   ctx.globalAlpha = 1
   if (g.state === 'launch') drawFlame(ctx, g)
-  if (g.state !== 'over') drawShip(ctx, g)
+  if (g.state !== 'over' && shipAlpha(g) > 0) drawShip(ctx, g, shipAlpha(g))
   ctx.restore()
 
   if (g.flash > 0) {

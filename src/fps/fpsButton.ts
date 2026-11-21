@@ -1,4 +1,4 @@
-import { muteButtonRect } from '../audio/muteButton'
+import { iconStyle, muteButtonRect } from '../audio/muteButton'
 import type { Game } from '../game/types'
 import { text } from '../render/text'
 import type { FpsReading } from './meter'
@@ -27,8 +27,7 @@ export function drawFpsButton(ctx: CanvasRenderingContext2D, g: Game, on: boolea
   const { U } = g
   const r = fpsButtonRect(g), cx = r.x + r.w / 2, cy = r.y + r.h / 2 + 4 * U, s = 9 * U
   ctx.save()
-  ctx.globalAlpha = on ? 0.95 : 0.7   // off: as bright as the speaker beside it
-  ctx.strokeStyle = ctx.fillStyle = on ? '#7fdcff' : '#ffffff'
+  iconStyle(ctx, on)
   ctx.lineWidth = 1.6 * U
   ctx.lineCap = 'round'
   ctx.beginPath(); ctx.arc(cx, cy, s, Math.PI, 0); ctx.stroke()
