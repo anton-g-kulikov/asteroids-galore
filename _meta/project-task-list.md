@@ -28,6 +28,7 @@ The seven-mission run is built (see `game-design.md`). What is left of that plan
 
 ## Done
 
+- The name Lightboat (2026-11-21, v0.5.0): the title (the word outlined in the ship's line of light), the page, the installed app's name and the share message; the address and the device keys keep the old name. The app icons lose the rock. See "The name Lightboat" in `game-design.md`.
 - Crew left behind on the piano (2026-11-21, v0.4.14): two sad piano notes per crew member, stepping down the A-minor scale, in place of the synth lead's falling note. Relayed by the Game Composer on the owner's word.
 - The lead's melody starts from its top on every entry, takes a turn per pass, and its echoes keep time (2026-11-21, v0.4.14): fixes the live bug where an entry at the loop's second half began mid-melody and faded on its bars 7–8. Relayed by the Game Composer on the owner's word.
 - The lead becomes a piano, balanced 4 dB down, its entries taking turns (2026-11-21, v0.4.14): two octaves down through the long reverb, then one octave down through the longer echo twice, round and round. Relayed by the Game Composer on the owner's word. **Open:** crackle or frame drops on a phone from the two reverbs; the owner's ear in the game.

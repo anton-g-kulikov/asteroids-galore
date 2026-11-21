@@ -1,5 +1,5 @@
 // Draws the app icons in the game's vector glow look: the ship in lines of
-// light, flying up through the violet grid with a rock passing by. Writes SVGs to public/ and renders the PNGs with ImageMagick.
+// light, flying up through the violet grid among a few stars. Writes SVGs to public/ and renders the PNGs with ImageMagick.
 // Run with `npm run icons` after changing the ship or the look.
 import { execFileSync } from 'node:child_process'
 import { mkdtempSync, rmSync, writeFileSync } from 'node:fs'
@@ -35,21 +35,6 @@ function ship(r, { seats = true, line = 0.09 } = {}) {
     ${halo('#5dffa0', 0, r * 0.1, dots)}<g fill="#5dffa0">${dots}</g>`
 }
 
-// A rock as drawRockBody draws it: dark inside, a bright outline, craters as thin rings.
-function rock(x, y, r) {
-  const pts = [1, 0.86, 1.04, 0.8, 0.98, 0.9, 1.06, 0.84, 0.95, 1.02].map((k, i, a) => {
-    const t = (i / a.length) * Math.PI * 2
-    return `${(x + Math.cos(t) * r * k).toFixed(1)},${(y + Math.sin(t) * r * k).toFixed(1)}`
-  })
-  const body = `<polygon points="${pts.join(' ')}"/>`
-  return `${halo('#9fb4b0', r * 0.1, r * 0.3, body)}
-    <g fill="#2b3634" stroke="#9fb4b0" stroke-width="${(r * 0.1).toFixed(1)}" stroke-linejoin="round">${body}</g>
-    <g fill="none" stroke="#9fb4b0" stroke-opacity=".6" stroke-width="${(r * 0.06).toFixed(1)}">
-      <circle cx="${x - r * 0.3}" cy="${y - r * 0.15}" r="${r * 0.22}"/>
-      <circle cx="${x + r * 0.28}" cy="${y + r * 0.3}" r="${r * 0.14}"/>
-    </g>`
-}
-
 /** `scale` shrinks the artwork towards the centre, for the maskable icon's safe zone. */
 function icon({ size = 512, scale = 1, rounded = false, details = true } = {}) {
   const c = size / 2, k = size / 512 * scale
@@ -68,7 +53,6 @@ function icon({ size = 512, scale = 1, rounded = false, details = true } = {}) {
   <g stroke="#968cff" stroke-opacity=".3" stroke-width="${(2 * k).toFixed(2)}">${grid.join('')}</g>
   <g transform="translate(${c} ${c}) scale(${k}) translate(-256 -256)">
     ${stars}
-    ${details ? rock(392, 160, 46) : ''}
     <g transform="translate(256 222)">${ship(118, details ? {} : { seats: false, line: 0.14 })}</g>
   </g>
 </svg>

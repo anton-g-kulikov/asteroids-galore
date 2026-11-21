@@ -221,7 +221,7 @@ test('HUD-06 the start screen shows a shared run', () => {
 })
 
 test('HUD-07 the start screen: title, controls, and at the foot the version and the seed of the next run', () => {
-  expect(drawnText('menu', null, { seed: 0x4f2a9c })).toEqual(['ASTEROIDS', 'GALORE', 'hold left', 'hold right', `v${version} · SEED 4F2A9C`, 'TAP TO START'])
+  expect(drawnText('menu', null, { seed: 0x4f2a9c })).toEqual(['LIGHTBOAT', 'hold left', 'hold right', `v${version} · SEED 4F2A9C`, 'TAP TO START'])
   expect(drawnText('menu', null, { seed: 0x2a })).toContain(`v${version} · SEED 00002A`)
   for (const state of ['play', 'between', 'over', 'won'] as const) expect(drawnText(state, null).join(' ')).not.toContain('SEED')
 })

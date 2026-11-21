@@ -14,8 +14,8 @@ function pngSize(file: URL): [number, number] {
 }
 
 test('PWA-01 the manifest describes a full-screen, portrait game in its own colours', () => {
-  expect(manifest.name).toBe('Asteroids Galore')
-  expect(manifest.short_name).toBe('Asteroids')
+  expect(manifest.name).toBe('Lightboat')
+  expect(manifest.short_name).toBe('Lightboat')
   expect(manifest.start_url).toBe('/')
   expect(manifest.scope).toBe('/')
   expect(manifest.display).toBe('fullscreen')
@@ -61,4 +61,14 @@ test('PWA-04 Hosting never caches the service worker or the manifest', () => {
     expect(noCache(path), path).toBe(true)
   }
   expect(noCache('/assets/index-abc.js')).toBe(false)   // hashed assets keep their long cache
+})
+
+test('NAME-01 the game is called Lightboat wherever a player sees its name', () => {
+  expect(/<title>([^<]+)<\/title>/.exec(html)?.[1]).toBe('Lightboat')
+  expect(/name="apple-mobile-web-app-title" content="([^"]+)"/.exec(html)?.[1]).toBe('Lightboat')
+  expect(/aria-label="([^"]+)"/.exec(html)?.[1]).toMatch(/^Lightboat: /)
+  expect([manifest.name, manifest.short_name]).toEqual(['Lightboat', 'Lightboat'])
+  // the old name is nowhere a player can read it: the page, the manifest, or the game's own text
+  const shown = [html, JSON.stringify(manifest), ...['src/render/hud.ts', 'src/cloud/share.ts'].map(f => readFileSync(new URL(f, root), 'utf8'))]
+  for (const text of shown) expect(text).not.toMatch(/asteroids galore|'ASTEROIDS'|'GALORE'|content="Asteroids"/i)
 })

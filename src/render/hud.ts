@@ -4,7 +4,7 @@ import { isFleet, offer } from '../game/game'
 import { LAST_LEVEL, levelTarget, shipRadius, shipSeats } from '../game/tuning'
 import type { BoardRow, Game, LevelResult, RunEnd, SharedRun } from '../game/types'
 import { drawHull } from './sprites'
-import { text } from './text'
+import { outlined, text } from './text'
 
 /** Scores get long: 25680 reads better as 25,680. */
 const fmt = (n: number): string => n.toLocaleString('en-US')
@@ -65,8 +65,8 @@ function drawPlayHud(ctx: CanvasRenderingContext2D, g: Game, top: number): void 
 function drawMenu(ctx: CanvasRenderingContext2D, g: Game): void {
   const { W, H, U } = g
   const best = g.records.best
-  text(ctx, 'ASTEROIDS', W / 2, H * 0.3, 46 * U, '#ffffff', 'center', 800)
-  text(ctx, 'GALORE', W / 2, H * 0.3 + 44 * U, 46 * U, '#7fdcff', 'center', 800)
+  // The title: the word outlined in the ship's line of light, black inside (the owner's choice, 2026-11-21)
+  outlined(ctx, 'LIGHTBOAT', W / 2, H * 0.3 + 26 * U, 58 * U)
   if (best) text(ctx, `BEST ${fmt(best)}`, W / 2, H * 0.3 + 84 * U, 15 * U, '#ffd166', 'center', 700)
   drawTouchHints(ctx, g, 0.55)
   text(ctx, 'hold left', W / 2 - W * 0.3, H * 0.8 + 62 * U, 13 * U, 'rgba(255,255,255,.7)', 'center', 600)

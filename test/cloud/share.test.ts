@@ -21,6 +21,7 @@ test('SHARE-02 the link and the message', () => {
   expect(shareMessage(won)).toContain('14 crew')
   expect(shareMessage(won)).toMatch(/^Made it home/)
   expect(shareMessage(won)).toContain('7,896')
+  for (const m of [shareMessage(won), shareMessage(lost)]) { expect(m).toContain('Lightboat'); expect(m).not.toContain('Asteroids') }
   expect(shareMessage(lost) + shareMessage(won)).not.toContain('564')
 })
 
@@ -28,7 +29,7 @@ test('SHARE-03 the share sheet is used when there is one', async () => {
   const share = vi.fn(async () => {})
   const writeText = vi.fn(async () => {})
   await expect(shareResult({ share, clipboard: { writeText } }, 'text', 'https://x/s/1')).resolves.toBe('shared')
-  expect(share).toHaveBeenCalledWith({ title: 'Asteroids Galore', text: 'text', url: 'https://x/s/1' })
+  expect(share).toHaveBeenCalledWith({ title: 'Lightboat', text: 'text', url: 'https://x/s/1' })
 
   share.mockRejectedValueOnce(Object.assign(new Error('cancelled'), { name: 'AbortError' }))
   await expect(shareResult({ share, clipboard: { writeText } }, 'text', 'https://x/s/1')).resolves.toBe('shared')

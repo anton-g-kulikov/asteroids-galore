@@ -1,8 +1,10 @@
-# Asteroids Galore
+# Lightboat
 
 A small top-down space dodger for phones. No shooting — just flying.
 
 **Play:** https://asteroids-galore.web.app
+
+The game was first called Asteroids Galore, a working name. Its web address, its Firebase project and the keys it keeps on the player's device still carry that name, so existing links and saved bests keep working.
 
 The game is drawn on a single canvas, on a play field of one fixed shape that is scaled to fit the window, and advances in fixed steps, so it plays the same on every device. It is written in TypeScript, built with Vite, tested with Vitest, and hosted on Firebase Hosting. Finished runs are saved to Firestore under an anonymous Firebase account, the end screens show a leaderboard, and a run can be shared as a link; there is no login screen and no name to type.
 

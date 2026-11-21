@@ -17,3 +17,23 @@ export function text(
   ctx.fillText(str, x, y)
   glow(ctx)
 }
+
+/**
+ * A word drawn the way the ship is: black inside, an outline of light with a
+ * glow. Used for the title. Always centred on `x`.
+ */
+export function outlined(
+  ctx: CanvasRenderingContext2D, str: string, x: number, y: number, size: number, color = '#5ff5ff', weight = 800,
+): void {
+  ctx.font = `${weight} ${Math.round(size)}px ${FONT}`
+  ctx.textAlign = 'center'
+  ctx.lineJoin = 'round'
+  ctx.lineWidth = Math.max(1.5, size * 0.038)
+  ctx.strokeStyle = color
+  glow(ctx, color, size * 0.25)
+  ctx.strokeText(str, x, y)        // the glow, from the outline
+  glow(ctx)
+  ctx.fillStyle = '#000000'
+  ctx.fillText(str, x, y)          // black inside, so the grid does not show through
+  ctx.strokeText(str, x, y)        // the line again, crisp over the fill
+}

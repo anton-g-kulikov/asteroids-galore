@@ -10,8 +10,8 @@ const SPACE = '#000000'
  */
 export const manifest: Partial<ManifestOptions> = {
   id: '/',
-  name: 'Asteroids Galore',
-  short_name: 'Asteroids',
+  name: 'Lightboat',
+  short_name: 'Lightboat',
   description: 'A small top-down space dodger for phones. No shooting — just flying.',
   start_url: '/',
   scope: '/',

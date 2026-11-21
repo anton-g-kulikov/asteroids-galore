@@ -15,8 +15,8 @@ export const shareUrl = (origin: string, runId: string): string => `${origin}/s/
 /** The line that goes with the link. It leads with the crew: they are what the score is for. */
 export function shareMessage(run: RunResult): string {
   return run.outcome === 'won'
-    ? `Made it home in Asteroids Galore: ${run.saved} crew saved, score ${run.score.toLocaleString('en-US')}.`
-    : `I saved ${run.saved} crew in Asteroids Galore and scored ${run.score.toLocaleString('en-US')}. Can you save more?`
+    ? `Made it home in Lightboat: ${run.saved} crew saved, score ${run.score.toLocaleString('en-US')}.`
+    : `I saved ${run.saved} crew in Lightboat and scored ${run.score.toLocaleString('en-US')}. Can you save more?`
 }
 
 /** The parts of `navigator` that sharing needs; either may be missing. */
@@ -32,7 +32,7 @@ export interface ShareTarget {
 export async function shareResult(target: ShareTarget, text: string, url: string): Promise<'shared' | 'copied' | 'failed'> {
   if (target.share) {
     try {
-      await target.share({ title: 'Asteroids Galore', text, url })
+      await target.share({ title: 'Lightboat', text, url })
     } catch { /* the player closed the sheet: nothing to do */ }
     return 'shared'
   }

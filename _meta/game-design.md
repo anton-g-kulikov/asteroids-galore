@@ -1,4 +1,4 @@
-# Asteroids Galore — design notes
+# Lightboat — design notes
 
 **Spoilers.** The game explains almost nothing on purpose. If you want to discover it by playing, stop here and play first.
 
@@ -90,9 +90,9 @@ There are 7 levels. **The player knows them as missions:** everything on screen 
 |---|---|---|---|---|
 | 1 | 500 | 1× | none | none: mission 2 is flown in the same ship |
 | 2 | 750 | 1× | none | keep, or the next ship up |
-| 3 | 1,250 | 1× | none | keep, or the next ship up |
+| 3 | 1,250 | 1× | none | none |
 | 4 | 2,000 | 1× | 2 | keep, or the next ship up |
-| 5 | 2,500 | 1.4× | 6 | keep, or the next ship up |
+| 5 | 2,500 | 1.4× | 6 | none |
 | 6 | 3,000 | 1.8× | 4 | the fleet: any ship flown in this run |
 | 7 | 3,500 to the first wormhole, then open | 2.2× | one beside every wormhole | — |
 
@@ -698,7 +698,7 @@ Asked for by the owner on 2026-11-20. Both are built and live since 0.4.7 (2026-
   - **The reading,** when on, is shown on every screen, in flight included, as for example `58 FPS · LOW 41`. It is small monospace text in the star colour, in the bottom left corner just above the progress bar, below the ship. The first number is frames drawn per second over the last half second; `LOW` is the slowest single frame of the last 3 seconds as a rate, which shows a stutter. Drawn on every kind of screen, it overlaps nothing: the play field has a fixed shape, so a short phone scales it rather than rearranging it.
   - **It counts frames drawn,** not simulation steps, which stay at a fixed 1/60 s. A gap of a second or more, such as the tab coming back, is not counted as a frame. Nothing in the simulation changes. With the switch off a frame is drawn as before, apart from the gauge itself on the start screen.
   - **In code:** `src/fps/meter.ts` (the meter and the switch) and `src/fps/fpsButton.ts` (the gauge and the reading), drawn after the frame like the mute speaker, so `src/render` does not change.
-- **The logo and the favicon are redrawn in the vector-glow look (live since 0.4.7).** The app icons (`public/icons`) and `public/favicon.svg` show the ship as the game draws it: a black hull in cyan lines of light with a cyan cockpit glass set inside the nose and a yellow flame, on the black field. The large icons also show ship 1's four seats full (green dots), the violet grid, a few stars and one dark-filled rock; the favicon is the ship alone with a heavier line, so it reads at 16 px. The glow is drawn as wider, fainter copies of each outline, because ImageMagick ignores SVG filters. `npm run icons` redraws them. A phone that has the game installed keeps its old icon until the phone refreshes it.
+- **The logo and the favicon are redrawn in the vector-glow look (live since 0.4.7).** The app icons (`public/icons`) and `public/favicon.svg` show the ship as the game draws it: a black hull in cyan lines of light with a cyan cockpit glass set inside the nose and a yellow flame, on the black field. The large icons also show ship 1's four seats full (green dots), the violet grid and a few stars (the rock was taken out on 2026-11-21, for the name Lightboat); the favicon is the ship alone with a heavier line, so it reads at 16 px. The glow is drawn as wider, fainter copies of each outline, because ImageMagick ignores SVG filters. `npm run icons` redraws them. A phone that has the game installed keeps its old icon until the phone refreshes it.
 - **Still open:** whether the owner also wants a way to cap or lower the frame rate; this builds only the display.
 
 ## Story
@@ -784,6 +784,59 @@ Players will see the stops hundreds of times.
 - **The pools of short lines** for replays are not written.
 
 When this is built, [What the player is told](#what-the-player-is-told) needs rewriting.
+
+## The name Lightboat
+
+Decided by the owner on 2026-11-21: the game is called **Lightboat**. "Asteroids Galore" was a temporary, technical name from the start. The name was chosen on a search of public databases, ahead of any trademark attorney's search (see [Still open](#still-open-for-the-name)). Renamed in 0.5.0 wherever a player sees the name; the address and what the game keeps on the device keep the old one (see "What the rename touched").
+
+### Why this name
+
+- **It reads three ways,** all true of the game: a boat of light (the ship is drawn in lines of light), a light boat (the small, nimble ship the player may keep), and one letter from "lifeboat" (the rescue).
+- **It works without the story,** and it sits well with the story's rescue tender, the *Lantern*.
+- **The old name carries a risk.** "Asteroids" is a long-standing Atari trademark for video games, and stores act on trademark complaints.
+- **It is a rare real word** for a small lightship, a vessel that carries a light as an aid to navigation. The Game Writer found it in Dictionary.com (an Americanism of 1825–35) and in Wiktionary; it was not found as an entry of its own in Merriam-Webster.
+
+### What the check found (2026-11-21)
+
+A search of public databases, not legal clearance.
+
+| Where | Result |
+|---|---|
+| App Store (US, UK, Germany), Google Play (US), Steam, itch.io | No game or app with the name |
+| USPTO | No results, live or dead |
+| TMview (EU, UK, US, WIPO and other offices) | Three marks containing the word: two in China (software services; lighting) and one in Japan |
+| Domains free | lightboat.app, lightboat.dev, lightboat.game, lightboatgame.com, playlightboat.com |
+| Domains taken | lightboat.com (for sale through a broker), lightboat.games, lightboat.net, lightboat.io |
+
+- **A Beijing game studio trades as LightBoat Innovations** (轻舟创游, lightboat.games, founded 2023). Nothing was found under its name on the Western stores. It makes a release in China awkward.
+- **Japan has a registered mark,** LIGHTBOAT combined with the letters LW, held by Lightworks Corp. of Tokyo until 2032. Its goods include video game programs and application software.
+- **Two entertainment companies use the name:** Lightboat Media in London and Lightboat Entertainment in Australia, both in children's content. Neither makes games.
+- **Not checked:** social media handles, unregistered use, and applications too recent to be indexed.
+
+### What the rename touched (0.5.0)
+
+Renamed, because players see it:
+
+- **The start screen title:** the word `LIGHTBOAT` outlined in the ship's cyan line of light (`#5ff5ff`), black inside so the grid does not show through, one colour, 58 units at weight 800, centred with its baseline a third of the way down plus 26: the owner's choice from the Game Designer's three designs ("C, but without a ship"). It replaces the two lines `ASTEROIDS` over `GALORE`.
+- **The page:** its title, the canvas label and the Apple home-screen title, all `Lightboat`.
+- **The installed app:** name and short name `Lightboat`. A phone that already has the app keeps showing the old name until it refreshes the app's details, which can take a day or a reinstall: a stale name is not a failed deploy.
+- **The share message and its title:** "Made it home in Lightboat: …" and "I saved … crew in Lightboat …".
+- **The README and the heading of these notes.**
+
+Kept, because nobody reads them or changing them would break something:
+
+- **The web address and the Firebase project** (`asteroids-galore.web.app`). A project id cannot be changed, and shared links must keep working; a new address would need a custom domain or a second Hosting site redirecting the old one. The README says why the address still carries the old name.
+- **The keys of what is kept on the device** (`asteroids-galore-best-v6` and its end key, the mute, music and frame-rate switches), so no player loses a best or a setting.
+- **The package name, the folder, the Firestore fields and the emulator project.**
+- **The app icons** carry no text.
+
+Searched for anywhere else the old name could reach a player: the page description and the manifest's description name no game, and there are no social preview tags or error messages with the name. Checked by a test (NAME-01) and in a browser at desktop and phone width.
+
+### Still open for the name
+
+- **A trademark attorney's search** in the countries of release, before a store release or any money spent on the name.
+- **Japan and China.** Whether they matter enough to settle the registered mark and the Beijing studio first.
+- **The web address.** It keeps the old name; which domain to take, and when, is undecided.
 
 ## Tuning
 
