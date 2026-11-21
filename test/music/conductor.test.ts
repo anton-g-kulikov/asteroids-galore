@@ -128,3 +128,53 @@ test('SFX-07 the effects follow the music\'s chord, or A minor when there is non
   t.c.toggle()
   expect(t.c.chord()).toBe(0)                                  // the music switched off
 })
+
+test('MUS-15 on the start screen the note starts the drone', () => {
+  const t = setup()
+  t.c.attach(t.e.engine)
+  t.frame()
+  expect(t.e.calls).toEqual(['on true'])                       // silent until the note is tapped
+  t.c.press(t.g); t.frame()
+  expect(t.c.on).toBe(true)                                    // a tap that starts the drone does not switch it off
+  expect(t.e.calls.slice(-1)).toEqual(['start'])
+  expect(t.e.last()).toBe('results 1 0')                       // the pad alone, as between missions
+  t.c.press(t.g); t.frame()
+  expect(t.c.on).toBe(false)                                   // while it plays, the note switches the music off
+  expect(t.e.calls.slice(-1)).toEqual(['on false'])
+  t.c.press(t.g); t.frame()
+  expect(t.c.on).toBe(true)
+  // the drone carries on into the run: the loop is not started again
+  t.g.state = 'launch'; t.frame()
+  expect(t.e.last()).toBe('flying 1 0')
+  t.g.state = 'play'; t.frame()
+  expect(t.e.calls.filter(x => x === 'start')).toHaveLength(1)
+
+  // with the music off, the note switches it on with the drone
+  const off = setup({ [MUSIC_KEY]: '0' })
+  off.c.attach(off.e.engine)
+  off.c.press(off.g); off.frame()
+  expect(off.c.on).toBe(true)
+  expect(off.data.get(MUSIC_KEY)).toBe('1')
+  expect(off.e.calls).toEqual(['on false', 'on true', 'start'])
+  // tapped before the music has loaded: it arrives playing the drone
+  const late = setup()
+  late.c.press(late.g); late.frame()
+  late.c.attach(late.e.engine)
+  expect(late.e.calls).toEqual(['on true', 'start'])
+  expect(late.c.on).toBe(true)
+  // between missions the note only toggles
+  const b = setup()
+  b.c.attach(b.e.engine)
+  b.g.state = 'between'; b.frame()
+  b.c.press(b.g)
+  expect(b.c.on).toBe(false)
+})
+
+test('MUS-16 the music starts with the fly-in', () => {
+  const t = setup()
+  t.c.attach(t.e.engine)
+  t.frame()
+  t.g.state = 'launch'; t.frame()
+  expect(t.e.calls.slice(-1)).toEqual(['start'])
+  expect(t.e.last()).toBe('flying 1 0')
+})

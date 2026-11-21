@@ -3,7 +3,7 @@
 // that hashes every call instead of drawing.
 
 export interface DebugHook {
-  readonly state: 'menu' | 'play' | 'between' | 'over' | 'won'
+  readonly state: 'menu' | 'launch' | 'play' | 'between' | 'over' | 'won'
   readonly score: number
   readonly distance: number
   readonly speed: number

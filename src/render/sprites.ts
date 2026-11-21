@@ -1,5 +1,5 @@
 import { curvature, ringRadius, shipMass } from '../game/game'
-import { GRACE, shipGrid, shipSeats } from '../game/tuning'
+import { GRACE, LAUNCH_TIME, shipGrid, shipSeats } from '../game/tuning'
 import type { Asteroid, Castaway, Drop, Game, Wormhole } from '../game/types'
 import { glow, text } from './text'
 
@@ -244,6 +244,30 @@ export function drawHull(ctx: CanvasRenderingContext2D, r: number, type: number,
     ctx.beginPath(); ctx.arc(cx, cy, p * (taken ? 0.36 : 0.28), 0, Math.PI * 2); ctx.fill()
     glow(ctx)
   }
+}
+
+/**
+ * The flame under the ship as it flies in at the start of a run, in the
+ * exhaust's colours, flickering and shrinking as the ship slows into place.
+ */
+export function drawFlame(ctx: CanvasRenderingContext2D, g: Game): void {
+  const { ship, clock } = g
+  const r = ship.r, power = Math.max(0, 1 - g.stateTime / LAUNCH_TIME) ** 0.7
+  if (power <= 0) return
+  const len = r * (1.2 + 2.6 * power) * (0.85 + 0.15 * Math.sin(clock * 47))
+  ctx.save()
+  ctx.translate(ship.x, ship.y + r * 0.9)
+  ctx.lineJoin = 'round'
+  ctx.lineWidth = r * 0.12
+  ctx.globalAlpha = 0.5 + 0.5 * power
+  for (const [color, w, k] of [['#ffd166', 0.5, 1], ['#7fdcff', 0.28, 0.6]] as const) {
+    ctx.strokeStyle = color
+    glow(ctx, color, r * 0.6)
+    ctx.beginPath()
+    ctx.moveTo(-r * w, 0); ctx.lineTo(0, len * k); ctx.lineTo(r * w, 0)
+    ctx.stroke()
+  }
+  ctx.restore()
 }
 
 export function drawShip(ctx: CanvasRenderingContext2D, g: Game): void {

@@ -247,3 +247,14 @@ test('MUS-14 from mission 2 the bass plays from the start, coming in at the firs
   expect(wanted('bass', 'flying', 1, false, 1)).toBe(false)
   expect(wanted('drums', 'flying', 1, false, 5)).toBe(false)
 })
+
+test('MUS-16 a loop started on the start screen or between missions starts at that tempo', async () => {
+  const { createControlTracker } = await import('../../src/music/score')
+  const t = createControlTracker()
+  t.reset(1, 'results')
+  expect(t.update(0, 'results', 1).filter(r => r.param === 'bpm')).toEqual([])   // already at 90: no ramp
+  const f = createControlTracker()
+  f.reset(1)
+  expect(f.update(0, 'flying', 1).filter(r => r.param === 'bpm')).toEqual([])
+  expect(controlFor('results', 1, 0).bpm).toBe(MUSIC.tempo.results)
+})

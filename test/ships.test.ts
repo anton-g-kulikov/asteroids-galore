@@ -18,8 +18,12 @@ function playing(level = 1, ship = 1): Game {
 const step = (g: Game, steer = 0) => update(g, 1 / 60, steer)
 const quiet = (g: Game) => { g.spawnTimer = 999; g.rescueTimer = 999 }
 
+// A mission starts with the fly-in (LAUNCH-04): this waits it out, into the mission's first step.
+const land = (g: Game) => { while (g.state === 'launch') step(g) }
+
 // Flies into a wormhole and waits until the results screen takes a tap.
 function finish(g: Game) {
+  land(g)
   quiet(g)
   g.wormhole = { x: g.ship.x, y: g.ship.y, r: 30 }
   step(g)
@@ -41,7 +45,7 @@ test('SHIP-01 every run starts in the smallest ship, whatever the last run flew'
   expect([g.shipType, seats(g), g.ship.r]).toEqual([1, 4, 13])
   Object.assign(g, { level: 6, shipType: 3, state: 'over', stateTime: 1 })
   tryStart(g)
-  expect([g.state, g.level, g.shipType, seats(g), g.ship.r]).toEqual(['play', 1, 1, 4, 13])
+  expect([g.state, g.level, g.shipType, seats(g), g.ship.r]).toEqual(['launch', 1, 1, 4, 13])   // flying in (LAUNCH-01)
 })
 
 test('SHIP-02 after missions 1, 3 and 5 there is nothing to choose: any tap or key moves on in the same ship', () => {
@@ -53,7 +57,7 @@ test('SHIP-02 after missions 1, 3 and 5 there is nothing to choose: any tap or k
       chooseSide(g, 1)
       expect(g.state).toBe('between')      // a steering key alone does not move on
       tryStart(g, x)
-      expect([g.state, g.level, g.shipType]).toEqual(['play', level + 1, ship])
+      expect([g.state, g.level, g.shipType]).toEqual(['launch', level + 1, ship])
     }
   }
 })
@@ -64,9 +68,9 @@ test('SHIP-03 after missions 2 and 4 the ship in use and the next one up are on 
     expect(offer(stop())).toEqual([ship, ship + 1])
 
     const kept = stop(); tryStart(kept, LEFT)
-    expect([kept.state, kept.level, kept.shipType]).toEqual(['play', level + 1, ship])
+    expect([kept.state, kept.level, kept.shipType]).toEqual(['launch', level + 1, ship])
     const up = stop(); tryStart(up, RIGHT)
-    expect([up.state, up.level, up.shipType]).toEqual(['play', level + 1, ship + 1])
+    expect([up.state, up.level, up.shipType]).toEqual(['launch', level + 1, ship + 1])
     // the middle of the field is the border: just left of it keeps, on it upgrades
     const a = stop(); tryStart(a, 199); expect(a.shipType).toBe(ship)
     const b = stop(); tryStart(b, 200); expect(b.shipType).toBe(ship + 1)
@@ -78,9 +82,9 @@ test('SHIP-03 after missions 2 and 4 the ship in use and the next one up are on 
     const keys = stop(); tryStart(keys)
     expect(keys.state).toBe('between')
     chooseSide(keys, -1)
-    expect([keys.state, keys.shipType]).toEqual(['play', ship])
+    expect([keys.state, keys.shipType]).toEqual(['launch', ship])
     const right = stop(); chooseSide(right, 1)
-    expect([right.state, right.level, right.shipType]).toEqual(['play', level + 1, ship + 1])
+    expect([right.state, right.level, right.shipType]).toEqual(['launch', level + 1, ship + 1])
   }
 })
 
@@ -93,7 +97,7 @@ test('SHIP-04 the choice waits for its 0.7 seconds like any other tap', () => {
   expect([g.state, g.shipType]).toEqual(['between', 2])
   update(g, 0.8, 0)
   tryStart(g, RIGHT)
-  expect([g.state, g.shipType]).toEqual(['play', 3])
+  expect([g.state, g.shipType]).toEqual(['launch', 3])
 })
 
 test('SHIP-05 one step at a time: always upgrading flies 4, 4, 8, 8, 12 and 12 seats in missions 1 to 6', () => {
@@ -125,7 +129,7 @@ test('SHIP-07 after mission 6 the fleet is on offer: every ship flown in this ru
   ;[60, 200, 340].forEach((x, i) => {
     const g = stop()
     tryStart(g, x)
-    expect([g.state, g.level, g.shipType]).toEqual(['play', 7, i + 1])
+    expect([g.state, g.level, g.shipType]).toEqual(['launch', 7, i + 1])
   })
   // a run that declined once has two ships, each in a half of the width; no bigger one is added
   const two = flyWith([RIGHT, LEFT, RIGHT, RIGHT, RIGHT])
@@ -136,7 +140,7 @@ test('SHIP-07 after mission 6 the fleet is on offer: every ship flown in this ru
   const one = flyWith([LEFT, LEFT, LEFT, LEFT, LEFT])
   expect(offer(one)).toEqual([1])
   tryStart(one)
-  expect([one.state, one.level, one.shipType]).toEqual(['play', 7, 1])
+  expect([one.state, one.level, one.shipType]).toEqual(['launch', 7, 1])
 })
 
 test('SHIP-08 in the fleet a keyboard moves a mark from ship to ship and chooses with Space or Enter', () => {
@@ -150,7 +154,7 @@ test('SHIP-08 in the fleet a keyboard moves a mark from ship to ship and chooses
   expect(g.pick).toBe(1)
   chooseSide(g, 1)
   tryStart(g)
-  expect([g.state, g.level, g.shipType]).toEqual(['play', 7, 2])
+  expect([g.state, g.level, g.shipType]).toEqual(['launch', 7, 2])
 })
 
 test('SHIP-09 seats, size and steering are the ship\'s, in whatever mission it flies', () => {
@@ -172,7 +176,7 @@ test('SHIP-09 seats, size and steering are the ship\'s, in whatever mission it f
   const g = playing(4, 2)
   for (let i = 0; i < 90; i++) step(g)
   finish(g); tryStart(g, RIGHT); quiet(g)
-  step(g)
+  land(g)
   expect(g.ship.r).toBeLessThan(shipRadius(2) + 0.5)
   for (let i = 0; i < 90; i++) { quiet(g); step(g) }
   expect(g.ship.r).toBeCloseTo(shipRadius(3), 1)
@@ -193,7 +197,7 @@ test('SHIP-10 a ship takes only as many crew as it seats: a small ship in a late
 test('SHIP-11 each mission is written down with its ship, and the run keeps the list', () => {
   const g = flyWith([LEFT, RIGHT, RIGHT])  // on the stop after mission 4
   expect(g.results.map(r => [r.level, r.ship])).toEqual([[1, 1], [2, 1], [3, 2], [4, 2]])
-  tryStart(g, RIGHT); quiet(g)
+  tryStart(g, RIGHT); quiet(g); land(g)
   Object.assign(g, { shields: 0, grace: 0 })
   g.asteroids.push({ x: g.ship.x, y: g.ship.y, r: 20, shape: [1], craters: [], vx: 0, vy: 0, rot: 0, spin: 0, shade: 0, gy: 0, people: 0 })
   step(g)

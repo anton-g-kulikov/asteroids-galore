@@ -1,7 +1,7 @@
 import * as Tone from 'tone'
 import type { MusicEngine } from './conductor'
 import {
-  INSTRUMENTS as I, LAYERS, MELODY_LENGTH, MUSIC, SEND, bpmFor, createControlTracker, createSequencer,
+  INSTRUMENTS as I, LAYERS, MELODY_LENGTH, MUSIC, SEND, controlFor, createControlTracker, createSequencer,
   type LayerId, type Mode, type Note, type Ramp, type Sequencer,
 } from './score'
 
@@ -115,8 +115,8 @@ export function createMusicEngine(context: AudioContext): MusicEngine & { inspec
       padPump.gain.value = 1; bassPump.gain.value = 1
       T.stop()
       T.bpm.cancelScheduledValues(0)
-      T.bpm.value = bpmFor(at.speed)
-      tracker.reset(at.speed)
+      T.bpm.value = controlFor(at.mode, at.speed, 0).bpm      // a drone on the start screen starts at its own tempo
+      tracker.reset(at.speed, at.mode)
       T.position = 0; step = 0
       T.start(Tone.now() + 0.08)
       playing = true

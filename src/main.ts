@@ -50,7 +50,9 @@ function loadMusic() {
   musicLoading = true
   Promise.all([import('./music/engine'), import('./music/effects')])
     .then(([m, fx]) => {
-      music.attach(m.createMusicEngine(context))
+      const engine = m.createMusicEngine(context)
+      music.attach(engine)
+      if (import.meta.env.DEV) (window as unknown as { __music: unknown }).__music = engine.inspect   // for checking by hand
       sound.attachEffects(fx.createEffects(context), () => music.chord())   // the sound effects follow the music's chord
     })
     .catch(error => console.warn('Music unavailable', error))
@@ -145,7 +147,7 @@ window.addEventListener('pointerdown', e => {
   sound.unlock()
   loadMusic()
   // the music switch: only a switch, not a start or a choice
-  if (onMusicButton(game, (e.clientX - view.x) / view.scale, (e.clientY - view.y) / view.scale, canPlaySound)) { music.toggle(); return }
+  if (onMusicButton(game, (e.clientX - view.x) / view.scale, (e.clientY - view.y) / view.scale, canPlaySound)) { music.press(game); return }
   // the frame-rate switch: only a switch, not a start
   if (onFpsButton(game, (e.clientX - view.x) / view.scale, (e.clientY - view.y) / view.scale)) { fps.toggle(); return }
   // only a mute: not a start, a steer, a choice of ship or a move on
@@ -181,7 +183,7 @@ window.addEventListener('keydown', e => {
   sound.unlock()
   loadMusic()
   if (e.key === 'm' || e.key === 'M') { if (!e.repeat) sound.toggleMute(); return }   // the sound effects
-  if (e.key === 'n' || e.key === 'N') { if (!e.repeat) music.toggle(); return }      // the music
+  if (e.key === 'n' || e.key === 'N') { if (!e.repeat) music.press(game); return }   // the music: on the start screen, the drone
   if (e.key === 'Escape') { closeBoard(); return }
   const side = sideOf(e.key)
   if (side) { input.key(side, true); if (!e.repeat) chooseSide(game, side === 'left' ? -1 : 1) }

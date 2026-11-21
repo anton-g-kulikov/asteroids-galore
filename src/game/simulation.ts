@@ -1,4 +1,4 @@
-import { isFleet, newWell, offer, reachOf, seats, setState, shipMass, wellY } from './game'
+import { isFleet, newWell, offer, reachOf, seats, setState, shipHome, shipMass, wellY } from './game'
 import { emit } from './events'
 import { buzz } from './haptics'
 import { newSeed, rand, random, seedRandom } from './random'
@@ -6,7 +6,7 @@ import { runEnd } from './runSummary'
 import { missionSoFar, scoreOf } from './score'
 import { spawnAsteroid, spawnChoice, spawnDilemma, spawnDrop, spawnRescue } from './spawn'
 import {
-  CHOICE_EVERY, DILEMMA_EVERY, DROPS_WITHIN, FIRST_RESCUE, GRACE, LAST_LEVEL, LEVEL_MIN_TIME, MAX_SHIELDS, SEAT_WAIT, SHIELDS,
+  CHOICE_EVERY, DILEMMA_EVERY, LAUNCH_TIME, DROPS_WITHIN, FIRST_RESCUE, GRACE, LAST_LEVEL, LEVEL_MIN_TIME, MAX_SHIELDS, SEAT_WAIT, SHIELDS,
   SLOW_TIME, WELL_PULL, WELL_TIME, WORM_WAITS,
   handling, levelTarget, rescueGap, shieldDrops, shipRadius, speedAt, startSpeed,
 } from './tuning'
@@ -29,6 +29,25 @@ export function startGame(g: Game): void {
 }
 
 /**
+ * A run as the player starts it: the run is set up from its seed as `startGame`
+ * does, then the ship flies in from below the field for LAUNCH_TIME, and only
+ * then is it in play. Every later mission starts with the same fly-in (see `nextLevel`). The fly-in draws nothing from the seed, so the run that
+ * follows is the one `startGame` deals. It is also the time the music takes to load.
+ */
+function launch(g: Game): void {
+  startGame(g)
+  g.ship.y = launchY(g, 0)
+  setState(g, 'launch')
+}
+
+/** The ship's height `t` seconds into the fly-in: from below the field, slowing as it arrives. */
+function launchY(g: Game, t: number): number {
+  const k = 1 - Math.min(1, t / LAUNCH_TIME)
+  return shipHome(g) + (g.H - shipHome(g) + g.ship.r * 3) * k ** 3
+}
+
+
+/**
  * A tap or a key: starts a run from the menu, moves on from the results screen
  * between levels, or restarts from an end screen. Screens that follow play must
  * have been up for a moment first, so a frantic tap does not skip them.
@@ -41,7 +60,8 @@ export function startGame(g: Game): void {
  * keep-or-upgrade has to be answered with a side (see `chooseSide`).
  */
 export function tryStart(g: Game, x?: number): void {
-  if (g.state === 'menu') startGame(g)
+  if (g.state === 'menu') launch(g)
+  else if (g.state === 'launch') return
   else if (g.stateTime <= 0.7) return
   else if (g.state === 'between') {
     const ships = offer(g)
@@ -49,7 +69,7 @@ export function tryStart(g: Game, x?: number): void {
     else if (x !== undefined) choose(g, ships[Math.max(0, Math.min(ships.length - 1, Math.floor(x / g.W * ships.length)))])
     else if (isFleet(g)) choose(g, g.pick)
   }
-  else if (g.state === 'over' || g.state === 'won') { g.seed = newSeed(); startGame(g) }
+  else if (g.state === 'over' || g.state === 'won') { g.seed = newSeed(); launch(g) }
 }
 
 /**
@@ -88,7 +108,8 @@ function nextLevel(g: Game, ship: number): void {
   g.spawnTimer = Math.max(g.spawnTimer, 1.2)    // short breather
   g.rescueTimer = 4
   buzz([40, 60, 40])
-  setState(g, 'play')
+  setState(g, 'launch')                         // the ship flies in from below, as at the start of a run
+  g.ship.y = launchY(g, 0)
 }
 
 // Flying into the wormhole ends the level: the crew on board are delivered and
@@ -226,15 +247,18 @@ export function skipLevel(g: Game): void { g.levelScore = Math.max(g.levelScore,
 /** Advances the game by `dt` seconds. `steer` is -1, 0 or 1. */
 export function update(g: Game, dt: number, steer: number): void {
   const { H, U, ship } = g
+  // The ship has arrived: this step is the run's first, as the first step after `startGame` is.
+  if (g.state === 'launch' && g.stateTime >= LAUNCH_TIME - 1e-9) { ship.y = shipHome(g); setState(g, 'play') }
   g.stateTime += dt
   g.clock += dt
-  const scroll = H * 0.34 * (g.state === 'play' ? g.speed : g.state === 'over' ? 0.25 : 0.6)
+  const scroll = H * 0.34 * (g.state === 'play' || g.state === 'launch' ? g.speed : g.state === 'over' ? 0.25 : 0.6)
 
   for (const s of g.stars) {
     s.y += (scroll * 0.35 * s.z * dt) / H
     if (s.y > 1) { s.y -= 1; s.x = Math.random() }   // scenery: not dealt from the seed
   }
 
+  if (g.state === 'launch') ship.y = launchY(g, g.stateTime)
   if (g.state === 'play') playerAndSpawns(g, dt, steer, scroll)
 
   for (let i = g.wells.length - 1; i >= 0; i--) {

@@ -2,7 +2,8 @@ import type { SoundEvent } from './events'
 import type { Records } from './records'
 
 /** `between`: the results screen shown after a wormhole, before the next level starts. */
-export type GameState = 'menu' | 'play' | 'between' | 'over' | 'won'
+/** `launch`: the ship flying in from below as a run starts, before anything of the run is dealt. */
+export type GameState = 'menu' | 'launch' | 'play' | 'between' | 'over' | 'won'
 
 export interface Ship { x: number; y: number; vx: number; r: number }
 

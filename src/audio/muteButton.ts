@@ -1,7 +1,9 @@
 import type { Game } from '../game/types'
 
 // The mute control: a small speaker in the top right corner of the start
-// screen and of the results screens between missions, with no word. Drawn here rather than with the rest of the screen,
+// screen and of the results screens between missions, and in the bottom right
+// corner of the end screens (their top corners hold the leaderboard and share
+// buttons), with no word. Drawn here rather than with the rest of the screen,
 // so the drawing code does not need to know about sound. `M` on a keyboard
 // toggles it anywhere.
 
@@ -9,16 +11,19 @@ import type { Game } from '../game/types'
 export function muteButtonRect(g: Game): { x: number; y: number; w: number; h: number } {
   const { W, U } = g
   const size = Math.max(40, 44 * U)
-  return { x: W - 14 - size, y: 44 * U + 8 - size / 2, w: size, h: size }
+  const y = isEnd(g) ? g.H - 14 - size : 44 * U + 8 - size / 2
+  return { x: W - 14 - size, y, w: size, h: size }
 }
 
+const isEnd = (g: Game): boolean => g.state === 'over' || g.state === 'won'
+
 /**
- * On the start screen and between missions: the screens that wait for a tap.
- * Not in flight, where a tap steers, and not on the end screens, whose top
- * corners hold the leaderboard and share buttons. Only where the browser can
- * play sound.
+ * On every screen that waits for a tap: the start screen, between missions and
+ * the end screens (not over the leaderboard). Not in flight or the fly-in,
+ * where a tap steers. Only where the browser can play sound.
  */
-export const showsMute = (g: Game, audio: boolean): boolean => audio && (g.state === 'menu' || g.state === 'between')
+export const showsMute = (g: Game, audio: boolean): boolean =>
+  audio && (g.state === 'menu' || g.state === 'between' || (isEnd(g) && !g.boardOpen))
 
 /**
  * True when a tap at (x, y), in play-field units, lands on the icon. Such a tap

@@ -2,7 +2,7 @@ import { muteButtonRect, showsMute } from '../audio/muteButton'
 import type { Game } from '../game/types'
 
 // The music switch: a note just left of the sound-effects speaker, on the
-// same screens. It is its own control: either can be off while the other plays.
+// same screens (the start screen, between missions, the end screens). It is its own control: either can be off while the other plays.
 // `N` on a keyboard toggles it anywhere.
 
 export function musicButtonRect(g: Game): { x: number; y: number; w: number; h: number } {

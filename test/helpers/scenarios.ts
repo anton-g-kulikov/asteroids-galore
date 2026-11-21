@@ -72,8 +72,8 @@ function pairs(): Scenario['pilot'] {
   let since = 0
   return (f, g, io) => {
     steer ??= keys(io)
-    // The stop between levels is tapped through without restarting the script's clock.
-    if (g.state !== 'play') { steer(0); if (g.state !== 'between') since = 0; tapStart(f, io); return }
+    // The stop between levels, and the fly-in after it, pass without restarting the script's clock.
+    if (g.state !== 'play') { steer(0); if (g.state !== 'between' && g.state !== 'launch') since = 0; tapStart(f, io); return }
     since++
     if (since === 30) g.skipLevel()
     if (g.level >= 2) {

@@ -20,7 +20,7 @@ export function createGame(records: Records): Game {
     ship: { x: FIELD_W / 2, y: 0, vx: 0, r: shipRadius(1) },
     asteroids: [], particles: [], floaters: [], castaways: [], stars: [],
   }
-  g.ship.y = g.H - Math.max(110 * g.U, g.H * 0.16)
+  g.ship.y = shipHome(g)
   for (let i = 0; i < 90; i++) g.stars.push({ x: Math.random(), y: Math.random(), z: 0.2 + Math.random() * 0.8 })   // scenery: not dealt from the seed
   return g
 }
@@ -33,6 +33,9 @@ export function fit(innerWidth: number, innerHeight: number): { scale: number; x
   const scale = Math.min(innerWidth / FIELD_W, innerHeight / FIELD_H)
   return { scale, x: (innerWidth - FIELD_W * scale) / 2, y: (innerHeight - FIELD_H * scale) / 2 }
 }
+
+/** Where the ship flies, near the foot of the field. */
+export const shipHome = (g: Pick<Game, 'H' | 'U'>): number => g.H - Math.max(110 * g.U, g.H * 0.16)
 
 export function setState(g: Game, s: GameState): void { g.state = s; g.stateTime = 0 }
 

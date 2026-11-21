@@ -5,6 +5,7 @@
 export const FIELD_W = 400
 export const FIELD_H = 720
 export const STEP = 1 / 60           // seconds per simulation step, on every device
+export const LAUNCH_TIME = 1.2       // seconds the ship takes to fly in from below the field when a run starts
 
 export const SPEED_GAIN = 1.3        // speed multiplier gained over a level's parsec target, whatever its length
 

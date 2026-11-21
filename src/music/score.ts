@@ -235,8 +235,8 @@ export interface Ramp { param: 'bpm' | 'arpDelay' | 'leadDelay' | 'padCutoff' | 
 export const CONTROL = { bpmStep: 0.5, cutoffStep: 0.03, ramp: 0.5, slowIn: 0.2, slowOut: 0.45 }
 
 export interface ControlTracker {
-  /** At the start of the loop, with the tempo set directly. */
-  reset(speed: number): void
+  /** At the start of the loop, with the tempo set directly to `mode`'s. */
+  reset(speed: number, mode?: Mode): void
   /** Each frame: what to change now. Usually nothing. */
   update(now: number, mode: Mode, speed: number): Ramp[]
   /** When slow motion starts: down and back up, scheduled at once. */
@@ -253,7 +253,7 @@ export function createControlTracker(): ControlTracker {
   let slowUntil = -1
   const baseBpm = (mode: Mode, speed: number) => mode === 'results' ? MUSIC.tempo.results : bpmFor(speed)
   return {
-    reset(speed) { applied.bpm = bpmFor(speed); applied.cut = 0; slowUntil = -1 },
+    reset(speed, mode = 'flying') { applied.bpm = baseBpm(mode, speed); applied.cut = 0; slowUntil = -1 },
     update(now, mode, speed) {
       if (mode === 'silent' || now < slowUntil) return []      // slow motion has its own two ramps
       const ramps: Ramp[] = []

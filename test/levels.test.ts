@@ -17,8 +17,12 @@ function playing(level = 1, ship = 1): Game {
 
 const step = (g: Game, steer = 0) => update(g, 1 / 60, steer)
 
+// A mission starts with the fly-in (LAUNCH-04): this waits it out, into the mission's first step.
+const land = (g: Game) => { while (g.state === 'launch') step(g) }
+
 // Puts a wormhole on the ship and runs one frame, so the ship flies into it.
 function intoWormhole(g: Game) {
+  land(g)
   g.wormhole = { x: g.ship.x, y: g.ship.y, r: 30 }
   step(g)
 }
@@ -44,7 +48,7 @@ test('LEVEL-02 the results screen waits for a tap, and ignores one that comes at
   expect(g.state).toBe('between')       // it never moves on by itself
   expect(Math.floor(g.distance)).toBe(0) // and nothing is flown while it is up
   tryStart(g)
-  expect([g.state, g.level, g.shields]).toEqual(['play', 2, 3])
+  expect([g.state, g.level, g.shields]).toEqual(['launch', 2, 3])   // flying in (LAUNCH-04)
 })
 
 test('LEVEL-03 each level gets its own row, counted from where the level began', () => {
@@ -53,7 +57,8 @@ test('LEVEL-03 each level gets its own row, counted from where the level began',
   intoWormhole(g)
   update(g, 0.8, 0); tryStart(g)
   g.spawnTimer = 999; g.rescueTimer = 999
-  Object.assign(g, { distance: g.distance + 520.5, onboard: 3, missed: 5 })
+  land(g)
+  Object.assign(g, { distance: g.levelFrom.distance + 520.5, onboard: 3, missed: 5 })   // from where the mission began
   intoWormhole(g)
   expect(g.results[1]).toEqual({ level: 2, ship: 1, saved: 3, missed: 3, distance: 520 })
   expect(g.saved).toBe(4)
@@ -80,7 +85,7 @@ test('LEVEL-06 a destroyed ship loses only the mission in flight: its row scores
   const g = playing()
   Object.assign(g, { distance: 400, onboard: 1, missed: 0 })
   intoWormhole(g)
-  update(g, 0.8, 0); tryStart(g)
+  update(g, 0.8, 0); tryStart(g); land(g)
   Object.assign(g, { distance: g.distance + 250, onboard: 3, missed: 1, shields: 0, spawnTimer: 999, rescueTimer: 999 })
   g.asteroids.push(rock(g))
   step(g)
@@ -271,7 +276,7 @@ test('SEED-02 the seed shown on the start screen is the first run\'s; every run 
   const shown = g.seed
   expect(Number.isInteger(shown) && shown >= 0 && shown < 0x1000000).toBe(true)
   tryStart(g)
-  expect([g.state, g.seed]).toEqual(['play', shown])
+  expect([g.state, g.seed]).toEqual(['launch', shown])   // the fly-in first (LAUNCH-01)
   const seeds = new Set([shown])
   for (let i = 0; i < 5; i++) {
     g.state = 'over'; g.stateTime = 1

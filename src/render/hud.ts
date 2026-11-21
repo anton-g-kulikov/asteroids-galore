@@ -314,7 +314,7 @@ function drawBoard(ctx: CanvasRenderingContext2D, g: Game, rows: BoardRow[]): vo
 /** Everything drawn over the playfield: the in-run HUD, the menu, the results between levels, or an end screen. */
 export function drawHud(ctx: CanvasRenderingContext2D, g: Game): void {
   const { W, H, U } = g
-  if (g.state === 'play') {
+  if (g.state === 'play' || g.state === 'launch') {
     drawPlayHud(ctx, g, 44 * U + 8)
   } else if (g.state === 'menu') {
     drawMenu(ctx, g)

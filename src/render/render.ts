@@ -1,6 +1,6 @@
 import type { Game } from '../game/types'
 import { drawHud } from './hud'
-import { drawAsteroid, drawCastaway, drawDrop, drawGrid, drawShip, drawWormhole } from './sprites'
+import { drawAsteroid, drawCastaway, drawDrop, drawFlame, drawGrid, drawShip, drawWormhole } from './sprites'
 import { text } from './text'
 
 /** How the field is drawn. `starStretch`: how much a near star lengthens for each 1× of speed above the starting speed. */
@@ -37,6 +37,7 @@ export function render(ctx: CanvasRenderingContext2D, g: Game): void {
     text(ctx, f.str, f.x, f.y, 20 * U, '#5dffa0', 'center', 800)
   }
   ctx.globalAlpha = 1
+  if (g.state === 'launch') drawFlame(ctx, g)
   if (g.state !== 'over') drawShip(ctx, g)
   ctx.restore()
 
