@@ -87,7 +87,8 @@ const fullscreen = createFullscreenKeeper(browserFullscreen())
 // The play field never changes shape: the window only decides how big it is drawn.
 let view = fit(window.innerWidth, window.innerHeight)
 function resize() {
-  const dpr = Math.min(window.devicePixelRatio || 1, 3)
+  // At most 2 pixels per point: on a 3× phone, 3 would draw 2.25 times the pixels for edges hard to tell apart at arm's length
+  const dpr = Math.min(window.devicePixelRatio || 1, 2)
   view = fit(window.innerWidth, window.innerHeight)
   canvas.style.width = game.W * view.scale + 'px'
   canvas.style.height = game.H * view.scale + 'px'
