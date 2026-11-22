@@ -38,7 +38,7 @@ All from the Game Producer's review, and one rule from the owner.
 - **Small things:** the children sleep under the chart table, not in a hold that is about to be opened to space.
 - **Added on 2026-11-22 for the build:** what the First signs as when they come from a later moon; what the ship says when a speaker is not aboard, so that every moon is still named in order; and how far the second freighter reaches.
 - **The *Lantern* cannot stop,** the owner's fact of 2026-11-22: "In fact, the Lantern is on it's way to Earth, we can't stop it. This is why the only way is to use lightboats". One line changes: in the briefing Control now says "Your ship can't stop. Fly a boat from it." in place of "Your ship can't go in." So the reason for the boats is said once, before the first flight. Nothing else said had the ship divert, wait or turn: "m01n in range" and "m06n is out of range of this ship" read as a ship passing, and "If you stay, this ship goes home alone" now has its reason, since the ship cannot wait for the captain.
-- **Checked against the orbit on 2026-11-22,** the owner's decision that a story flight is laps around the moon (in `game-design.md` under "The orbit"). A trip is still one flight out from the ship and back by a haul road, and it now holds as many laps as the captain flies. One line changed afterwards, when the owner confirmed that the wormhole comes round once a lap: on leaving `m02n` the First's "Nobody's keeping the timetable now." became "It keeps the timetable now.", said of the drill, since a road that opens on a steady beat is on a timetable. Nobody says "orbit": staying for another lap is flying, and nothing is said while flying. The figures quoted below from the Engineer's check (boats lost, people saved, minutes of flight) were measured before the orbit and will change when it is built.
+- **Checked against the orbit on 2026-11-22,** the owner's decision that a story flight is laps around the moon (in `game-design.md` under "The orbit"). A trip is still one flight out from the ship and back by a haul road, and it now holds as many laps as the captain flies. One line changed afterwards, when the owner confirmed that the wormhole comes round once a lap: on leaving `m02n` the First's "Nobody's keeping the timetable now." became "It keeps the timetable now.", said of the drill, since a road that opens on a steady beat is on a timetable. Control says "orbit", by the owner's word ("use orbit"), and nobody else needs to. Staying for another orbit is told once, before the first flight, by the owner's wish: see [Before mission 00](#before-mission-00). The figures quoted below from the Engineer's check (boats lost, people saved, minutes of flight) were measured before the orbit and will change when it is built.
 
 ## What this draft assumes
 
@@ -106,12 +106,18 @@ The First is one person for the whole story, and is never the survivor who speak
 > Your ship can't stop. Fly a boat from it.
 > Show them a light. Bring out all you can.
 
+> **CONTROL**
+> A road back to the ship opens each orbit.
+> Every orbit you stay, you fly faster.
+
 > **LANTERN**
-> Three boats: four, eight, twelve seats.
+> Three lightboats: 4, 8 and 12 seats.
 > More seats, more boat among the rocks.
 > A boat lost is not replaced.
 
-The briefing is the one block longer than three lines. The ship's block is the one telling of the boats: all three are ready from the start, the owner's decision ("in story mode – all boats are ready always (they are on the ship)"), so the first choice of boat comes before the first flight. It says what the choice stakes, seats against a bigger boat to hit, and that a boat lost is gone.
+The briefing is the one block longer than three lines. The ship's block is the one telling of the boats: all three are ready from the start, the owner's decision ("in story mode – all boats are ready always (they are on the ship)"), so the first choice of boat comes before the first flight. It says what the choice stakes, seats against a bigger boat to hit, and that a boat lost is gone. It stays last on the screen, because the choice of boat is shown under it.
+
+Control's second block is the owner's: "Add a remark in the script, that each orbit run increases the speed, so the pilot needs to be cognizant of the risk". The owner then said where it goes: "it should come before the first orbit run, it sets the premise and explains the rules". So it is on the briefing screen, and it tells the rules of a flight plainly: the way back to the ship comes once an orbit, and each orbit the boat stays out is faster. That a flight from the ship starts slow again is not said: the owner's word, "don't need that line" (the rule itself: "staying on orbit increase the speed, going to lantern and returning to orbit resets the speed"). So the risk of staying is the pilot's own to weigh, told before it is taken. That people missed come round again on the next lap is not said: it is the reason to stay, and is left to be found, as rescues are. It says "orbit": the owner's word, "use orbit", over the writer's first choice of "lap". Orbit is the word for what the arc at the foot of the field shows, and in these notes a lap is one orbit. The Foreman says the same thing late, at `m04n`, as the drill's doing: "The longer you stay, the faster it runs."
 
 ## m00n
 
@@ -409,11 +415,11 @@ Shown before the "Leaving" screen of that moon.
 The captain is on the Lantern. The people aboard the boat die, and the boat is gone for the rest of the story.
 
 > **LANTERN**
-> The eight is lost.
+> Lightboat-8 is lost.
 > [N] aboard. None recovered.
 > Two boats left.
 
-- *The ship names the boat and counts what is left.* If nobody was aboard, the second line is "Nobody aboard."
+- *The ship names the boat and counts what is left:* "Lightboat-4", "Lightboat-8" or "Lightboat-12", the owner's wording of 2026-11-22. If nobody was aboard, the second line is "Nobody aboard."
 
 > **SURVEYOR, m00n**
 > I've marked them.
@@ -430,7 +436,7 @@ One odd case: when the boat is destroyed on the first trip to a moon, this scree
 Before mission 06, with no boat left to send. Under the rules as decided, the Engineer's check found this is how the story ends for one average captain in four, and almost never for strong ones. So it is written as an ending of its own.
 
 > **LANTERN**
-> The four is lost.
+> Lightboat-4 is lost.
 > [N] aboard. None recovered.
 > No boats left.
 

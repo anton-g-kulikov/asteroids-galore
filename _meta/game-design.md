@@ -905,7 +905,7 @@ First called the roll; the owner renamed it on 2026-11-22 ("Manifest, rename it"
 
 ### Rules for the writing
 
-- **Why, never how.** The story gives the captain a reason to fly. It never teaches rings, steering, seats or shields. Rescues, the wormhole and gravity are still left to be discovered.
+- **Why, never how.** The story gives the captain a reason to fly. It never teaches rings, steering, seats or shields. Rescues, the wormhole and gravity are still left to be discovered. Two things are told because they are stakes, not controls: what each boat risks, and, at the owner's wish ("Add a remark in the script, that each orbit run increases the speed, so the pilot needs to be cognizant of the risk"), that the way back to the ship comes once an orbit and every orbit the boat stays is faster. Control says it with the word "orbit", the owner's choice ("use orbit"). Both are on the briefing screen, before the first flight, where the owner put them ("it should come before the first orbit run, it sets the premise and explains the rules").
 - **Nothing to read while flying.** Lines appear only where the game has stopped.
 - **Three states, and the story never blurs them.** People still on a moon are still there for as long as the *Lantern* is. Once the captain goes on they are left behind. Only people aboard a destroyed boat are dead. The First keeps all three on the list.
 - **First person.** The owner's words: "this is a first-person POV story; if the protagonist dies, they won't know how the whole story unfolded." Nothing is said that the captain could not hear or know, and nothing at all is said after the captain's death.
