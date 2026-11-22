@@ -1007,7 +1007,7 @@ On the last mission:
 - **Every moon holds a fixed number of people, always more than the lightboat in use seats.** So no moon is cleared in one trip.
 - **After a trip, the Pilot chooses.** If people are still on the moon, the Pilot either goes back for them or goes on to the next moon. Going back is a short flight with only those people in the field. Those still there when the Pilot goes on are left behind for good.
 - **The *Lantern* has no crew, only the captain** (the owner, 2026-11-22: "Lantern has no crew, only the captain"). In the script the ship speaks with its own voice.
-- **The *Lantern* is a freighter** carrying light0re from the other side of the galaxy. It picks up a distress signal, does not know how many moons have broken, and diverts to the first. It learns of the others as it goes.
+- **The *Lantern* is a freighter** carrying light0re from the other side of the galaxy. It picks up a distress signal and does not know how many moons have broken. It cannot stop: it is on its way to Earth the whole story, so it sends its lightboats to the first moon and learns of the others as it goes. (The owner's first outline said it "diverts"; the owner's later words, under [the orbit](#the-orbit-2026-11-22), are that it cannot be stopped.)
 - **The *Lantern* carries three lightboats, and only three.** Read as: a lightboat destroyed is gone for the rest of the story, which was the Engineer's option B.
 - **With its cargo aboard, the *Lantern* is full after mission 03.** The captain then chooses: go home with the ore and the people saved, for the commission and the fame, telling themselves that someone else will come for the rest; or drop the ore and make room for more people. This is the reason the choice after mission 03 exists.
 - **Going home with the ore is not a bad ending.** At least half the time it tells that another freighter took on the rescue, saved some of the people still out there, and earned the same fame and commission. The rest of the time it does not. Which it is, is chance, not something the captain did.
@@ -1071,8 +1071,142 @@ Most of what this list once held is settled; it is kept so the trail is clear.
 - **The numbers are confirmed by the owner** (2026-11-22, to the Game Designer: "the numbers are confirmed"): the people on each moon, 6, 7, 11, 12, 16, 18 and 20, and the *Lantern*'s 70 places, 36 with the ore aboard.
 - **Going back** is not limited, **the boats** are three with a lost one gone, and **the two ways home** have their endings: all decided above.
 - **What the screen shows** is in [Planned: story mode screens](#planned-story-mode-screens).
-- **Still the Engineer's proposal, not confirmed by name:** what a return flight is like (a third of the mission, at its closing speed, with the shields left), mission 06's length and when its way out opens, and which boat is ready when. The headless check was flown with them.
+- **Still the Engineer's proposal, not confirmed by name:** mission 06's length and when its way out opens, and which boat is ready when. The headless check was flown with them. The third, what a return flight is like (a third of the mission, at its closing speed, with the shields left), is replaced by [the orbit](#the-orbit-2026-11-22) below.
 
+### The orbit (2026-11-22)
+
+**Decided by the owner as an idea; its numbers are not proposed yet, nothing is drawn and nothing is built. Story mode as built still flies a first trip and shorter returns.**
+
+The owner's words:
+
+> "the route progress meter at the bottom should be a slight ark, showing the orbit around the broken moon. That would allow us to show that we are flying in circles and that would allows the pilot to actually pick up stranded crew, without ending a mission"
+
+The Producer read this as laps around the moon and proposed that passing the *Lantern* on the orbit would unload the boat. The owner's answer:
+
+> "No, we still use wormholes to go back to the Lantern, but everything else, I agree"
+
+What that settles:
+
+- **A story mission is flown in laps around the moon.** The meter at the foot of the field is a slight arc, the orbit, and the boat's mark travels along it.
+- **People not picked up stay on the orbit** and come round again on a later lap. A pilot who missed someone can pick them up without the flight ending.
+- **A wormhole takes the boat back to the *Lantern*,** as today. The *Lantern* is not on the orbit, and the boat is not unloaded in flight. Seats still limit what one flight brings: a full boat goes through the wormhole, and the captain comes back for the rest.
+- **Leaving is confirmed at the stop,** by the hold, as the screens already have it. The people left for good are never left by a slip of steering.
+- **People still on the moon are marked on the arc,** so the pilot sees them coming.
+- **Arcade keeps its straight bar.** It does not circle, and it changes only its start screen.
+- **Mission 06 is still one flight, once.** Everything else in the rules stands: the people on each moon, three boats, a hit costing only a shield, both choices and the eight endings.
+
+- **The wormhole comes once a lap,** and steering past it is how the pilot stays for another lap. This was the Producer's reading; asked "Does the wormhole come once a lap, with steering past it to stay?", the owner answered "Yes, once a lap".
+
+Why the *Lantern* is not on the orbit, in the owner's words, added the same day:
+
+> "In fact, the Lantern is on it's way to Earth, we can't stop it. This is why the only way is to use lightboats"
+
+- **The *Lantern* never stops at a moon.** It is under way to Earth the whole story. The lightboats go out to each moon and the wormholes bring them back to it.
+- **The script, checked by the Writer the same day:** one spoken line changed. In the briefing Control now says "Your ship can't stop. Fly a boat from it." in place of "Your ship can't go in." Going home after mission 03 or 05 reads as sending no more boats, and the words of those choices did not change.
+- **Going back without limit while the ship cannot wait** was the Producer's question and was not put to the owner. The Writer's assumption, said in no line: the haul roads carry the boat out and back wherever the ship is, and the story keeps no clock.
+
+Open, for the Engineer to propose and fly in the headless check:
+
+- **How long a lap is,** and how many laps a first flight needs before the wormhole comes.
+- **Speed from lap to lap.** It sets the risk of staying, which the owner wants to be the captain's own risk to weigh ("Don't limit; it's a risk assessment decision from a captain/pilot").
+- **Where people sit on the orbit,** and whether someone missed comes round at the same place.
+- **Shields:** whether drops come on later laps.
+- **What a flight back from the *Lantern* is** now: the old return was the mission's last third.
+- **The check's figures are out of date** once this is built. One average captain in four out of boats, 45 of 70 saved and 15 to 20 minutes of flight were all measured with the old returns.
+- **Closing the app in mid-flight** still restarts the flight, and flights are now longer. Not decided.
+
+The Producer's review of the Engineer's proposal below, put to the owner on 2026-11-22:
+
+- **Staying in orbit is never the better move under the proposal.** Going back costs nothing that staying does not, the same speed and the same shields, and it also puts the people aboard safe on the *Lantern* and empties the seats. A sharp player would take every wormhole.
+- **A variant was flown on the owner's word, and it is parked** (see the owner's answers below). The Engineer's figures: the step did not make staying pay, and average captains ran out of boats two to five times as often. Asked "Should going back to the Lantern cost a step of speed, so staying in orbit is a real choice?", the owner answered "Yes, fly that variant". In it each flight back adds a step of speed, as a lap does, because the moon keeps breaking while the boat is away.
+- **The story is much kinder under the proposal.** An expert leaves nobody behind and a strong captain leaves one. Raised with the owner, not answered.
+
+
+### The owner's answers to the open questions (2026-11-22)
+
+**Decided by the owner. The orbit is being built this way for play testing on the owner's machine; nothing is released.** The Producer listed eleven open questions and the owner answered by number. Where an answer could be read two ways the Producer asked, and the choice is given.
+
+- **The arc is shape A,** over the moon (the owner: "A").
+- **The orbit is built from rules the game already has.** The owner: "keep the current mechanics, don't envent new ones, park this suggestion". Asked what is parked, the owner chose "The proposal's new rules": the orbit stays, with laps and people coming round again, and whatever the Engineer invented for it is parked, such as shield drops on the first lap only and mission 06 losing its way out when full. Parked with it: a speed step for going back, a person lost per flight back, and a shield per lap stayed.
+- **Speed.** The owner: "staying on orbit increase the speed, going to lantern and returning to orbit resets the speed". This replaces the Engineer's step per lap and the orbit keeping its speed between flights.
+- **What the story is about.** Asked how kind it should be, the owner answered: "the story is about risk assessment, counterfactuals, rationality and responsiblity. It is also about deontological and utilitarian ethic frameworks". No figure for people left behind is set.
+- **Closing the app in mid-flight** restarts that flight, as built. The owner chose "Keep it as built", accepting that a player can undo a lost boat this way.
+- **Pilot, then captain.** The owner: "here is an ark inside ark: we start by referring to our hero as a pilot, we 'promote' them to captain only after they start making their own decisions". When the word changes, and what stands in for a missing callsign in place of "UNNAMED", are the Writer's to propose.
+- **The dev control is local only.** The owner: "dev stays behind the switch, local only". The Producer's reading: it is not on the live site at all.
+- **All three boats are ready from the start.** The owner: "in story mode – all boats are ready always (they are on the ship)". A lost boat is still gone. This replaces the eight and the twelve being offered after missions 01 and 03.
+- **The script's length stays** for the play test. The owner: "keep it, I want to play test it as it is".
+- **Nothing is released yet.** The owner: "let's test everything locally fist".
+
+What follows, the Producer's reading and not the owner's words:
+
+- **A moon no longer always holds more people than the boat seats.** The owner's earlier rule was that each moon has a "fixed amount of crew, always bigger than current lightboat". With the twelve ready from the start, `m00n` to `m03n` (6, 7, 11 and 12 people) can each be emptied in one flight. The price is the twelve's handling, and losing it early. Told to the owner.
+- **Going back is always the safer move.** It puts the people aboard on the *Lantern*, empties the seats and resets the speed. Staying is the gamble. Told to the owner.
+- **A lap, under "rules the game already has",** is the mission's own target, the length the bar already shows. The Engineer's check found whole-target laps hard on average captains, but with speed carried between flights. A new check is asked for.
+- **The second freighter reaches only `m04n` to `m06n`,** the moons the captain never flew to, and never brings out everyone. Decided by the owner the same day: "The second freighter only covers m04n to mo6n – it's a narrative device, and yes, it shouldn't save all crew". It reaches nobody left on `m00n` to `m03n`. This replaces the script's reach of `m00n` to `m04n`; the Producer had suggested leaving `m06n` out, and the owner included it. The share is still the Engineer's half, rounded up: 8, 9 and 10 of 16, 18 and 20. The Writer is changing the lines, and the code still loops over `m00n` to `m04n`.
+
+### The Engineer's proposal for the orbit (2026-11-22)
+
+**A proposal for the owner to decide on. Nothing is built: story mode as built still flies a first trip and shorter returns.** Flown in the headless check, which is described below the table. Nothing has been played.
+
+| Question | Proposal | Why |
+|---|---|---|
+| 1. A lap | **Half the mission's story target:** m00n 250 pc, m01n 375, m02n 625, m03n 1,000, m04n 1,250, m05n 1,500, m06n 1,000. **The first lap has a wormhole**, as every lap does. Each flight is at least one lap, and a lap is at least 20 s (arcade's least time before a wormhole) | Once a lap means a full boat flies on to the end of its lap. With a whole target per lap, that wait made stories 22 minutes long and put 45% of average captains out of boats. A half lap is what makes "once a lap" fair to a full boat |
+| 2. Where the wormhole comes | **At the lap's end,** where the Designer draws the ring. It drifts past once, as arcade's does. Steering past it is staying for another lap; nothing else opens a way out | The owner's "once a lap". A flight always leaves at the ring, so a flight back always starts a lap |
+| 3. Speed | The first lap ramps as arcade's mission does over its whole target: from the story's starting speed up by 1.3×. **Each lap after that adds 0.3×**, with no ceiling. The orbit keeps its speed between flights: the laps flown at a moon set the speed, whether in one flight or several | This is the risk of staying, and the captain weighs it. With no gain, staying is nearly free: no average captain ran out of boats. With arcade's full 1.3× a lap, 39% did (measured with the extra wormhole when full, which made it kinder) |
+| 4. Where people sit | **At fixed places round the lap, from the start:** groups spaced evenly from about 0.15 to 0.9 of the lap (1 person each on m00n; 2 each elsewhere, with a last group of 3 on m01n and m02n). **A group missed stays at its place,** as many as were left on it, and comes round there on the next lap. A full boat is sent no group; the groups it passes are still there next lap | The arc can mark them only if they have places. Even spacing matches arcade's gaps between planetoids |
+| 5. Shields | **Arcade's drops on the first lap only, none on later laps** | One drop a lap changed little: average captains out of boats 9% to 4%, the dead 8.8 to 8.0. Staying should cost something |
+| 6. A flight back | **Joins the orbit at the ring where the boat left, at the speed reached there, with the shields left** (no top-up). The groups are where they were. It replaces the old return (a third of the target). The stop's hold still confirms leaving for good | It is the same orbit, flown on. Going back and staying cost the same speed; going back also empties the seats |
+| 7. Mission 06 | One flight on its own orbit (lap 1,000 pc, 20 people); the wormhole once a lap, as on every moon, so **no early way out when the boat is full**. Replaces my earlier proposal | The owner's "once a lap" holds everywhere |
+| 8. What the story keeps | **For each moon: its groups (place and people) and the laps flown there.** That is all a flight back needs. Closing the app in mid-flight can still restart the flight from the ring it left, with the orbit as it was then: nothing else to save. A flight is now about one lap, so a restart costs less than before | Still not decided by the owner |
+
+**For the Designer's arc:** each group's place is a number from 0 to 1 on the lap, and its people. The boat's place is the part of the current lap flown, 0 to 1. The laps flown at this moon are a whole number. The wormhole comes on every lap, at 1, so there is no "this lap or not" to show. I will put these in the view types when the orbit is built.
+
+**The headless check of the orbit** (`npm run sim:story` flies `sim/story/orbit.sim.ts` beside the old check, 100 stories per pilot; the same three pilots; three boats, returns not limited, the ore always dropped). The pilot stays for another lap while the boat has seats, people are left on the orbit and it has 2 shields or more. At the stop, it goes back on the same terms. A pilot who meant to stay and drifted into the wormhole anyway is a slip: it goes to the stop, where it can go back.
+
+| Expert / strong / average | Before the orbit | **Proposal** | With no gain on later laps |
+|---|---|---|---|
+| Out of boats before mission 06 | 0 / 0 / 25% | **0 / 0 / 9%** | 0 / 0 / 0% |
+| Boats lost per story (on a lap after the first) | | **0 / 0.2 (0.2) / 1.4 (1.2)** | 0 / 0.1 / 0.7 |
+| On the *Lantern*, of 70 | 68.8 / 64.2 / 45.1 | **69.9 / 68.6 / 59.7** | 69.8 / 69.0 / 64.5 |
+| Left behind | 1.1 / 4.8 / 17.8 | **0.1 / 1.0 / 5.7** | 0.2 / 0.9 / 3.9 |
+| Dead (m06n too) | 0.3 / 1.7 / 10.3 | **0 / 2.0 / 8.8** | 0 / 1.2 / 7.5 |
+| Home from m06n, of 20 | 11.9 / 10.7 / 3.9 | **12.0 / 10.2 / 5.1** | 12.0 / 10.9 / 5.4 |
+| *Lantern* full after mission 05 | 66 / 15 / 0% | **96 / 68 / 9%** | 92 / 74 / 21% |
+| Laps stayed per story / slips | | **0.5 / 0.9 / 1.3; under 0.1 slips** | |
+| Minutes of flight, average (longest) | about 15 to 19 | **10.8 / 11.3 / 11.4 (16.8)** | 11.6 / 12.3 / 12.5 (17.4) |
+
+Also flown, average captains: a three-quarter lap put 34% out of boats over 15 minutes; a 0.4 lap gave 8% over 9 minutes. A whole-target lap gave 45% over 19 minutes. An extra wormhole when the boat fills (my first try, ruled out by "once a lap") gave 5% at a whole lap.
+
+What it shows:
+- **The orbit is kinder than the old returns,** because missed people come round. Nobody is left by a slip of steering. Average captains save about 15 more, and good pilots fill the *Lantern* far more often. "A full ship" and "The light that stayed" become the usual endings for good pilots; for an expert, nobody left behind is nearly certain.
+- **The risk now sits on later laps.** Most boats lost were lost after the first lap: some by staying, most by a full boat flying on to the ring. That is the captain's to weigh, as the owner wants.
+- **Out of boats is now rare,** about one average captain in eleven, against one in four before. The empty rail ending stays possible but uncommon.
+- **Stories are shorter:** about 11 minutes of flight, at most about 17, against 15 to 20 before.
+
+What was not measured: the two-crew pairs and the shield choice (the orbit deals plain groups), people who park to dig wells, the ore kept, and the stops and story screens.
+
+**Going back costs a step of speed** (flown on the owner's word, "Yes, fly that variant", relayed by the Producer). Each flight back from the *Lantern* adds a step to that moon's orbit, as a lap does. Each size was flown with two pilots: the one above, who stays while it has seats, people on the orbit and 2 shields, and one who takes every wormhole and goes back. 100 stories per pilot; expert / strong / average.
+
+| | Pilot | Out of boats | On the *Lantern*, of 70 | Dead | *Lantern* full | Minutes (longest) |
+|---|---|---|---|---|---|---|
+| **No step (the proposal)** | stays | 0 / 0 / **9%** | 69.9 / 68.6 / 59.7 | 0 / 2.0 / 8.8 | 96 / 68 / 9% | 10.8 / 11.3 / 11.4 (16.8) |
+| | goes back | 0 / 0 / 10% | 69.9 / 68.6 / 59.4 | 0 / 2.4 / 8.7 | 96 / 65 / 5% | 10.9 / 11.3 / 11.2 (16.8) |
+| **0.15× a flight back** | stays | 0 / 1 / **19%** | 69.9 / 68.0 / 57.4 | 0 / 2.0 / 9.5 | 96 / 60 / 3% | 10.6 / 11.1 / 10.8 (15.6) |
+| | goes back | 0 / 1 / 21% | 69.9 / 68.2 / 57.5 | 0 / 1.9 / 8.9 | 97 / 65 / 4% | 10.6 / 11.2 / 10.5 (15.6) |
+| **0.3× a flight back** | stays | 0 / 0 / **27%** | 69.8 / 68.4 / 55.3 | 0.1 / 1.9 / 9.5 | 95 / 60 / 0% | 10.4 / 10.9 / 10.2 (14.4) |
+| | goes back | 0 / 1 / 30% | 69.9 / 68.5 / 55.8 | 0 / 2.7 / 9.0 | 96 / 59 / 3% | 10.3 / 10.8 / 10.0 (14.4) |
+| **0.6× a flight back** | stays | 0 / 2 / **50%** | 69.9 / 67.8 / 49.5 | 0 / 2.5 / 9.3 | 96 / 56 / 0% | 10.2 / 10.4 / 8.9 (12.9) |
+| | goes back | 0 / 1 / 53% | 69.9 / 68.1 / 49.3 | 0.1 / 2.2 / 9.0 | 96 / 52 / 0% | 10.0 / 10.3 / 8.6 (12.5) |
+| **A person lost a flight back** (my alternative) | stays | 0 / 0 / 14% | 63.9 / 62.9 / 55.3 | 6.0 / 7.8 / 13.4 | 0 / 0 / 0% | about 11 |
+| | goes back | 0 / 0 / 10% | 63.6 / 62.5 / 54.9 | 6.3 / 8.4 / 13.7 | 0 / 0 / 0% | about 11 |
+
+What it shows:
+- **The Producer is right that staying does not pay under the proposal,** but it does not cost either. The two ways of playing come out the same, within one person.
+- **The step does not change that.** At every size, staying and going back stay within a person or two and a few points of each other. What the step does is make every flight back harder for everyone: average captains out of boats go from 9% to 19% (0.15×), 27% (0.3×) and 50% (0.6×). Good pilots barely notice it.
+- **Why:** the choice rarely comes up. Most wormholes are taken by a full boat, which has to go back and pays the step anyway. A captain with free seats at the ring and people left on the orbit meets the choice about once a story, so its weight is small whatever it costs.
+- **Losing a person per flight back** (the moon breaking on, in people rather than speed) makes the choice real in a sense, but it means the *Lantern* is never full and kills "A full ship" and "The light that stayed". I would not use it.
+
+**What I would propose:** no step. Staying and going back are then two honest ways to fly, and the risk the owner wants the captain to weigh is still there in the speed that the laps flown at a moon build up. If the owner wants the step anyway, 0.15× is the size I would take: it doubles average captains out of boats (9% to about 20%) and changes nothing for good pilots. A way to make staying worth something without making going back harder, not measured: a shield for each lap stayed in one flight.
 
 ### The Engineer's proposal for the numbers (2026-11-22)
 
@@ -1253,7 +1387,7 @@ The screen that closes a story, where arcade shows the score. It was called the 
 
 - **Heading:** `THE MANIFEST` (30 px, the HUD's blue), and under it `CAPTAIN [CALLSIGN]` in gold (13 px). The longest callsign, 21 characters, fits with room to spare.
 - **Rows:** one per moon the captain was told about, with one mark per person, 30 apart. A moon never named has no row; three small dots stand where rows are missing (going home after `m03n`, `m05n` was never named).
-- **Marks:** a green disc reached Earth, an empty circle was left behind, an orange cross died. Two more, for the Writer's two extra counts, which I agree with: a blue disc was brought out `BY ANOTHER SHIP` (the second freighter in "The commission"), and a green ring is `MISSING` (the people on the *Lantern* in "Lightboat"). After "Lost at the Heart" the *Lantern*'s people are blue discs under `ON THEIR WAY`.
+- **Marks:** a green disc reached Earth, an empty circle was left behind, an orange cross died. Two more, for the Writer's two extra counts, which I agree with: a blue disc was brought out `BY ANOTHER SHIP` (the second freighter in "The commission"; the owner, 2026-11-22: "The second freighter only covers m04n to mo6n" and "it shouldn't save all crew", so blue discs stand only on the rows of m04n, m05n and m06n and never fill one), and a green ring is `MISSING` (the people on the *Lantern* in "Lightboat"). After "Lost at the Heart" the *Lantern*'s people are blue discs under `ON THEIR WAY`.
 - **Counts:** three or four in a row under the rows, each a large number over its label, in the mark's colour. A label longer than 12 characters breaks over two lines (`BY ANOTHER` / `SHIP`).
 - **The cargo:** one line under the counts: `COMMISSION PAID` in gold, or `NO COMMISSION` in dim white.
 - **The eight endings** are diamond lamps in two columns of four. A lit lamp is gold and carries its ending's name beside it (11 px); the one just reached is brightest. An unlit lamp is an empty outline with no name. Two columns are needed because the longest name, `THE LIGHT THAT STAYED`, is 21 characters.
@@ -1267,6 +1401,7 @@ The script's table "When each moon is named" has `m06n` named at the stop at `m0
 Asked for by the owner on 2026-11-22 ("design a dev mode control to navigate story mode (for play testing)"). **Accepted by the owner the same day ("Yes, as drawn"); not built.** Drawn in section 11 of the artifact. A story takes fifteen to twenty minutes and mission 06 is flown once, so without it the later screens cannot be tested twice.
 
 - **It never looks like the game.** Amber (`#ff9a3c`) with dashed outlines, which no control in the game uses.
+- **Local only.** The owner, 2026-11-22: "dev stays behind the switch, local only". The Producer's reading: the tab, `?dev` and the hold on the version line work only in a local build, and the live site has none of them.
 - **Switching it on:** `?dev` in the address once (`?dev=off` to switch it off), or holding the version line at the foot of the start screen for three seconds, which also works in the installed app. It is remembered on that device. While it is on, the version line ends in `· DEV`.
 - **The tab:** a small `DEV` pill, 48 by 24, at the top centre of every story screen and of the flight, the one place free on all of them. A tap on it stops the game and opens the panel; in flight that tap does not steer.
 - **The panel** covers the field and has six parts, top to bottom:
@@ -1280,6 +1415,36 @@ Asked for by the owner on 2026-11-22 ("design a dev mode control to navigate sto
 - **Dev stories are kept apart** from the player's own story and never overwrite it, and the rule that mission 06 is flown once does not hold in them.
 - **A jump sets a state that could have happened:** jumping to a moon with nothing else set assumes every earlier moon was emptied and no boat lost. The steppers then change it.
 - **For the Engineer to decide:** whether the same jumps are also offered on `window.__game` for the automated checks, as `skipLevel()` is today.
+
+### The orbit: arc A, chosen by the owner (2026-11-22)
+
+**The owner chose shape A ("A") and confirmed the wormhole comes once a lap ("Yes, once a lap"). The drawing is written and tested (`src/render/story/orbit.ts`, STORY-R17 to R20); it is not wired into a flight, which is the Engineer's.** Drawn in the mocks as section 12. The rules are under "The orbit (2026-11-22)" in the story rules. The lap's length and where people sit are the Engineer's to propose, so the places of the marks in the pictures are made up.
+
+Three shapes for the meter at the foot of the field, each 372 wide and 18 high:
+
+- **A, over the moon: chosen.** The arc rises in the middle, and the broken moon's edge lies under it as a fainter line in pieces.
+- **B, the near side: not chosen.** The arc dips and its ends fade.
+- **C, the whole orbit: not chosen.** A flat ring with the moon inside it and the far side dim.
+
+As drawn in A:
+
+- **One lap is the length of the arc,** left to right, and the part flown this lap is lit blue as arcade's bar is.
+- **The boat is a small arrowhead** in the ship's line of light. It is green in mission 06, when the captain is aboard.
+- **A person still out there is a yellow dot** at the place on the lap where they will come. It goes out when they are picked up. A dot the boat has passed stays.
+- **The wormhole is a violet ring where the lap ends.** Past it, the boat's mark comes in again at the left.
+- **A lap already flown leaves one small blue pip** above the start of the arc. The owner's rule for speed is "staying on orbit increase the speed, going to lantern and returning to orbit resets the speed", so the pips count the laps of this flight (the Producer's reading; the Engineer will say).
+- **Mission 06 has the same arc with no ring:** the arc fades at its end until the way out opens.
+- **The row of figures at the top left stays.** It is the count; the arc says where.
+
+Also settled by the owner the same day, touching the screens:
+
+- **All three boats are ready from the first moon** ("in story mode – all boats are ready always (they are on the ship)"). The picker offers the four, the eight and the twelve every time, and a lost boat keeps its broken outline. The drawing's dimmed "stowed" boat is no longer needed.
+- **Pilot, then captain** ("we start by referring to our hero as a pilot, we 'promote' them to captain only after they start making their own decisions"). The words are the Writer's. One screen names the hero: the manifest's `CAPTAIN [CALLSIGN]` line, where the drawing writes the word itself. It changes only if the Writer says an ending can come before the promotion.
+
+Not settled by the drawing:
+
+- **The frame rate reading** sits where the arc's left end is. It needs to move up about 14 px in a story flight.
+- **Whether a first lap has a wormhole.** The owner confirmed the wormhole comes once a lap ("Yes, once a lap"), so the ring at the lap's end stands. If the Engineer proposes a first lap with none, the ring needs a dim state.
 
 ### Open
 
