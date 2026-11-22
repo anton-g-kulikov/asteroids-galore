@@ -373,8 +373,8 @@ textarea { width: 100%; font: 12px/1.5 var(--mono); color: var(--text); backgrou
       </div>
       <div class="card" style="--c: var(--cyan)">
         <div class="card-head"><b>The manifest</b><span class="tag tune">bell, piano, pad</span></div>
-        <p>Each count that is not zero sounds once as it appears, 0.9 s apart: ON EARTH is the bell chord of a crew member saved, LEFT BEHIND the two piano notes of one left behind, DEAD the low chord of a hit. Then one bell note for the ending's lamp. So a full ship is the bell alone. BY ANOTHER SHIP would be the bell chord an octave lower; MISSING has no sound, since nobody knows.</p>
-        <div class="row"><button type="button" data-manifest="full">A full ship</button><button type="button" data-manifest="past">All three counts</button></div>
+        <p>Each count that is not zero sounds once as it appears, 0.9 s apart: ON EARTH is the bell chord of a crew member saved, LEFT BEHIND the two piano notes of one left behind, DEAD the low chord of a hit. Then one bell note for the ending's lamp. So a full ship is the bell alone. A fourth count takes its turn after ON EARTH: BY ANOTHER SHIP is the bell chord an octave lower, and MISSING passes in silence, since nobody knows.</p>
+        <div class="row"><button type="button" data-manifest="full">A full ship</button><button type="button" data-manifest="past">All three counts</button><button type="button" data-manifest="commission">By another ship</button><button type="button" data-manifest="lightboat">With the missing</button></div>
         <p>Under it, the end screen's slow bass, as after a run in arcade.</p>
       </div>
       <div class="card" style="--c: var(--red)">
@@ -1617,7 +1617,10 @@ textarea { width: 100%; font: 12px/1.5 var(--mono); color: var(--text); backgrou
     earth(t) { bell.triggerAttackRelease(chordNow().pad.map(n => hz(midi(n) + 12 + shift())), 0.7, t) },
     left(t) { xPiano.triggerAttackRelease(hz(midi('F5') + shift()), 0.2, t, 0.85); xPiano.triggerAttackRelease(hz(midi('E5') + shift()), 0.7, t + 0.16, 0.65) },
     dead(t) { const r = root(45); xPad.triggerAttackRelease([r, r + 7, r + 12].map(hz), 0.6, t, 0.5); slide(xBass, r - 12, r - 17, 0.6, t, 0.35) },
+    another(t) { bell.triggerAttackRelease(chordNow().pad.map(n => hz(midi(n) + shift())), 0.7, t) },   // brought out by another ship: the same chord, an octave lower
+    missing() {},                                                        // nobody knows: its turn passes in silence
   }
+  const MANIFESTS = { full: ['earth'], past: ['earth', 'left', 'dead'], commission: ['earth', 'another', 'left'], lightboat: ['earth', 'missing', 'left', 'dead'] }
   let openTimer = 0
   async function manifest(kind) {
     await Tone.start()
@@ -1629,7 +1632,7 @@ textarea { width: 100%; font: 12px/1.5 var(--mono); color: var(--text); backgrou
       return
     }
     let t = soon() + 0.05
-    for (const c of kind === 'full' ? ['earth'] : ['earth', 'left', 'dead']) { COUNT_SOUND[c](t); t += 0.9 }
+    for (const c of MANIFESTS[kind]) { COUNT_SOUND[c](t); t += 0.9 }
     bell.triggerAttackRelease(hz(root(81)), 0.5, t)                      // the lamp of the ending reached
   }
   document.querySelectorAll('[data-manifest]').forEach(b => b.addEventListener('click', () => manifest(b.dataset.manifest)))
