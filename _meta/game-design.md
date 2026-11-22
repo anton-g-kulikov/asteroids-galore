@@ -1139,7 +1139,7 @@ The Producer's review of the Engineer's proposal below, put to the owner on 2026
 - **What the story is about.** Asked how kind it should be, the owner answered: "the story is about risk assessment, counterfactuals, rationality and responsiblity. It is also about deontological and utilitarian ethic frameworks". No figure for people left behind is set.
 - **Closing the app in mid-flight** restarts that flight, as built. The owner chose "Keep it as built", accepting that a player can undo a lost boat this way.
 - **Pilot, then captain.** The owner: "here is an ark inside ark: we start by referring to our hero as a pilot, we 'promote' them to captain only after they start making their own decisions". When the word changes, and what stands in for a missing callsign in place of "UNNAMED", are the Writer's to propose.
-- **The dev control is local only.** The owner: "dev stays behind the switch, local only". The Producer's reading: it is not on the live site at all.
+- ~~**The dev control is local only.** The owner: "dev stays behind the switch, local only". The Producer's reading: it is not on the live site at all.~~ **Reversed by the owner the same day:** "show the story mode in the dev mode on the website as well". `?dev`, `?dev=off` and the hold on the version line work on the live site; players who never switch it on see arcade alone.
 - **All three boats are ready from the start.** The owner: "in story mode – all boats are ready always (they are on the ship)". A lost boat is still gone. This replaces the eight and the twelve being offered after missions 01 and 03.
 - **The script's length stays** for the play test. The owner: "keep it, I want to play test it as it is".
 - **Nothing is released yet.** The owner: "let's test everything locally fist".
@@ -1217,7 +1217,7 @@ What it shows:
 
 ### The orbit as built for the play test (2026-11-22)
 
-**Built behind the dev switch, which exists only in local builds, for the owner to play locally.** Built from the rules the game already has, on the owner's word ("keep the current mechanics, don't envent new ones, park this suggestion"). My lap proposal above is parked, with the step for going back, a person lost per flight back and a shield per lap stayed.
+**Built behind the dev switch, for the owner to play** (locally, and on the website with `?dev` since the owner's word of the same day). Built from the rules the game already has, on the owner's word ("keep the current mechanics, don't envent new ones, park this suggestion"). My lap proposal above is parked, with the step for going back, a person lost per flight back and a shield per lap stayed.
 
 What is built, from the owner's decisions:
 - **A lap is the mission's own target,** the length arcade's bar shows: m00n 500 pc up to m05n 3,000, m06n 2,000.
@@ -1227,7 +1227,7 @@ What is built, from the owner's decisions:
 - **Mission 06** keeps its way out when the boat is full, as built, as well as its lap's wormhole.
 - **All three boats are ready from m00n,** and a lost one is gone ("all boats are ready always").
 - **Closing the app in mid-flight** restarts that flight, as built.
-- **The dev control** works only in a local build (`import.meta.env.DEV`). The live site has no DEV tab, no `?dev` and no hold on the version line.
+- **The dev control** works on the live site too (the owner reversed "local only" the same day): `?dev` turns it on, `?dev=off` off, and the hold on the version line toggles it.
 
 **Crew, after the owner's two corrections the same day** ("keep the current choice mechanics in the story mode as well!" and "remove people form the orbit graph, we don't know in advance, where they are"):
 - **Crew come as arcade sends them:** on arcade's timer and gaps, with every third crew from mission 01 on a two-crew pair, and every second shield drop a choice row with crew beside it. They carry **only the moon's own people.** Each new planetoid takes what the moon still has, and a planetoid the moon has nobody left for is taken away. My first build had fixed places on the lap and no pairs or choice rows; both are undone.
@@ -1493,7 +1493,7 @@ The script's table "When each moon is named" has `m06n` named at the stop at `m0
 Asked for by the owner on 2026-11-22 ("design a dev mode control to navigate story mode (for play testing)"). **Accepted by the owner the same day ("Yes, as drawn"); not built.** Drawn in section 11 of the artifact. A story takes fifteen to twenty minutes and mission 06 is flown once, so without it the later screens cannot be tested twice.
 
 - **It never looks like the game.** Amber (`#ff9a3c`) with dashed outlines, which no control in the game uses.
-- **Local only.** The owner, 2026-11-22: "dev stays behind the switch, local only". The Producer's reading: the tab, `?dev` and the hold on the version line work only in a local build, and the live site has none of them.
+- ~~**Local only.**~~ The owner first said "dev stays behind the switch, local only", then the same day: "show the story mode in the dev mode on the website as well". The tab, `?dev` and the hold on the version line work on the live site.
 - **Switching it on:** `?dev` in the address once (`?dev=off` to switch it off), or holding the version line at the foot of the start screen for three seconds, which also works in the installed app. It is remembered on that device. While it is on, the version line ends in `· DEV`.
 - **The tab:** a small `DEV` pill, 48 by 24, at the top centre of every story screen and of the flight, the one place free on all of them. A tap on it stops the game and opens the panel; in flight that tap does not steer.
 - **The panel** covers the field and has six parts, top to bottom:

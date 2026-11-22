@@ -21,7 +21,6 @@ export const DEV_KEY = 'asteroids-galore-dev'
 
 /** Story mode is shown only while the dev switch is on, until the owner releases it. `?dev` turns it on, `?dev=off` off; remembered on the device. */
 export function readDevSwitch(store: Store | null, search: string): boolean {
-  if (!import.meta.env.DEV) return false                                  // local builds only: no dev control on the live site (the owner)
   const q = new URLSearchParams(search).get('dev')
   try {
     if (q !== null) store?.setItem(DEV_KEY, q === 'off' ? '0' : '1')
@@ -172,7 +171,7 @@ export function createStoryMode(o: { game: Game; store: Store | null; search: st
       return key === ' ' || key === 'Enter'                                   // on the start screen with two entries, these choose neither
     },
     beforeSteps(dt) {
-      if (import.meta.env.DEV && versionHeld >= 0 && (versionHeld += dt) >= VERSION_HOLD) {
+      if (versionHeld >= 0 && (versionHeld += dt) >= VERSION_HOLD) {
         versionHeld = -1
         enabled = !enabled
         try { o.store?.setItem(DEV_KEY, enabled ? '1' : '0') } catch { /* this visit only */ }
