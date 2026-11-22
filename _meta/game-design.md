@@ -731,9 +731,9 @@ This section uses mission numbers 00 to 06. Older parts of these notes count mis
 - **Seven moons.** Decided by the owner on 2026-11-22: there is one mined moon per mission, numbered `m00n` to `m06n` (see [The moons' names](#the-moons-names)). One company opened them in that order, so `m00n` is the oldest and most mined out, and `m06n` is the working mine. Nine hours ago they began to break up. The grey asteroids are their rubble. The coloured planetoids are the pieces people were living and working on.
 - **What was mined: light0re.** Agreed by the owner on 2026-11-22, who named it. It is spelled with a zero, the owner's spelling, and never capitalised. The moons' cores held an ore that stores light. Everything in the game that is drawn in light is made of it: the lines of a lightboat's hull and the shield arcs. A moon was not mined for something in its rock: it was taken apart for its core, which is the owner's word for it, "harvested".
 - **The *Lantern* is a freighter.** The owner's words: "Lantern is a freight ship it carries lightore from other side of the galaxy and get sos signal (doesn't now how many moons broke), diverts to save crew from the first, learns that there's more". Its hold is full of light0re from another mine, bound for Earth. It is too big to enter the fields, so it keeps outside the chain of moons and waits on the far side of every wormhole. It has no crew, only its captain: the owner's words are "Lantern has no crew, only the captain". So the ship speaks with its own voice.
-- **The Pilot is the *Lantern*'s captain,** addressed by mission control by the player's generated callsign, and as "Captain" by the people aboard. In missions 00 to 05 the captain flies the boat from the ship and is never aboard it. The briefing says so ("Fly a boat in from it"), so that mission 06 is felt as the first time aboard.
+- **The Pilot is the *Lantern*'s captain,** addressed by mission control by the player's generated callsign, and as "Captain" by the people aboard. In missions 00 to 05 the captain flies the boat from the ship and is never aboard it. The briefing says so ("Fly a boat from it"), so that mission 06 is felt as the first time aboard.
 - **Three lightboats, and only three.** They are the freighter's own boats, of 4, 8 and 12 seats. A boat destroyed is gone for the rest of the story, with the people aboard it.
-- **What the captain knows.** At the start, one moon and one distress call. Each further moon is learned from the people brought out of the one before. The story never names a moon the captain has not been told about.
+- **What the captain knows.** At the start, one moon and one distress call. Each further moon is learned from the people brought out of the one before. The story never names a moon the captain has not been told about, and no moon is flown before it is named. The screens draw this: the top of every story screen is the chain of moons named so far (see [Planned: story mode screens](#planned-story-mode-screens)), so the order in which the lines name them decides what is drawn. That order is in `story-script.md` under "When each moon is named".
 - **Mission control** is on Earth: the freight line's control room. It tasks the rescue, because the *Lantern* is the nearest ship, and it answers for the cargo. *That the two are one voice is the writer's proposal.*
 - **The list.** The mining company sends mission control a list of who was on its moons. It covers `m00n` to `m03n`. On paper `m04n`, `m05n` and `m06n` are worked by machines alone. The night shift, who were sent there to run the drill past its limit, are on nobody's list.
 - **The ore, and the turn.** After `m03n` the ship is full: the people brought out, and the hold of light0re. Mission control says that is every moon on the list and another ship is on its way. The captain either goes home with the ore and the people, for the commission and the fame, or drops the ore to make room. The owner's words: "go home with ore and saved crew (and earn commission and fame) and say that someone next will be able to save remaining crew, or drop the ore, make room for more people".
@@ -778,10 +778,10 @@ Each mission is flown at one moon, further down the chain and nearer the drill. 
 Everything that is said in a first playthrough is in `story-script.md`, now in its fifth draft. The lines are kept there only, so that there is one copy to revise. The briefing, as a sample:
 
 > CONTROL TO LANTERN
-> You are the nearest ship to a distress call.
+> You are the ship nearest a distress call.
 > A mined moon, m00n, has broken up.
 > There are people alive on the pieces.
-> Your ship can't go in. Fly a boat in from it.
+> Your ship can't go in. Fly a boat from it.
 > Show them a light. Bring out all you can.
 
 ### Endings
@@ -809,9 +809,9 @@ Eight, with their lines in `story-script.md`. Each closes on three counts: on Ea
 - **A full *Lantern* is earned, not rare.** The owner decided that going back is not limited ("Don't limit; it's a risk assessment decision from a captain/pilot"). In the Engineer's check an expert who keeps going back leaves nobody behind in about two stories in three. Every seat of the last boat full is also usual for a good pilot. So "A full ship" and "The light that stayed" are what good flying earns.
 - **The odds,** both the owner's numbers. The second freighter comes 60 times in 100. The *Lantern* sent home alone is lost 2 times in 10.
 - **Nobody can save everyone at `m06n`.** There is one trip, and more people than seats. The Foreman is among those who stay. A boat that comes through with nobody aboard has its own telling of "Home".
-- **Seeing another ending of mission 06 means a new story.** With the mission flown once, what the roll remembers between stories and what a returning captain is told matter more. Neither is written yet.
+- **Seeing another ending of mission 06 means a new story.** With the mission flown once, what the manifest remembers between stories and what a returning captain is told matter more. Neither is written yet.
 - **The ending called "Lightboat"** takes the game's name: the one boat that came home. Only mission control speaks in it, because the First was aboard the ship. The chance does not depend on how the captain flew. The owner agreed the name and the rule on 2026-11-22: "Yes to "Lightboat" ending, keep the risk for all". So a captain with a full *Lantern* is not spared, and the best-flown story can end with the most people lost.
-- **The risk is told before the choice,** as a plain figure, since the ship gives no opinions: "Sent home alone, it is lost one time in five." Without that the ending would be a trap.
+- **The risk is told before the choice,** as a plain figure, since the ship gives no opinions: "Sent home alone, it is lost one in five." Without that the ending would be a trap.
 - **Whoever speaks at the end is far away:** mission control on Earth, the First on the *Lantern* on its way there, and the Foreman at `m06n`.
 
 ### The moons' names
@@ -827,7 +827,7 @@ Decided by the owner on 2026-11-22, in the owner's words "m00n, m01n, m02n, etc"
 - **Always lower case.** In the HUD's capitals, `M00N` loses the look. *To see on screen.*
 - **A mission has its moon's number.** Decided by the owner on 2026-11-22 ("rename missions 00, 01, etc"): missions are 00 to 06, always two digits, so mission 00 is flown at `m00n` and the two numbers never differ.
 - **On screen the rename is built** (2026-11-22, by the Game Engineer; not yet released). The counter in flight reads `MISSION 00/06`, the stop between missions `MISSION 01 COMPLETE`, and the rows of the results tables run 00 to 06. Underneath, levels, saved runs, the rules and share links still count 1 to 7.
-- **The board now names a place, not a count.** A row says the mission a run reached, `REACHED 02`, and for the last mission `REACHED 06 · HOME` or `LOST`; it replaced `FINISHED n/7`. For the story this reads as how far down the chain of moons each pilot got, which is what a roll of pilots would record.
+- **The board now names a place, not a count.** A row says the mission a run reached, `REACHED 02`, and for the last mission `REACHED 06 · HOME` or `LOST`; it replaced `FINISHED n/7`. For the story this reads as how far down the chain of moons each pilot got, which is what a list of pilots would record.
 - **Where the numbers appear:** the premise, the briefing, the survivors' signatures ("Survey crew, m00n") and a few lines. Whether a moon's number is shown during flight is a choice below.
 - **"etc".** The story uses seven moons. Whether the company has more elsewhere is left open.
 - **Dropped:** Galore, and the five names proposed on 2026-11-21 (Tallow, Harrow, Kessler, Lode, Marrow).
@@ -855,6 +855,7 @@ Decided by the owner on 2026-11-22, with the rules of play in [Planned: story mo
 - The *Lantern* sent home alone is lost 2 times in 10.
 - Going home after mission 05 is acknowledged as the rational decision.
 - Mission 06 is flown once in a story, with no second try.
+- The screens are chosen (see [Planned: story mode screens](#planned-story-mode-screens)): two entries on the start screen, `ARCADE` and `STORY`, in place of the writer's proposal of arcade on the first tap; lines in sentence case, typed out, at most 42 characters; choices made by holding a side; in flight the moon's name and its people, with no mission counter; and a manifest of the captain's own in place of a board.
 - The endings for staying say the captain was told the odds and went anyway (the owner's "yes!"). The wording is still a draft.
 - Story missions 04 and 05 start at mission 03's speed.
 
@@ -866,26 +867,34 @@ Still open on the story's side. "Proposed" is the writer's suggestion, not a dec
 | Who mission control is | The freight line's control room, which both tasks the rescue and answers for the cargo; or two voices, a rescue authority and the cargo's owner | One voice. It keeps the stops short and gives Control something to give up |
 | Where the shields come from | Cut from the cargo, then the dropped ore drifting in; or no shields once the ore is gone | Cut from the cargo, then the dropped ore |
 | Whether the Foreman can be saved | Never; or in the best ending | Never |
-| The board | No score means story runs cannot be ranked with arcade's; a roll of the player's own, or nothing | A roll of the player's own: the three counts, and the eight endings shown as lamps, lit when reached |
 | Whether taking the night shift out speeds the drill | Not a rule today: speed follows the distance flown. Add it as a rule of story mode; or leave the story silent about it | Silent, as the script is. Adding it is a rules and balance question, and it would give a reason to rescue fewer |
 | A second playthrough | The same story again; or a telling that knows it has been read | The briefing is skipped, and the First's lines change because the captain already knows what the list leaves out |
-| Which mode a new player meets | Arcade on the first tap, story as a second entry on the start screen; or story first | Arcade on the first tap. It keeps "nothing to read" true for the game most players meet |
 | Whether arcade carries any of the story | Nothing; or the title and one line | Nothing but the title |
-| Where a moon's name is shown | The mission's number already is the moon's. `m00n` itself: only on the story's screens; or also in flight, beside or in place of the word `MISSION`, and then in arcade too | Only on the story's screens, until it has been seen on screen |
 | What each moon's people call it | Keep the second names (the Edge to the Heart); or numbers only | Keep them, in survivors' mouths only |
 | Tone | Dry and warm, as drafted; or lighter | Dry and warm |
 
 ### The three choices
 
-The story has three choices besides the choice of boat. Each is put on a screen of its own after the story's screen, with one line from the ship that states the stakes and two options written like the rest of the HUD. The wording is in `story-script.md`:
+The story has three choices besides the choice of boat. The owner chose how they are made on 2026-11-22: a tap only reads on, and a choice is made by holding one side, left for back or home and right for further in. The words are the writer's, in two lines under each side:
 
-| Choice | The two options |
-|---|---|
-| After every trip, while people are still on the moon | `GO BACK FOR [N]` and `GO ON TO m0Xn`, or `LEAVE m0Xn` where the next moon has not been named |
-| Leaving `m03n` | `GO HOME WITH THE ORE` and `DROP THE ORE` |
-| Leaving `m05n` | `GO HOME WITH THE LANTERN` and `STAY WITH THE LAST BOAT` |
+| Choice | Left | Right |
+|---|---|---|
+| After a trip, while people are still on the moon | `GO BACK` / `FOR [N]` | `GO ON` / `TO m0Xn`, or `LEAVE` / `m0Xn` |
+| Leaving `m03n` | `GO HOME` / `WITH THE ORE` | `DROP` / `THE ORE` |
+| Leaving `m05n` | `GO HOME WITH` / `THE LANTERN` | `STAY WITH` / `THE LAST BOAT` |
 
-The first follows the Engineer's sketch; the other two are the writer's. Both sides of each choice are spoken for before it is put.
+- **Going back or going on is chosen on the stop itself,** under what the survivor and the First have just said.
+- **`LEAVE` is used at `m03n`,** where the next moon has not been named yet, **and at `m05n`,** where going on leads to the last choice and not straight to `m06n`.
+- **The two choices that can end the story** show one transmission from the ship, which states the stakes.
+- Both sides of each choice are spoken for before it is put.
+
+### The manifest
+
+First called the roll; the owner renamed it on 2026-11-22 ("Manifest, rename it"), wanting a name without the sound of luck, and accepted its form with the words below as part of the story's ending. A manifest lists what a ship carries, people and cargo. The Game Designer sketched its form: a row per moon with a mark per person, three counts (`ON EARTH`, `LEFT BEHIND`, `DEAD`), and the eight endings as lamps. Its words are proposed in `story-script.md` under "The manifest". Three things there go beyond the sketch:
+
+- **`BY ANOTHER SHIP`,** for the people the second freighter brought out in "The commission". They reached Earth, but not with this captain.
+- **`MISSING`,** for the people on the *Lantern* in "Lightboat". Nobody knows that they are dead.
+- **A line for the cargo:** `COMMISSION PAID`, `COMMISSION PAID, LESS THREE BOATS` or `NO COMMISSION`. There is no score, so this is the one place the commission is recorded.
 
 ### Rules for the writing
 
@@ -898,17 +907,19 @@ The first follows the Engineer's sketch; the other two are the writer's. Both si
 - **Lines answer what happened.** The counts are filled in by the game, and there are blocks for a return trip, a moon emptied, a boat destroyed and a trip that brought nobody.
 - **Who calls the Pilot what.** Mission control uses the callsign. The people aboard say "Captain". The Foreman says "Lightboat".
 - **The choice of line never touches the deal.** It uses the drawing's randomness, not the run's seed.
-- **Short.** A transmission is a sender and at most three short lines, and a screen holds at most three transmissions. A line is about 48 characters, the Producer's estimate of what fits across the field, to be measured once the screen is drawn.
+- **Short.** A transmission is a sender and at most three short lines, and a screen holds at most three transmissions. A line is at most 42 characters: the Game Designer's measure for a fixed-width font at 14 px, chosen by the owner on 2026-11-22. The script keeps to it. Lines that carry the callsign are checked with one of 22 characters: the longest the game makes today is 21 (WANDERING TORTOISE 42), and the rules allow 22.
 
 ### Not decided
 
 Besides the choices above:
 
 - **The script.** The fifth draft is waiting for the owner, who has not yet read the script itself. It is about 40 transmissions against 15 to 20 minutes of flying; the Producer judges that right for a story mode.
-- **A second playthrough, and the roll.** Not written. With mission 06 flown once per story they carry more weight: what the roll remembers, and what a returning captain is told.
-- **How the lines look:** capitals like the rest of the HUD, or sentence case so that they read as a voice; shown at once or typed out.
+- **A second playthrough.** Not written. With mission 06 flown once per story it carries more weight: what a returning captain is told.
+- ~~**Whether the manifest can be opened from the start screen.**~~ Decided by the owner on 2026-11-22: "Ending only". The lamps for endings already reached are seen only at an ending, so whatever a returning captain is told has to come from the story's own screens.
+- **Whether the chain of moons shows a gap.** `m06n` is named at `m02n`, before `m04n` and `m05n` are known. The Designer's to draw.
+- ~~**How the lines look.**~~ Chosen by the owner on 2026-11-22: sentence case, typed out one transmission at a time, at most 42 characters a line.
 - **A sound for a transmission,** and whether the voices differ in sound. The Composer's to propose.
-- **The screens.** None is drawn: the story's screen, the choice to go back or go on, the start screen with two modes, the roll.
+- **The screens** are designed and chosen: see [Planned: story mode screens](#planned-story-mode-screens).
 
 When this is built, [What the player is told](#what-the-player-is-told) and [Direction](#direction) need rewriting.
 
@@ -1044,7 +1055,7 @@ The producer's readings of the owner's words above, and the questions they raise
 - **A captain who left people behind** reaches that point with places free. Whether the choice is still put then, or only when the hold fills, is a rule to decide.
 - **Mission control.** The owner earlier made the Pilot "the Lantern captain, tasked by the mission control". A freighter that answers a distress signal can still be tasked by mission control once it answers; The Writer proposes one voice: the freight line's control room, which tasks the rescue because the *Lantern* is the nearest ship and also answers for the cargo.
 - **The shields.** In the script the *Lantern* cuts its own light0re into the shields it sends into the field. If the ore is dropped after mission 03, where the shields of missions 04 and 05 come from needs an answer. The Writer and the Engineer both propose the answer that costs nothing in play: the dropped ore is what drifts into the field.
-- **What going home with the ore gives.** There is no score, so commission and fame can only be told: in the ending and on the roll.
+- **What going home with the ore gives.** There is no score, so commission and fame can only be told: in the ending and on the manifest (the screen that closes a story; it was called the roll until the owner renamed it on 2026-11-22).
 - **Three boats, and the last one.** What happens when the third boat is lost before mission 06, and which boat can be flown when: today the 8- and 12-seaters are only offered after missions 01 and 03. The Engineer's answer was that a captain who loses the big boat flies a smaller one and leaves more behind.
 - **The spelling.** The owner wrote "lightore" here; these notes keep light0re, the spelling the owner gave earlier.
 
@@ -1188,6 +1199,84 @@ The harness is in the repo on the owner's word, in `sim/story/`: `storySim.ts` h
 - the ore kept (this pilot always drops it)
 - mission 06 at the proposed 2,000 pc
 - the *Lantern*'s crew question
+
+## Planned: story mode screens
+
+Designed by the Game Designer and chosen by the owner on 2026-11-22. **Not built, and arcade's screens do not change except the start screen.** The pictures are in a private artifact, "Lightboat Story Screens" (https://claude.ai/artifact/VkFwJhEKodJC9UUU8tvwcM), drawn with the game's own font, colours and ships; its drawing code can be read as a sketch of each screen. All sizes are field units on the 400 by 720 field.
+
+### The owner's words
+
+Answering the seven choices in order (the start screen, how a voice reads, line length, making a choice, in flight, the count, the captain aboard):
+
+> 1. To clear alternatives – blue (arcade) and green (story)
+> 2. ok
+> 3. ok
+> 4. tap and hold to decide
+> 5. mo2n and crew fitures
+> 6. yes!
+> 7. blue by default, green when captain fly
+
+### What was chosen
+
+- **The start screen has two entries and no `TAP TO START`.** `ARCADE` in the HUD's blue (`#7fdcff`) on the left and `STORY` in green (`#5dffa0`) on the right, each a rounded outline 156 by 52 with a glow, where the prompt was (centres 90 either side of the middle, at 0.58 of the height). This replaces the Writer's proposal of arcade on the first tap. The title, the two hold hints, the version line and the corner icons stay. **The best score is no longer shown on the start screen** (the owner, 2026-11-22: "start screen shouldn't have best score"); it stays on arcade's end screens. It goes when story mode goes in, not before.
+- **A story under way** shows on the green entry as `STORY · m02n`, the moon the captain is at. The start screen has no way into the manifest.
+- **A transmission** is the sender in capitals (12 px, weight 700) in the voice's colour, and up to three lines in sentence case (14 px, weight 600, white at 0.92, 21 apart) starting at x 30. A line of light 2 wide in the same colour runs down the left at x 18. Transmissions are 34 apart, the first sender at y 172. Moon names and light0re stay in lower case everywhere, in sender names too (`SURVEYOR, m00n`).
+- **A colour per voice,** each already used by the game for the same thing: the *Lantern* `#5ff5ff` (the ship's line), the First `#5dffa0` (a filled seat), any other survivor `#ffe66b` (the figures on the rocks), Control `#ffffff`, the Foreman `#b48cff` (the wormholes' violet).
+- **A faint signal** (the Foreman) is the same block at 0.6 strength, with its line of light broken into dashes and three small bars after the sender's name, one lit. The words stay whole.
+- **Transmissions arrive one at a time, typed out.** A tap finishes the one being typed; the next tap brings the next; earlier ones stay. `TAP TO CONTINUE` appears when all are shown. The typing speed is to be tried on a phone; the sketch assumes about 60 characters a second.
+- **A line is at most 42 characters, at 14 px.** Measured: the font is fixed-width, 8.43 wide per character at 14 px, and a line has 356 between x 30 and the right margin. 48 characters fit only at 12 px. A short phone does not lose rows: the whole field is scaled, so a 320-wide phone draws 14 px text at 11 px. Ten of the 171 lines in the script's fifth draft are longer than 42 (five longer than 44, the longest 47) and are the Writer's to trim.
+- **The top of every story screen** is the chain of moons the captain has been told about so far, as small circles joined by a line, the one in play lit, and under it that moon's name drawn like the title (30 px). The chain grows as moons are learned, so it never shows seven before the story has named them. On an ending the chain shows all seven with none lit, and the ending's name stands where the moon's was (40 px).
+- **A tap reads on; tap and hold decides.** Every decision in story mode is made by holding one side for about 1.2 seconds while a ring fills round that side's circle (the hold hints of the start screen, with the option's words under them in two lines). Letting go early cancels. A finger already down when the screen appears does not count. `HOLD TO CHOOSE` stands small above the circles. Left is always back or home, right is always further in; neither side is coloured as the good one.
+
+| Choice | Left | Right |
+|---|---|---|
+| After a trip | `GO BACK` / `FOR 4` | `GO ON` / `TO m03n` (or `LEAVE` / `m03n`) |
+| Leaving `m03n` | `GO HOME` / `WITH THE ORE` | `DROP` / `THE ORE` |
+| Leaving `m05n` | `GO HOME WITH` / `THE LANTERN` | `STAY WITH` / `THE LAST BOAT` |
+
+- **The stop after a trip and the choice to go back or go on are one screen.** From the top: the chain and the moon's name; that moon's people as one mark each (a green disc aboard, a small figure still there, an orange cross lost); the *Lantern*; three lines of count; the two options. With nobody left on the moon the options give way to `TAP TO CONTINUE`.
+- **The count is the *Lantern*, drawn from above.** Its 70 places are circles in rows of seven that fill in green from the stern, the way a boat's seats do. While the ore is aboard, the 34 places past the 36th are blue diamonds of light0re. Its three boats stand on a rail on its right side, and a lost boat is a broken outline in its place. Under it: `ON THE LANTERN 18/36` in green (`/70` once the ore is dropped), `STILL ON m02n 4` in the figures' yellow, `LOST 2` in orange. The places follow the Engineer's proposed numbers and change with them.
+- **`STILL`, not `LEFT`, on the stop.** Until the captain goes on, the people on the moon are still there. `LEFT BEHIND` is used only on the manifest.
+- **The two choices that can end the story** are the same screen with the ship's transmission above the *Lantern* in place of the moon's row and the counts.
+- **In flight there is no score.** Top left: the moon's name, `m02n`, in the HUD's blue (14 px), and under it the people still on that moon as a row of small figures, the same ones that wave from the rocks, 11 apart. A figure leaves the row when someone is picked up. Top right: `ABOARD 3/8` and the seat dots, as arcade's `CREW`. The bar along the foot stays. `MISSION 02` and `ON m02n 5` from the Engineer's sketch are not used.
+- **The cockpit glass is blue by default and green when the captain flies.** In story missions 00 to 05 the glass is as in arcade. In mission 06 it is the green of a person aboard, with a glow. Whether arcade's glass also turns green, since its pilot is aboard, was not asked; as chosen it stays blue.
+- **The boat picker** is arcade's, with two changes. A lost boat keeps its place as a broken outline in a dashed frame and cannot be chosen. The choice is made by holding in the boat's share of the width, with a bar filling under its frame. Leaving `m05n`, the boat being held turns its glass green.
+- **"Lost at the Heart"** has no story screen and no title: the manifest comes up alone.
+
+### The manifest
+
+The screen that closes a story, where arcade shows the score. It was called the roll until the owner renamed it on 2026-11-22: asked for a word without the sound of luck, the owner chose the ship's word ("Manifest, rename it"). Shown the screen as drawn, the owner's answer was "ok, keep it as as a part of the story mode ending", which I take as accepting the form below. The words are the Writer's (the section "The roll" in `story-script.md`, still to be renamed there); the form is the Designer's. Drawn in section 10 of the artifact for four endings.
+
+- **Shown only at a story's ending.** Decided by the owner on 2026-11-22 ("Ending only"): it cannot be opened from the start screen. So the lamps for the endings already reached are seen only when a story ends.
+
+- **Heading:** `THE MANIFEST` (30 px, the HUD's blue), and under it `CAPTAIN [CALLSIGN]` in gold (13 px). The longest callsign, 21 characters, fits with room to spare.
+- **Rows:** one per moon the captain was told about, with one mark per person, 30 apart. A moon never named has no row; three small dots stand where rows are missing (going home after `m03n`, `m05n` was never named).
+- **Marks:** a green disc reached Earth, an empty circle was left behind, an orange cross died. Two more, for the Writer's two extra counts, which I agree with: a blue disc was brought out `BY ANOTHER SHIP` (the second freighter in "The commission"), and a green ring is `MISSING` (the people on the *Lantern* in "Lightboat"). After "Lost at the Heart" the *Lantern*'s people are blue discs under `ON THEIR WAY`.
+- **Counts:** three or four in a row under the rows, each a large number over its label, in the mark's colour. A label longer than 12 characters breaks over two lines (`BY ANOTHER` / `SHIP`).
+- **The cargo:** one line under the counts: `COMMISSION PAID` in gold, or `NO COMMISSION` in dim white.
+- **The eight endings** are diamond lamps in two columns of four. A lit lamp is gold and carries its ending's name beside it (11 px); the one just reached is brightest. An unlit lamp is an empty outline with no name. Two columns are needed because the longest name, `THE LIGHT THAT STAYED`, is 21 characters.
+
+### The chain when a moon is named out of order
+
+The script's table "When each moon is named" has `m06n` named at the stop at `m02n`, before `m04n` and `m05n`. **Proposed; the owner's "ok" to the manifest may or may not cover it:** moons next to each other stand 24 apart on a solid line; a stretch the captain has not been told about is a longer, broken line (44) with no circles on it, so the chain shows that something lies between without showing how much. The stretch stays the same length when `m04n` is named and closes when `m05n` is. Drawn on the stop in section 04 of the artifact.
+
+### Open
+
+- **The gap in the moon chain** is still waiting for the owner's answer.
+- **The lamps on the manifest.** The owner's "Manifest is the part of the story ending, that's it" means nothing is kept between stories. Lamps for endings reached in earlier stories would need exactly that, so whether they stay is to be asked.
+- **The keys for the two entries** on a keyboard. The Engineer's to propose.
+- **The hold time and the typing speed** are to be seen before they are fixed: 1.2 seconds and 60 characters a second, both playable in the artifact (the owner: "1.2 and 60 – let's see them").
+- **A sound for a transmission, for the ring filling and for a choice made.** Asked of the Composer on 2026-11-22, on the owner's word.
+- **Nothing has been seen on a real phone.**
+
+### Settled by the owner on 2026-11-22, after the screens were chosen
+
+- **The best score leaves the start screen when story mode goes in,** not before ("goes off when story mode goes in").
+- **Arcade's cockpit stays blue.** The owner: "arcades cockpit is blue, the pilot is actually never there – that's the point of the arcade". Green is only for story mission 06.
+- **A tap on the start screen that misses both entries does nothing** ("missed tap doesn't do anything").
+- **The numbers are confirmed** ("the numbers are confirmed"): the people on each moon, and the *Lantern*'s 70 places, 36 with the ore. The manifest and the picture of the *Lantern* are drawn from them.
+- **The manifest keeps nothing between stories** ("between stories? Manifest is the part of the story ending, that's it").
+- **The owner's read of the script does not block the design** ("I'll read it, that doesn't block our design").
 
 ## The name Lightboat
 
