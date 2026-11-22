@@ -191,7 +191,9 @@ export function createStoryMode(o: { game: Game; store: Store | null; search: st
       }
     },
     afterSteps() {
-      if (story?.mode !== 'flight' || !g.story) return
+      // only a flight that has started can end: a hold that chose to fly in this frame's tick has not started one yet,
+      // and the game still shows how the last flight ended
+      if (story?.mode !== 'flight' || !g.story || !pending) return
       if (g.state === 'between' || g.state === 'over' || g.state === 'won') story.tripEnded(storyTripResult(g))
     },
     draw(ctx) {
