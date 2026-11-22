@@ -1,27 +1,29 @@
-# Lightboat — story script, fourth draft
+# Lightboat — story script, fifth draft
 
-**Spoilers, and a draft.** Written on 2026-11-22. This draft follows the owner's rules for story mode and the owner's account of the *Lantern* as a freighter, both of the same day and both in "Planned: story mode rules" in `game-design.md`. Nothing here is built. The frame is the "Story" section of the same notes.
+**Spoilers, and a draft.** Written on 2026-11-22; this draft follows the Game Producer's review of the fourth, which the owner has read. This draft follows the owner's rules for story mode and the owner's account of the *Lantern* as a freighter, both of the same day and both in "Planned: story mode rules" in `game-design.md`. Nothing here is built. The frame is the "Story" section of the same notes.
 
 This is everything said in a first playthrough, in the order a player meets it. Nothing is said while flying: each block below is one screen, shown where the game has stopped.
 
 ## The story in six lines
 
 - The *Lantern* is a freighter hauling light0re home. It hears a distress call from a mined moon and diverts. Its captain is the Pilot.
-- The captain flies the ship's lightboats from the ship, moon after moon, learning at each one that there is another.
+- The captain flies the ship's lightboats from the ship, never aboard them, moon after moon, learning at each one that there is another.
 - After `m03n` the ship is full: people, and a hold of ore. Mission control says that is everyone, and another ship is coming.
 - The captain goes home with the ore and the commission, or drops the ore to make room for people nobody listed.
 - After `m05n` the ship can take no more. The captain takes it home, or sends it home alone on automatic, where it is lost one time in five, and stays with one boat for the last moon.
-- At `m06n` the captain is aboard. There are more people than seats, and a boat lost there is the captain's death.
+- `m06n` is out of the ship's range, so there the captain is aboard the boat. It is flown once. There are more people than seats, and a boat lost there is the captain's death.
 
-## What changed from the third draft
+## What changed from the fourth draft
 
-- **The *Lantern* is a freighter, not a rescue tender.** It does not know how many moons have broken, so the briefing names one, and each further moon is learned from the people brought out.
-- **The turn after `m03n` is the ore.** Going home has a reward, the commission and the fame, and going on has a price.
-- **Mission control wants the cargo home.** Its change of heart now starts with the cargo: it looks away when the captain cuts ore into shields, and cannot stop the captain dropping it.
-- **The shields are cargo.** First cut from the hold, then the dropped ore itself drifting into the fields.
-- **Three boats, and a lost one is gone.** The ship reports how many are left, and there are lines for losing the last.
-- **Staying for the last moon risks the people already saved.** A ship sent home alone is lost one time in five, and the ship says so once, before the choice. In a rare ending, "Lightboat", it never arrives.
-- **The first ending is "The commission".** It replaces "The list", and it has two tellings: in at least half, another freighter goes in after the captain and brings out some of the night shift.
+All from the Game Producer's review, and one rule from the owner.
+
+- **Why the captain is in the last boat.** `m06n` is out of the ship's range, so a boat there can only be flown from inside. The ship says so before the last choice.
+- **Flying from the ship is said at the start,** in the briefing, so that mission 06 is felt as the first time aboard.
+- **The three choices have their words:** what the two options are called on screen, and one line from the ship that states the stakes.
+- **Coming through mission 06 with nobody aboard** has its own telling.
+- **The second freighter** brings out some of everyone still there, not only the night shift.
+- **Mission 06 is flown once,** the owner's rule: "m06n has to be one-and-done run, no redos".
+- **Small things:** the children sleep under the chart table, not in a hold that is about to be opened to space.
 
 ## What this draft assumes
 
@@ -34,6 +36,8 @@ Where the rules are open, the script assumes an answer:
 | The three boats are the four, the eight and the twelve. The eight is ready on leaving `m01n` and the twelve on leaving `m03n`; if the only boat ready is lost, the next is released (the Engineer's proposal) | Leaving those moons; [When a boat is destroyed](#when-a-boat-is-destroyed) |
 | With no boat left the *Lantern* goes home, to the ending for where it is | [When the last boat is lost](#when-the-last-boat-is-lost) |
 | The Foreman is never among the saved | [Endings](#endings) |
+| `m06n` is out of the ship's range, which is why the last boat is flown from inside | [Leaving m05n](#leaving-m05n) |
+| What the options of the three choices are called | [The three choices](#the-three-choices) |
 
 ## Who speaks
 
@@ -57,7 +61,7 @@ The story is told in the first person. Nothing is said that the captain could no
 > You are the nearest ship to a distress call.
 > A mined moon, m00n, has broken up.
 > There are people alive on the pieces.
-> Your ship is too big to go in. Its boats fit.
+> Your ship can't go in. Fly a boat in from it.
 > Show them a light. Bring out all you can.
 
 The briefing is the one block longer than three lines.
@@ -81,7 +85,7 @@ The briefing is the one block longer than three lines.
 > or go on to m01n while it holds.
 > Your ship, your call.
 
-The captain chooses, here and after every trip: back for the people still there, or on. Control explains the choice only this once.
+The captain chooses, here and after every trip: back for the people still there, or on (see [The three choices](#the-three-choices)). Control explains the choice only this once.
 
 ### Leaving m00n
 
@@ -153,7 +157,7 @@ The first choice of boat follows.
 ### After the first trip to m03n
 
 > **FROM THE TOWN, m03n**
-> My two are asleep in your hold.
+> My two are asleep under your chart table.
 > They want to meet whoever flies the light.
 
 > **SURVEYOR, m00n**
@@ -232,14 +236,12 @@ The second choice of boat follows.
 
 ### Leaving m05n
 
-The second turn.
+The second turn. The story's screen first:
 
 > **LANTERN**
-> [N] aboard. Room for [N] more.
-> No road leads from m06n back to this ship.
-> Sent home alone, it is lost one time in five.
-
-- *If everyone on the six moons is aboard,* the first line is "Full. Every place aboard is taken."
+> m06n is out of range of this ship.
+> A boat there must be flown from inside.
+> Its one road out leads to Earth, not back.
 
 > **FOREMAN, m06n** *(faint)*
 > There are more of us than you have seats.
@@ -251,14 +253,22 @@ The second turn.
 > I never had their names.
 > Nobody did.
 
-The captain knows both things before choosing: nobody else can reach `m06n`, and a ship sent home without its captain is lost 2 times in 10, the owner's number. The ship gives the figure and no opinion.
+Then the choice, with the ship stating the stakes (see [The three choices](#the-three-choices)):
 
-The captain chooses: home with the ship, which is the ending [Past the list](#past-the-list) or, with every place taken, [A full ship](#a-full-ship); or stay with one boat. If they stay:
+> **LANTERN**
+> [N] aboard. Room for [N] more.
+> If you stay, this ship goes home alone.
+> Sent home alone, it is lost one time in five.
+
+- *If everyone on the six moons is aboard,* the first line is "Full. Every place aboard is taken."
+
+So the captain knows four things before choosing: the boat has to be flown from inside, nobody else can reach `m06n`, the captain cannot come back to the ship, and a ship sent home without its captain is lost 2 times in 10, the owner's number. The ship gives the figure and no opinion.
+
+Going home is the ending [Past the list](#past-the-list) or, with every place taken, [A full ship](#a-full-ship). If the captain stays:
 
 > **CONTROL**
 > I can't order you into that boat.
 > I won't order you out.
-> The road out of m06n leads to Earth.
 
 > **SURVEYOR, m00n**
 > Take the page, Captain.
@@ -271,7 +281,21 @@ The captain chooses: home with the ship, which is the ending [Past the list](#pa
 
 - *If one boat is left:* "One boat left. / It stays with you."
 
-The Lantern leaves, and mission 06 is flown with the captain aboard.
+The Lantern leaves, and mission 06 is flown with the captain aboard, once.
+
+## The three choices
+
+A choice is put on a screen of its own, after the story's screen. It has one transmission from the ship, which states the stakes, and two options. The options are written like the rest of the HUD.
+
+| Choice | The ship says | The two options |
+|---|---|---|
+| After every trip to `m00n` to `m05n`, while people are still there | Nothing: the First has just given the count | `GO BACK FOR [N]` and `GO ON TO m0Xn`. Where the next moon has not been named yet, at `m03n` and `m05n`, the second is `LEAVE m0Xn` |
+| Leaving `m03n` | "[N] aboard, and a hold full of light0re. / No room for another moon." | `GO HOME WITH THE ORE` and `DROP THE ORE` |
+| Leaving `m05n` | "[N] aboard. Room for [N] more. / If you stay, this ship goes home alone. / Sent home alone, it is lost one time in five." | `GO HOME WITH THE LANTERN` and `STAY WITH THE LAST BOAT` |
+
+- **The choice of boat** keeps arcade's picker and has no words.
+- **The ship's line leaving `m03n`** is the first transmission of that moon's story screen today. If the choice has a screen of its own, it moves there, as at `m05n`.
+- **The first row follows the Engineer's sketch.** The other two are the writer's.
 
 ## Blocks used at any moon from m00n to m05n
 
@@ -341,7 +365,9 @@ The story goes to the ending [The empty rail](#the-empty-rail). If the ore is st
 
 Eight. Each closes with three counts on the story's roll: on Earth, left behind, dead.
 
-A Lantern that the captain takes home always arrives. A Lantern sent home alone arrives 8 times in 10. The captain learns which only by coming through mission 06 alive.
+A Lantern that the captain takes home always arrives. A Lantern sent home alone arrives 8 times in 10.
+
+Mission 06 is flown once in a story: the owner's rule is "m06n has to be one-and-done run, no redos". However it ends, seeing another of its endings means a new story from `m00n`. The captain learns which only by coming through mission 06 alive.
 
 With the ore dropped, the Lantern has room for everyone on `m00n` to `m05n`. It is full only when nobody on those six moons was left behind and nobody died in a lost boat. The two best endings ask for that.
 
@@ -360,27 +386,27 @@ Then one of two tellings. Chance picks, not anything the captain did.
 
 > **CONTROL**
 > A second freighter went in after you.
-> It brought out [N] of the night shift.
+> It brought out [N] of the people still there.
 > Same commission. Same papers.
 
 > **SURVEYOR, m00n**
 > [N] of them. Not all.
 > I have their names now.
 
-On the roll the rows for `m04n`, `m05n` and `m06n` show who that ship brought out.
+The people still there are everyone the captain left: on `m00n` to `m03n`, and the night shift beyond. On the roll every moon's row shows who that ship brought out.
 
 **It came too late.** 40 times in 100.
 
 > **CONTROL**
 > A second freighter went in after you.
 > It was a day late.
-> It found no signals past m03n.
+> It found no signals.
 
 > **SURVEYOR, m00n**
 > They were on nobody's list.
 > I've kept a page for them.
 
-On the roll those rows are blank.
+On the roll the rows past `m03n` are blank, and the people left on `m00n` to `m03n` stay as left behind.
 
 - *If the Lantern went home because its last boat was lost,* Control's first block is: "Cargo delivered. Commission paid, / less three boats. / [N] people came home with it." The papers are not mentioned.
 
@@ -454,9 +480,24 @@ The captain stayed, flew mission 06 and came out by the road to Earth.
 > [N] names I couldn't cross off.
 > Read me the ones from m06n.
 
+*If the boat comes through with nobody aboard,* the three blocks are:
+
+> **FOREMAN, m06n** *(faint, as the boat leaves)*
+> You came.
+> Nobody else did.
+
+> **CONTROL**
+> The sum said go home. You stayed.
+> [N] people reached Earth in the Lantern.
+> Your boat came in empty.
+
+> **SURVEYOR, m00n**
+> [N] names I couldn't cross off.
+> The page for m06n came back blank.
+
 ### The light that stayed
 
-As "Home", when the Lantern left full and every seat of the last boat is full too. It is the best a captain can do, and it is earned, not rare. So nobody on the six moons was left behind and nobody died in a lost boat. The Foreman's block is the same.
+As "Home", when the Lantern left full and every seat of the last boat is full too. It is the best a captain can do, and it is earned, not rare. Full means the seats of whichever boat was left: with the four, that is four people. So nobody on the six moons was left behind and nobody died in a lost boat. The Foreman's block is the same.
 
 > **CONTROL**
 > The sum said go home. You stayed.
@@ -505,4 +546,5 @@ The roll shows only what the captain knew: who was aboard the boat, who was left
 - **How the risk is told.** The ship says "lost one time in five" once, before the choice. Whether a plain figure makes the choice fair, or makes most players afraid to stay.
 - **How much is read.** A whole story is about 40 transmissions, roughly 110 short lines, against 15 to 20 minutes of flying (the Engineer's measure). If that is too much, the first to go would be the survivors who speak once at `m01n` and `m05n` and the First's lines on the haul roads.
 - **"I've marked them."** In the Engineer's check an average captain loses about 10 people in boats; an expert under one. So some players meet this screen twice in a story and most strong ones never do.
-- **What is missing on purpose:** the lines for a second playthrough, and anything said on the story's roll.
+- **Why the captain is aboard at `m06n`.** "Out of range" is the writer's answer, built on the ship's earlier "m01n in range". The last choice rests on it.
+- **What is missing on purpose:** the lines for a second playthrough, and anything said on the story's roll. With mission 06 flown once per story, a second playthrough is the only way to see another of its endings, so both now matter more.
