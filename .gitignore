@@ -26,3 +26,6 @@ dist-ssr/
 .firebase/
 firebase-debug.log
 *-debug.log
+
+# Simulation output
+sim/**/out/

@@ -33,6 +33,7 @@ npm run dev
 | `npm run emulators` | Starts the Auth and Firestore emulators |
 | `npm test` | Runs the tests once (`npm run test:watch` to keep them running) |
 | `npm run test:rules` | Runs the Firestore rules tests inside the emulator |
+| `npm run sim:story` | Flies the planned story mode's rules headless with scripted pilots and writes a summary to `sim/story/out/` (slow; not part of `npm test`) |
 | `npm run lint` | ESLint |
 | `npm run build` | Type-checks, then builds to `dist/` |
 | `npm run preview` | Serves the built `dist/`, with the service worker |

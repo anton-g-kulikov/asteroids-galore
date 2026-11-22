@@ -12,6 +12,7 @@
     "test:watch": "vitest",
     "preview": "vite preview",
     "deploy": "npm run lint && npm test && npm run test:rules && npm run build && firebase deploy --only hosting,firestore:rules,auth",
+    "sim:story": "vitest run --config vitest.sim.config.ts",
     "test:rules": "firebase emulators:exec --only firestore --project demo-asteroids-galore \"vitest run --config vitest.rules.config.ts\"",
     "emulators": "firebase emulators:start --only auth,firestore --project demo-asteroids-galore",
     "icons": "node scripts/make-icons.mjs"
