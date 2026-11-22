@@ -707,7 +707,7 @@ Asked for by the owner on 2026-11-20. Both are built and live since 0.4.7 (2026-
 
 ## Story
 
-Proposed on 2026-11-21 and agreed in outline by the owner. Rewritten the same day for the game's new name, Lightboat (see [The name Lightboat](#the-name-lightboat)) and for a story mode beside arcade. On 2026-11-22 the owner decided what was mined (light0re), gave each mission a moon of its own (`m00n` to `m06n`), numbered the missions to match, made the Pilot the captain of the *Lantern*, made the *Lantern* a freighter carrying light0re with three lightboats, and set the mode's rules of play. The owner's words on all of these are in [Planned: story mode rules](#planned-story-mode-rules). **Not built.** Everything that is said is in `story-script.md`, in its fifth draft, revised after the Game Producer's review of the fourth. The owner has decided the story through summaries and has not yet read the script itself.
+Proposed on 2026-11-21 and agreed in outline by the owner. Rewritten the same day for the game's new name, Lightboat (see [The name Lightboat](#the-name-lightboat)) and for a story mode beside arcade. On 2026-11-22 the owner decided what was mined (light0re), gave each mission a moon of its own (`m00n` to `m06n`), numbered the missions to match, made the Pilot the captain of the *Lantern*, made the *Lantern* a freighter carrying light0re with three lightboats, and set the mode's rules of play. The owner's words on all of these are in [Planned: story mode rules](#planned-story-mode-rules). **Being built:** the owner told the Game Engineer to start on 2026-11-22, with `story-script.md` as the source of every line, so a change there is a change to something being built. Everything that is said is in `story-script.md`, in its fifth draft, revised after the Game Producer's review of the fourth. The owner has decided the story through summaries and has not yet read the script itself.
 
 This section uses mission numbers 00 to 06. Older parts of these notes count missions and levels from 1, so mission 00 here is level 1 there.
 
@@ -809,7 +809,7 @@ Eight, with their lines in `story-script.md`. Each closes on three counts: on Ea
 - **A full *Lantern* is earned, not rare.** The owner decided that going back is not limited ("Don't limit; it's a risk assessment decision from a captain/pilot"). In the Engineer's check an expert who keeps going back leaves nobody behind in about two stories in three. Every seat of the last boat full is also usual for a good pilot. So "A full ship" and "The light that stayed" are what good flying earns.
 - **The odds,** both the owner's numbers. The second freighter comes 60 times in 100. The *Lantern* sent home alone is lost 2 times in 10.
 - **Nobody can save everyone at `m06n`.** There is one trip, and more people than seats. The Foreman is among those who stay. A boat that comes through with nobody aboard has its own telling of "Home".
-- **Seeing another ending of mission 06 means a new story.** With the mission flown once, what the manifest remembers between stories and what a returning captain is told matter more. Neither is written yet.
+- **Seeing another ending of mission 06 means a new story,** and every story is told the same way. The owner's words on 2026-11-22: "no "second" playthroughs, each story starts as a new one". The game remembers which endings have been reached, for the manifest's lamps, and nothing in the telling depends on it.
 - **The ending called "Lightboat"** takes the game's name: the one boat that came home. Only mission control speaks in it, because the First was aboard the ship. The chance does not depend on how the captain flew. The owner agreed the name and the rule on 2026-11-22: "Yes to "Lightboat" ending, keep the risk for all". So a captain with a full *Lantern* is not spared, and the best-flown story can end with the most people lost.
 - **The risk is told before the choice,** as a plain figure, since the ship gives no opinions: "Sent home alone, it is lost one in five." Without that the ending would be a trap.
 - **Whoever speaks at the end is far away:** mission control on Earth, the First on the *Lantern* on its way there, and the Foreman at `m06n`.
@@ -855,6 +855,7 @@ Decided by the owner on 2026-11-22, with the rules of play in [Planned: story mo
 - The *Lantern* sent home alone is lost 2 times in 10.
 - Going home after mission 05 is acknowledged as the rational decision.
 - Mission 06 is flown once in a story, with no second try.
+- There is no telling for a second playthrough: each story starts as a new one.
 - The screens are chosen (see [Planned: story mode screens](#planned-story-mode-screens)): two entries on the start screen, `ARCADE` and `STORY`, in place of the writer's proposal of arcade on the first tap; lines in sentence case, typed out, at most 42 characters; choices made by holding a side; in flight the moon's name and its people, with no mission counter; and a manifest of the captain's own in place of a board.
 - The endings for staying say the captain was told the odds and went anyway (the owner's "yes!"). The wording is still a draft.
 - Story missions 04 and 05 start at mission 03's speed.
@@ -868,7 +869,6 @@ Still open on the story's side. "Proposed" is the writer's suggestion, not a dec
 | Where the shields come from | Cut from the cargo, then the dropped ore drifting in; or no shields once the ore is gone | Cut from the cargo, then the dropped ore |
 | Whether the Foreman can be saved | Never; or in the best ending | Never |
 | Whether taking the night shift out speeds the drill | Not a rule today: speed follows the distance flown. Add it as a rule of story mode; or leave the story silent about it | Silent, as the script is. Adding it is a rules and balance question, and it would give a reason to rescue fewer |
-| A second playthrough | The same story again; or a telling that knows it has been read | The briefing is skipped, and the First's lines change because the captain already knows what the list leaves out |
 | Whether arcade carries any of the story | Nothing; or the title and one line | Nothing but the title |
 | What each moon's people call it | Keep the second names (the Edge to the Heart); or numbers only | Keep them, in survivors' mouths only |
 | Tone | Dry and warm, as drafted; or lighter | Dry and warm |
@@ -914,10 +914,10 @@ First called the roll; the owner renamed it on 2026-11-22 ("Manifest, rename it"
 Besides the choices above:
 
 - **The script.** The fifth draft is waiting for the owner, who has not yet read the script itself. It is about 40 transmissions against 15 to 20 minutes of flying; the Producer judges that right for a story mode.
-- **A second playthrough.** Not written. With mission 06 flown once per story it carries more weight: what a returning captain is told.
-- ~~**Whether the manifest can be opened from the start screen.**~~ Decided by the owner on 2026-11-22: "Ending only". The lamps for endings already reached are seen only at an ending, so whatever a returning captain is told has to come from the story's own screens.
+- ~~**A second playthrough.**~~ Decided by the owner on 2026-11-22: there is none. Each story starts as a new one, told the same way from the briefing.
+- ~~**Whether the manifest can be opened from the start screen.**~~ Decided by the owner on 2026-11-22: "Ending only". The lamps for endings already reached are seen only at an ending, and nothing is told differently to a captain who has flown before.
 - ~~**Whether the chain of moons shows a gap.**~~ Decided by the owner on 2026-11-22: "Yes, show the gap". From the stop at `m02n` until `m04n` and `m05n` are named, the chain shows `m06n` at the far end with nothing between. The script's table "When each moon is named" decides what is drawn and has to stay exact.
-- ~~**Whether the manifest keeps its eight lamps.**~~ Decided by the owner on 2026-11-22: "Keep the lamps". The game remembers across stories which endings have been reached, and nothing else. A second playthrough can rest on that and on nothing more.
+- ~~**Whether the manifest keeps its eight lamps.**~~ Decided by the owner on 2026-11-22: "Keep the lamps". The game remembers across stories which endings have been reached, and nothing else. The telling does not use it.
 - ~~**How the lines look.**~~ Chosen by the owner on 2026-11-22: sentence case, typed out one transmission at a time, at most 42 characters a line.
 - **A sound for a transmission,** and whether the voices differ in sound. The Composer's to propose.
 - **The screens** are designed and chosen: see [Planned: story mode screens](#planned-story-mode-screens).

@@ -1,6 +1,6 @@
 # Lightboat — story script, fifth draft
 
-**Spoilers, and a draft.** Written on 2026-11-22; this draft follows the Game Producer's review of the fourth, which the owner has read. This draft follows the owner's rules for story mode and the owner's account of the *Lantern* as a freighter, both of the same day and both in "Planned: story mode rules" in `game-design.md`. Nothing here is built. The frame is the "Story" section of the same notes.
+**Spoilers, and a draft.** Written on 2026-11-22; this draft follows the Game Producer's review of the fourth, which the owner has read. This draft follows the owner's rules for story mode and the owner's account of the *Lantern* as a freighter, both of the same day and both in "Planned: story mode rules" in `game-design.md`. **This script is being built from.** The owner told the Game Engineer to start building story mode on 2026-11-22, with this file as the source of every line. A change to a line, a sender's name, the words of a choice or the table "When each moon is named" is a change to something being built: tell the Game Engineer when one is made. The frame is the "Story" section of the same notes.
 
 This is everything said in a first playthrough, in the order a player meets it. Nothing is said while flying: each block below is one screen, shown where the game has stopped.
 
@@ -389,7 +389,7 @@ Eight. Each closes with three counts on the story's manifest: on Earth, left beh
 
 A Lantern that the captain takes home always arrives. A Lantern sent home alone arrives 8 times in 10.
 
-Mission 06 is flown once in a story: the owner's rule is "m06n has to be one-and-done run, no redos". However it ends, seeing another of its endings means a new story from `m00n`. The captain learns which only by coming through mission 06 alive.
+Mission 06 is flown once in a story: the owner's rule is "m06n has to be one-and-done run, no redos". However it ends, seeing another of its endings means a new story from `m00n`. And every story is told the same way from the start: there is no telling for a second playthrough. The owner's words: "no "second" playthroughs, each story starts as a new one". The captain learns which only by coming through mission 06 alive.
 
 With the ore dropped, the Lantern has room for everyone on `m00n` to `m05n`. It is full only when nobody on those six moons was left behind and nobody died in a lost boat. The two best endings ask for that.
 
@@ -576,7 +576,7 @@ The Game Designer sketched its form: a row per moon with a mark per person, thre
 
 - **`BY ANOTHER SHIP` and `MISSING` are two more counts than the sketch has.** They keep `ON EARTH` and `DEAD` true: the first for people the captain did not bring home, the second for people nobody can account for.
 - **The cargo line is the only place the commission is shown.** There is no score, so this is where it is recorded.
-- **The lamps are kept, and nothing else.** The owner's words: "Keep the lamps". The game remembers across stories which endings have been reached, and no counts and no past manifests. So the one thing known about a returning captain is which endings they have reached, and the player sees that only when a story ends. It is shown only when a story ends: the owner's words are "Ending only", so there is no way into it from the start screen. A second playthrough cannot lean on the manifest being open beforehand.
+- **The lamps are kept, and nothing else.** The owner's words: "Keep the lamps". The game remembers across stories which endings have been reached, and no counts and no past manifests. The lamps are shown only when a story ends, and nothing in the telling depends on them: each story starts as a new one.
 
 ## What to look at when reviewing
 
@@ -591,4 +591,4 @@ The Game Designer sketched its form: a row per moon with a mark per person, thre
 - **How much is read.** A whole story is about 40 transmissions, roughly 110 short lines, against 15 to 20 minutes of flying (the Engineer's measure). If that is too much, the first to go would be the survivors who speak once at `m01n` and `m05n` and the First's lines on the haul roads.
 - **"I've marked them."** In the Engineer's check an average captain loses about 10 people in boats; an expert under one. So some players meet this screen twice in a story and most strong ones never do.
 - **Why the captain is aboard at `m06n`.** "Out of range" is the writer's answer, built on the ship's earlier "m01n in range". The last choice rests on it.
-- **What is missing on purpose:** the lines for a second playthrough. With mission 06 flown once per story, a second playthrough is the only way to see another of its endings, so both now matter more.
+- **Nothing is held back for later.** Every story is told the same way from the briefing on, so there are no lines for a second playthrough: the owner's decision of 2026-11-22. This script is the whole of what is said.
