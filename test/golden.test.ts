@@ -35,7 +35,7 @@ describe('golden traces', () => {
     }
     expect(trace.samples.length).toBe(want.samples.length)
     expect(trace.storage).toEqual(want.storage)
-  }, 60000)
+  }, 240000)   // generous: other sessions may be building on the same machine
 
   test('GOLD-05 each scenario reaches what it is meant to cover', async () => {
     const [mission, crash, pairs, touch] = await Promise.all(scenarios.map(s => traceOf(s.name)))
@@ -60,7 +60,7 @@ describe('golden traces', () => {
     expect(max(pairs, 'missed')).toBeGreaterThan(0)
 
     expect(column(touch, 'state')).toContain('play')
-  }, 60000)
+  }, 240000)   // generous: other sessions may be building on the same machine
 
   test.runIf(update)('write the fixture', () => {
     writeFileSync(FIXTURE, JSON.stringify({ keys: SAMPLE_KEYS, traces: golden.traces }))

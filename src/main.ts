@@ -9,6 +9,9 @@ import { createRunFrames } from './fps/runFrames'
 import { createConductor } from './music/conductor'
 import { drawMusicButton, onMusicButton, showsMusicButton } from './music/musicButton'
 import { startCloud } from './cloud'
+import { createStoryMode } from './storyMode'
+import { FEEL } from './story/controller'
+import type { Store } from './story/progress'
 import { shareIdFromPath, shareMessage, shareResult, shareUrl } from './cloud/share'
 import { createDebugHook } from './debugHook'
 import { createGame, fit } from './game/game'
@@ -144,6 +147,13 @@ function share() {
     .then(result => { if (result === 'copied') game.shareNote = 2 })
 }
 
+// Story mode: shown only while the dev switch is on, until the owner releases it (see storyMode.ts).
+let storyStore: Store | null = null
+try { storyStore = localStorage } catch { /* play without a saved story */ }
+let callsign = ''                               // until the cloud has signed in; with none the story says pilot or Captain
+cloud?.callsign().then(c => { if (c) callsign = c })
+const storyMode = createStoryMode({ game, store: storyStore, search: window.location?.search ?? '', callsign: () => callsign, onArcade: () => tryStart(game) })
+
 // Opened from a share link: show that run on the start screen.
 const sharedId = shareIdFromPath(window.location?.pathname ?? '/')
 if (sharedId) cloud?.loadShared(sharedId).then(run => { game.shared = run })
@@ -160,6 +170,8 @@ window.addEventListener('pointerdown', e => {
   if (onFpsButton(game, (e.clientX - view.x) / view.scale, (e.clientY - view.y) / view.scale)) { fps.toggle(); return }
   // only a mute: not a start, a steer, a choice of ship or a move on
   if (onMuteButton(game, (e.clientX - view.x) / view.scale, (e.clientY - view.y) / view.scale, canPlaySound)) { sound.toggleMute(); return }
+  // the start screen's two entries, and every tap and hold on a story screen
+  if (storyMode.pointerDown((e.clientX - view.x) / view.scale, (e.clientY - view.y) / view.scale)) return
   if (closeBoard()) return
   if (onBoardButton(e)) { game.boardOpen = true; return }
   if (onShareButton(e)) { sharePointer = e.pointerId; return }   // not a steer, not a restart
@@ -169,6 +181,7 @@ window.addEventListener('pointerdown', e => {
 window.addEventListener('pointermove', e => input.movePointer(e.pointerId, e.clientX, window.innerWidth))
 const release = (e: PointerEvent) => input.release(e.pointerId)
 window.addEventListener('pointerup', e => {
+  storyMode.pointerUp()
   // Sharing happens on release: that is when browsers allow the share sheet to open.
   if (e.pointerId === sharePointer) {
     sharePointer = null
@@ -193,6 +206,7 @@ window.addEventListener('keydown', e => {
   fullscreen.tap()
   if (e.key === 'm' || e.key === 'M') { if (!e.repeat) sound.toggleMute(); return }   // the sound effects
   if (e.key === 'n' || e.key === 'N') { if (!e.repeat) music.press(game); return }   // the music: on the start screen, the drone
+  if (storyMode.key(e.key, true, e.repeat)) { e.preventDefault(); return }
   if (e.key === 'Escape') { closeBoard(); return }
   const side = sideOf(e.key)
   if (side) { input.key(side, true); if (!e.repeat) chooseSide(game, side === 'left' ? -1 : 1) }
@@ -202,6 +216,7 @@ window.addEventListener('keydown', e => {
   if (!e.repeat && game.state === 'menu') tryStart(game)   // a steering key also starts the first run
 })
 window.addEventListener('keyup', e => {
+  storyMode.key(e.key, false, false)
   const side = sideOf(e.key)
   if (side) input.key(side, false)
 })
@@ -218,7 +233,7 @@ function step() {
   }
   const wasPlaying = game.state === 'play'
   update(game, STEP * scale, input.steer())
-  if (wasPlaying && (game.state === 'over' || game.state === 'won')) runEnded()   // not the stop between levels
+  if (wasPlaying && (game.state === 'over' || game.state === 'won') && !game.story) runEnded()   // not the stop between levels, nor a story flight
 }
 
 let last = performance.now(), owed = 0
@@ -232,23 +247,32 @@ function frame(now: number) {
   last = now
   if (Math.abs(dt - STEP) < 0.002) dt = STEP     // a 60 Hz screen: exactly one step per frame, no stutter
   owed += dt
+  storyMode.beforeSteps(dt)
+  const storyScreen = storyMode.active && !storyMode.flying   // a story screen: the game waits
+  if (storyMode.holdsGame) owed = 0
   while (owed >= STEP - 1e-9) { owed -= STEP; step() }
+  storyMode.afterSteps()
   if (game.state === 'launch' && lastState !== 'launch' && game.level === 1) runFrames.start()   // a run's first fly-in
   lastState = game.state
   game.shareNote = Math.max(0, game.shareNote - dt)
   updater?.tick(game.state)
-  music.frame(game)                              // reads the events; the sound effects then take them
+  music.frame(game, storyMode.musicMode())       // reads the events; the sound effects then take them
   sound.frame(game, dt)
-  render(ctx, game)
-  if (showsMute(game, canPlaySound)) drawMuteButton(ctx, game, sound.muted)
-  if (showsMusicButton(game, canPlaySound)) drawMusicButton(ctx, game, music.on)
-  if (showsFpsButton(game)) drawFpsButton(ctx, game, fps.on)
+  for (const e of storyMode.takeEvents()) sound.story(e, FEEL.holdSeconds)   // the story screens' sounds
+  if (!storyMode.draw(ctx)) {
+    render(ctx, game, { start: storyMode.startView(), flight: storyMode.flightView(), orbit: storyMode.orbitView() })
+    storyMode.overlay(ctx)
+  }
+  if (!storyScreen && showsMute(game, canPlaySound)) drawMuteButton(ctx, game, sound.muted)
+  if (!storyScreen && showsMusicButton(game, canPlaySound)) drawMusicButton(ctx, game, music.on)
+  if (!storyScreen && showsFpsButton(game)) drawFpsButton(ctx, game, fps.on)
   if (fps.on) drawFpsReading(ctx, game, frames.reading())   // on every screen: it sits alone in the bottom left corner
   requestAnimationFrame(frame)
 }
 requestAnimationFrame(frame)
 
 window.__game = createDebugHook(game)
+window.__story = storyMode.debug
 // For tuning the sounds by ear, after one tap on the page: `__sound.play('save')`,
 // `__sound.play('save', 1.5)` for a higher one, or `__sound.event({ kind: 'missed', count: 3 })`.
 window.__sound = {

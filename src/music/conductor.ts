@@ -41,8 +41,11 @@ export interface Conductor {
   press(g: Game): void
   /** The music has loaded. Until then the game plays without it. */
   attach(engine: MusicEngine): void
-  /** Once a frame, before the sound effects take the events. */
-  frame(g: Game): void
+  /**
+   * Once a frame, before the sound effects take the events. `override` is story mode's screens
+   * deciding the music (the pad, the end bass, or silence) in place of the game's state.
+   */
+  frame(g: Game, override?: Mode | null): void
   /** The chord the sound effects follow: the music's, or Am (0) when it is not loaded, switched off or not playing. */
   chord(): number
 }
@@ -97,7 +100,7 @@ export function createConductor(storage: Pick<Storage, 'getItem' | 'setItem'> | 
       engine.setOn(on)
       follow()
     },
-    frame(g) {
+    frame(g, override) {
       for (const e of g.events) {            // read, not taken: the sound effects use them too
         if (!engine) break
         if (e.kind === 'enter') engine.dropLayers(MUSIC.drop)
@@ -105,9 +108,11 @@ export function createConductor(storage: Pick<Storage, 'getItem' | 'setItem'> | 
         if (e.kind === 'home') { engine.stop(MUSIC.stopHome); started = false }
       }
       const was = last.mode
-      last = { mode: modeOf(g, menuMusic), speed: g.speed, depth: g.state === 'play' ? slowDepth(g.slowmo) : 0, level: g.level }
+      last = { mode: override ?? modeOf(g, menuMusic), speed: g.speed, depth: g.state === 'play' ? slowDepth(g.slowmo) : 0, level: g.level }
+      if (override === 'over' && was !== 'over' && engine && started) engine.gameOver()       // story's manifest: the end bass
+      if (override === 'silent' && was !== 'silent' && engine && started) engine.stop(MUSIC.stopHome)   // story's silences fade out
       if (last.mode === 'silent') started = false
-      if (was === 'over' && last.mode === 'flying') started = false   // a new run cuts the game-over bass and starts the loop again
+      if (was === 'over' && last.mode !== 'over' && last.mode !== 'silent') started = false   // a new run (or a story screen) cuts the game-over bass and starts the loop again
       follow()
       // slow motion is passed on once, as it starts: the engine schedules it whole
       if (engine && started && g.state === 'play' && g.slowmo > slowmo + 1e-6) engine.slowMotion()

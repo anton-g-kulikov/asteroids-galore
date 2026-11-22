@@ -3,7 +3,11 @@ import { missedPercent, missionScore, pendingScore, scoreOf } from '../game/scor
 import { isFleet, offer } from '../game/game'
 import { LAST_LEVEL, levelTarget, shipRadius, shipSeats } from '../game/tuning'
 import type { BoardRow, Game, LevelResult, RunEnd, SharedRun } from '../game/types'
-import { drawHull } from './sprites'
+import type { StartEntriesView, StoryFlightView } from '../story/view'
+import { drawHull, drawPerson } from './sprites'
+import { drawOrbit } from './story/orbit'
+import type { OrbitView } from './story/orbit'
+import { drawStartEntries } from './story/start'
 import { outlined, text } from './text'
 
 /** Scores get long: 25680 reads better as 25,680. */
@@ -27,8 +31,42 @@ function drawTouchHints(ctx: CanvasRenderingContext2D, g: Game, alpha: number): 
   ctx.restore()
 }
 
-function drawPlayHud(ctx: CanvasRenderingContext2D, g: Game, top: number): void {
-  const { W, H, U } = g
+/**
+ * What the story adds to the screens the HUD draws. `start`: the start screen's two entries, in
+ * place of the prompt and the best score. `flight`: the story's own counters in flight. Left out,
+ * every screen is arcade's.
+ */
+export interface StoryHud {
+  start?: StartEntriesView | null
+  flight?: StoryFlightView | null
+  /** With a story flight: the orbit, drawn in place of arcade's straight bar. */
+  orbit?: OrbitView | null
+}
+
+// The story's counters in flight. No score: top left the moon's name and under it the people still
+// on that moon, as the small figures that wave from the rocks; top right the seats, as in arcade.
+function drawStoryCounters(ctx: CanvasRenderingContext2D, g: Game, top: number, v: StoryFlightView): void {
+  const { W, U } = g
+  text(ctx, v.moon, 14, top - 8 * U, 14 * U, 'rgba(127,220,255,.95)', 'left', 700)
+  for (let i = 0; i < v.still; i++) {
+    ctx.save()
+    ctx.translate(19 + i * 11 * U, top + 14 * U)
+    drawPerson(ctx, 2.7 * U, U * 0.6, i % 2 ? 0.3 : -0.3)
+    ctx.restore()
+  }
+  const full = v.aboard >= v.seats
+  text(ctx, `ABOARD ${v.aboard}/${v.seats}`, W - 14, top - 8 * U, 13 * U, full ? '#5dffa0' : '#ffd166', 'right', 700)
+  const step = 11 * U, pr = 3.6 * U, px = W - 14 - pr - (v.seats - 1) * step, py = top + 8 * U
+  for (let i = 0; i < v.seats; i++) {
+    ctx.beginPath(); ctx.arc(px + i * step, py, pr, 0, Math.PI * 2)
+    if (i < v.aboard) { ctx.fillStyle = '#5dffa0'; ctx.fill() }
+    else { ctx.strokeStyle = 'rgba(255,209,102,.6)'; ctx.lineWidth = 1.2 * U; ctx.stroke() }
+  }
+}
+
+function drawPlayHud(ctx: CanvasRenderingContext2D, g: Game, top: number, flight?: StoryFlightView | null, orbit?: OrbitView | null): void {
+  const { W, U } = g
+  if (flight) { drawStoryCounters(ctx, g, top, flight); drawFoot(ctx, g, orbit); return }
   // Top left: the mission, and under it one number at a time. With crew on
   // board it is what they are worth, in green with a plus: banked at the next
   // wormhole, gone if the ship is lost first. With the seats empty it is the
@@ -52,7 +90,17 @@ function drawPlayHud(ctx: CanvasRenderingContext2D, g: Game, top: number): void 
     else { ctx.strokeStyle = 'rgba(255,209,102,.6)'; ctx.lineWidth = 1.2 * U; ctx.stroke() }
   }
 
-  // Along the foot of the field: how far the mission's target is.
+  drawFoot(ctx, g)
+}
+
+// Along the foot of the field: how far the mission's target is. And for the first seconds, where to hold.
+function drawFoot(ctx: CanvasRenderingContext2D, g: Game, orbit?: OrbitView | null): void {
+  const { W, H, U } = g
+  if (orbit) {
+    drawOrbit(ctx, g, orbit)
+    if (g.time < 3.5) drawTouchHints(ctx, g, 0.35 * Math.min(1, 3.5 - g.time))
+    return
+  }
   const target = levelTarget(g.level), bw = W - 28, bh = 4 * U, bx = 14, by = H - 16 * U
   ctx.fillStyle = 'rgba(255,255,255,.18)'
   ctx.fillRect(bx, by, bw, bh)
@@ -62,13 +110,13 @@ function drawPlayHud(ctx: CanvasRenderingContext2D, g: Game, top: number): void 
   if (g.time < 3.5) drawTouchHints(ctx, g, 0.35 * Math.min(1, 3.5 - g.time))
 }
 
-function drawMenu(ctx: CanvasRenderingContext2D, g: Game): void {
+function drawMenu(ctx: CanvasRenderingContext2D, g: Game, start?: StartEntriesView | null): void {
   const { W, H, U } = g
   const best = g.records.best
   // The title: the word outlined in the ship's line of light, black inside, with a digit zero for the O
   // (the owner's choices, 2026-11-21); everywhere else the name is spelt Lightboat
   outlined(ctx, 'LIGHTB0AT', W / 2, H * 0.3 + 26 * U, 58 * U)
-  if (best) text(ctx, `BEST ${fmt(best)}`, W / 2, H * 0.3 + 84 * U, 15 * U, '#ffd166', 'center', 700)
+  if (best && !start) text(ctx, `BEST ${fmt(best)}`, W / 2, H * 0.3 + 84 * U, 15 * U, '#ffd166', 'center', 700)
   drawTouchHints(ctx, g, 0.55)
   text(ctx, 'hold left', W / 2 - W * 0.3, H * 0.8 + 62 * U, 13 * U, 'rgba(255,255,255,.7)', 'center', 600)
   text(ctx, 'hold right', W / 2 + W * 0.3, H * 0.8 + 62 * U, 13 * U, 'rgba(255,255,255,.7)', 'center', 600)
@@ -78,6 +126,8 @@ function drawMenu(ctx: CanvasRenderingContext2D, g: Game): void {
   // screens pushes the prompt down rather than touching it.
   const sharedY = H * 0.3 + 124 * U
   if (g.shared) drawShared(ctx, g, g.shared, sharedY)
+  // with story mode in, two entries stand where the prompt was, and the best score is gone (see above)
+  if (start) { drawStartEntries(ctx, g, start); return }
   ctx.globalAlpha = 0.6 + 0.4 * Math.sin(g.stateTime * 4)
   text(ctx, 'TAP TO START', W / 2, g.shared ? Math.max(H * 0.58, sharedY + 86 * U) : H * 0.58, 20 * U, '#ffffff')
   ctx.globalAlpha = 1
@@ -319,12 +369,12 @@ function drawBoard(ctx: CanvasRenderingContext2D, g: Game, rows: BoardRow[]): vo
 }
 
 /** Everything drawn over the playfield: the in-run HUD, the menu, the results between levels, or an end screen. */
-export function drawHud(ctx: CanvasRenderingContext2D, g: Game): void {
+export function drawHud(ctx: CanvasRenderingContext2D, g: Game, story: StoryHud = {}): void {
   const { W, H, U } = g
   if (g.state === 'play' || g.state === 'launch') {
-    drawPlayHud(ctx, g, 44 * U + 8)
+    drawPlayHud(ctx, g, 44 * U + 8, story.flight, story.orbit)
   } else if (g.state === 'menu') {
-    drawMenu(ctx, g)
+    drawMenu(ctx, g, story.start)
   } else if (g.state === 'between') {
     drawBetween(ctx, g)
   } else {

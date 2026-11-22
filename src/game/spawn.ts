@@ -39,8 +39,7 @@ const RESCUE = () => ({ ...STEADY(), planet: true })
 // small ship in a late mission fills from one or two of them.
 //   level 1: always 1     level 2: mostly 1, sometimes 2, rarely 3
 //   level 3: mostly 2–3   level 4 on: 2–4
-export function crewSize(level: number): number {
-  const p = random()
+export function crewSize(level: number, p = random()): number {
   if (level <= 1) return 1
   if (level === 2) return p < 0.6 ? 1 : p < 0.92 ? 2 : 3
   if (level === 3) return p < 0.15 ? 1 : p < 0.65 ? 2 : 3

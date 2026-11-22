@@ -41,5 +41,6 @@ declare global {
   interface Window {
     __game?: ReturnType<typeof createDebugHook>
     __sound?: { sounds: string[]; play(name: string, pitch?: number): void; event(e: unknown): void }
+    __story?: { mode(): string; state(): unknown; screen(): unknown; endTrip(picked: number, destroyed?: boolean): void; devAt(x: number, y: number): string | null; dev(): unknown }
   }
 }

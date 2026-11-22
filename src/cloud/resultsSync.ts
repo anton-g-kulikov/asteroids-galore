@@ -33,6 +33,8 @@ export interface ResultsSync {
   submit(run: RunResult): Promise<string | null>
   /** The run behind a share link, or null if it cannot be had. Never rejects. */
   loadShared(runId: string): Promise<SharedRun | null>
+  /** The player's callsign once signed in, or null if sign-in failed. Never rejects. */
+  callsign(): Promise<string | null>
 }
 
 export interface SyncOptions {
@@ -87,6 +89,10 @@ export function createResultsSync(backend: CloudBackend, records: Records, optio
 
   return {
     ready,
+    async callsign() {
+      await ready
+      return uid ? callsignFor(uid) : null
+    },
     async submit(run) {
       try {
         await ready

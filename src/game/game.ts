@@ -15,7 +15,7 @@ export function createGame(records: Records): Game {
     wells: [{ x: 0, y: 0, dwell: 0, depth: 0 }], gridOff: 0,   // placed properly when a run starts
     shields: SHIELDS, grace: 0, slowmo: 0, slowWatch: null,
     newBest: false, records,
-    board: null, boardOpen: false,
+    board: null, boardOpen: false, story: null,
     shareReady: false, shareNote: 0, shared: null,
     ship: { x: FIELD_W / 2, y: 0, vx: 0, r: shipRadius(1) },
     asteroids: [], particles: [], floaters: [], castaways: [], stars: [],

@@ -1,3 +1,5 @@
+import { callPlan, channelClosePlan, chosenPlan, countPlan, lampPlan, ringRoot, ringSteps } from './storyScored'
+import type { StoryEvent } from '../story/controller'
 import type { SoundEvent } from '../game/events'
 import { timeScale } from '../game/timeScale'
 import type { Game } from '../game/types'
@@ -12,7 +14,14 @@ export const MUTE_KEY = 'asteroids-galore-muted'
 export interface Audio { synth: Synth; resume(): void; suspend(): void; /** The browser's audio context, shared with the music. */ context?: AudioContext }
 
 /** The v2 sound effects, played by Tone.js once it has loaded (src/music/effects.ts). */
-export interface EffectsOut { play(plan: FxPlan): void; stopAll(): void }
+export interface EffectsOut {
+  play(plan: FxPlan): void
+  stopAll(): void
+  /** Story screens: the open channel while a transmission types (a faint one breaks up). */
+  channel?(open: boolean, faint: boolean): void
+  /** Story screens: the ring filling, a swell on `root` and the arpeggio climbing over `seconds`; null lets go. */
+  ring?(start: { root: number; steps: { midi: number; share: number; vel: number }[]; seconds: number } | null): void
+}
 
 export interface PlayerDeps {
   storage: Pick<Storage, 'getItem' | 'setItem'> | null
@@ -37,6 +46,8 @@ export interface SoundPlayer {
   attachEffects(fx: EffectsOut, chordNow: () => number): void
   /** For trying sounds by ear: one sound, or what an event sounds like. */
   audition(what: SoundName | SoundEvent, pitch?: number): void
+  /** A story screen's moment (see storyScored.ts): only with the soundtrack's instruments loaded, and not when muted. */
+  story(e: StoryEvent, holdSeconds: number): void
   /** The wormhole's pulse at a given loudness, 0–1, from far to near. */
   auditionPulse(near: number, pitch?: number): void
 }
@@ -115,6 +126,19 @@ export function createSoundPlayer(deps: PlayerDeps): SoundPlayer {
       if (!audio) return
       if (typeof what === 'string') audio.synth.play(what, { pitch, gain: 1, delay: 0 })
       else play(what, pitch)
+    },
+    story(e, holdSeconds) {
+      if (!fx || !audio || muted) return
+      const chord = chordNow()
+      switch (e.kind) {
+        case 'call': fx.play(callPlan(e.voice, chord)); fx.channel?.(true, e.voice === 'foreman'); break
+        case 'typingDone': fx.channel?.(false, false); fx.play(channelClosePlan()); break
+        case 'holdStart': fx.ring?.({ root: ringRoot(chord), steps: ringSteps(chord), seconds: holdSeconds }); break
+        case 'holdCancel': fx.ring?.(null); break
+        case 'chosen': fx.ring?.(null); fx.play(chosenPlan(e.heavy, chord)); break
+        case 'count': fx.play(countPlan(e.mark, chord)); break
+        case 'lamp': fx.play(lampPlan(chord)); break
+      }
     },
     auditionPulse(near, pitch = 1) {
       audio?.synth.play('pulse', { pitch, gain: PULSE.quiet + (PULSE.loud - PULSE.quiet) * near, delay: 0 })

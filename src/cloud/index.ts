@@ -11,6 +11,8 @@ export interface Cloud {
   submit(run: RunResult): Promise<string | null>
   /** The run behind a share link, or null. Never rejects. */
   loadShared(runId: string): Promise<SharedRun | null>
+  /** The player's callsign once signed in, or null. Never rejects. */
+  callsign(): Promise<string | null>
 }
 
 /**
@@ -29,5 +31,6 @@ export function startCloud(records: Records, onBoard: (rows: BoardRow[]) => void
   return {
     submit: run => sync.then(s => s?.submit(run) ?? null),
     loadShared: runId => sync.then(s => s?.loadShared(runId) ?? null),
+    callsign: () => sync.then(s => s?.callsign() ?? null),
   }
 }

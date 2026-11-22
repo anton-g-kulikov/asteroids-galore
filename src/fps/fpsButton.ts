@@ -39,8 +39,8 @@ export function drawFpsButton(ctx: CanvasRenderingContext2D, g: Game, on: boolea
 /** The star colour, at full strength. */
 export const FPS_COLOUR = '#7fa8a2'
 
-/** Where the reading sits: the left corner just above the progress bar, below the ship. */
-export const fpsReadingAt = (g: Game): { x: number; y: number } => ({ x: 14, y: g.H - 22 * g.U })
+/** Where the reading sits: the left corner just above the progress bar, below the ship; in a story flight, above the orbit's left end. */
+export const fpsReadingAt = (g: Game): { x: number; y: number } => ({ x: 14, y: g.H - (g.story && g.state === 'play' ? 36 : 22) * g.U })
 
 /** For example `58 FPS · LOW 41`. Nothing until there is a reading. */
 export function drawFpsReading(ctx: CanvasRenderingContext2D, g: Game, reading: FpsReading | null): void {

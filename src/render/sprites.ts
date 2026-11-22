@@ -63,7 +63,7 @@ function drawRockBody(ctx: CanvasRenderingContext2D, a: Asteroid, U: number): vo
 
 // One crew member: a yellow suit, a white helmet, and both arms waving.
 // Drawn standing on the origin, `s` sets the size.
-function drawPerson(ctx: CanvasRenderingContext2D, s: number, U: number, wave: number): void {
+export function drawPerson(ctx: CanvasRenderingContext2D, s: number, U: number, wave: number): void {
   ctx.strokeStyle = ctx.fillStyle = '#ffe66b'
   glow(ctx, '#ffe66b', 6 * U)
   ctx.lineWidth = 1.6 * U
@@ -193,7 +193,28 @@ export function drawDrop(ctx: CanvasRenderingContext2D, g: Game, d: Drop): void 
 /** A seat nobody sits in. */
 export const SEAT_FREE = '#8fc4cc'
 
-export function drawHull(ctx: CanvasRenderingContext2D, r: number, type: number, onboard: number, flame = true): void {
+/** `glass`: the cockpit's colour, the ship's own blue unless given. `lost`: only a broken trace of the boat. */
+export interface HullLook { glass?: string; lost?: boolean }
+
+export function drawHull(ctx: CanvasRenderingContext2D, r: number, type: number, onboard: number, flame = true, look: HullLook = {}): void {
+  if (look.lost) {
+    // a boat that is gone: where it stood, in a faint broken line, with no glass and no seats
+    ctx.save()
+    ctx.globalAlpha *= 0.38
+    ctx.strokeStyle = SEAT_FREE; ctx.lineWidth = 1.2; ctx.lineJoin = 'round'; ctx.setLineDash([3, 4])
+    ctx.beginPath()
+    ctx.moveTo(0, -r * 0.2); ctx.lineTo(r * 1.15, r * 0.95); ctx.lineTo(r * 0.3, r * 0.7)
+    ctx.lineTo(-r * 0.3, r * 0.7); ctx.lineTo(-r * 1.15, r * 0.95)
+    ctx.closePath(); ctx.stroke()
+    ctx.beginPath()
+    ctx.moveTo(0, -r * 1.35)
+    ctx.quadraticCurveTo(r * 0.55, -r * 0.2, r * 0.42, r * 0.85)
+    ctx.lineTo(-r * 0.42, r * 0.85)
+    ctx.quadraticCurveTo(-r * 0.55, -r * 0.2, 0, -r * 1.35)
+    ctx.stroke()
+    ctx.restore()
+    return
+  }
   if (flame) {
     const f = r * (1.0 + Math.random() * 0.5)
     ctx.fillStyle = '#ffe66b'
@@ -225,13 +246,16 @@ export function drawHull(ctx: CanvasRenderingContext2D, r: number, type: number,
   // cockpit: the glass follows the nose. It is the top third of the hull's own
   // outline at two-thirds size, set inside it, with a lower edge that sags
   // towards the seats.
-  ctx.fillStyle = LINE
+  // blue unless told otherwise: the story turns it green when the captain is aboard
+  ctx.fillStyle = look.glass ?? LINE
+  if (look.glass) glow(ctx, look.glass, r * 0.5)
   ctx.beginPath()
   ctx.moveTo(0, -r * 1.143)
   ctx.quadraticCurveTo(r * 0.12, -r * 0.892, r * 0.191, -r * 0.649)
   ctx.quadraticCurveTo(0, -r * 0.489, -r * 0.191, -r * 0.649)
   ctx.quadraticCurveTo(-r * 0.12, -r * 0.892, 0, -r * 1.143)
   ctx.fill()
+  if (look.glass) glow(ctx)
   // passenger deck: one seat per dot, filling from the back as crew come
   // aboard. Every ship's seats are a full rectangle, in rows of two or three.
   const [cols, rows] = shipGrid(type)
@@ -283,15 +307,15 @@ export function drawFlame(ctx: CanvasRenderingContext2D, g: Game): void {
   ctx.restore()
 }
 
-/** The ship with its shields; `alpha` fades all of it. */
-export function drawShip(ctx: CanvasRenderingContext2D, g: Game, alpha = 1): void {
+/** The ship with its shields; `alpha` fades all of it, and `look` changes its glass. */
+export function drawShip(ctx: CanvasRenderingContext2D, g: Game, alpha = 1, look: HullLook = {}): void {
   const { ship, W, clock } = g
   const r = ship.r
   ctx.save()
   ctx.translate(ship.x, ship.y)
   ctx.rotate(Math.max(-0.45, Math.min(0.45, ship.vx / (W * 1.4) * 0.45)))
   ctx.globalAlpha = alpha
-  drawHull(ctx, r, g.shipType, g.onboard)
+  drawHull(ctx, r, g.shipType, g.onboard, true, look)
   // shields: one arc per shield left, stacked ahead of the nose
   ctx.lineCap = 'round'
   ctx.strokeStyle = SHIELD_COLOR

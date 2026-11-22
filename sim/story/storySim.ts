@@ -18,9 +18,9 @@ export const PILOTS: Record<string, Skill> = {
   average: { ...base, notice: 0.25, delay: 12, lapse: 0.01 },
 }
 export const MOONS = [6, 7, 11, 12, 16, 18, 20]
-const records = { best: 0, bestEnd: { outcome: 'over', level: 1, finalDistance: 0, ship: 0 }, saveBest: () => false, absorb: () => {} } as unknown as Records
+export const records = { best: 0, bestEnd: { outcome: 'over', level: 1, finalDistance: 0, ship: 0 }, saveBest: () => false, absorb: () => {} } as unknown as Records
 
-function decide(g: Game, sk: Skill, last: number): number {
+export function decide(g: Game, sk: Skill, last: number): number {
   const { ship, W, H } = g
   const scroll = H * 0.34 * g.speed
   const full = g.onboard >= seats(g)

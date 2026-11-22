@@ -7,14 +7,14 @@ import { CHORDS } from '../music/score'
 // audio: it says which instrument plays which notes, when, for how long and
 // how loud. src/music/effects.ts plays them with Tone.js.
 
-export type FxVoice = 'bell' | 'pad' | 'bass' | 'kick' | 'snare' | 'hat' | 'arp' | 'lead' | 'piano'
+export type FxVoice = 'bell' | 'pad' | 'bass' | 'kick' | 'snare' | 'hat' | 'arp' | 'lead' | 'piano' | 'far'
 
 /** One instrument's part in a sound. Times in seconds from now; MIDI note numbers; `len` may be a Tone.js length. */
 export interface FxNote {
   voice: FxVoice
   midi: number[]          // empty for the snare and hat
   at: number
-  len: number | '16n' | '32n'
+  len: number | '16n' | '32n' | '64n'
   vel: number
   slideTo?: number        // glide to this note over the length
   decay?: number          // the kick's or snare's decay, set for this trigger

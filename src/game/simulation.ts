@@ -8,12 +8,13 @@ import { spawnAsteroid, spawnChoice, spawnDilemma, spawnDrop, spawnRescue } from
 import {
   CHOICE_EVERY, DILEMMA_EVERY, LAUNCH_TIME, DROPS_WITHIN, FIRST_RESCUE, GRACE, LAST_LEVEL, LEVEL_MIN_TIME, MAX_SHIELDS, SEAT_WAIT, SHIELDS,
   SLOW_TIME, WELL_PULL, WELL_TIME, WORM_WAITS,
-  handling, levelTarget, rescueGap, shieldDrops, shipRadius, speedAt, startSpeed,
+  SPEED_GAIN, handling, levelTarget, rescueGap, shieldDrops, shipRadius, speedAt, startSpeed,
 } from './tuning'
-import type { Asteroid, Game } from './types'
+import type { Asteroid, Game, StoryFlight } from './types'
 
 export function startGame(g: Game): void {
   seedRandom(g.seed)            // the whole run is dealt from its seed
+  g.story = null
   g.asteroids = []; g.particles = []; g.floaters = []; g.castaways = []; g.drops = []; g.fullFor = 0
   g.time = 0; g.speed = 1; g.distance = 0; g.spawnTimer = 0.6; g.shake = 0; g.newBest = false
   g.level = 1; g.shipType = 1; g.pick = 1; g.ship.r = shipRadius(1); g.levelTime = 0; g.levelScore = 0; g.onboard = 0
@@ -34,8 +35,8 @@ export function startGame(g: Game): void {
  * then is it in play. Every later mission starts with the same fly-in (see `nextLevel`). The fly-in draws nothing from the seed, so the run that
  * follows is the one `startGame` deals. It is also the time the music takes to load.
  */
-function launch(g: Game): void {
-  startGame(g)
+function launch(g: Game, fresh = true): void {
+  if (fresh) startGame(g)
   g.ship.y = launchY(g, 0)
   setState(g, 'launch')
 }
@@ -123,6 +124,7 @@ function enterWormhole(g: Game): void {
   const saved = g.onboard
   deliver(g)
   g.results.push({ ...missionSoFar(g), saved })
+  if (g.story) for (const a of g.asteroids) if (a.planet) g.story.onMoon += a.people   // still on the moon
   g.asteroids = []; g.drops = []; g.wormhole = null; g.slowmo = 0; g.slowWatch = null
   if (g.level >= LAST_LEVEL) { win(g); return }
   g.pick = g.shipType
@@ -184,7 +186,7 @@ function takeHit(g: Game, a: Asteroid): void {
   if (g.shields <= 0) { gameOver(g); return }
   g.shields--
   emit(g, { kind: 'hit', size: Math.round(a.r / g.U), shieldsLeft: g.shields })
-  if (g.onboard > 0) {
+  if (g.onboard > 0 && !g.story) {    // story: a hit costs a shield and nothing else
     g.onboard--
     g.missed++
     emit(g, { kind: 'missed', count: 1 })
@@ -233,7 +235,7 @@ function gameOver(g: Game): void {
   emit(g, { kind: 'destroyed' })
   buzz([60, 40, 140])
   setState(g, 'over')
-  saveBest(g)
+  if (!g.story) saveBest(g)
 }
 
 function win(g: Game): void {
@@ -241,11 +243,71 @@ function win(g: Game): void {
   emit(g, { kind: 'home' })
   buzz([40, 60, 40, 60, 120])
   setState(g, 'won')
-  saveBest(g)
+  if (!g.story) saveBest(g)
 }
 
 /** Meets the current level's goals at once. For the debug hook. */
-export function skipLevel(g: Game): void { g.levelScore = Math.max(g.levelScore, levelTarget(g.level)); g.levelTime = 1e9 }
+export function skipLevel(g: Game): void { g.levelScore = Math.max(g.levelScore, targetOf(g)); g.levelTime = 1e9 }
+
+/** The parsecs this level asks for: arcade's, or a story flight's own. */
+export const targetOf = (g: Game): number => g.story?.target ?? levelTarget(g.level)
+
+/**
+ * Starts one story-mode flight (see src/story): a mission's first flight, a flight back, or mission 06.
+ * Everything that makes it story rather than arcade hangs off `g.story`. Every flight starts at the
+ * start of a lap and at the mission's starting speed; a flight back has no shield drops.
+ */
+export function startStoryTrip(g: Game, t: {
+  level: number; boat: number; people: number; isReturn: boolean; shields: number
+  startSpeed: number; target: number; captainAboard: boolean
+}): void {
+  g.seed = newSeed()
+  startGame(g)
+  g.level = t.level; g.shipType = t.boat; g.pick = t.boat; g.ship.r = shipRadius(t.boat); g.shields = t.shields
+  g.story = { onMoon: t.people, target: t.target, startSpeed: t.startSpeed, wayOutWhenFull: t.captainAboard, gates: 0 }
+  if (t.isReturn) g.dropCount = shieldDrops(t.level)            // no shield drops on a flight back
+  if (t.level > 1) g.rescueTimer = 4                            // the first crew comes as it does on arriving at a mission in arcade
+  g.speed = storySpeed(g, g.story)
+  launch(g, false)
+}
+
+// Speed rises with the distance flown, as a mission's does, and keeps rising while the boat stays on the orbit.
+const storySpeed = (g: Game, s: StoryFlight): number => s.startSpeed + g.levelScore / s.target * SPEED_GAIN
+
+/** Where a story flight is on its lap (0 to 1) and how many laps it has flown. */
+export const orbitAt = (g: Game): { at: number; laps: number } => {
+  const lap = g.levelScore / (g.story?.target ?? levelTarget(g.level))
+  return { at: lap - Math.floor(lap), laps: Math.floor(lap) }
+}
+
+/** How a story flight ended: the people brought out (or aboard when the boat was lost), and the shields left. */
+export function storyTripResult(g: Game): { picked: number; destroyed: boolean; shieldsLeft: number } {
+  const destroyed = g.state === 'over'
+  return { picked: destroyed ? g.lost : g.saved, destroyed, shieldsLeft: g.shields }
+}
+
+/**
+ * Story: crew come as arcade sends them (its timer, its two-crew pairs, its shield choice rows), but
+ * only the moon's own people: each new planetoid takes what the moon still has, and one the moon has
+ * nobody left for is taken away.
+ */
+function dealStory(g: Game, s: StoryFlight): void {
+  for (const a of g.asteroids) {
+    if (!a.planet || a.dealt) continue
+    a.dealt = true
+    a.people = Math.min(a.people, s.onMoon)
+    s.onMoon -= a.people
+    if (!a.people) a.dead = true
+  }
+}
+
+/** Story: the wormhole once a lap, at the lap's end (after the least time a mission takes); mission 06 also opens one when the boat is full. */
+function storyGate(g: Game, s: StoryFlight, dt: number): void {
+  if (g.wormhole) return
+  const lap = Math.floor(g.levelScore / s.target)
+  if (lap > s.gates && g.levelTime >= LEVEL_MIN_TIME) { s.gates = lap; openWormhole(g); return }
+  if (s.wayOutWhenFull && isFull(g)) { g.wormTimer -= dt; if (g.wormTimer <= 0) openWormhole(g) }
+}
 
 /** Advances the game by `dt` seconds. `steer` is -1, 0 or 1. */
 export function update(g: Game, dt: number, steer: number): void {
@@ -296,7 +358,7 @@ export function update(g: Game, dt: number, steer: number): void {
       // Only rocks are dangerous. A planetoid is safe to fly across: it does not
       // break and costs no shield.
       const hit = a.r * 0.86 + ship.r * 0.7   // forgiving hitbox
-      if (!a.planet && g.grace <= 0 && dx * dx + dy * dy < hit * hit) takeHit(g, a)
+      if (!a.planet && g.grace <= 0 && !g.invincible && dx * dx + dy * dy < hit * hit) takeHit(g, a)
     }
   }
   for (const d of g.drops) {
@@ -307,6 +369,7 @@ export function update(g: Game, dt: number, steer: number): void {
   g.asteroids = g.asteroids.filter(a => {
     if (a.dead) return false
     if (a.y - a.r < H + 10) return true
+    if (g.state === 'play' && g.story) { g.story.onMoon += a.people; return false }   // story: still on the moon, to be dealt again
     if (g.state === 'play') {
       const left = missedOn(g, a)
       g.missed += left
@@ -369,14 +432,14 @@ function playerAndSpawns(g: Game, dt: number, steer: number, scroll: number): vo
   const { W, H, U, ship } = g
   g.time += dt
   g.levelTime += dt
-  g.speed = speedAt(g.level, g.levelScore / levelTarget(g.level))
+  g.speed = g.story ? storySpeed(g, g.story) : speedAt(g.level, g.levelScore / levelTarget(g.level))
   g.distance += dt * g.speed * 10
   g.levelScore += dt * g.speed * 10
 
   // Goals met: a wormhole drifts past. Fly into it to move on; miss it and
-  // the next one takes a while to show up.
-  const ready = g.levelScore >= levelTarget(g.level) && g.levelTime >= LEVEL_MIN_TIME
-  if (ready && !g.wormhole) {
+  // the next one takes a while to show up. A story flight has its own: once a lap.
+  if (g.story) storyGate(g, g.story, dt)
+  else if (g.levelScore >= targetOf(g) && g.levelTime >= LEVEL_MIN_TIME && !g.wormhole) {
     g.wormTimer -= dt
     if (g.wormTimer <= 0) openWormhole(g)
   }
@@ -429,12 +492,14 @@ function playerAndSpawns(g: Game, dt: number, steer: number, scroll: number): vo
   // Shield drops: a fixed number per level, evenly spaced by distance, so
   // everyone is offered the same. Every few arrive as a choice against crew.
   const drops = shieldDrops(g.level)
-  if (g.dropCount < drops && g.levelScore >= levelTarget(g.level) * DROPS_WITHIN * (g.dropCount + 1) / drops) {
+  if (g.dropCount < drops && g.levelScore >= targetOf(g) * DROPS_WITHIN * (g.dropCount + 1) / drops) {
     g.dropCount++
     // a full ship has no use for crew: its choice arrives as a plain shield
     if (g.dropCount % CHOICE_EVERY === 0 && !isFull(g)) spawnChoice(g); else spawnDrop(g)
   }
 
+  // A story flight's planetoids carry the moon's own people, and no others.
+  if (g.story) dealStory(g, g.story)
   // A run opens with rocks alone: the first planetoid shows up at a set distance.
   if (g.level === 1 && g.distance < FIRST_RESCUE) return
   // A full ship is sent no crew: the sky empties, which says "full, take them
@@ -448,4 +513,5 @@ function playerAndSpawns(g: Game, dt: number, steer: number, scroll: number): vo
     if (g.level > 1 && g.rescueCount % DILEMMA_EVERY === 0) spawnDilemma(g); else spawnRescue(g)
     g.rescueTimer = rand(...rescueGap(g.level))
   }
+  if (g.story) dealStory(g, g.story)
 }

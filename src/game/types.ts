@@ -24,6 +24,7 @@ export interface Asteroid {
   people: number        // stranded crew waiting for pickup
   planet?: boolean      // a planetoid: round and coloured, where stranded crew are found
   dead?: boolean        // destroyed by hitting the ship
+  dealt?: boolean       // story: its people have been taken from the moon's
 }
 
 export interface Particle {
@@ -84,6 +85,8 @@ export interface Game {
   W: number
   H: number
   U: number
+  /** The dev control's invincibility, for play testing in a local build: rocks pass through the ship. */
+  invincible?: boolean
 
   state: GameState
   stateTime: number      // seconds since the state began
@@ -154,6 +157,8 @@ export interface Game {
   shareNote: number
   /** The run from the share link this page was opened with, shown on the start screen. */
   shared: SharedRun | null
+  /** A story-mode flight (see src/story); null in arcade, where none of it applies. */
+  story: StoryFlight | null
 
   ship: Ship
   asteroids: Asteroid[]
@@ -161,4 +166,23 @@ export interface Game {
   floaters: Floater[]
   castaways: Castaway[]
   stars: Star[]
+}
+
+/**
+ * What a story-mode flight needs from the simulation: the moon's people, its own target, which is one
+ * lap, and its speed. The owner's orbit (2026-11-22): the wormhole comes once a lap, at the lap's end;
+ * steering past it is staying for another lap, and the speed keeps rising. Crew are dealt as arcade
+ * deals them, from the moon's people; nobody knows in advance where they are.
+ */
+export interface StoryFlight {
+  /** The moon's people not on a planetoid in sight. People who drift past come back to it, to be dealt again. */
+  onMoon: number
+  /** One lap, in parsecs: the mission's target (mission 06 has its own). */
+  target: number
+  /** The mission's starting speed (missions 04 and 05 start at mission 03's). A flight back starts at it again. */
+  startSpeed: number
+  /** Mission 06: the way out also opens as soon as the boat is full. */
+  wayOutWhenFull: boolean
+  /** Laps whose wormhole has come. */
+  gates: number
 }

@@ -179,3 +179,24 @@ test('SFX-09 in v2 a crew member thrown off by a hit has no cue of their own; cr
   v1.g.events.push({ kind: 'hit', size: 30, shieldsLeft: 2 }, { kind: 'missed', count: 1 }); frame(v1)
   expect(v1.played.map(p => p.sound)).toContain('missed')
 })
+
+test('SFX-S04 story screens sound only with the soundtrack\'s instruments loaded and not when muted; the channel opens with a call and closes when the typing is done', () => {
+  const t = setup()
+  const log: string[] = []
+  t.player.unlock()
+  t.player.story({ kind: 'call', voice: 'lantern' }, 1.2)
+  expect(log).toEqual([])                                        // not loaded: nothing
+  t.player.attachEffects({
+    play: p => void log.push(`play ${p.notes[0]?.voice ?? 'none'}`), stopAll: () => void log.push('stop'),
+    channel: (open, faint) => void log.push(`channel ${open} ${faint}`), ring: r => void log.push(r ? `ring ${r.root} ${r.seconds}` : 'ring off'),
+  }, () => 0)
+  t.player.story({ kind: 'call', voice: 'foreman' }, 1.2)
+  t.player.story({ kind: 'typingDone' }, 1.2)
+  t.player.story({ kind: 'holdStart' }, 1.5)
+  t.player.story({ kind: 'chosen', heavy: true }, 1.5)
+  expect(log).toEqual(['play far', 'channel true true', 'channel false false', 'play hat', 'ring 45 1.5', 'ring off', 'play bell'])
+  t.player.toggleMute()
+  log.length = 0
+  t.player.story({ kind: 'lamp' }, 1.2)
+  expect(log).toEqual([])
+})
