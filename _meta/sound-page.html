@@ -184,6 +184,23 @@ button[data-playing="true"]::after { content: " ▸"; }
 .check { display: flex; align-items: center; gap: 8px; cursor: pointer; }
 .check input { width: 18px; height: 18px; accent-color: var(--magenta); }
 textarea { width: 100%; font: 12px/1.5 var(--mono); color: var(--text); background: rgba(0, 0, 0, 0.6); border: 1px solid var(--edge); border-radius: 3px; padding: 10px; resize: vertical; }
+.screen { background: #000; border: 1px solid var(--edge); border-radius: 3px; padding: 16px 14px; min-height: 250px; display: grid; gap: 16px; align-content: start; cursor: pointer; }
+.tx { border-left: 2px solid var(--v); padding-left: 10px; display: grid; gap: 2px; }
+.tx .from { color: var(--v); font-size: 12px; font-weight: 700; letter-spacing: 0.04em; display: flex; align-items: baseline; gap: 8px; }
+.tx .ln { color: rgba(255, 255, 255, 0.92); font-size: min(14px, 2.9vw); font-weight: 600; line-height: 21px; min-height: 21px; white-space: pre-wrap; }
+.tx.faint { opacity: 0.6; border-left-style: dashed; }
+.bars { display: inline-flex; align-items: flex-end; gap: 2px; }
+.bars i { width: 3px; background: var(--v); opacity: 0.3; }
+.bars i:nth-child(1) { height: 4px; opacity: 1; } .bars i:nth-child(2) { height: 7px; } .bars i:nth-child(3) { height: 10px; }
+.screen .hint { color: var(--dim); font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; }
+.holds { display: grid; gap: 10px; }
+.hold-pair { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.card button.hold { display: grid; justify-items: center; gap: 6px; padding: 10px 6px; text-transform: none; letter-spacing: 0.06em; line-height: 1.35; min-height: 104px; touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; }
+.hold svg { width: 46px; height: 46px; transform: rotate(-90deg); }
+.hold circle { fill: none; stroke-width: 3; }
+.hold .track { stroke: currentColor; opacity: 0.25; }
+.hold .fill { stroke: currentColor; stroke-dasharray: 125.7; stroke-dashoffset: 125.7; }
+.hold[data-done="true"] { background: color-mix(in srgb, currentColor 18%, transparent); box-shadow: 0 0 12px color-mix(in srgb, currentColor 40%, transparent); }
 .sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
 @media (max-width: 520px) {
   .layer { grid-template-columns: 16px minmax(0, 1fr) auto; }
@@ -198,7 +215,7 @@ textarea { width: 100%; font: 12px/1.5 var(--mono); color: var(--text); backgrou
   <header>
     <div class="eyebrow">Asteroids Galore · sound</div>
     <h1>Music and sound</h1>
-    <p class="lede">The game's music and every sound effect on one page. The music is one synthwave loop written with Tone.js: its tempo follows the ship's speed, and four more layers come in over the pad as a mission speeds up, a slow lead melody last. Press Play and mission 1 flies by itself at the game's real speed; play any sound effect on its own or over the music.</p>
+    <p class="lede">The game's music and every sound effect on one page. The music is one synthwave loop written with Tone.js: its tempo follows the ship's speed, and four more layers come in over the pad as a mission speeds up, a slow lead melody last. Press Play and mission 1 flies by itself at the game's real speed; play any sound effect on its own or over the music. The sounds proposed for story mode's screens have a panel of their own.</p>
   </header>
 
   <p class="error" id="error" hidden>The sound library did not load. Check the connection and reload the page.</p>
@@ -300,6 +317,74 @@ textarea { width: 100%; font: 12px/1.5 var(--mono); color: var(--text); backgrou
     </div>
   </section>
 
+  <section class="panel" aria-labelledby="storyTitle">
+    <div class="row between">
+      <h2 id="storyTitle">Story mode screens · a proposal</h2>
+      <div class="row">
+        <button type="button" id="stopMusic" style="--c: var(--violet)" aria-pressed="false">Music of a stop</button>
+        <button type="button" id="endMusic" style="--c: var(--red)" aria-pressed="false">Music of the end screen</button>
+      </div>
+    </div>
+    <p class="note">Not built: these are sounds to choose from. Story mode's screens are stops, so nothing here plays in flight, and arcade keeps the sounds it has. Like the v2 effects, every sound is played on the soundtrack's own instruments, on notes of the chord the music is on; with the music stopped, that is A minor. "Music of a stop" plays what the game plays between missions (the pad alone, at 90 BPM), to hear the sounds over it.</p>
+
+    <div class="screen" id="screen" role="button" tabindex="0" aria-label="The story screen. Tap to finish the transmission being typed."><span class="hint" id="screenHint">Choose a voice below</span></div>
+    <div class="row" role="group" aria-label="A transmission from">
+      <button type="button" data-voice-tx="control" style="--c: #ffffff">Control</button>
+      <button type="button" data-voice-tx="lantern" style="--c: var(--cyan)">The Lantern</button>
+      <button type="button" data-voice-tx="first" style="--c: var(--green)">The First</button>
+      <button type="button" data-voice-tx="survivor" style="--c: var(--yellow)">A survivor</button>
+      <button type="button" data-voice-tx="foreman" style="--c: #b48cff">The Foreman</button>
+      <button type="button" id="clearScreen" style="--c: var(--dim)">Clear</button>
+    </div>
+    <div class="row" role="group" aria-label="While the lines are typed">
+      <span class="note">While the lines are typed:</span>
+      <button type="button" data-typing="carrier" style="--c: var(--cyan)" aria-pressed="true">An open channel</button>
+      <button type="button" data-typing="words" style="--c: var(--magenta)" aria-pressed="false">A tick a word</button>
+      <button type="button" data-typing="silent" style="--c: var(--text)" aria-pressed="false">Nothing</button>
+    </div>
+    <div class="table-wrap">
+      <table>
+        <thead><tr><th>Voice</th><th style="text-align:left">Played on</th><th style="text-align:left">Its call, as the sender's name appears</th></tr></thead>
+        <tbody>
+          <tr><td style="color:#ffffff">Control</td><td style="text-align:left">The synth lead</td><td style="text-align:left; white-space:normal">The chord's fifth, twice, evenly: by the book</td></tr>
+          <tr><td style="color:var(--cyan)">The Lantern</td><td style="text-align:left">The arpeggio</td><td style="text-align:left; white-space:normal">The root, then the same note an octave up: no major or minor in it, as the ship gives no opinion</td></tr>
+          <tr><td style="color:var(--green)">The First</td><td style="text-align:left">The bell of a crew member saved</td><td style="text-align:left; white-space:normal">The root rising to the third: a seat filled, speaking</td></tr>
+          <tr><td style="color:var(--yellow)">A survivor</td><td style="text-align:left">The piano</td><td style="text-align:left; white-space:normal">The third rising to the fifth</td></tr>
+          <tr><td style="color:#b48cff">The Foreman</td><td style="text-align:left">The piano, three octaves down</td><td style="text-align:left; white-space:normal">The first two notes of "crew left behind", low, thin and breaking up, about 7 dB under the other voices, over a louder, crackling channel</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="board">
+      <div class="card" style="--c: var(--text)">
+        <div class="card-head"><b>Holding to choose</b><span class="tag tune">pad + arpeggio</span></div>
+        <p>Hold a side for 1.2 seconds. While the ring fills, the pad swells on the root and fifth and the arpeggio climbs four steps; letting go early stops it at once, with no other sound. Both sides sound the same, and the landing has no third in it, so it is neither major nor minor.</p>
+        <div class="holds">
+          <div class="hold-pair" data-weight="light">
+            <button type="button" class="hold"><svg viewBox="0 0 46 46" aria-hidden="true"><circle class="track" cx="23" cy="23" r="20"/><circle class="fill" cx="23" cy="23" r="20"/></svg><span>GO BACK<br>FOR 4</span></button>
+            <button type="button" class="hold"><svg viewBox="0 0 46 46" aria-hidden="true"><circle class="track" cx="23" cy="23" r="20"/><circle class="fill" cx="23" cy="23" r="20"/></svg><span>GO ON<br>TO m03n</span></button>
+          </div>
+          <p>Above: after a trip, and the boat picker. Below: the two choices that can end the story land the same way, with the bass held under them for two and a half seconds.</p>
+          <div class="hold-pair" data-weight="heavy">
+            <button type="button" class="hold"><svg viewBox="0 0 46 46" aria-hidden="true"><circle class="track" cx="23" cy="23" r="20"/><circle class="fill" cx="23" cy="23" r="20"/></svg><span>GO HOME<br>WITH THE ORE</span></button>
+            <button type="button" class="hold"><svg viewBox="0 0 46 46" aria-hidden="true"><circle class="track" cx="23" cy="23" r="20"/><circle class="fill" cx="23" cy="23" r="20"/></svg><span>DROP<br>THE ORE</span></button>
+          </div>
+        </div>
+      </div>
+      <div class="card" style="--c: var(--cyan)">
+        <div class="card-head"><b>The manifest</b><span class="tag tune">bell, piano, pad</span></div>
+        <p>Each count that is not zero sounds once as it appears, 0.9 s apart: ON EARTH is the bell chord of a crew member saved, LEFT BEHIND the two piano notes of one left behind, DEAD the low chord of a hit. Then one bell note for the ending's lamp. So a full ship is the bell alone. BY ANOTHER SHIP would be the bell chord an octave lower; MISSING has no sound, since nobody knows.</p>
+        <div class="row"><button type="button" data-manifest="full">A full ship</button><button type="button" data-manifest="past">All three counts</button></div>
+        <p>Under it, the end screen's slow bass, as after a run in arcade.</p>
+      </div>
+      <div class="card" style="--c: var(--red)">
+        <div class="card-head"><b>Lost at the Heart</b><span class="tag tune">silence</span></div>
+        <p>The boat's destruction is the last sound. The manifest comes up with no music and no sound for its counts or its lamp: the one silent screen in the game. The other version to hear: after the silence a channel opens, nobody speaks, and it closes.</p>
+        <div class="row"><button type="button" data-manifest="lost">Silence</button><button type="button" data-manifest="lostOpen">An open channel</button></div>
+      </div>
+    </div>
+  </section>
+
   <section class="panel" aria-labelledby="layersTitle">
     <div class="row between">
       <h2 id="layersTitle">Layers</h2>
@@ -381,6 +466,7 @@ textarea { width: 100%; font: 12px/1.5 var(--mono); color: var(--text); backgrou
       <li>A rest: at most once every sixteen bars, in the last of them, one of the bass, drums or arpeggio drops out for one bar and comes back on the downbeat. Only a layer that has played at least sixteen bars since it came in can rest, and never the same one twice running.</li>
 <li>Start screen: silent until the note is tapped, then the whole soundtrack at 96 BPM, the tempo of 1× (it was 110). The slider under the player tries other tempos. Every layer plays there whatever its speed threshold, each waiting its turn: pad, bass and drums from bar 1, the arpeggio at bar 5, the lead at bar 9. The pad stays as bright as at 2×, and the fast hi-hats of 2.8× stay out. A run starts from it without a break: the layers leave at their chord changes as the speed drops to the run's, and every mission opens with a 1.2 s fly-in.</li>
       <li>End screen after the ship is destroyed: the music fades over 1.5 s, then the bass alone plays one long note every 6 seconds (A, F, C, G in turn) at 60 BPM, the first after 2 seconds, until the next run.</li>
+      <li>Story mode screens (proposed, not built): a call for each of five voices as its name appears, the lines starting 0.3 s later at 60 characters a second over an open channel; a 1.2 s hold with the pad swelling and four arpeggio steps; a landing without a third; the manifest's counts 0.9 s apart.</li>
       <li>Slow motion: tempo down to 60%, new notes up to five semitones lower, everything muffled, back in 1.4 s.</li>
       <li>Music level: −12 dB, with a limiter at −1 dB. The sounds play at the game's own level.</li>
     </ul>
@@ -1385,6 +1471,181 @@ textarea { width: 100%; font: 12px/1.5 var(--mono); color: var(--text); backgrou
   }
   describe()
 
+  // ---- Story mode screens: a proposal. Nothing here is in the game. ----
+  const STORY = { cps: 60, hold: 1.2, lead: 0.3, carrier: 0.3, faintCarrier: 2, far: 0.35 }
+  const third = target => { const r = rootPc(chordNow()), pc = chordPcs().find(x => [3, 4].includes((x - r + 12) % 12)) ?? (r + 3) % 12; return near(pc, target) + shift() }
+  // The open channel: a narrow band of noise that lasts while the lines are typed.
+  const carrierGain = new Tone.Gain(0).connect(fxOut)
+  const carrierNoise = new Tone.Noise('pink').connect(new Tone.Filter({ frequency: 2200, type: 'bandpass', Q: 1.4 }).connect(carrierGain))
+  function carrier(open, faint = false) {
+    if (carrierNoise.state !== 'started') carrierNoise.start()
+    const g = carrierGain.gain, t = Tone.now()
+    g.cancelScheduledValues(t)
+    if (!open) { g.rampTo(0, 0.05, t); return }
+    const level = STORY.carrier * (faint ? STORY.faintCarrier : 1)
+    g.rampTo(level, 0.03, t)
+    if (faint) for (let x = t + 0.1; x < t + 4; x += 0.06 + Math.random() * 0.22) g.setValueAtTime(Math.random() < 0.5 ? level * 0.25 : level, x)   // a faint signal breaks up
+  }
+  // The Foreman's piano: the same instrument, thin and far, cut into dashes like his line of light.
+  const farGate = new Tone.Gain(1)
+  farGate.connect(new Tone.Filter({ frequency: 900, type: 'bandpass', Q: 0.9 }).connect(wire(new Tone.Gain(STORY.far), 0.6)))
+  const xFar = pianoInto(farGate)
+  const typeTick = new Tone.Synth({ oscillator: { type: 'pulse', width: 0.28 }, envelope: { attack: 0.001, decay: 0.03, sustain: 0, release: 0.01 }, volume: -22 }).connect(fxOut)
+  const VOICES = {
+    control: { from: 'CONTROL', color: '#ffffff', tick: 88, lines: ['You can send the boat back for them,', 'or go on to m01n while it holds.', 'Your ship, your call.'],
+      call(t) { const f = fifth(76); tone(xLead, f, 0.07, t, 0.72); tone(xLead, f, 0.07, t + 0.16, 0.72) } },
+    lantern: { from: 'LANTERN', color: '#5ff5ff', tick: 81, lines: ['Boat on the rail.', 'm01n in range.'],
+      call(t) { const r = root(69); tone(xArp, r, 0.08, t, 0.92); tone(xArp, r + 12, 0.12, t + 0.12, 0.92) } },
+    first: { from: 'SURVEYOR, m00n', color: '#5dffa0', tick: 84, lines: ['I know who works which moon.', "Give me the radio and I'll keep the names.", '4 still on m00n.'],
+      call(t) { bell.triggerAttackRelease(hz(root(69)), 0.18, t); bell.triggerAttackRelease(hz(third(74)), 0.3, t + 0.14) } },
+    survivor: { from: 'RIG HAND, m01n', color: '#ffe66b', tick: 79, lines: ['There were two rigs on our seam.', 'You came for ours.', 'The other is still out there.'],
+      call(t) { xPiano.triggerAttackRelease(hz(third(74)), 0.2, t, 0.36); xPiano.triggerAttackRelease(hz(fifth(79)), 0.5, t + 0.14, 0.33) } },
+    foreman: { from: 'FOREMAN, m06n', color: '#b48cff', tick: 64, faint: true, lines: ['Lightboat, turn back.', "We're holding the drill.", 'It goes when we go.'],
+      call(t) {
+        const lo = fifth(40), hi = ladder(lo - shift(), 1) + shift()              // F2 to E2 under A minor
+        xFar.triggerAttackRelease(hz(hi), 0.3, t, 0.8); xFar.triggerAttackRelease(hz(lo), 0.9, t + 0.22, 0.7)
+        const g = farGate.gain
+        g.cancelScheduledValues(t); g.setValueAtTime(1, t)
+        for (let x = t + 0.07; x < t + 1.4; x += 0.11) { g.setValueAtTime(0, x); g.setValueAtTime(1, x + 0.04) }
+      } },
+  }
+  S.typeMode = 'carrier'
+  const screenEl = $('screen')
+  let typing = null
+  const el = (tag, cls, text) => { const e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e }
+  function clearScreen() { endTyping(); screenEl.textContent = ''; screenEl.append(el('span', 'hint', 'Choose a voice below')) }
+  function showTyped(n) {                                              // the first n characters, line by line
+    let left = n
+    typing.lines.forEach((line, i) => { const k = Math.max(0, Math.min(line.length, left)); typing.rows[i].textContent = line.slice(0, k); left -= line.length })
+  }
+  function endTyping() {
+    if (!typing) return
+    clearInterval(typing.timer)
+    showTyped(typing.total)
+    if (typing.mode === 'carrier') { carrier(false); burst(xHat, '64n', soon(), 0.3) }   // the channel closes with a small tick
+    typing = null
+    screenEl.querySelector('.hint')?.remove()
+    screenEl.append(el('span', 'hint', screenEl.querySelectorAll('.tx').length >= 3 ? 'Tap to continue · the next voice clears the screen' : 'Tap to continue'))
+  }
+  async function transmit(key) {
+    await Tone.start()
+    endTyping()
+    if (screenEl.querySelectorAll('.tx').length >= 3) screenEl.textContent = ''
+    screenEl.querySelector('.hint')?.remove()
+    const v = VOICES[key], box = el('div', 'tx' + (v.faint ? ' faint' : ''))
+    box.style.setProperty('--v', v.color)
+    const from = el('div', 'from', v.from)
+    if (v.faint) { const bars = el('span', 'bars'); bars.append(el('i'), el('i'), el('i')); from.append(bars) }
+    const rows = v.lines.map(() => el('div', 'ln'))
+    box.append(from, ...rows); screenEl.append(box)
+    screenEl.append(el('span', 'hint', 'Tap here to finish the one being typed'))
+    v.call(soon())
+    const mode = S.typeMode
+    if (mode === 'carrier') carrier(true, v.faint)
+    const starts = new Set(); let at = 0
+    for (const line of v.lines) { for (const m of line.matchAll(/\S+/g)) starts.add(at + m.index); at += line.length }
+    typing = { v, mode, rows, lines: v.lines, total: at, shown: 0, starts, t0: performance.now() + STORY.lead * 1000 }
+    typing.timer = setInterval(() => {
+      if (!typing) return
+      const n = Math.max(0, Math.min(typing.total, Math.floor((performance.now() - typing.t0) / 1000 * STORY.cps)))
+      if (n > typing.shown) {
+        let word = false
+        for (let i = typing.shown; i < n; i++) if (typing.starts.has(i)) word = true
+        if (word && typing.mode === 'words') typeTick.triggerAttackRelease(hz(typing.v.tick), 0.02, slot(typeTick, soon(), 0.02), typing.v.faint ? 0.4 : 1)
+        typing.shown = n; showTyped(n)
+      }
+      if (n >= typing.total) endTyping()
+    }, 16)
+  }
+  document.querySelectorAll('[data-voice-tx]').forEach(b => b.addEventListener('click', () => transmit(b.dataset.voiceTx)))
+  $('clearScreen').addEventListener('click', clearScreen)
+  screenEl.addEventListener('click', endTyping)
+  screenEl.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); endTyping() } })
+  const typingBtns = [...document.querySelectorAll('[data-typing]')]
+  typingBtns.forEach(b => b.addEventListener('click', () => { S.typeMode = b.dataset.typing; typingBtns.forEach(x => setAttr(x, 'aria-pressed', String(x === b))) }))
+
+  // Holding a side to choose: the pad swells and the arpeggio climbs while the ring fills.
+  const ringLP = wire(new Tone.Filter({ frequency: 300, type: 'lowpass', rolloff: -24, Q: 1 }), 0.3)
+  const ringPad = new Tone.PolySynth(Tone.Synth, { oscillator: { type: 'fatsawtooth', count: 3, spread: 26 }, envelope: { attack: 0.2, decay: 0.3, sustain: 0.9, release: 0.18 }, volume: -17 }).connect(ringLP)
+  const RING = 125.7
+  let hold = null
+  async function holdStart(btn) {
+    if (hold || btn.dataset.done) return
+    const h = hold = { btn, heavy: btn.closest('[data-weight]').dataset.weight === 'heavy', step: 0, fill: btn.querySelector('.fill') }
+    await Tone.start()
+    if (hold !== h) return                                              // let go before the sound could start
+    const t = soon()
+    h.root = root(45); h.t0 = performance.now()
+    ringPad.triggerAttack([h.root, h.root + 7].map(hz), t, 0.7)
+    ringLP.frequency.cancelScheduledValues(t); ringLP.frequency.setValueAtTime(300, t); ringLP.frequency.exponentialRampToValueAtTime(2600, t + STORY.hold)
+    h.timer = setInterval(() => {
+      const p = Math.min(1, (performance.now() - h.t0) / 1000 / STORY.hold)
+      h.fill.style.strokeDashoffset = String(RING * (1 - p))
+      while (h.step < 4 && p >= h.step * 0.25) { tone(xArp, h.root + [12, 19, 24, 31][h.step], 0.07, soon(), 0.35 + 0.1 * h.step); h.step++ }
+      if (p >= 1) chosen(h)
+    }, 16)
+  }
+  function ringOff() { const t = Tone.now(); ringPad.releaseAll(t); ringLP.frequency.cancelScheduledValues(t); ringLP.frequency.rampTo(300, 0.15, t) }
+  function holdEnd() {                                                  // let go early: the sound stops, and nothing else is heard
+    const h = hold
+    if (!h) return
+    hold = null; clearInterval(h.timer); ringOff()
+    h.fill.style.strokeDashoffset = String(RING)
+  }
+  // A choice made: root, fifth and octave, with no third, the same for both sides. The two that can end the story hold the bass under it.
+  function chosen(h) {
+    hold = null; clearInterval(h.timer); ringOff()
+    const t = soon(), r = h.root
+    bell.triggerAttackRelease([r + 24, r + 31, r + 36].map(hz), h.heavy ? 1.2 : 0.5, t, 0.7)
+    xPad.triggerAttackRelease([r + 12, r + 19, r + 24].map(hz), h.heavy ? 1.8 : 0.35, t, 0.5)
+    tone(xArp, r + 36, 0.12, t, 0.6)
+    if (h.heavy) slide(xBass, r - 12, r - 12, 2.4, t, 0.45)
+    h.btn.dataset.done = 'true'
+    setTimeout(() => { delete h.btn.dataset.done; h.fill.style.strokeDashoffset = String(RING) }, h.heavy ? 2600 : 900)
+  }
+  document.querySelectorAll('.hold').forEach(b => {
+    b.addEventListener('pointerdown', e => { e.preventDefault(); try { b.setPointerCapture(e.pointerId) } catch { /* no capture: letting go is still caught below */ } holdStart(b) })
+    for (const ev of ['pointerup', 'pointercancel', 'lostpointercapture', 'pointerleave']) b.addEventListener(ev, () => { if (hold?.btn === b) holdEnd() })
+    b.addEventListener('contextmenu', e => e.preventDefault())
+    b.addEventListener('keydown', e => { if ((e.key === ' ' || e.key === 'Enter') && !e.repeat) { e.preventDefault(); holdStart(b) } })
+    b.addEventListener('keyup', e => { if ((e.key === ' ' || e.key === 'Enter') && hold?.btn === b) holdEnd() })
+    b.addEventListener('blur', () => { if (hold?.btn === b) holdEnd() })
+  })
+
+  // The manifest: each count that is not zero sounds once, in the sound its people had in flight.
+  const COUNT_SOUND = {
+    earth(t) { bell.triggerAttackRelease(chordNow().pad.map(n => hz(midi(n) + 12 + shift())), 0.7, t) },
+    left(t) { xPiano.triggerAttackRelease(hz(midi('F5') + shift()), 0.2, t, 0.85); xPiano.triggerAttackRelease(hz(midi('E5') + shift()), 0.7, t + 0.16, 0.65) },
+    dead(t) { const r = root(45); xPad.triggerAttackRelease([r, r + 7, r + 12].map(hz), 0.6, t, 0.5); slide(xBass, r - 12, r - 17, 0.6, t, 0.35) },
+  }
+  let openTimer = 0
+  async function manifest(kind) {
+    await Tone.start()
+    clearTimeout(openTimer); carrier(false)
+    if (kind === 'lost' || kind === 'lostOpen') {
+      scored.destroyed()
+      if (S.playing) stop(TUNE.over.fade)                                // no end-screen bass: the music goes with the boat
+      if (kind === 'lostOpen') openTimer = setTimeout(() => { carrier(true); openTimer = setTimeout(() => carrier(false), 2400) }, 3200)
+      return
+    }
+    let t = soon() + 0.05
+    for (const c of kind === 'full' ? ['earth'] : ['earth', 'left', 'dead']) { COUNT_SOUND[c](t); t += 0.9 }
+    bell.triggerAttackRelease(hz(root(81)), 0.5, t)                      // the lamp of the ending reached
+  }
+  document.querySelectorAll('[data-manifest]').forEach(b => b.addEventListener('click', () => manifest(b.dataset.manifest)))
+
+  // The music a story screen would sit on: the stop's pad, or the end screen's slow bass.
+  async function storyMusic(kind) {
+    if (S.playing && S.state === kind) { stop(0.6); return }
+    if (!S.playing) await play()
+    const t = Tone.now()
+    for (const id of IDS) if (kind === 'over' || id !== 'pad') setGate(id, false, t, 0.3)
+    if (kind === 'over') { pad.releaseAll(t); S.overFrom = step; S.rest = null; S.restShown = null }
+    S.state = kind; S.slowmo = 0; S.launch = 0
+  }
+  $('stopMusic').addEventListener('click', () => storyMusic('results'))
+  $('endMusic').addEventListener('click', () => storyMusic('over'))
+
   // ---- Timing: flight and control run on a timer, drawing on animation frames ----
   let last = performance.now()
   setInterval(() => {
@@ -1404,7 +1665,7 @@ textarea { width: 100%; font: 12px/1.5 var(--mono); color: var(--text); backgrou
   document.addEventListener('click', () => render())
 
   // test hook: levels in dB per layer, and the state
-  window.__sketch = { S, bpm: () => T.bpm.value, transport: () => T.state, tempoEvents: () => T.bpm._param?._events?.length, layerOut: user, chordOut, fxOut, endBass, echoes: () => beatEchoes.map(e => [e.beats, +e.node.delayTime.value.toFixed(3)]) }
+  window.__sketch = { S, VOICES, carrierGain, bpm: () => T.bpm.value, transport: () => T.state, tempoEvents: () => T.bpm._param?._events?.length, layerOut: user, chordOut, fxOut, endBass, echoes: () => beatEchoes.map(e => [e.beats, +e.node.delayTime.value.toFixed(3)]) }
 
   render()
   function setText(el, text) { if (el.textContent !== text) el.textContent = text }
@@ -1417,6 +1678,8 @@ textarea { width: 100%; font: 12px/1.5 var(--mono); color: var(--text); backgrou
     setText($('play'), S.playing && S.state === 'menu' ? 'Start a run' : S.playing ? 'Stop' : S.state === 'stopped' ? 'Play' : 'Play again')
     setAttr($('drone'), 'aria-pressed', String(S.playing && S.state === 'menu'))
     setText($('drone'), S.playing && S.state === 'menu' ? 'Stop the music' : 'Start screen music')
+    setAttr($('stopMusic'), 'aria-pressed', String(S.playing && S.state === 'results'))
+    setAttr($('endMusic'), 'aria-pressed', String(S.playing && S.state === 'over'))
     setText($('playMelody'), S.playing && S.state === 'melody' ? 'Stop melody' : 'Play melody')
     setText($('chordNowNote'), `(now ${chordNow().name})`)
     document.querySelectorAll('[data-mode]').forEach(b => setAttr(b, 'aria-pressed', String(b.dataset.mode === S.sfxMode)))
