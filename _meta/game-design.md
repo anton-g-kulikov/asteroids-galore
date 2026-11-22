@@ -707,86 +707,110 @@ Asked for by the owner on 2026-11-20. Both are built and live since 0.4.7 (2026-
 
 ## Story
 
-Proposed on 2026-11-21 and agreed in outline by the owner. Rewritten the same day for the game's new name, Lightboat (see [The name Lightboat](#the-name-lightboat)) and for a story mode beside arcade, which the owner asked about: "do we have enough to build a story mode (keeping the current as arcade)". On 2026-11-22 the owner decided what was mined (light0re) and that each mission has a moon of its own (`m00n` to `m06n`). The same day the owner numbered the missions like the moons, 00 to 06: **this section uses those numbers, while the rest of these notes still count missions and levels from 1,** so mission 00 here is level 1 there. **Not built, and none of the mode's rules are agreed:** they are the owner's to decide and are set out under [Choices for the owner](#choices-for-the-owner). The lines are first drafts.
+Proposed on 2026-11-21 and agreed in outline by the owner. Rewritten the same day for the game's new name, Lightboat (see [The name Lightboat](#the-name-lightboat)) and for a story mode beside arcade. On 2026-11-22 the owner decided what was mined (light0re), gave each mission a moon of its own (`m00n` to `m06n`), numbered the missions to match, made the Pilot the captain of the *Lantern*, made the *Lantern* a freighter carrying light0re with three lightboats, and set the mode's rules of play. The owner's words on all of these are in [Planned: story mode rules](#planned-story-mode-rules). **Not built.** Everything that is said is in `story-script.md`, in its fourth draft, which the owner has not yet read.
+
+This section uses mission numbers 00 to 06. Older parts of these notes count missions and levels from 1, so mission 00 here is level 1 there.
 
 ### Two ways to play
 
 - **Arcade** is the game as built: seven missions, one run, the board. It stays wordless.
-- **Story** is the same flying with the story told around it, on screens of its own. It is played to find out what happened and who can be brought out, not for a place on the board.
-- **Is there enough to build a story mode?** The frame is here: a premise, seven moons, voices that disagree, a turn after mission 03, a second turn in mission 06, and endings that depend on what the Pilot did. What is missing is the mode's rules (the choices below), an agreed script (a second draft of the whole first playthrough is in `story-script.md`, revised on 2026-11-22 after the Game Producer's review; the owner has read the review), and its screens, which have not been drawn.
+- **Story** is the same flying under rules of its own, with the story told on screens of its own. It has no score. It counts people: on Earth, left behind, and dead.
+- **Is there enough to build a story mode?** The frame, the rules of play and a fourth draft of the script are here. What is missing: the owner's read of the script, the numbers the rules leave open (how many people each moon holds, what a return trip is like), and the mode's screens, which have not been drawn.
 
 ### The title
 
 - **The word is real.** Dictionary.com gives "lightboat" as a small lightship, an Americanism from 1825–35; Wiktionary gives it as a vessel that carries a light as an aid to navigation. A lightship is moored where the water is dangerous so that others can find their way past.
-- **Proposed: a lightboat is the kind of boat, not one ship.** A lightboat is the small rescue boat a tender carries, drawn in lines of light so that the people it comes for can see it. The Lantern carries three, of 4, 8 and 12 seats, and the Pilot flies one. So the title names what the player flies, whichever ship they choose.
+- **Proposed: a lightboat is the kind of boat, not one ship.** A lightboat is the small boat a freighter carries, drawn in lines of light so that the people it comes for can see it. The Lantern carries three, of 4, 8 and 12 seats, and its captain flies one. So the title names what the player flies, whichever ship they choose.
 - **All three readings hold:** a boat of light, a light boat (the 4-seater is the lightest, and the Pilot may keep it), and one letter from "lifeboat".
-- **The dictionary sense is kept for the ending.** A lightship holds its place at the hazard. In mission 06 the Pilot who lets the way home pass is doing exactly that, and so, in one ending, is the Lantern.
-- **The alternatives:** the title names the Pilot's one ship (then the 8- and 12-seaters need a word of their own), or the tender (then the game is named after the ship the player never flies).
+- **The dictionary sense is kept for the ending.** A lightship holds its place at the hazard. In mission 06 the captain who lets the way home pass, to fill more seats, does that for a while. The Foreman does it for good: the night shift holds the drill until the boat is through, and is never among the saved. *That the Foreman stays is the writer's choice.*
+- **A fourth reading, from the freighter.** A lighter is the real word for a boat that carries cargo between a ship and the shore. On a freighter that hauls light0re, the lighters are lightboats: cargo boats, lit by what they carry, pressed into a rescue. *The writer's proposal, on the Producer's suggestion.*
+- **The alternatives:** the title names the Pilot's one ship (then the 8- and 12-seaters need a word of their own), or the freighter (then the game is named after the ship the player never flies).
 
 ### The premise
 
 - **Seven moons.** Decided by the owner on 2026-11-22: there is one mined moon per mission, numbered `m00n` to `m06n` (see [The moons' names](#the-moons-names)). One company opened them in that order, so `m00n` is the oldest and most mined out, and `m06n` is the working mine. Nine hours ago they began to break up. The grey asteroids are their rubble. The coloured planetoids are the pieces people were living and working on.
 - **What was mined: light0re.** Agreed by the owner on 2026-11-22, who named it. It is spelled with a zero, the owner's spelling, and never capitalised. The moons' cores held an ore that stores light. Everything in the game that is drawn in light is made of it: the lines of a lightboat's hull and the shield arcs. A moon was not mined for something in its rock: it was taken apart for its core, which is the owner's word for it, "harvested".
-- **The Pilot's part in it.** The boat that comes for these people is lit by what they dug. Nobody says so until the Foreman does, once, near the end.
-- **The Lantern** is the rescue tender that answered the call. It is too big to enter the fields, so it sends in a lightboat, keeps outside the chain of moons and waits on the far side of every wormhole. Its three lightboats are why a bigger one can be taken at a stop and why every boat flown is there for the last trip.
-- **The Pilot** is the player, addressed by their generated callsign, or as `PILOT` before the game has signed in.
-- **The drill.** A gravity drill at `m06n` is still running. The richest light0re was at the core, so the drill went deeper than a moon can stand. It broke `m06n`, and its pull is taking the six older moons apart too: they had already been hollowed out. It bends the grid and pulls everything in faster the nearer the Pilot gets to it.
-- **The wormholes** are the mine's haul roads from moon to moon, opened by the drill to move light0re down the chain. They still open, but on no timetable any more. The road out of `m06n` is the one the light0re left by, and it leads home. This is the story's reason for a wormhole leading to the next moon, and for nobody knowing when the next one comes. *The writer's proposal; the owner has not seen it.*
-- **The list.** The company gave the Lantern a list of who was on its moons. It covers `m00n` to `m03n`. On paper `m04n`, `m05n` and `m06n` are worked by machines alone. The night shift, who were sent there to run the drill past its limit, are on nobody's list. *That the list stops at `m03n` is the writer's proposal: it is what makes mission 03 the turn.*
-- **What the night shift is doing.** They stayed at the drill on purpose, holding it back so that the others had time. They can slow it but not stop it: it runs faster the longer it goes. This is the story's reason for speed rising for as long as the Pilot stays, with no ceiling in mission 06. An earlier draft had the drill speed up for every one of them the Pilot took out. The game has no such rule (speed follows the distance flown), and a player would read it as a reason to rescue fewer, so the story no longer says it (the Producer's review, 2026-11-22).
+- **The *Lantern* is a freighter.** The owner's words: "Lantern is a freight ship it carries lightore from other side of the galaxy and get sos signal (doesn't now how many moons broke), diverts to save crew from the first, learns that there's more". Its hold is full of light0re from another mine, bound for Earth. It is too big to enter the fields, so it keeps outside the chain of moons and waits on the far side of every wormhole. It has no crew, only its captain: the owner's words are "Lantern has no crew, only the captain". So the ship speaks with its own voice.
+- **The Pilot is the *Lantern*'s captain,** addressed by mission control by the player's generated callsign, and as "Captain" by the people aboard. In missions 00 to 05 the captain flies the boat from the ship and is never aboard it.
+- **Three lightboats, and only three.** They are the freighter's own boats, of 4, 8 and 12 seats. A boat destroyed is gone for the rest of the story, with the people aboard it.
+- **What the captain knows.** At the start, one moon and one distress call. Each further moon is learned from the people brought out of the one before. The story never names a moon the captain has not been told about.
+- **Mission control** is on Earth: the freight line's control room. It tasks the rescue, because the *Lantern* is the nearest ship, and it answers for the cargo. *That the two are one voice is the writer's proposal.*
+- **The list.** The mining company sends mission control a list of who was on its moons. It covers `m00n` to `m03n`. On paper `m04n`, `m05n` and `m06n` are worked by machines alone. The night shift, who were sent there to run the drill past its limit, are on nobody's list.
+- **The ore, and the turn.** After `m03n` the ship is full: the people brought out, and the hold of light0re. Mission control says that is every moon on the list and another ship is on its way. The captain either goes home with the ore and the people, for the commission and the fame, or drops the ore to make room. The owner's words: "go home with ore and saved crew (and earn commission and fame) and say that someone next will be able to save remaining crew, or drop the ore, make room for more people".
+- **Room for all.** With the ore dropped, the *Lantern* has room for everyone on the first six moons and no more: the owner's decision ("Yes, room for all"). It is full only if nobody on `m00n` to `m05n` was left behind and nobody died in a lost boat. It never has room for the people of `m06n`.
+- **The captain's part in it.** The cargo in the hold is the same ore these people were sent to dig. Nobody says so until the Foreman does, once, near the end.
+- **Earth** is home. The people brought aboard wait on the *Lantern* to be taken there.
+- **The drill.** A gravity drill at `m06n` is still running. The richest light0re was at the core, so the drill went deeper than a moon can stand. It broke `m06n`, and its pull is taking the six older moons apart too: they had already been hollowed out. It bends the grid and pulls everything in faster the nearer the boat gets to it.
+- **The wormholes** are the mine's haul roads from moon to moon, opened by the drill to move light0re down the chain. They still open, but on no timetable any more. The road out of `m06n` is the one the light0re left by, and it leads to Earth. This is the story's reason for a wormhole leading to the next moon, and for nobody knowing when the next one comes. Agreed by the owner on 2026-11-22.
+- **What the night shift is doing.** They stayed at the drill on purpose, holding it back so that the others had time. They can slow it but not stop it: it runs faster the longer it goes. This is the story's reason for speed rising for as long as the boat stays, with no ceiling in mission 06. An earlier draft had the drill speed up for every one of them taken out. The game has no such rule (speed follows the distance flown), and a player would read it as a reason to rescue fewer, so the story does not say it.
+- **The last boat.** After mission 05 the *Lantern* has taken everyone it is going to. It cannot wait for `m06n`: the road out of that moon leads to Earth, not back to the ship. No other ship will reach `m06n` in time, and the captain knows it. The captain either takes the ship home, or sends it home alone on automatic and stays behind with one lightboat, aboard it for the first time, to try for the people of `m06n`. There are more of them than the boat has seats.
+- **A ship sent home alone is lost 2 times in 10.** The owner's words: "sending Lantern home on automated mode is also a risk, small, but in a rare ending something goes wrong with automation and it never reaches the Earth – captain/pilot knows the result only if succeds with final mission", and then the number: "let's make it 2/10, rare ending when Lantern is lost during auto flight home". So staying stakes the people already saved for a boatload more. A *Lantern* its captain takes home always arrives.
 
 ### The voices
 
-A mode needs voices that come back and want different things.
-
-- **The Watch** is the Lantern's officer on watch. Careful, by the book, and wants the boat back. Signs as `LANTERN`.
-- **The First** is the first person the Pilot delivers, whoever that turns out to be. They stay by the Lantern's radio and keep the names of who is still out. They want everyone brought out. Until the Pilot has delivered someone, the Watch speaks alone.
-- **The Foreman** is the night shift's, heard faintly from mission 04. The Foreman wants the Pilot to turn back.
-- **Other survivors** speak once, after the mission they were saved in, and sign by what they did and the moon they were on, not by name.
+- **Control** is mission control, one person on the freight line's desk for the whole night. By the book: it tasks the rescue, answers for the cargo, and holds the company's list. Its change of heart is the story's main arc, and it starts with the cargo: "That cargo is not yours to cut. I didn't see it", then "Nothing I have covers this. Your ship", then "I'm starting a new page", then "I can't order you into that boat. I won't order you out."
+- **The *Lantern*** speaks for itself: boats, room, cargo. It never gives an opinion. It has no crew to speak for it.
+- **The First** is the first person the captain brings aboard, whoever that turns out to be. They take the radio and keep the names of who is still out. They want everyone brought out. Until someone is aboard, the *Lantern* gives the counts.
+- **The Foreman** is the night shift's, heard faintly from mission 04. The Foreman wants the boat to turn back, and is never among the saved. *The writer's choice.*
+- **Other survivors** speak once, after the first trip to their moon, and sign by what they did and the moon they were on, not by name. Each one's line is also how the captain learns of the next moon, or of what lies behind the chain.
 
 ### The seven missions
 
-Each mission is flown at one moon, further down the chain and nearer the drill. The second name is what its people call it; those names are the writer's. What is told after one mission is what sends the Pilot into the next.
+Each mission is flown at one moon, further down the chain and nearer the drill. The second name is what its people call it; those names are the writer's. A moon holds more people than the boat seats, so each takes a first trip and then as many return trips as the captain chooses.
 
-| Mission | Where, and who is there | What is told around it | What it gives a reason for |
+| Mission | Where, and who is there | What is told there | What it gives a reason for |
 |---|---|---|---|
-| 00 | `m00n`, the Edge: the survey crew who sent the call | The briefing. After it, the first thanks, and the First takes the radio | Single crew, one at a time |
-| 01 | `m01n`, the Drift: rig crews on neighbouring pieces | The First reads who is still out. The Watch has a bigger boat ready | Two crews at once; the first ship choice |
-| 02 | `m02n`, the Works: shift crews in twos and threes | A shift hand tells what the drill is doing | The grid and the wells |
-| 03 | `m03n`, the Town: families | **The turn.** The Watch: the list is done, come home. The First: the night shift is on nobody's list | Missions 00–03 against 04–06; the Lantern's first shields; the second ship choice |
-| 04 | `m04n`, the Fall: the night shift's outer crews | Everyone the Pilot brought out is cutting the Lantern's light0re into shields. The Foreman is heard for the first time: turn back | The higher speed; six shield drops |
-| 05 | `m05n`, the Throat | The Lantern is ordered out. The next way out leads home, not to the Lantern. The Pilot chooses a boat for the last trip | Four drops, then none; the fleet; mission 06's wormhole |
-| 06 | `m06n`, the Heart: the drill's own crew | **The second turn.** The night shift can slow the drill but not stop it: the longer the Pilot stays, the faster everything falls. An ending | The open-ended last mission |
+| 00 | `m00n`, the Edge: the survey crew who sent the call | The briefing: one moon, one distress call. The first thanks, and word of `m01n`. The First takes the radio. Control explains the choice to go back or go on, once | Single crew, one at a time |
+| 01 | `m01n`, the Drift: rig crews on neighbouring pieces | A rig hand whose other rig is still out there. The company's list arrives: four manned moons. The eight is ready | Two crews at once; the first choice of boat |
+| 02 | `m02n`, the Works: shift crews in twos and threes | A shift hand tells of the drill at `m06n`. The haul roads. The ship cuts cargo into shields, and Control looks away | The grid and the wells; the wormholes; shield drops |
+| 03 | `m03n`, the Town: families | **The turn.** The ship is full. Control: bring cargo and people home, another ship is coming. The First: the night shift is on nobody's list, and two days is a long time. The captain goes home with the ore, or drops it | Missions 00–03 against 04–06; the second choice of boat |
+| 04 | `m04n`, the Fall: the night shift's outer crews | "We were the automation." The Foreman is heard for the first time: turn back. Control starts a new page | The higher speed; the dropped ore as shields |
+| 05 | `m05n`, the Throat: the last crews the Foreman sent out | **The second turn.** The ship reports who is aboard, and that sent home alone it is lost one time in five. The First: no other ship will reach `m06n` in time. The captain takes the ship home, or stays with one boat | The *Lantern* leaving; the last choice of boat |
+| 06 | `m06n`, the Heart: the drill's own crew | The captain is aboard, alone, with more people to reach than seats. An ending | The open-ended last mission; the way home |
 
-- **Older moons first.** `m00n` was mined out long ago and has a handful of people on it; `m06n` is where the work is. This is the story's reason for planetoids carrying more people in later missions, and for missions 04 to 06 starting faster: they are nearer the drill.
-- **The shields are the Lantern's own stock of light0re,** which is why it can count them and run out. They count down in the story as in the game: two in mission 03, six in mission 04, four in mission 05, none sent in mission 06. The lines give the reason for the shields and no counts, so they do not depend on `shieldDrops`.
+- **Older moons first.** `m00n` was mined out long ago and has the fewest people on it; `m06n` is where the work is. This is the story's reason for later moons holding more people, and for mission 06 starting faster: it is at the drill. In story, missions 04 and 05 start at mission 03's speed (the owner's decision), so only mission 06 starts faster; no line depends on it.
+- **The shields are the cargo.** In mission 03 the ship cuts light0re from its hold into shields. In missions 04 and 05 the shields are the dropped ore itself, drifting into the fields ahead of the boat and thinning out. None reach `m06n`. This follows the Producer's suggestion and the Engineer's proposal, and costs nothing in play. The lines give no counts, so they do not depend on `shieldDrops`.
 - **The shield beside every wormhole in mission 06** is raw light0re, torn out of the core by the drill where it tears space. Nobody sent it: the way home and the shield are born together, one each side.
 
 ### Draft lines
 
-Every transmission of a first playthrough is in `story-script.md`, now in its second draft. The lines are kept there only, so that there is one copy to revise. The briefing, as a sample:
+Everything that is said in a first playthrough is in `story-script.md`, now in its fourth draft. The lines are kept there only, so that there is one copy to revise. The briefing, as a sample:
 
-> LANTERN TO [CALLSIGN]
-> Seven mined moons, m00n to m06n.
-> Nine hours ago they began to break up.
+> CONTROL TO LANTERN
+> You are the nearest ship to a distress call.
+> A mined moon, m00n, has broken up.
 > There are people alive on the pieces.
-> We are too big to go in. Your boat is not.
-> Show them a light. We'll be on the far side.
+> Your ship is too big to go in. Its boats fit.
+> Show them a light. Bring out all you can.
 
 ### Endings
 
-Four, with their lines in `story-script.md`. Which exist, and where the lines between them fall, depend on the choices below.
+Eight, with their lines in `story-script.md`. Each closes on three counts: on Earth, left behind, dead.
 
 | Ending | When |
 |---|---|
-| The list | The Pilot goes home when the list is done, after mission 03 |
-| Home | The Pilot takes the first way out of `m06n` |
-| The long way home | The Pilot lets the way home pass, and comes home with many left behind |
-| The light that stayed | The Pilot lets the way home pass, and comes home with few left behind |
+| The commission | The captain takes the *Lantern* home after `m03n` with the ore: cargo delivered, commission paid, the papers have the callsign. Then one of two tellings, picked by chance: another freighter went in and brought out some of the night shift, or it came too late |
+| Past the list | The captain drops the ore, goes past the list, and goes home with the *Lantern* after `m05n`. There is no commission |
+| A full ship | As "Past the list", with every place on the *Lantern* taken. Earned, not rare |
+| The empty rail | The captain drops the ore, goes on, and loses the last of the three boats before mission 06. The *Lantern* goes home with its captain aboard |
+| Home | The captain stays, flies mission 06 and comes out by the road to Earth |
+| The light that stayed | As "Home", when the *Lantern* left full and every seat of the last boat is full too. The best a captain can do |
+| Lightboat | Rare, and picked by chance. The captain comes home from mission 06, and the *Lantern*, sent home alone, never arrived. It replaces "Home" or "The light that stayed" |
+| Lost at the Heart | The last boat is destroyed in mission 06. The captain and the people aboard it die. Nobody speaks, and nothing is told that the captain could not know |
 
-- **"Few left behind"** is no more than seven missed in the whole run, one per mission: the Producer's starting value, to be checked against real or scripted runs, because the pairs force misses.
-- **Where the Pilot comes in.** The way out of `m06n` leads home, so every ending but "The list" ends at home. The Lantern is ordered out after mission 05. If the Pilot takes the first way out, it has left as ordered and is home to meet them. If the Pilot stays on, it disobeys and holds its place outside `m06n` until they are through.
-- **"Lost at the Heart"** was a fifth ending, for a boat destroyed in mission 06. It exists only if a destroyed boat can end the story, which the script does not assume.
+- **The commission is told, since there is no score.** It is paid in one ending and named as lost in the three where the ore was dropped and the captain went home: "No commission."
+- **A full *Lantern* is what the two best endings ask for.** It means everyone on the first six moons is aboard: nobody left behind, and nobody dead in a lost boat. So a captain who lost a boat with people in it cannot reach either of them in that playthrough.
+- **Going home with the ore is not the bad ending.** The owner's words: "Going home early shouldn't be a 'bad' ending; at least half the time, that ending should indicate that another freighter took on the mission to save some of the remaining crew and received the same fame and commission." So at least half the time mission control's "another ship is on its way" turns out true, and the captain's choice was a fair one. Chance picks the telling, through the drawing's randomness and never the run's seed. It comes 60 times in 100.
+- **Three endings come without flying mission 06,** and none is written as a failure. "The commission" is the captain who did what was asked and was paid for it. "Past the list" and "A full ship" are the captain who gave up the cargo for people nobody listed, and then would not stake them on the last moon.
+- **Going home after `m05n` is the rational decision, and the story says so.** By the numbers, staying stakes everyone aboard at one in five for at most twelve more. The owner's words: "if the captain does the math a decides not to risk already saved crew and sacrifice mo6n crew – that should be at least aknowledged (if not praised) as a rational decision". It is acknowledged from three sides: the Foreman ("You turned back. Good."), mission control, which goes by the book ("You wouldn't stake them at one in five. It's the order I'd have given."), and the First, whose life was the stake ("I wanted you to go. I'm alive because you didn't.").
+- **Staying is a choice made against the sum.** The two endings for a captain who stayed and came through open with mission control's "The sum said go home. You stayed.", said as neither blame nor praise. In "Lightboat" nobody says the captain was told the odds: that exception is the writer's, and the owner has not ruled on it.
+- **Running out of boats is an ending of its own, "The empty rail".** Under the rules as decided (returns not limited, story missions 04 and 05 starting at mission 03's speed), the Engineer's headless check of 2026-11-22 found that one average captain in four loses all three boats before mission 06; strong and expert captains almost never do. That average captain saves about 45 of the 70 people on the first six moons, leaves about 18 behind and loses about 10 in boats. So for ordinary players this is a common way for the story to end, and it is written with the same care as the others: "You flew until the rail was empty." If the ore is still aboard, which is rare, the story goes to "The commission" instead, without the papers and with the commission paid "less three boats".
+- **A full *Lantern* is earned, not rare.** The owner decided that going back is not limited ("Don't limit; it's a risk assessment decision from a captain/pilot"). In the Engineer's check an expert who keeps going back leaves nobody behind in about two stories in three. Every seat of the last boat full is also usual for a good pilot. So "A full ship" and "The light that stayed" are what good flying earns.
+- **The odds,** both the owner's numbers. The second freighter comes 60 times in 100. The *Lantern* sent home alone is lost 2 times in 10.
+- **Nobody can save everyone at `m06n`.** There is one trip, and more people than seats. The Foreman is among those who stay.
+- **The ending called "Lightboat"** takes the game's name: the one boat that came home. Only mission control speaks in it, because the First was aboard the ship. The chance does not depend on how the captain flew. The owner agreed the name and the rule on 2026-11-22: "Yes to "Lightboat" ending, keep the risk for all". So a captain with a full *Lantern* is not spared, and the best-flown story can end with the most people lost.
+- **The risk is told before the choice,** as a plain figure, since the ship gives no opinions: "Sent home alone, it is lost one time in five." Without that the ending would be a trap.
+- **Whoever speaks at the end is far away:** mission control on Earth, the First on the *Lantern* on its way there, and the Foreman at `m06n`.
 
 ### The moons' names
 
@@ -801,41 +825,63 @@ Decided by the owner on 2026-11-22, in the owner's words "m00n, m01n, m02n, etc"
 - **Always lower case.** In the HUD's capitals, `M00N` loses the look. *To see on screen.*
 - **A mission has its moon's number.** Decided by the owner on 2026-11-22 ("rename missions 00, 01, etc"): missions are 00 to 06, always two digits, so mission 00 is flown at `m00n` and the two numbers never differ.
 - **On screen the rename is built** (2026-11-22, by the Game Engineer; not yet released). The counter in flight reads `MISSION 00/06`, the stop between missions `MISSION 01 COMPLETE`, and the rows of the results tables run 00 to 06. Underneath, levels, saved runs, the rules and share links still count 1 to 7.
-- **The board now names a place, not a count.** A row says the mission a run reached, `REACHED 02`, and for the last mission `REACHED 06 · HOME` or `LOST`; it replaced `FINISHED n/7`. For the story this reads as how far down the chain of moons each pilot got, which is what a tender's roll of its pilots would record.
+- **The board now names a place, not a count.** A row says the mission a run reached, `REACHED 02`, and for the last mission `REACHED 06 · HOME` or `LOST`; it replaced `FINISHED n/7`. For the story this reads as how far down the chain of moons each pilot got, which is what a roll of pilots would record.
 - **Where the numbers appear:** the premise, the briefing, the survivors' signatures ("Survey crew, m00n") and a few lines. Whether a moon's number is shown during flight is a choice below.
 - **"etc".** The story uses seven moons. Whether the company has more elsewhere is left open.
 - **Dropped:** Galore, and the five names proposed on 2026-11-21 (Tallow, Harrow, Kessler, Lode, Marrow).
 
 ### Choices for the owner
 
-Each is a rule of the mode. "Proposed" is the writer's suggestion, not a decision.
+Decided by the owner on 2026-11-22, with the rules of play in [Planned: story mode rules](#planned-story-mode-rules):
+
+- The story has a screen of its own, with up to three transmissions.
+- Going home after mission 03 is offered.
+- The choice of boat is told.
+- The wormholes are the mine's haul roads, and the list stops at `m03n`.
+- The Pilot is the *Lantern*'s captain, and flying mission 06 is the captain's choice.
+- There is no score in story mode.
+- The *Lantern* is a freighter carrying light0re, and it is full after mission 03 unless the ore is dropped.
+- It carries three lightboats, and only three.
+- It has no crew, only the captain.
+- With the ore dropped it has room for everyone on the first six moons.
+- Going home with the ore is not the bad ending: 60 times in 100 another freighter goes in.
+- No other ship can reach `m06n` in time, and a *Lantern* sent home alone runs a risk.
+- The ending where the ship never arrives is called "Lightboat", and the risk applies to every captain.
+- Going back to a moon is not limited.
+- The story is in the first person: a captain who dies is told nothing more, and neither is the player.
+- The second freighter comes 60 times in 100.
+- The *Lantern* sent home alone is lost 2 times in 10.
+- Going home after mission 05 is acknowledged as the rational decision.
+- The endings for staying say the captain was told the odds and went anyway (the owner's "yes!"). The wording is still a draft.
+- Story missions 04 and 05 start at mission 03's speed.
+
+Still open on the story's side. "Proposed" is the writer's suggestion, not a decision. The open rules and numbers are in the rules section.
 
 | Choice | Options | Proposed |
 |---|---|---|
-| Where a moon's name is shown | The mission's number already is the moon's. `m00n` itself: only on the story's screens; or also in flight, beside or in place of the word `MISSION`, and then in arcade too | Only on the story's screens, until it has been seen on screen |
-| What each moon's people call it | Keep the second names (the Edge to the Heart); or numbers only | Keep them, in survivors' mouths only: the Lantern uses the numbers |
-| Which ship the title names | The kind of boat; the Pilot's one ship; the tender | The kind of boat |
-| Screens of its own | Lines beside the results table, as first written; or a transmission screen between the results and the ship choice | A transmission screen. It ends the question of whether the lines fit beside the table and the ships |
-| When a lightboat is destroyed | The story ends, as in arcade; the mission is flown again in the same boat, as often as needed; or the Lantern's three boats are three tries, and a boat lost is gone from the rail | Fly the mission again in the same boat, which the Lantern recovers with the Pilot. The crew who were aboard stay lost and count in the ending. With arcade's rule most players would never read missions 04 to 06: a scripted average pilot finished mission 03 in under half its runs. The script gives the Lantern's line for each of the three |
-| The ship choice | Silent, as in arcade; or told | Told, as a choice about people and risk ("The eight is ready. More seats, and more boat to get through the rocks. Your call."), never how the picker works |
-| Going home after mission 03 | Not offered; or offered, as the ending "The list" | Offered. It makes going past the list something the Pilot chose |
-| The board | Story runs on the arcade board; or no board for story | No board: a story that lets the Pilot fly a mission again cannot share it. The story's roll is the Pilot's own: who is home, who is still out, who went down with a boat, and which endings have been reached |
-| What the endings depend on | Any of: whether the Pilot went past the list; whether they let the way home pass; how many were left behind; boats lost | The first three, with "few left behind" as no more than seven in the run |
-| Whether taking the night shift out speeds the drill | Not a rule today: speed follows the distance flown. Add it as a rule of story mode; or leave the story silent about it | Silent, as the script now is. Adding it is a rules and balance question, and it would give a reason to rescue fewer |
-| A second playthrough | The same story again; or a telling that knows it has been read | The briefing is skipped, the Pilot is greeted as someone who has been in before, and the First's lines change because the Pilot already knows what the list leaves out. The roll shows the endings not yet reached as unlit lamps |
+| Which ship the title names | The kind of boat; the captain's one ship; the freighter | The kind of boat. The owner once wrote "Lightship" for the last boat; it is taken here as the lightboat |
+| Who mission control is | The freight line's control room, which both tasks the rescue and answers for the cargo; or two voices, a rescue authority and the cargo's owner | One voice. It keeps the stops short and gives Control something to give up |
+| Where the shields come from | Cut from the cargo, then the dropped ore drifting in; or no shields once the ore is gone | Cut from the cargo, then the dropped ore |
+| Whether the Foreman can be saved | Never; or in the best ending | Never |
+| The board | No score means story runs cannot be ranked with arcade's; a roll of the player's own, or nothing | A roll of the player's own: the three counts, and the eight endings shown as lamps, lit when reached |
+| Whether taking the night shift out speeds the drill | Not a rule today: speed follows the distance flown. Add it as a rule of story mode; or leave the story silent about it | Silent, as the script is. Adding it is a rules and balance question, and it would give a reason to rescue fewer |
+| A second playthrough | The same story again; or a telling that knows it has been read | The briefing is skipped, and the First's lines change because the captain already knows what the list leaves out |
 | Which mode a new player meets | Arcade on the first tap, story as a second entry on the start screen; or story first | Arcade on the first tap. It keeps "nothing to read" true for the game most players meet |
 | Whether arcade carries any of the story | Nothing; or the title and one line | Nothing but the title |
-| The same flying as arcade | The same missions, speeds and ships; or gentler numbers for story | Not the writer's to propose: a rules and balance question |
-| Tone | Dry and warm, as drafted; or lighter | Dry and warm. The reason to consider lighter was the old title |
+| Where a moon's name is shown | The mission's number already is the moon's. `m00n` itself: only on the story's screens; or also in flight, beside or in place of the word `MISSION`, and then in arcade too | Only on the story's screens, until it has been seen on screen |
+| What each moon's people call it | Keep the second names (the Edge to the Heart); or numbers only | Keep them, in survivors' mouths only |
+| Tone | Dry and warm, as drafted; or lighter | Dry and warm |
 
 ### Rules for the writing
 
-These hold whatever is chosen above.
-
-- **Why, never how.** The story gives the Pilot a reason to fly. It never teaches rings, steering, seats or the score. Rescues, the wormhole and gravity are still left to be discovered.
+- **Why, never how.** The story gives the captain a reason to fly. It never teaches rings, steering, seats or shields. Rescues, the wormhole and gravity are still left to be discovered.
 - **Nothing to read while flying.** Lines appear only where the game has stopped.
-- **Missed crew are still out there.** Crew who drift past, or are thrown off by a hit, are not dead in the story: they are still waiting. Only crew lost with a boat are lost.
-- **Lines answer what happened.** Each stop has a line for someone missed, for everyone saved and for nobody saved. From mission 01 the line for someone missed is the usual one: every third rescue is a pair built so that one crew is left. The line for a clean mission is the rare one.
+- **Three states, and the story never blurs them.** People still on a moon are still there for as long as the *Lantern* is. Once the captain goes on they are left behind. Only people aboard a destroyed boat are dead. The First keeps all three on the list.
+- **First person.** The owner's words: "this is a first-person POV story; if the protagonist dies, they won't know how the whole story unfolded." Nothing is said that the captain could not hear or know, and nothing at all is said after the captain's death.
+- **Nobody speaks of what the captain has not been told.** The captain starts with one moon and one distress call, and learns of each further moon from the one before.
+- **No score in any line.** What is counted aloud is people.
+- **Lines answer what happened.** The counts are filled in by the game, and there are blocks for a return trip, a moon emptied, a boat destroyed and a trip that brought nobody.
+- **Who calls the Pilot what.** Mission control uses the callsign. The people aboard say "Captain". The Foreman says "Lightboat".
 - **The choice of line never touches the deal.** It uses the drawing's randomness, not the run's seed.
 - **Short.** A transmission is a sender and at most three short lines, and a screen holds at most three transmissions. A line is about 48 characters, the Producer's estimate of what fits across the field, to be measured once the screen is drawn.
 
@@ -843,12 +889,284 @@ These hold whatever is chosen above.
 
 Besides the choices above:
 
-- **The script.** A second draft of the first playthrough is in `story-script.md`, revised after the Producer's review and waiting for the owner. The changed lines for a second playthrough and the shorter lines for later runs are not written.
+- **The script.** The fourth draft is waiting for the owner. It is about 40 transmissions against 15 to 20 minutes of flying, which may be too much to read. The changed lines for a second playthrough are not written.
 - **How the lines look:** capitals like the rest of the HUD, or sentence case so that they read as a voice; shown at once or typed out.
 - **A sound for a transmission,** and whether the voices differ in sound. The Composer's to propose.
-- **The screens.** None is drawn: the transmission screen, the start screen with two modes, the roll.
+- **The screens.** None is drawn: the story's screen, the choice to go back or go on, the start screen with two modes, the roll.
 
 When this is built, [What the player is told](#what-the-player-is-told) and [Direction](#direction) need rewriting.
+
+## Planned: story mode rules
+
+Decided by the owner on 2026-11-22. **Not built, and arcade is not changed by any of it.** These are the rules of play for the story mode. The story itself is in [Story](#story) and `story-script.md`, which were written before these rules and have to follow them.
+
+### The owner's words
+
+> In the story mode:
+> – it doesn't send the saved crew off the ship
+> – if you miss someone on the mission, you choose to fight for them or go to the next moon
+> – all crew aboard the Lanter wait to be transferred back to Earth
+> – there's no score counter, only saved crew matters
+> – the Pilot is never aboard, except for the final mission
+> – the final mission results in permadeath for the pilot and the crew on board the Lightboat, but people saved (on Lantern) reach their destination (and those skipped in previous missions are left behind)
+
+Asked what happens to the people aboard a lightboat destroyed in missions 00 to 05:
+
+> they die, and the pilot can still fly again to rescue skipped crew only, so each moon has fixed amount of crew, always bigger than current lightboat
+>
+> Lantern (mothership) has almost limited capacity too, that's why you as a Pilot fly the last mission yourself – Lantern goes full to the Earth, but you have the last ship to try to use to rescue the last moon crew
+
+And, to three questions with options: a hit costs only a shield; in the final mission the Pilot dies only if the boat is destroyed; going back for people is a short return with only them in the field.
+
+On who the Pilot is:
+
+> So, the Pilot is the Lantern captain, tasked by the mission control to rescue as much crew as possbile.
+
+On how the *Lantern* goes home:
+
+> They send full Lantern back to Earth in the automated mode, and risk (or not) with the last remaining Lightship to rescue the last moon crew
+
+On what the *Lantern* is, and the reason to go home after mission 03 (asked "What's the reason to leave early after mission 3?"):
+
+> Lantern is a freight ship it carries lightore from other side of the galaxy and get sos signal (doesn't now how many moons broke), diverts to save crew from the first, learns that there's more, but after 3d mission it's already full. So the choice is to go home with ore and saved crew (and earn commission and fame) and say that someone next will be able to save remaining crew, or drop the ore, make room for more people.
+
+On the boats, added a moment later:
+
+> and yes, there are only three lightboats on board Lantern
+
+On the ending for going home with the ore:
+
+> Going home early shouldn't be a 'bad' ending; at least half the time, that ending should indicate that another freighter took on the mission to save some of the remaining crew and received the same fame and commission.
+
+On the choice after mission 05:
+
+> going home after m05n is a real choice:
+> – it's already known that nobody will be quick enough
+> – but sending Lantern home on automated mode is also a risk, small, but in a rare ending something goes wrong with automation and it never reaches the Earth – captain/pilot knows the result only if succeds with final mission.
+
+On three points the producer listed as open (the odds of the second freighter and of the *Lantern* being lost; whether the player is told the ship's fate when the captain dies; whether going back is limited):
+
+> 1. 60/40 each
+> 2. No, this is a first-person POV story; if the protagonist dies, they won't know how the whole story unfolded.
+> 3. Don't limit; it's a risk assessment decision from a captain/pilot.
+
+After the headless check, on gentler missions 04 and 05, keeping the check's harness, and the odds for the *Lantern* on automatic:
+
+> 1. yes, gentler missions 04 and 05
+> 2. yes, in the repo
+> 3. ok, let's make it 2/10, rare ending when Lantern is lost during auto flight home
+
+Told that at 2 in 10, by the numbers, going home after mission 05 is the better choice for every captain:
+
+> Yes, and if the captain does the math a decides not to risk already saved crew and sacrifice mo6n crew – that should be at least aknowledged (if not praised) as a rational decision
+
+### The rules
+
+| | Missions 00 to 05 | Mission 06 |
+|---|---|---|
+| Where the Pilot is | On the *Lantern*, flying the lightboat from there | Aboard the last lightboat |
+| A hit | Costs a shield and nothing else: nobody is thrown off | The same |
+| A lightboat destroyed | The people aboard die. The Pilot flies again, for those still on the moon | The Pilot and the people aboard die, and the story ends. There is no flying again |
+| Where the saved go | To the *Lantern*, where they wait to be taken to Earth | Home, with the Pilot, by the way out |
+
+- **The Pilot is the *Lantern*'s captain.** Mission control gave the task: rescue as many people as possible. The captain flies the lightboats from the *Lantern*, and in mission 06 goes in the last one.
+- **Every moon holds a fixed number of people, always more than the lightboat in use seats.** So no moon is cleared in one trip.
+- **After a trip, the Pilot chooses.** If people are still on the moon, the Pilot either goes back for them or goes on to the next moon. Going back is a short flight with only those people in the field. Those still there when the Pilot goes on are left behind for good.
+- **The *Lantern* has no crew, only the captain** (the owner, 2026-11-22: "Lantern has no crew, only the captain"). In the script the ship speaks with its own voice.
+- **The *Lantern* is a freighter** carrying light0re from the other side of the galaxy. It picks up a distress signal, does not know how many moons have broken, and diverts to the first. It learns of the others as it goes.
+- **The *Lantern* carries three lightboats, and only three.** Read as: a lightboat destroyed is gone for the rest of the story, which was the Engineer's option B.
+- **With its cargo aboard, the *Lantern* is full after mission 03.** The captain then chooses: go home with the ore and the people saved, for the commission and the fame, telling themselves that someone else will come for the rest; or drop the ore and make room for more people. This is the reason the choice after mission 03 exists.
+- **Going home with the ore is not a bad ending.** At least half the time it tells that another freighter took on the rescue, saved some of the people still out there, and earned the same fame and commission. The rest of the time it does not. Which it is, is chance, not something the captain did.
+- **With the ore dropped, the *Lantern* has room for everyone on the first six moons, and no more** (the owner's "Yes, room for all", 2026-11-22). There is never room for the people of `m06n`. After mission 05 the captain sends it back to Earth on automatic, with whoever is aboard. Nobody has to be left in command of it.
+- **Mission 06 is the captain's choice.** The captain either goes home with the *Lantern*, or stays with the last lightboat and risks it for the people of the last moon. That is why mission 06 is flown in person.
+- **The choice after mission 05 costs something either way.** Going home with the *Lantern* is safe for everyone aboard, and it is known by then that no other ship can reach `m06n` in time, so its people are lost. Staying sends the *Lantern* home on automatic, which carries a small risk: in a rare ending the automation fails and the ship never reaches Earth.
+- **The captain learns what became of the *Lantern* only by surviving mission 06.** A captain who dies there is never told, and neither is the player: the story is told in the first person.
+- **Going back is not limited.** How often to return to a moon is the captain's own judgement of the risk.
+- **The odds.** The second freighter comes 60 times in 100. The *Lantern* sent home on automatic is lost 2 times in 10, and the captain is told the figure.
+- **Going home after mission 05 is the rational choice, and the story says so.** At 2 in 10, staying risks on average more people than the last boat can bring out. The owner keeps it that way: a captain who does the sum and goes home is at least acknowledged for it, if not praised. Staying for `m06n` is a choice made against the numbers. The endings for staying say so: the captain was told the odds and went anyway (agreed by the owner, 2026-11-22: "yes!").
+- **Story missions 04 and 05 start at mission 03's speed,** not at arcade's 1.4× and 1.8×. In the headless check this cut the share of average captains who lose all three boats from 45% to 25%, and changed nothing for good pilots.
+- **The ending where the ship is lost is called "Lightboat"** (the Writer's proposal, agreed by the owner on 2026-11-22: "Yes to 'Lightboat' ending"). It replaces whichever ending the captain had earned by coming through mission 06.
+- **The risk is the same for every captain** (the owner: "keep the risk for all"). A captain with a full *Lantern* is not spared, so the best-flown story can lose the most people.
+- **This replaces the earlier rule** that whoever is on the *Lantern* always reaches Earth: that now holds when the captain goes home with it, and almost always when it goes alone.
+- **There is no score.** What counts is people: saved, left behind, and dead.
+
+Agreed the same day, from the script's assumptions: the story has its own screen with up to three transmissions; going home after mission 03 is offered; the choice of boat is told; the wormholes are the mine's haul roads and the *Lantern*'s list stops at `m03n`.
+
+### What follows, to be checked
+
+These are the producer's readings, not the owner's words.
+
+- **Not everyone at `m06n` can be saved.** There is one trip, in a boat of at most twelve seats, to a moon that holds more people than that.
+- **Arcade's costs are switched off in story:** the crew member thrown off by a hit, the share of the score a missed crew member takes, the score and the board.
+- **A missed crew member is no longer lost at once.** They stay on the moon until the Pilot goes back for them or goes on.
+- **The story changed with it.** The script's fourth draft has the captain flying from the ship until mission 06, the *Lantern* going home on automatic, endings that count people, and Earth as the name of home.
+- **The voices changed with it.** In the script's third draft, orders and the list come from mission control, the people aboard answer to the captain, and the *Lantern* goes home on automatic with nobody left in command.
+
+### Where the script and the proposed numbers disagree (2026-11-22)
+
+The script's third draft and the Engineer's proposal were written side by side. All four are decided:
+
+| Question | The script assumes | The Engineer proposes |
+|---|---|---|
+| The *Lantern*'s room: **decided, room for all** | It is full when it leaves `m05n`, and not before. Its rare ending needs nobody left behind on the first six moons | Room for 56 of the 70 people there. Superseded: the room is the six moons' total, 70 with the proposed counts |
+| Going back: **decided, not limited** | As often as needed, until the moon is empty | At most two returns per moon. Superseded |
+| A destroyed boat: **decided, three boats** | Replaced: the story does not count boats. Superseded | Three boats, and a lost one is gone (its recommendation) |
+| Who is on the *Lantern*: **decided, the captain alone** | Nobody but the captain: the ship speaks for itself | Not addressed |
+
+Also open in the script: whether its rare ending allows people to have died in lost boats, and what is said if the *Lantern* fills before `m05n`.
+
+### The freighter and its ore: what is not yet settled (2026-11-22)
+
+The producer's readings of the owner's words above, and the questions they raise:
+
+- **"After 3d mission"** is read as after mission 03, at `m03n`, where the choice to go home was already agreed. With the Engineer's proposed counts the first four moons hold 36 people, so the hold beside the ore has room for 36.
+- **A captain who left people behind** reaches that point with places free. Whether the choice is still put then, or only when the hold fills, is a rule to decide.
+- **Mission control.** The owner earlier made the Pilot "the Lantern captain, tasked by the mission control". A freighter that answers a distress signal can still be tasked by mission control once it answers; The Writer proposes one voice: the freight line's control room, which tasks the rescue because the *Lantern* is the nearest ship and also answers for the cargo.
+- **The shields.** In the script the *Lantern* cuts its own light0re into the shields it sends into the field. If the ore is dropped after mission 03, where the shields of missions 04 and 05 come from needs an answer. The Writer and the Engineer both propose the answer that costs nothing in play: the dropped ore is what drifts into the field.
+- **What going home with the ore gives.** There is no score, so commission and fame can only be told: in the ending and on the roll.
+- **Three boats, and the last one.** What happens when the third boat is lost before mission 06, and which boat can be flown when: today the 8- and 12-seaters are only offered after missions 01 and 03. The Engineer's answer was that a captain who loses the big boat flies a smaller one and leaves more behind.
+- **The spelling.** The owner wrote "lightore" here; these notes keep light0re, the spelling the owner gave earlier.
+
+- **The check's harness is kept in the repo,** on the owner's word, so the numbers can be flown again when a rule changes.
+
+### Not decided
+
+- **The numbers:** how many people each moon holds. The *Lantern*'s room follows from them: it is their total for `m00n` to `m05n`, so it cannot fill before the end of mission 05.
+- **A return flight:** how long it is, how fast, with what shields, and whether the Pilot can go back more than once.
+- **Going home after mission 03 and after mission 05.** Both are now ways to end the story without flying mission 06; how the two differ is the Writer's to propose.
+- **The boats:** whether a destroyed lightboat is one fewer for the rest of the story, and whether the choice of a bigger boat after missions 01 and 03 stays as in arcade.
+- **What the screen shows** with no score, and with nobody in the cockpit.
+
+These are rules and balance questions for the Game Engineer to propose and the owner to decide: see the proposal below.
+
+
+### The Engineer's proposal for the numbers (2026-11-22)
+
+**A proposal for the owner to decide on. Nothing is built, and arcade is not changed.** "Measured" means a headless run of today's arcade code (40 seeds per mission, a ship that can neither fill nor be destroyed, flown to each mission's target). Everything else is reasoning, or a guess where it says so. Nothing has been played.
+
+**What today's game offers, measured.** People who appear in a mission before its target is reached:
+
+| Mission (level) | 00 (1) | 01 (2) | 02 (3) | 03 (4) | 04 (5) | 05 (6) | 06 (7) |
+|---|---|---|---|---|---|---|---|
+| People offered, average (range) | 2 (2–2) | 6 (5–8) | 12 (9–15) | 28 (24–31) | 39 (33–42) | 33 (29–37) | 23 (18–27) |
+| Seconds to the target | 32 | 48 | 80 | 128 | 126 | 126 | 125 |
+
+So arcade's planetoids cannot simply be reused. Mission 00 offers only 2 people before its target, in a 4-seat boat, while missions 03 to 05 offer two to three times what a boat holds. **In story the planetoids are dealt from the moon's own count:** a trip deals out the people still on the moon over its length, at the same gaps as arcade, and a moon that is empty sends no more.
+
+**Proposed numbers**
+
+| Question | Proposal | Why |
+|---|---|---|
+| 1. People on each moon | m00n 6, m01n 7, m02n 11, m03n 12, m04n 16, m05n 18, m06n 20 | Always more than the biggest boat that can be flown there (4, 4, 8, 8, 12, 12, 12), by 2 to 8, so every moon needs a second trip and later moons need it more. 70 people on m00n to m05n, 90 in all |
+| 2. The *Lantern*'s room | **Decided by the owner, 2026-11-22:** with its cargo of ore aboard, the people of m00n to m03n (36 with these counts); with the ore dropped, all six moons (70). ~~56~~ | 36 is exactly what the first four moons hold, so a captain who saved everyone is full after mission 03, as the owner's account has it |
+| 2b. The choice after mission 03 | **Proposed:** always put after mission 03, whatever the count: go home with the ore and those saved (an ending), or drop the ore and go on. There is no going on with the ore aboard. With the ore dropped, the *Lantern* can only fill when the last person on m05n is aboard, and then no more planetoids are sent | A fixed point is simpler than "when the hold fills": a captain who left people behind would otherwise carry a few free places into m04n, which holds 16, and never be asked. It also keeps the agreed choice of going home after mission 03 |
+| 3. A return flight | A third of the mission's target (m00n 170 pc, up to m05n 1,000 pc). It starts at the speed the trip ended at and keeps the shields the boat had left: no top-up, no shield drops. Only the moon's remaining people are dealt, on planetoids of 1 to 3, evenly over the flight. Up to **two returns per moon** | The stake is real: shields carried over from a hard trip make a return risky, and a boat destroyed there kills those aboard. Two returns let a careful player clear a moon, but each return spends shields the next moon could have used |
+| 4. The first trip | Deals the whole moon over the mission's length. A full boat is sent no more planetoids, so the people left are those the seats could not take plus those missed | No separate quota is needed: the moon's count and the seats decide it |
+| 5. The boats | **Decided by the owner: three lightboats, a destroyed one gone** (option B below). Rules proposed below | The owner: "there are only three lightboats on board Lantern" |
+| 6. Mission 06 | 20 people at m06n, one trip, the 12-seater at best. The way out opens when the boat is full or the target is reached, whichever is first. Target 2,000 pc rather than arcade's 3,500 | At most 12 of 20 come home, as the rules require. A full boat may leave at once: its people are what is at stake, and making a full boat fly on only adds a way to lose them |
+| 7. Missions, speeds, shield drops | **Decided by the owner, 2026-11-22, after the headless check: missions 04 and 05 start at mission 03's speed (1×) in story;** arcade is untouched. Otherwise as first proposed: as in arcade for 00 to 05: the same targets, starting speeds and shield drops. The thrown-off crew member and the missed-crew cost are off, as the rules say | One set of numbers to balance. Story is already gentler, since a hit never costs a person |
+| 8. On screen | In flight: `MISSION 02` top left; `ABOARD 3/8` and the seat dots top right; `ON m02n 5` under them. On the stop: `ON THE LANTERN 31/56`, `LEFT ON m02n 4`, `LOST 2`, and two choices: `GO BACK FOR 4` and `GO ON TO m03n` | No score anywhere. The *Lantern*'s room is only on the stop: in flight what matters is the boat and the moon |
+
+**5. The boats** (the owner chose B on 2026-11-22; A is kept for the record)
+
+- **A. Boats are never lost.** A destroyed boat is replaced; the cost is the people aboard. The upgrades after missions 01 and 03 and the fleet after 05 stay as in arcade. Simple, and a crash costs people, not the rest of the story.
+- **B. The *Lantern* carries three boats, and a destroyed one is gone.** You start in the 4-seater; the 8- and 12-seaters are offered after missions 01 and 03 as now. The fleet after 05 is whatever boats are left. Losing all three ends the story before mission 06. "The last remaining Lightship" becomes literal: a careless player may reach mission 06 with only the 4-seater, or with none. Harder, and every crash matters twice.
+
+**Proposed rules for the three boats:**
+
+- **All three are aboard from the start, offered as in arcade:** the 4-seater from mission 00, the 8-seater from the stop after mission 01, the 12-seater from the stop after mission 03. This keeps every moon's count above the boat that can fly there.
+- **A lost boat is gone for the rest of the story,** with the people aboard.
+- **If the only boat on offer is lost,** the next one up is released at once. For example, the 4-seater lost at m00n means the return and mission 01 are flown in the 8-seater. That boat then clears a small moon in one trip, which breaks "always more than the boat" for that moon. I would accept that: it is a consolation after a loss, not a reward.
+- **The fleet after mission 05 is the boats left.** With none left there is no mission 06: the *Lantern* goes home with whoever is aboard.
+- **All three lost before mission 05** ends the story at once, the same way.
+- **To measure before building:** how often an average captain loses all three before m06n. With hits costing only a shield, a boat is lost only when its shields run out, so I would guess rarely before mission 04 and often in missions 04 and 05, where arcade's pilots die most. This is a guess. The headless check on returns can count boats lost at the same time.
+
+**Shields after the ore is dropped:** the drops of missions 04 and 05 (six and four) stay as they are, with the dropped ore as what drifts into the field, as the Producer suggested to the Writer. The alternative, no drops once the ore is gone, would make the choice cost shields. But missions 04 and 05 start at 1.4× and 1.8× and are already the hardest, and the choice already costs the captain the commission. I would not add the cost.
+
+**What does not hold, or needs a decision**
+
+- **"The Lantern goes full" is true only for good play.** With fixed counts and limited room, a weak player sends it home part-empty. The script should not promise it full.
+- **Going home after mission 03** is now the ore choice (row 2b). It sends home a *Lantern* holding at most 36, the first four moons; the ore's commission is what the captain gains by it.
+- **Arcade's choice rows** (2 crew, 3 crew or a shield) would deal people from the moon. Choosing the shield leaves those people on the moon for a return, which is consistent.
+- **A destroyed boat in missions 00 to 05:** the rules say the Pilot "flies again, for those still on the moon". I read that as the return flight, offered at once, counting against the two returns.
+
+**What a headless check could settle before building:** done on 2026-11-22, see below.
+
+### Headless check of the story rules (2026-11-22)
+
+**Measured, not played.** On the owner's go-ahead: the proposed rules laid over the real game in a test harness outside the game's code. No screens, and nothing in the game changed. 300 stories per pilot per case, 6,300 stories in all.
+
+**The pilots:** the Game Producer's scripted pilot from the ship balance work, adapted to today's game. Expert, strong and average differ in how late they notice rocks, how slowly they react and how often they lapse. A pilot is not a person: it never parks to dig a well. Differences under about 3% are noise.
+
+**The rules as flown:**
+- The moons hold 6, 7, 11, 12, 16, 18 and 20 people. The *Lantern* holds 36 with the ore, 70 without; this pilot always drops the ore after mission 03.
+- A hit costs only a shield. There are three boats and a lost one is gone; the next one up is released if the only one on offer is lost.
+- The moon's people are dealt onto each flight's planetoids and nowhere else.
+- A return is the last third of the mission's target, at that stretch's speed, with the shields left and no drops.
+- The pilot goes back while people are left, up to the limit, and only with 2 or more shields (except after a crash, when a new boat goes back).
+- Mission 06 is flown at arcade's length, with the way out opening as soon as the boat is full. That is a small difference from the proposed 2,000 pc.
+
+**1. Running out of boats** (stories that reach mission 06 with 3, 2 or 1 boats left, or that end early with none):
+
+| Case | Expert | Strong | Average |
+|---|---|---|---|
+| Never going back | 97 / 3 / 0, none out | 84 / 16 / 0, none out | 16 / 44 / 29, **12% out** |
+| At most two returns (as proposed) | 93 / 7 / 0, none out | 66 / 26 / 6, 1% out | 7 / 23 / 29, **41% out** |
+| Returns as often as needed | 92 / 8 / 0, none out | 65 / 27 / 7, 1% out | 5 / 21 / 28, **45% out** |
+| Two returns, missions 04 and 05 at mission 03's speeds | 93 / 7 / 0, none out | 73 / 23 / 2, 2% out | 18 / 34 / 28, **21% out** |
+| **Returns as often as needed, missions 04 and 05 at mission 03's speeds** (run after the owner chose unlimited returns) | 92 / 8 / 0, none out | 73 / 22 / 3, 1% out | 16 / 33 / 26, **25% out** |
+
+**The Producer's worry is real for average captains.** Under the rules as proposed, four in ten run out of boats, mostly at m05n (21% of all average stories end there) and m04n (9%). Average pilots lose a boat on the first trip of m05n in more than half of stories (0.56 boats per story, against 0.15 or less on any other moon). That is the mission that starts at 1.8×. Strong and expert pilots almost never run out.
+
+**2. Returns**
+
+| | Expert | Strong | Average |
+|---|---|---|---|
+| Returns per story (two-return limit) | 10.2 | 9.0 | 5.9 |
+| Moons cleared, of 6: two returns / as needed | 4.9 / 5.7 | 4.0 / 4.8 | 2.1 / 2.7 |
+| Boats lost per 100 returns | 0.5 | 2.7 | 13.8 |
+
+Returns are close to free for good pilots and costly for average ones: one return in seven costs an average pilot a boat, with those aboard. Two fixes were tried on the average and strong pilots:
+- **Going back only with full shields (3):** fewer average captains run out (30%), but fewer are saved (36.5 on the *Lantern*, from 39.5).
+- **Topping returns up to 3 shields:** worse. The pilot goes back more often, and 53% run out.
+
+The loss is not mainly on returns; it is mission 05's speed.
+
+**3. The loophole** (crashing the empty 4-seater at m00n to fly m00n and m01n in the 8-seater) **does not pay.** Experts save 68.1 against 68.0 playing straight, strong pilots 61.9 against 62.5. Average pilots save fewer (33.3 against 39.5), and 68% then run out of boats. A spare boat is worth more than the extra seats. No rule is needed against it.
+
+**4. The counts at the end** (two-return limit; with returns as needed in brackets)
+
+| | Expert | Strong | Average |
+|---|---|---|---|
+| On the *Lantern*, of 70 | 68.0 (68.9) | 62.5 (63.4) | 39.5 (39.0) |
+| Left behind | 1.8 (0.9) | 5.6 (4.7) | 18.9 (19.4) |
+| Dead | 0.2 | 2.5 | 12.8 |
+| Brought home from m06n, of 20 | 11.9 | 10.5 | 3.5 (6.0 of those who reach it) |
+| *Lantern* full after mission 03 (36) | 33% (72%) | 12% (28%) | 0% |
+| *Lantern* full after mission 05 (70) | 26% (66%) | 4% (12%) | 0% |
+
+Never going back saves about 44 for good pilots, so returns are worth about 20 people to them. Returns as often as needed change the people saved by less than one, but double how often the *Lantern* is full. The script's rare ending, nobody left behind, is reached by two in three expert stories with unlimited returns, and one in four with two. That is not rare for an expert.
+
+**5. Length:** 15 to 16 minutes of flight for expert and strong pilots with returns, at most about 20; 11 minutes without returns; 12 to 13 for average pilots, whose stories often end early. Stops and story screens are not counted.
+
+*"As often as needed" was flown with a cap of six returns per moon; no pilot came near it on a moon that still held people it could reach.*
+
+With gentler missions and unlimited returns (the owner's choice): on the *Lantern* 68.8 / 64.2 / 45.1 of 70, left behind 1.1 / 4.8 / 17.8, dead 0.3 / 1.7 / 10.3, home from m06n 11.9 / 10.7 / 3.9, the *Lantern* full after mission 05 in 66% / 15% / 0% of stories; at most about 19 minutes of flight.
+
+**What I would now propose**
+
+- **Missions 04 and 05 gentler in story:** **decided by the owner** ("yes, gentler missions 04 and 05"). Start them at mission 03's speed (1×) rather than 1.4× and 1.8×. That halves how often average captains run out (41% to 21%) and costs good pilots nothing. Mission 06 can stay at 2.2×: it is the optional, all-or-nothing one.
+- **Returns:** ~~at most two per moon~~ **decided by the owner: not limited** ("it's a risk assessment decision from a captain/pilot"). With gentler missions, a quarter of average captains then run out of boats (45% at arcade speeds).
+- **Average captains still run out one time in four, even with gentler missions.** If that is too often, the next lever is a fourth boat, or a boat lost only when it had people aboard. I have not measured either.
+
+The harness is in the repo on the owner's word, in `sim/story/`: `storySim.ts` holds the rules and the pilot, and `npm run sim:story` flies the decided rules (`SIM_RUNS` stories per pilot, 100 by default, about half a second each) and writes a summary to `sim/story/out/summary.md`. It is typechecked and linted with the game but does not ship and does not run with `npm test`. The *Lantern* lost on automatic (2 in 10, decided by the owner) is story chance outside the flight rules, so it is not in the harness.
+
+**What was not measured:**
+- people who park to dig wells
+- the stops and story screens
+- the ore kept (this pilot always drops it)
+- mission 06 at the proposed 2,000 pc
+- the *Lantern*'s crew question
 
 ## The name Lightboat
 
