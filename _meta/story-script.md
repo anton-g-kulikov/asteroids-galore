@@ -2,14 +2,23 @@
 
 **Spoilers, and a draft.** Written on 2026-11-22; this draft follows the Game Producer's review of the fourth, which the owner has read. This draft follows the owner's rules for story mode and the owner's account of the *Lantern* as a freighter, both of the same day and both in "Planned: story mode rules" in `game-design.md`. **This script is being built from.** The owner told the Game Engineer to start building story mode on 2026-11-22, with this file as the source of every line. A change to a line, a sender's name, the words of a choice or the table "When each moon is named" is a change to something being built: tell the Game Engineer when one is made. The frame is the "Story" section of the same notes.
 
-This is everything said in a first playthrough, in the order a player meets it. Nothing is said while flying: each block below is one screen, shown where the game has stopped.
+This is everything said in a story, in the order a player meets it. Nothing is said while flying: each block below is one screen, shown where the game has stopped.
 
 No line is longer than 42 characters: the Game Designer's measure for the story's screens, chosen by the owner. Lines that carry the callsign are checked with one of 22 characters; the longest the game makes today is 21, such as WANDERING TORTOISE 42. How the screens look is in "Planned: story mode screens" in `game-design.md`: the sender in capitals, lines in sentence case, a colour per voice, typed out one transmission at a time, with the chain of moons the captain has been told about along the top.
 
+## Editing this file
+
+The game reads this file when it is built, so the text here is the one copy of every line. From the Game Engineer, 2026-11-22:
+
+- **A transmission** is a run of `> ` lines that starts with `> **SENDER**`, with ` *(faint)*` after the name where it applies. It is filed under its `##` and `###` headings.
+- **Do not rename a heading, or reword the short paragraph that introduces a telling, without telling the Engineer first.** The game finds each telling by them: the paragraph before each of the two story-ending choices, the ones that begin a captain's answer to a choice, the two bold lines under "The commission", and the one for a boat that comes through empty. They are not repeated here, so that this note cannot be mistaken for one.
+- **The variants written in italics are copied into the code by hand,** not read from here: "If nobody was aboard", "If one boat is left", the "too" in "I've marked them too", "less three boats", and the "Full" line. Changing one needs a note to the Engineer.
+- **Tests check this file:** every line at most 42 characters, with two-digit counts and a 21-character callsign; every section present; and each moon named in order, by its speaker or by the ship's stand-in line.
+
 ## The story in six lines
 
-- The *Lantern* is a freighter hauling light0re home. It hears a distress call from a mined moon and diverts. Its captain is the Pilot.
-- The captain flies the ship's lightboats from the ship, never aboard them, moon after moon, learning at each one that there is another.
+- The *Lantern* is a freighter hauling light0re home. It is under way to Earth and cannot be stopped. It hears a distress call from a mined moon as it passes. Its captain is the Pilot.
+- The ship cannot stop, so the captain flies its lightboats from it, never aboard them, moon after moon, learning at each one that there is another.
 - After `m03n` the ship is full: people, and a hold of ore. Mission control says that is everyone, and another ship is coming.
 - The captain goes home with the ore and the commission, or drops the ore to make room for people nobody listed.
 - After `m05n` the ship can take no more. The captain takes it home, or sends it home alone on automatic, where it is lost one time in five, and stays with one boat for the last moon.
@@ -26,6 +35,9 @@ All from the Game Producer's review, and one rule from the owner.
 - **The second freighter** brings out some of everyone still there, not only the night shift.
 - **Mission 06 is flown once,** the owner's rule: "m06n has to be one-and-done run, no redos".
 - **Small things:** the children sleep under the chart table, not in a hold that is about to be opened to space.
+- **Added on 2026-11-22 for the build:** what the First signs as when they come from a later moon; what the ship says when a speaker is not aboard, so that every moon is still named in order; and how far the second freighter reaches.
+- **The *Lantern* cannot stop,** the owner's fact of 2026-11-22: "In fact, the Lantern is on it's way to Earth, we can't stop it. This is why the only way is to use lightboats". One line changes: in the briefing Control now says "Your ship can't stop. Fly a boat from it." in place of "Your ship can't go in." So the reason for the boats is said once, before the first flight. Nothing else said had the ship divert, wait or turn: "m01n in range" and "m06n is out of range of this ship" read as a ship passing, and "If you stay, this ship goes home alone" now has its reason, since the ship cannot wait for the captain.
+- **Checked against the orbit on 2026-11-22,** the owner's decision that a story flight is laps around the moon (in `game-design.md` under "The orbit"). A trip is still one flight out from the ship and back by a haul road, and it now holds as many laps as the captain flies. One line changed afterwards, when the owner confirmed that the wormhole comes round once a lap: on leaving `m02n` the First's "Nobody's keeping the timetable now." became "It keeps the timetable now.", said of the drill, since a road that opens on a steady beat is on a timetable. Nobody says "orbit": staying for another lap is flying, and nothing is said while flying. The figures quoted below from the Engineer's check (boats lost, people saved, minutes of flight) were measured before the orbit and will change when it is built.
 
 ## What this draft assumes
 
@@ -39,6 +51,8 @@ Where the rules are open, the script assumes an answer:
 | With no boat left the *Lantern* goes home, to the ending for where it is | [When the last boat is lost](#when-the-last-boat-is-lost) |
 | The Foreman is never among the saved | [Endings](#endings) |
 | `m06n` is out of the ship's range, which is why the last boat is flown from inside | [Leaving m05n](#leaving-m05n) |
+| A moon comes into range as the ship passes on, and the ship's course to Earth never brings `m06n` into range | "m01n in range"; [Leaving m05n](#leaving-m05n) |
+| Going back is not limited although the ship cannot stop: the haul roads carry the boat out and back wherever the ship is, and the story keeps no clock | No line says so. The First speaks of the haul roads on [Leaving m02n](#leaving-m02n) |
 
 ## Who speaks
 
@@ -48,13 +62,29 @@ The story is told in the first person. Nothing is said that the captain could no
 |---|---|
 | `CONTROL` | Mission control, on Earth: one person on the freight line's desk for the whole night. Tasks the rescue, answers for the cargo, and goes by the book |
 | `LANTERN` | The ship itself. It has no crew, only its captain (the owner's decision), so it speaks for itself. It reports boats, room and cargo, and never gives an opinion |
-| `SURVEYOR, m00n` | The First: the first person the captain brings aboard, who takes the radio and keeps the names. Here that is a surveyor from `m00n`. If the first person aboard comes from a later moon, these lines are theirs and they sign by their own job and moon |
+| `SURVEYOR, m00n` | The First: the first person the captain brings aboard, who takes the radio and keeps the names. Here that is a surveyor from `m00n`. If the first person aboard comes from a later moon, these lines are theirs and they sign as in [What the First signs as](#what-the-first-signs-as) |
 | `FOREMAN, m06n` | The night shift's foreman, heard faintly from mission 04 |
 | Anyone else | A survivor who speaks once, after the first trip to their moon |
 
-- **Until someone is aboard there is no First.** The ship then gives the count: "[N] signals still on m00n."
+- **Until someone is aboard there is no First.** The ship speaks in their place where it matters: see [When a speaker is not aboard](#when-a-speaker-is-not-aboard).
 - **Nobody speaks of a moon the captain has not been told about.** Each is learned from the moon before it.
 - `[CALLSIGN]` is the player's generated callsign. `[N]` is a number the game fills in.
+
+### What the First signs as
+
+The First is one person for the whole story, and is never the survivor who speaks once at the same moon. So each moon has two names:
+
+| The first person aboard comes from | The First signs as | The survivor who speaks once there |
+|---|---|---|
+| `m00n` | `SURVEYOR, m00n` | `SURVEY HAND, m00n` |
+| `m01n` | `RIG BOSS, m01n` | `RIG HAND, m01n` |
+| `m02n` | `TALLY CLERK, m02n` | `SHIFT HAND, m02n` |
+| `m03n` | `TEACHER, m03n` | `FROM THE TOWN, m03n` |
+| `m04n` | `CHARGE HAND, m04n` | `NIGHT SHIFT, m04n` |
+| `m05n` | `DRILL HAND, m05n` | `NIGHT SHIFT, m05n` |
+
+- **The First's opening block** is shown at the stop where they come aboard, whichever moon that is: "I know who works which moon. / Give me the radio and I'll keep the names. / [N] still on m0Xn."
+- **Every other line of the First's** is the same whoever they are. None of them depends on the First being a surveyor or coming from `m00n`.
 
 ## Before mission 00
 
@@ -62,7 +92,7 @@ The story is told in the first person. Nothing is said that the captain could no
 > You are the ship nearest a distress call.
 > A mined moon, m00n, has broken up.
 > There are people alive on the pieces.
-> Your ship can't go in. Fly a boat from it.
+> Your ship can't stop. Fly a boat from it.
 > Show them a light. Bring out all you can.
 
 The briefing is the one block longer than three lines.
@@ -144,7 +174,7 @@ The first choice of boat follows.
 > **SURVEYOR, m00n**
 > That's why the haul roads still open.
 > The drill opens them.
-> Nobody's keeping the timetable now.
+> It keeps the timetable now.
 
 > **LANTERN**
 > Cutting cargo light0re into shields.
@@ -286,7 +316,7 @@ Going home is the ending [Past the list](#past-the-list) or, with every place ta
 
 - *If one boat is left:* "One boat left. / It stays with you."
 
-The Lantern leaves, and mission 06 is flown with the captain aboard, once.
+The Lantern goes on to Earth without its captain, and mission 06 is flown with the captain aboard, once.
 
 ## The three choices
 
@@ -318,6 +348,24 @@ The top of every story screen is the chain of moons the captain has been told ab
 | `m05n` | The night shift | The stop at `m04n` |
 
 `m06n` is named early, as where the drill is, while `m04n` and `m05n` are still unknown. So from `m02n` to `m03n` the chain has a gap in it: the captain knows something is at the far end and not what lies between. The owner chose to show it: "Yes, show the gap". So this table decides what is drawn, and it has to stay exact: moving a line that names a moon moves the picture. It was checked against the lines on 2026-11-22.
+
+## When a speaker is not aboard
+
+A survivor speaks once, at the first stop where someone from their moon has come aboard. If the captain leaves a moon having brought nobody out of it, that survivor never speaks. And until someone is aboard at all, there is no First. The chain of moons still has to grow in the same order, so the ship speaks in their place wherever a moon is named or a count is given. The ship reports and does not explain.
+
+| What is missing | The ship says, signed `LANTERN` |
+|---|---|
+| The First's count at any stop | "[N] signals still on m0Xn." |
+| The survey hand, who names `m01n` | "New signals from m01n." |
+| The First at `m01n`, who names `m02n` | "[N] signals still on m01n. / New signals from m02n." |
+| The shift hand, who names `m06n` | "The pull comes from m06n." |
+| The First at the turn, who names `m04n` | "Signals from m04n. / The company's list has nobody there." |
+| The night shift at `m04n`, who names `m05n` | "New signals from m05n." |
+| The First before the last choice | "No other ship can reach m06n in time." |
+
+- **Where the ship names a moon for a survivor who never spoke,** it does so on the screen for leaving that moon.
+- **Every other block of a missing speaker is left out,** with nothing in its place: the First's lines on rig crews and the haul roads, the parting at `m05n`, and the First's block in each ending.
+- **With nobody aboard at all,** Control's counts in the endings read "Nobody came home with it" and "Nobody is coming home" in place of "[N] people".
 
 ## Blocks used at any moon from m00n to m05n
 
@@ -362,6 +410,8 @@ The captain is on the Lantern. The people aboard the boat die, and the boat is g
 
 The captain then chooses as after any trip. With three boats this screen is seen at most twice; the third loss is the block below.
 
+One odd case: when the boat is destroyed on the first trip to a moon, this screen is shown in place of that moon's first stop, so the First's line naming the next moon is never said. The ship then names it on leaving, with its stand-in line.
+
 ### When the last boat is lost
 
 Before mission 06, with no boat left to send. Under the rules as decided, the Engineer's check found this is how the story ends for one average captain in four, and almost never for strong ones. So it is written as an ending of its own.
@@ -382,6 +432,8 @@ The story goes to the ending [The empty rail](#the-empty-rail). If the ore is st
 > **LANTERN**
 > Boat back.
 > No one aboard.
+
+The ship's block stands in for the survivor's. When there is a First, their block for that stop still follows it: the count, and on the first stop at a moon the line that names the next one. The First keeps the names of who is still out whether or not the boat brought anyone back. Each moon's First block is said once: when someone from that moon comes aboard on a later trip, only the survivor speaks. Built this way by the Game Engineer on 2026-11-22.
 
 ## Endings
 
@@ -415,7 +467,9 @@ Then one of two tellings. Chance picks, not anything the captain did.
 > [N] of them. Not all.
 > I have their names now.
 
-Those still there are everyone the captain left: on `m00n` to `m03n`, and the night shift beyond. On the manifest every moon's row shows who that ship brought out.
+Those still there are everyone the captain left: on `m00n` to `m03n`, and the night shift beyond.
+
+How many it brings out: half of the people still on each moon from `m00n` to `m04n`, rounded up. It reaches nobody on `m05n` or `m06n`: two days on, those two are gone. The half is the Game Engineer's number and can be tuned. That its reach ends at `m04n` is the story's: it keeps "Not all" true, it is what "Two days is a long time out there" meant, and since the captain never went to `m04n` its sixteen are all still there, so the second freighter never comes back with nobody. On the manifest every moon's row shows who that ship brought out.
 
 **It came too late.** 40 times in 100.
 
