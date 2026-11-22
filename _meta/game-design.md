@@ -916,7 +916,8 @@ Besides the choices above:
 - **The script.** The fifth draft is waiting for the owner, who has not yet read the script itself. It is about 40 transmissions against 15 to 20 minutes of flying; the Producer judges that right for a story mode.
 - **A second playthrough.** Not written. With mission 06 flown once per story it carries more weight: what a returning captain is told.
 - ~~**Whether the manifest can be opened from the start screen.**~~ Decided by the owner on 2026-11-22: "Ending only". The lamps for endings already reached are seen only at an ending, so whatever a returning captain is told has to come from the story's own screens.
-- **Whether the chain of moons shows a gap.** `m06n` is named at `m02n`, before `m04n` and `m05n` are known. The Designer's to draw.
+- ~~**Whether the chain of moons shows a gap.**~~ Decided by the owner on 2026-11-22: "Yes, show the gap". From the stop at `m02n` until `m04n` and `m05n` are named, the chain shows `m06n` at the far end with nothing between. The script's table "When each moon is named" decides what is drawn and has to stay exact.
+- ~~**Whether the manifest keeps its eight lamps.**~~ Decided by the owner on 2026-11-22: "Keep the lamps". The game remembers across stories which endings have been reached, and nothing else. A second playthrough can rest on that and on nothing more.
 - ~~**How the lines look.**~~ Chosen by the owner on 2026-11-22: sentence case, typed out one transmission at a time, at most 42 characters a line.
 - **A sound for a transmission,** and whether the voices differ in sound. The Composer's to propose.
 - **The screens** are designed and chosen: see [Planned: story mode screens](#planned-story-mode-screens).
@@ -1061,20 +1062,19 @@ The producer's readings of the owner's words above, and the questions they raise
 
 - **The check's harness is kept in the repo,** on the owner's word, so the numbers can be flown again when a rule changes.
 
-### Not decided
+### Decided since, and what is left
 
-- **The numbers:** how many people each moon holds. The *Lantern*'s room follows from them: it is their total for `m00n` to `m05n`, so it cannot fill before the end of mission 05.
-- **A return flight:** how long it is, how fast, with what shields, and whether the Pilot can go back more than once.
-- **Going home after mission 03 and after mission 05.** Both are now ways to end the story without flying mission 06; how the two differ is the Writer's to propose.
-- **The boats:** whether a destroyed lightboat is one fewer for the rest of the story, and whether the choice of a bigger boat after missions 01 and 03 stays as in arcade.
-- **What the screen shows** with no score, and with nobody in the cockpit.
+Most of what this list once held is settled; it is kept so the trail is clear.
 
-These are rules and balance questions for the Game Engineer to propose and the owner to decide: see the proposal below.
+- **The numbers are confirmed by the owner** (2026-11-22, to the Game Designer: "the numbers are confirmed"): the people on each moon, 6, 7, 11, 12, 16, 18 and 20, and the *Lantern*'s 70 places, 36 with the ore aboard.
+- **Going back** is not limited, **the boats** are three with a lost one gone, and **the two ways home** have their endings: all decided above.
+- **What the screen shows** is in [Planned: story mode screens](#planned-story-mode-screens).
+- **Still the Engineer's proposal, not confirmed by name:** what a return flight is like (a third of the mission, at its closing speed, with the shields left), mission 06's length and when its way out opens, and which boat is ready when. The headless check was flown with them.
 
 
 ### The Engineer's proposal for the numbers (2026-11-22)
 
-**A proposal for the owner to decide on. Nothing is built, and arcade is not changed.** "Measured" means a headless run of today's arcade code (40 seeds per mission, a ship that can neither fill nor be destroyed, flown to each mission's target). Everything else is reasoning, or a guess where it says so. Nothing has been played.
+**A proposal for the owner to decide on; rows the owner has decided or confirmed are marked. Still a proposal: what a return flight is like (row 3), mission 06's length and when its way out opens (row 6), and which boat is ready when (row 5's rules). Nothing is built, and arcade is not changed.** "Measured" means a headless run of today's arcade code (40 seeds per mission, a ship that can neither fill nor be destroyed, flown to each mission's target). Everything else is reasoning, or a guess where it says so. Nothing has been played.
 
 **What today's game offers, measured.** People who appear in a mission before its target is reached:
 
@@ -1089,8 +1089,8 @@ So arcade's planetoids cannot simply be reused. Mission 00 offers only 2 people 
 
 | Question | Proposal | Why |
 |---|---|---|
-| 1. People on each moon | m00n 6, m01n 7, m02n 11, m03n 12, m04n 16, m05n 18, m06n 20 | Always more than the biggest boat that can be flown there (4, 4, 8, 8, 12, 12, 12), by 2 to 8, so every moon needs a second trip and later moons need it more. 70 people on m00n to m05n, 90 in all |
-| 2. The *Lantern*'s room | **Decided by the owner, 2026-11-22:** with its cargo of ore aboard, the people of m00n to m03n (36 with these counts); with the ore dropped, all six moons (70). ~~56~~ | 36 is exactly what the first four moons hold, so a captain who saved everyone is full after mission 03, as the owner's account has it |
+| 1. People on each moon | **Confirmed by the owner, 2026-11-22** ("the numbers are confirmed"): m00n 6, m01n 7, m02n 11, m03n 12, m04n 16, m05n 18, m06n 20 | Always more than the biggest boat that can be flown there (4, 4, 8, 8, 12, 12, 12), by 2 to 8, so every moon needs a second trip and later moons need it more. 70 people on m00n to m05n, 90 in all |
+| 2. The *Lantern*'s room | **Decided by the owner, and the numbers confirmed, 2026-11-22:** with its cargo of ore aboard, the people of m00n to m03n (36 with these counts); with the ore dropped, all six moons (70). ~~56~~ | 36 is exactly what the first four moons hold, so a captain who saved everyone is full after mission 03, as the owner's account has it |
 | 2b. The choice after mission 03 | **Proposed:** always put after mission 03, whatever the count: go home with the ore and those saved (an ending), or drop the ore and go on. There is no going on with the ore aboard. With the ore dropped, the *Lantern* can only fill when the last person on m05n is aboard, and then no more planetoids are sent | A fixed point is simpler than "when the hold fills": a captain who left people behind would otherwise carry a few free places into m04n, which holds 16, and never be asked. It also keeps the agreed choice of going home after mission 03 |
 | 3. A return flight | A third of the mission's target (m00n 170 pc, up to m05n 1,000 pc). It starts at the speed the trip ended at and keeps the shields the boat had left: no top-up, no shield drops. Only the moon's remaining people are dealt, on planetoids of 1 to 3, evenly over the flight. Up to **two returns per moon** | The stake is real: shields carried over from a hard trip make a return risky, and a boat destroyed there kills those aboard. Two returns let a careful player clear a moon, but each return spends shields the next moon could have used |
 | 4. The first trip | Deals the whole moon over the mission's length. A full boat is sent no more planetoids, so the people left are those the seats could not take plus those missed | No separate quota is needed: the moon's count and the seats decide it |
@@ -1258,12 +1258,29 @@ The screen that closes a story, where arcade shows the score. It was called the 
 
 ### The chain when a moon is named out of order
 
-The script's table "When each moon is named" has `m06n` named at the stop at `m02n`, before `m04n` and `m05n`. **Proposed; the owner's "ok" to the manifest may or may not cover it:** moons next to each other stand 24 apart on a solid line; a stretch the captain has not been told about is a longer, broken line (44) with no circles on it, so the chain shows that something lies between without showing how much. The stretch stays the same length when `m04n` is named and closes when `m05n` is. Drawn on the stop in section 04 of the artifact.
+The script's table "When each moon is named" has `m06n` named at the stop at `m02n`, before `m04n` and `m05n`. **Chosen by the owner on 2026-11-22 ("Yes, show the gap"):** moons next to each other stand 24 apart on a solid line; a stretch the captain has not been told about is a longer, broken line (44) with no circles on it, so the chain shows that something lies between without showing how much. The stretch stays the same length when `m04n` is named and closes when `m05n` is. Drawn on the stop in section 04 of the artifact.
+
+### A dev control for play testing
+
+Asked for by the owner on 2026-11-22 ("design a dev mode control to navigate story mode (for play testing)"). **Accepted by the owner the same day ("Yes, as drawn"); not built.** Drawn in section 11 of the artifact. A story takes fifteen to twenty minutes and mission 06 is flown once, so without it the later screens cannot be tested twice.
+
+- **It never looks like the game.** Amber (`#ff9a3c`) with dashed outlines, which no control in the game uses.
+- **Switching it on:** `?dev` in the address once (`?dev=off` to switch it off), or holding the version line at the foot of the start screen for three seconds, which also works in the installed app. It is remembered on that device. While it is on, the version line ends in `· DEV`.
+- **The tab:** a small `DEV` pill, 48 by 24, at the top centre of every story screen and of the flight, the one place free on all of them. A tap on it stops the game and opens the panel; in flight that tap does not steer.
+- **The panel** covers the field and has six parts, top to bottom:
+  - **Jump to:** the seven moons, and a place within the moon: `TRIP`, `AFTER TRIP` (the story's screen), `STOP`, `LEAVING`, `CHOICE` (only at `m03n` and `m05n`; dimmed elsewhere), `BOATS`.
+  - **State:** steppers for the people on the *Lantern*, still on the moon, and lost; the three boats, each present or lost; the ore, aboard or dropped.
+  - **This trip,** in place of State when opened in flight: steppers for the people aboard the boat and the shields, and `END TRIP`, `LOSE BOAT`, `TO WORMHOLE`.
+  - **Chance:** the second freighter and the *Lantern* sent home alone, each left to chance or forced either way, so both tellings can be seen on demand.
+  - **Show an ending:** the eight endings by name. One tap shows that ending and its manifest with the state as set.
+  - **Feel:** steppers for the typing speed and the hold time, so that 60 a second and 1.2 seconds can be tried and changed on a phone.
+  - `NEW STORY` and `GO` at the foot; `GO` applies the jump and closes the panel.
+- **Dev stories are kept apart** from the player's own story and never overwrite it, and the rule that mission 06 is flown once does not hold in them.
+- **A jump sets a state that could have happened:** jumping to a moon with nothing else set assumes every earlier moon was emptied and no boat lost. The steppers then change it.
+- **For the Engineer to decide:** whether the same jumps are also offered on `window.__game` for the automated checks, as `skipLevel()` is today.
 
 ### Open
 
-- **The gap in the moon chain** is still waiting for the owner's answer.
-- **The lamps on the manifest.** The owner's "Manifest is the part of the story ending, that's it" means nothing is kept between stories. Lamps for endings reached in earlier stories would need exactly that, so whether they stay is to be asked.
 - **The keys for the two entries** on a keyboard. The Engineer's to propose.
 - **The hold time and the typing speed** are to be seen before they are fixed: 1.2 seconds and 60 characters a second, both playable in the artifact (the owner: "1.2 and 60 – let's see them").
 - **A sound for a transmission, for the ring filling and for a choice made.** Asked of the Composer on 2026-11-22, on the owner's word.
@@ -1275,7 +1292,7 @@ The script's table "When each moon is named" has `m06n` named at the stop at `m0
 - **Arcade's cockpit stays blue.** The owner: "arcades cockpit is blue, the pilot is actually never there – that's the point of the arcade". Green is only for story mission 06.
 - **A tap on the start screen that misses both entries does nothing** ("missed tap doesn't do anything").
 - **The numbers are confirmed** ("the numbers are confirmed"): the people on each moon, and the *Lantern*'s 70 places, 36 with the ore. The manifest and the picture of the *Lantern* are drawn from them.
-- **The manifest keeps nothing between stories** ("between stories? Manifest is the part of the story ending, that's it").
+- **The manifest keeps nothing between stories except its lamps.** The owner first said "between stories? Manifest is the part of the story ending, that's it", and then, asked whether the lamps for endings reached in earlier stories stay, "Keep the lamps". So the game remembers which of the eight endings have been reached, and nothing else: no counts and no past manifests.
 - **The owner's read of the script does not block the design** ("I'll read it, that doesn't block our design").
 
 ## The name Lightboat

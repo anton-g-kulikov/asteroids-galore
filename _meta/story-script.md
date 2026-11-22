@@ -317,7 +317,7 @@ The top of every story screen is the chain of moons the captain has been told ab
 | `m04n` | The First | Leaving `m03n`, at the turn |
 | `m05n` | The night shift | The stop at `m04n` |
 
-`m06n` is named early, as where the drill is, while `m04n` and `m05n` are still unknown. So from `m02n` to `m03n` the chain has a gap in it: the captain knows something is at the far end and not what lies between. Whether the chain should show that gap is the Designer's to draw.
+`m06n` is named early, as where the drill is, while `m04n` and `m05n` are still unknown. So from `m02n` to `m03n` the chain has a gap in it: the captain knows something is at the far end and not what lies between. The owner chose to show it: "Yes, show the gap". So this table decides what is drawn, and it has to stay exact: moving a line that names a moon moves the picture. It was checked against the lines on 2026-11-22.
 
 ## Blocks used at any moon from m00n to m05n
 
@@ -576,7 +576,7 @@ The Game Designer sketched its form: a row per moon with a mark per person, thre
 
 - **`BY ANOTHER SHIP` and `MISSING` are two more counts than the sketch has.** They keep `ON EARTH` and `DEAD` true: the first for people the captain did not bring home, the second for people nobody can account for.
 - **The cargo line is the only place the commission is shown.** There is no score, so this is where it is recorded.
-- **Not written:** anything the manifest says across several stories, such as how many have been flown. It is shown only when a story ends: the owner's words are "Ending only", so there is no way into it from the start screen. A second playthrough cannot lean on the manifest being open beforehand.
+- **The lamps are kept, and nothing else.** The owner's words: "Keep the lamps". The game remembers across stories which endings have been reached, and no counts and no past manifests. So the one thing known about a returning captain is which endings they have reached, and the player sees that only when a story ends. It is shown only when a story ends: the owner's words are "Ending only", so there is no way into it from the start screen. A second playthrough cannot lean on the manifest being open beforehand.
 
 ## What to look at when reviewing
 
