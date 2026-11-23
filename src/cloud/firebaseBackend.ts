@@ -27,7 +27,7 @@ function endOf(get: (field: string) => unknown): RunEnd | null {
 
 /**
  * The Firebase side of the cloud. Document shapes are enforced by firestore.rules:
- * `runs/{id}` holds one finished run, which a share link points at; `users/{uid}` is the player's leaderboard
+ * `runs/{id}` holds one finished run, which a share link points at; `flights/{id}` one story flight, for the owner's data; `users/{uid}` is the player's leaderboard
  * entry: their callsign, best score and how that run ended. The board is a query over `users`.
  */
 export function createFirebaseBackend(config: CloudConfig): CloudBackend {
@@ -62,6 +62,11 @@ export function createFirebaseBackend(config: CloudConfig): CloudBackend {
         userId: uid, callsign, createdAt: serverTimestamp(), appVersion: __APP_VERSION__, ...run,
       })
       return ref.id
+    },
+    async saveFlight(uid, flight, callsign) {
+      await addDoc(collection(db, 'flights'), {
+        userId: uid, callsign, createdAt: serverTimestamp(), appVersion: __APP_VERSION__, ...flight,
+      })
     },
     async loadRun(runId) {
       const data = (await getDoc(doc(db, 'runs', runId))).data()

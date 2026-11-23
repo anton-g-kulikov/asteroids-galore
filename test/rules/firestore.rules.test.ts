@@ -183,3 +183,33 @@ test('RULES-12 a run may carry how its sound held up: each figure optional, whol
   await assertFails(setDoc(doc(db, 'runs/snd7'), run('ann', { audioStops: '1' })))
   await assertFails(setDoc(doc(db, 'runs/snd8'), run('ann', { audioGlitches: 3 })))                         // nothing else
 })
+
+const flight = (userId: string, over: Record<string, unknown> = {}) => ({
+  userId, callsign: 'COSMIC OTTER 42', createdAt: serverTimestamp(), appVersion: '0.5.1',
+  moon: 2, boat: 3, isReturn: true, picked: 5, destroyed: false, laps: 1, dev: false, durationSeconds: 74.2,
+  ...over,
+})
+
+test('RULES-13 a player can save a story flight of their own, with its frame rate and sound; nobody can read, change or list them', async () => {
+  const db = as('ann')
+  await assertSucceeds(setDoc(doc(db, 'flights/f1'), flight('ann', { fpsAvg: 58, fpsLow: 41, audioUnderruns: 3, audioUnderrunMs: 40, audioFirstUnderrun: 61, audioStops: 0 })))
+  await assertSucceeds(setDoc(doc(db, 'flights/f2'), flight('ann')))                                  // without the figures
+  await assertFails(setDoc(doc(db, 'flights/f3'), flight('bob')))                                     // someone else's
+  await assertFails(setDoc(doc(anon(), 'flights/f4'), flight('ann')))                                 // not signed in
+  await assertFails(getDoc(doc(db, 'flights/f1')))
+  await assertFails(getDocs(collection(db, 'flights')))
+  await assertFails(updateDoc(doc(db, 'flights/f1'), { picked: 9 }))
+  await assertFails(deleteDoc(doc(db, 'flights/f1')))
+})
+
+test('RULES-14 malformed story flights are refused', async () => {
+  const db = as('ann')
+  const bad: Record<string, unknown>[] = [
+    { moon: 7 }, { moon: -1 }, { boat: 0 }, { boat: 4 }, { isReturn: 'yes' }, { destroyed: 1 }, { dev: null },
+    { picked: 2.5 }, { laps: -1 }, { durationSeconds: -1 }, { durationSeconds: '74' },
+    { fpsAvg: 58 }, { audioUnderruns: 1.5 }, { audioStops: -1 }, { score: 10 }, { callsign: 'nobody' },
+  ]
+  for (const [i, over] of bad.entries()) await assertFails(setDoc(doc(db, `flights/bad${i}`), flight('ann', over)))
+  const noMoon = flight('ann'); delete (noMoon as Partial<typeof noMoon>).moon
+  await assertFails(setDoc(doc(db, 'flights/missing'), noMoon))
+})

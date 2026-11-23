@@ -70,10 +70,14 @@ const fps = createFpsSwitch(store)
 const frames = createFrameMeter()
 const runFrames = createRunFrames()   // the frame rate each run was flown at, saved with it
 // how the sound held up over each run: the browser's count of gaps in it, and stops a tap had to undo
-const runSound = createRunSound({
+const soundSource = {
   stats: () => (sound.context as (AudioContext & { playbackStats?: PlaybackStats }) | null)?.playbackStats ?? null,
   restarts: () => sound.restarts,
-})
+}
+const runSound = createRunSound(soundSource)
+// the same for each story flight, saved as its own record (src/story/flightRecord.ts)
+const flightFrames = createRunFrames(), flightSound = createRunSound(soundSource)
+let flightSeconds = 0
 let lastState = game.state
 document.addEventListener('visibilitychange', () => sound.setHidden(document.visibilityState === 'hidden'))
 window.addEventListener('pagehide', () => sound.setHidden(true))
@@ -159,7 +163,15 @@ let storyStore: Store | null = null
 try { storyStore = localStorage } catch { /* play without a saved story */ }
 let callsign = ''                               // until the cloud has signed in; with none the story says pilot or Captain
 cloud?.callsign().then(c => { if (c) callsign = c })
-const storyMode = createStoryMode({ game, store: storyStore, search: window.location?.search ?? '', callsign: () => callsign, onArcade: () => tryStart(game) })
+const storyMode = createStoryMode({
+  game, store: storyStore, search: window.location?.search ?? '', callsign: () => callsign, onArcade: () => tryStart(game),
+  flights: {
+    started() { flightFrames.start(); flightSound.start(); flightSeconds = 0 },
+    ended(f) {
+      void cloud?.submitFlight({ ...f, durationSeconds: Math.round(flightSeconds * 10) / 10, ...flightFrames.result(), ...flightSound.result() })
+    },
+  },
+})
 
 // Opened from a share link: show that run on the start screen.
 const sharedId = shareIdFromPath(window.location?.pathname ?? '/')
@@ -250,6 +262,11 @@ function frame(now: number) {
     frames.frame(raw)
     runFrames.frame(raw, game.state === 'launch' || game.state === 'play')
     runSound.frame(raw)
+    if (storyMode.flying) {                      // a story flight in the air: its own count
+      flightFrames.frame(raw, game.state === 'launch' || game.state === 'play')
+      flightSound.frame(raw)
+      flightSeconds += raw
+    }
   }
   let dt = Math.min(0.25, raw)                   // clamp: no jumps after tab switch
   last = now

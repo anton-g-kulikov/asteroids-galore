@@ -36,3 +36,15 @@ test('SND-RUN-02 a browser that counts no gaps saves only the stops; a sound sta
   seconds(q, 2)
   expect(q.result()).toEqual({ audioUnderruns: 2, audioUnderrunMs: 50, audioFirstUnderrun: 7, audioStops: 0 })
 })
+
+test('SND-RUN-03 the browser\'s totals are read through its getters, and figures that are not numbers are left out', () => {
+  class Stats { get underrunEvents() { return n } get underrunDuration() { return n / 100 } }   // as Chrome's: getters, nothing of its own
+  let n = 2
+  const r = createRunSound({ stats: () => new Stats(), restarts: () => 0 })
+  r.start(); for (let i = 0; i < 120; i++) r.frame(1 / 60)
+  n = 5
+  expect(r.result()).toEqual({ audioUnderruns: 3, audioUnderrunMs: 30, audioFirstUnderrun: 2, audioStops: 0 })
+  const odd = createRunSound({ stats: () => ({ underrunEvents: NaN, underrunDuration: 0 }), restarts: () => 0 })
+  odd.start()
+  expect(odd.result()).toEqual({ audioStops: 0 })
+})

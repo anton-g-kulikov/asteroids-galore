@@ -4,6 +4,7 @@ import { createRecords } from '../../src/game/records'
 import { update } from '../../src/game/simulation'
 import { STEP } from '../../src/game/tuning'
 import { createStoryMode } from '../../src/storyMode'
+import type { StoryFlightEnd } from '../../src/story/flightRecord'
 import type { StoryState } from '../../src/story/story'
 import type { StoryScreenView } from '../../src/story/view'
 
@@ -15,7 +16,11 @@ function store() {
 // The page's frame, as main.ts runs it: story first, the game's steps unless story holds it, then story again.
 function page() {
   const g = createGame(createRecords(null))
-  const sm = createStoryMode({ game: g, store: store(), search: '?dev', callsign: () => 'COSMIC OTTER 42', onArcade: () => {} })
+  const flights: (StoryFlightEnd | 'started')[] = []
+  const sm = createStoryMode({
+    game: g, store: store(), search: '?dev', callsign: () => 'COSMIC OTTER 42', onArcade: () => {},
+    flights: { started: () => void flights.push('started'), ended: f => void flights.push(f) },
+  })
   const frame = () => { sm.beforeSteps(STEP); if (!sm.holdsGame) { g.events.length = 0; update(g, STEP, 0) } sm.afterSteps() }
   const frames = (seconds: number) => { for (let i = 0; i < seconds * 60; i++) frame() }
   const press = (key: string) => { sm.key(key, true, false); sm.key(key, false, false) }
@@ -24,7 +29,7 @@ function page() {
   const readOn = () => { for (let i = 0; i < 30 && !(sm.debug.screen() as StoryScreenView | null)?.choice && sm.debug.mode() === 'screen'; i++) { press(' '); frame() } }
   const st = () => sm.debug.state() as StoryState
   const scr = () => sm.debug.screen() as StoryScreenView | null
-  return { g, sm, frame, frames, press, hold, readOn, st, scr }
+  return { g, sm, frame, frames, press, hold, readOn, st, scr, flights }
 }
 
 test('STORY-P01 going back after a flight starts the next flight: a choice held to its end never ends a flight that has not begun', () => {
@@ -60,4 +65,23 @@ test('STORY-P02 after a lost boat, the boat picked to go back flies: it is not l
   hold('ArrowRight')                                                  // the twelve
   frames(1.5)
   expect([sm.debug.mode(), g.state, st().boats, st().boat]).toEqual(['flight', 'play', ['lost', 'ready', 'ready'], 3])
+})
+
+test('STORY-P03 each flight is reported as it takes off and as it ends, once each, with how it went', () => {
+  const { g, sm, frames, press, hold, readOn, flights } = page()
+  press('ArrowRight'); readOn(); hold('ArrowLeft')                    // the four, to m00n
+  frames(3)
+  expect(flights).toEqual(['started'])
+  g.onboard = 2
+  g.wormhole = { x: g.ship.x, y: g.ship.y, r: 30 }
+  frames(0.5)
+  expect(flights).toEqual(['started', { moon: 0, boat: 1, isReturn: false, picked: 2, destroyed: false, laps: 0, dev: true }])
+  readOn(); press(' '); readOn()
+  hold('ArrowLeft')                                                   // GO BACK
+  frames(3)
+  g.shields = 0; g.grace = 0; g.invincible = false
+  g.asteroids.push({ x: g.ship.x, y: g.ship.y, r: 20, shape: [1], craters: [], vx: 0, vy: 0, rot: 0, spin: 0, shade: 0, gy: 0, people: 0 })
+  frames(0.5)
+  expect(flights.slice(2)).toEqual(['started', { moon: 0, boat: 1, isReturn: true, picked: 0, destroyed: true, laps: 0, dev: true }])
+  expect(sm.debug.mode()).toBe('screen')
 })

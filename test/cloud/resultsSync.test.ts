@@ -20,6 +20,7 @@ function setup(localBest = 0, remote: number | null = null) {
     loadBest: vi.fn(async () => remote === null ? null : { best: remote, end: HOME }),
     saveBest: vi.fn<CloudBackend['saveBest']>(async () => {}),
     saveRun: vi.fn<CloudBackend['saveRun']>(async () => 'run-1'),
+    saveFlight: vi.fn<CloudBackend['saveFlight']>(async () => {}),
     loadRun: vi.fn<CloudBackend['loadRun']>(async () => SHARED),
     loadBoard: vi.fn(async () => [{ uid: 'other', callsign: 'OTHER PILOT 01', value: 120, end: HOME }]),
     countAbove: vi.fn(async () => 0),
@@ -146,4 +147,16 @@ test('SYNC-12 a shared run is loaded by ID; missing or failing gives null', asyn
   await expect(sync.loadShared('gone')).resolves.toBeNull()
   t.backend.loadRun.mockRejectedValueOnce(new Error('offline'))
   await expect(sync.loadShared('abc')).resolves.toBeNull()
+})
+
+test('SYNC-13 a story flight is saved under the player\'s callsign; a failed save is logged and does not throw', async () => {
+  const t = setup()
+  const sync = t.start()
+  const flight = { moon: 2, boat: 3, isReturn: true, picked: 5, destroyed: false, laps: 1, dev: false, durationSeconds: 74.2, fpsAvg: 58, fpsLow: 41, audioUnderruns: 3, audioUnderrunMs: 40, audioFirstUnderrun: 61, audioStops: 0 }
+  await expect(sync.submitFlight(flight)).resolves.toBe(true)
+  expect(t.backend.saveFlight).toHaveBeenCalledWith('uid-1', flight, ME)
+  expect(t.backend.saveRun).not.toHaveBeenCalled()                   // not a run: no board, no best
+  t.backend.saveFlight.mockRejectedValueOnce(new Error('denied'))
+  await expect(sync.submitFlight(flight)).resolves.toBe(false)
+  expect(t.log).toHaveBeenCalled()
 })

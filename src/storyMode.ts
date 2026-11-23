@@ -2,6 +2,7 @@
 // start screen's two entries, taps, holds and keys on story screens, starting each flight and
 // catching its end, and drawing. The story itself is in src/story; the drawing in src/render/story.
 
+import type { StoryFlightEnd } from './story/flightRecord'
 import { setState } from './game/game'
 import { orbitAt, startStoryTrip, storyTripResult } from './game/simulation'
 import type { Game } from './game/types'
@@ -63,7 +64,10 @@ export interface StoryMode {
   readonly debug: { mode(): string; state(): unknown; screen(): unknown; endTrip(picked: number, destroyed?: boolean): void; devAt(x: number, y: number): string | null; dev(): unknown }
 }
 
-export function createStoryMode(o: { game: Game; store: Store | null; search: string; callsign: () => string; onArcade: () => void }): StoryMode {
+/** Told when a story flight takes off and when it ends, for the record saved of each (see flightRecord.ts). */
+export interface FlightWatcher { started(): void; ended(f: StoryFlightEnd): void }
+
+export function createStoryMode(o: { game: Game; store: Store | null; search: string; callsign: () => string; onArcade: () => void; flights?: FlightWatcher }): StoryMode {
   const g = o.game
   let enabled = readDevSwitch(o.store, o.search)
   let story: StoryController | null = null
@@ -79,6 +83,12 @@ export function createStoryMode(o: { game: Game; store: Store | null; search: st
     return story?.state.moon === 6 ? (forced === 'yes' ? 0.99 : 0) : (forced === 'yes' ? 0 : 0.99)
   }
 
+  /** Every end of a flight goes through here: the record of it first, then the story. */
+  const endTrip = (r: { picked: number; destroyed: boolean; shieldsLeft: number }) => {
+    if (story?.mode !== 'flight') return
+    o.flights?.ended({ moon: g.level - 1, boat: g.shipType, isReturn: !!pending?.isReturn, picked: r.picked, destroyed: r.destroyed, laps: orbitAt(g).laps, dev: enabled })
+    story.tripEnded(r)
+  }
   const start = () => {
     story = createStoryController({ store: o.store, callsign: o.callsign, rand })
     g.stateTime = 0
@@ -106,7 +116,7 @@ export function createStoryMode(o: { game: Game; store: Store | null; search: st
       case 'go': startDev(jumpState(dev.moon, dev.place, dev.set), dev.place === 'afterTrip'); break
       case 'newStory': startDev(newStory()); break
       case 'endTrip': case 'loseBoat':
-        if (story?.mode === 'flight') { story.tripEnded({ picked: g.onboard, destroyed: name === 'loseBoat', shieldsLeft: g.shields }); g.story = null; setState(g, 'between') }
+        if (story?.mode === 'flight') { endTrip({ picked: g.onboard, destroyed: name === 'loseBoat', shieldsLeft: g.shields }); g.story = null; setState(g, 'between') }
         panel = null; break
       case 'toWormhole': if (story?.mode === 'flight') g.wormhole = { x: g.ship.x, y: g.ship.y - 90, r: 30 }; panel = null; break
       case 'moon': dev.moon = Number(arg) as MoonIndex; dev.set = defaultsFor(dev.moon); if (!placesAt(dev.moon).includes(dev.place)) dev.place = 'trip'; break
@@ -182,7 +192,7 @@ export function createStoryMode(o: { game: Game; store: Store | null; search: st
       if (panel) return                                                       // the dev panel holds everything
       if (story.mode === 'flight') {
         const t = story.takeTrip()
-        if (t && t !== pending) { pending = t; startStoryTrip(g, t) }
+        if (t && t !== pending) { pending = t; startStoryTrip(g, t); o.flights?.started() }
       } else {
         pending = null
         story.tick(dt)
@@ -194,7 +204,7 @@ export function createStoryMode(o: { game: Game; store: Store | null; search: st
       // only a flight that has started can end: a hold that chose to fly in this frame's tick has not started one yet,
       // and the game still shows how the last flight ended
       if (story?.mode !== 'flight' || !g.story || !pending) return
-      if (g.state === 'between' || g.state === 'over' || g.state === 'won') story.tripEnded(storyTripResult(g))
+      if (g.state === 'between' || g.state === 'over' || g.state === 'won') endTrip(storyTripResult(g))
     },
     draw(ctx) {
       if (!isScreen()) return false
@@ -239,7 +249,7 @@ export function createStoryMode(o: { game: Game; store: Store | null; search: st
       dev: () => ({ open: !!panel, ...dev }),
       endTrip(picked, destroyed = false) {
         if (story?.mode !== 'flight') return
-        story.tripEnded({ picked, destroyed, shieldsLeft: g.shields })
+        endTrip({ picked, destroyed, shieldsLeft: g.shields })
         g.story = null; setState(g, 'between')
       },
     },

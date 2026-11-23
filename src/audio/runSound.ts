@@ -42,10 +42,13 @@ export function createRunSound(source: SoundSource): RunSound {
   let time = 0, sinceLook = 0, first: number | null = null
 
   // a context that starts mid-run (the first tap) counts from when its totals first appear
-  const look = () => {
-    const s = source.stats()
-    if (!s) return null
-    if (!from) from = { ...s }
+  const look = (): PlaybackStats | null => {
+    const raw = source.stats()
+    if (!raw) return null
+    // read one by one: the browser's object keeps them on getters, which a spread would not copy
+    const s = { underrunEvents: Number(raw.underrunEvents), underrunDuration: Number(raw.underrunDuration) }
+    if (!Number.isFinite(s.underrunEvents) || !Number.isFinite(s.underrunDuration)) return null
+    if (!from) from = s
     if (first === null && s.underrunEvents > from.underrunEvents) first = time
     return s
   }

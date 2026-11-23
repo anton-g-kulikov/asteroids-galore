@@ -1,5 +1,6 @@
 import type { Records } from '../game/records'
 import type { RunResult } from '../game/runSummary'
+import type { StoryFlightRecord } from '../story/flightRecord'
 import type { BoardRow, SharedRun } from '../game/types'
 import { readFirebaseConfig } from './config'
 
@@ -9,6 +10,8 @@ export interface Cloud {
    * is saved, or null if it could not be. Never rejects.
    */
   submit(run: RunResult): Promise<string | null>
+  /** Saves the record of a story flight in the background; true once saved. Never rejects. */
+  submitFlight(flight: StoryFlightRecord): Promise<boolean>
   /** The run behind a share link, or null. Never rejects. */
   loadShared(runId: string): Promise<SharedRun | null>
   /** The player's callsign once signed in, or null. Never rejects. */
@@ -30,6 +33,7 @@ export function startCloud(records: Records, onBoard: (rows: BoardRow[]) => void
 
   return {
     submit: run => sync.then(s => s?.submit(run) ?? null),
+    submitFlight: flight => sync.then(s => s?.submitFlight(flight) ?? false),
     loadShared: runId => sync.then(s => s?.loadShared(runId) ?? null),
     callsign: () => sync.then(s => s?.callsign() ?? null),
   }

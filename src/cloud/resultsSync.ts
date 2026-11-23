@@ -1,5 +1,6 @@
 import type { Records } from '../game/records'
 import type { RunResult } from '../game/runSummary'
+import type { StoryFlightRecord } from '../story/flightRecord'
 import type { BoardRow, RunEnd, SharedRun } from '../game/types'
 import { callsignFor } from './callsign'
 import { BOARD_SIZE, boardRows, type BoardEntry } from './leaderboard'
@@ -14,6 +15,8 @@ export interface CloudBackend {
   saveBest(uid: string, best: number, end: RunEnd, callsign: string): Promise<void>
   /** Saves a finished run under the player's callsign and resolves with the new run's ID. */
   saveRun(uid: string, run: RunResult, callsign: string): Promise<string>
+  /** Saves the record of a story flight under the player's callsign. */
+  saveFlight(uid: string, flight: StoryFlightRecord, callsign: string): Promise<void>
   /** A run by its ID, for a share link; null when there is no such run. */
   loadRun(runId: string): Promise<SharedRun | null>
   /** The `limit` highest entries of the board, best first. */
@@ -31,6 +34,8 @@ export interface ResultsSync {
    * needs), or null if saving failed. Never rejects.
    */
   submit(run: RunResult): Promise<string | null>
+  /** Saves the record of a story flight in the background. Resolves true once saved, false if it could not be. Never rejects. */
+  submitFlight(flight: StoryFlightRecord): Promise<boolean>
   /** The run behind a share link, or null if it cannot be had. Never rejects. */
   loadShared(runId: string): Promise<SharedRun | null>
   /** The player's callsign once signed in, or null if sign-in failed. Never rejects. */
@@ -103,6 +108,17 @@ export function createResultsSync(backend: CloudBackend, records: Records, optio
       } catch (error) {
         log('Saving the run failed', error)
         return null
+      }
+    },
+    async submitFlight(flight) {
+      try {
+        await ready
+        const id = await signIn()
+        await backend.saveFlight(id, flight, callsignFor(id))
+        return true
+      } catch (error) {
+        log('Saving the story flight failed', error)
+        return false
       }
     },
     async loadShared(runId) {
