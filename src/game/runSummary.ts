@@ -19,6 +19,11 @@ export interface RunResult extends RunEnd {
   /** Frames the screen drew per second in flight: the average, and the slowest whole second. Added by the page (src/fps/runFrames.ts), not the simulation. */
   fpsAvg?: number
   fpsLow?: number
+  /** How the sound held up: added by the page (src/audio/runSound.ts), not the simulation. */
+  audioUnderruns?: number
+  audioUnderrunMs?: number
+  audioFirstUnderrun?: number
+  audioStops?: number
 }
 
 /** How the run ended: what the board shows beside its score. */

@@ -171,3 +171,15 @@ test('RULES-11 a run may carry its frame rate: both or neither, whole numbers fr
   await assertFails(setDoc(doc(db, 'runs/fps7'), run('ann', { fpsAvg: 2000, fpsLow: 41 })))
   await assertFails(setDoc(doc(db, 'runs/fps8'), run('ann', { fpsAvg: '58', fpsLow: 41 })))
 })
+
+test('RULES-12 a run may carry how its sound held up: each figure optional, whole numbers in range', async () => {
+  const db = as('ann')
+  await assertSucceeds(setDoc(doc(db, 'runs/snd1'), run('ann', { audioUnderruns: 14, audioUnderrunMs: 320, audioFirstUnderrun: 95, audioStops: 1 })))
+  await assertSucceeds(setDoc(doc(db, 'runs/snd2'), run('ann', { audioStops: 0 })))                       // a browser that counts no gaps
+  await assertSucceeds(setDoc(doc(db, 'runs/snd3'), run('ann', { fpsAvg: 58, fpsLow: 41, audioUnderruns: 0, audioUnderrunMs: 0, audioStops: 0 })))
+  await assertFails(setDoc(doc(db, 'runs/snd4'), run('ann', { audioUnderruns: 1.5 })))                      // whole numbers
+  await assertFails(setDoc(doc(db, 'runs/snd5'), run('ann', { audioUnderrunMs: -1 })))
+  await assertFails(setDoc(doc(db, 'runs/snd6'), run('ann', { audioFirstUnderrun: 100000 })))
+  await assertFails(setDoc(doc(db, 'runs/snd7'), run('ann', { audioStops: '1' })))
+  await assertFails(setDoc(doc(db, 'runs/snd8'), run('ann', { audioGlitches: 3 })))                         // nothing else
+})

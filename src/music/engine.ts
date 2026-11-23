@@ -1,5 +1,6 @@
 import * as Tone from 'tone'
 import type { MusicEngine } from './conductor'
+import { useGameContext } from './toneContext'
 import {
   INSTRUMENTS as I, LAYERS, MELODY_LENGTH, MUSIC, SEND, controlFor, createControlTracker, endBassStep, createSequencer,
   type LayerId, type LeadFx, type Mode, type Note, type Ramp, type Sequencer,
@@ -14,7 +15,7 @@ import {
 export interface MusicInspector { transport: string; bpm: number; tempoEvents: number; context: string }
 
 export function createMusicEngine(context: AudioContext): MusicEngine & { inspect(): MusicInspector } {
-  Tone.setContext(context)
+  useGameContext(context)
   const T = Tone.getTransport()
 
   // music → fade → low-pass (slow motion) → limiter → the music switch → speakers

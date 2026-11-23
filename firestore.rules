@@ -34,7 +34,7 @@ service cloud.firestore {
       allow create: if signedInAs(request.resource.data.userId) && validRun(request.resource.data);
 
       function validRun(run) {
-        return run.keys().hasOnly(['userId', 'callsign', 'createdAt', 'appVersion', 'outcome', 'score', 'distance', 'level', 'finalDistance', 'saved', 'lost', 'missed', 'durationSeconds', 'ship', 'ships', 'fpsAvg', 'fpsLow'])
+        return run.keys().hasOnly(['userId', 'callsign', 'createdAt', 'appVersion', 'outcome', 'score', 'distance', 'level', 'finalDistance', 'saved', 'lost', 'missed', 'durationSeconds', 'ship', 'ships', 'fpsAvg', 'fpsLow', 'audioUnderruns', 'audioUnderrunMs', 'audioFirstUnderrun', 'audioStops'])
           && run.keys().hasAll(['userId', 'callsign', 'createdAt', 'appVersion', 'outcome', 'score', 'distance', 'level', 'finalDistance', 'saved', 'lost', 'missed', 'durationSeconds', 'ship', 'ships'])
           && run.createdAt == request.time
           && validCallsign(run.callsign)
@@ -63,7 +63,12 @@ service cloud.firestore {
           // client from before them still saves.
           && (run.keys().hasAll(['fpsAvg', 'fpsLow'])
               ? wholeNumber(run.fpsAvg, 0, 1000) && wholeNumber(run.fpsLow, 0, 1000)
-              : !run.keys().hasAny(['fpsAvg', 'fpsLow']));
+              : !run.keys().hasAny(['fpsAvg', 'fpsLow']))
+          // How the sound held up (src/audio/runSound.ts): each one optional, since a browser may not count gaps.
+          && (!run.keys().hasAny(['audioUnderruns']) || wholeNumber(run.audioUnderruns, 0, 1000000))
+          && (!run.keys().hasAny(['audioUnderrunMs']) || wholeNumber(run.audioUnderrunMs, 0, 86400000))
+          && (!run.keys().hasAny(['audioFirstUnderrun']) || wholeNumber(run.audioFirstUnderrun, 0, 86400))
+          && (!run.keys().hasAny(['audioStops']) || wholeNumber(run.audioStops, 0, 10000));
       }
     }
 

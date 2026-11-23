@@ -11,7 +11,13 @@ import type { Synth } from './synth'
 export const MUTE_KEY = 'asteroids-galore-muted'
 
 /** The audio output, made on the first tap or key; null where the browser has none. */
-export interface Audio { synth: Synth; resume(): void; suspend(): void; /** The browser's audio context, shared with the music. */ context?: AudioContext }
+export interface Audio {
+  synth: Synth; resume(): void; suspend(): void
+  /** The browser's audio context, shared with the music. */
+  context?: AudioContext
+  /** True when something other than the game has stopped the audio (the phone, the browser). */
+  stopped?(): boolean
+}
 
 /** The v2 sound effects, played by Tone.js once it has loaded (src/music/effects.ts). */
 export interface EffectsOut {
@@ -32,8 +38,14 @@ export interface SoundPlayer {
   readonly muted: boolean
   /** The audio context once the first tap or key has started it; the music plays through it too. */
   readonly context: AudioContext | null
-  /** Starts the audio. Browsers allow it only from a tap or a key, so call it from those. */
+  /**
+   * Starts the audio. Browsers allow it only from a tap or a key, so call it from those. After that
+   * every tap or key checks it is still running: the phone can stop it while the page is on screen,
+   * and nothing else would start it again.
+   */
   unlock(): void
+  /** How many times a tap or key found the audio stopped and started it again. */
+  readonly restarts: number
   toggleMute(): void
   /** The page was left (true) or came back (false). */
   setHidden(hidden: boolean): void
@@ -61,6 +73,7 @@ export function createSoundPlayer(deps: PlayerDeps): SoundPlayer {
   let muted = false
   try { muted = deps.storage?.getItem(MUTE_KEY) === '1' } catch { /* storage blocked: sound on */ }
   let audio: Audio | null = null, started = false
+  let hidden = false, restarts = 0
   let pulseIn = 0
   let fx: EffectsOut | null = null, chordNow = () => 0
 
@@ -74,8 +87,12 @@ export function createSoundPlayer(deps: PlayerDeps): SoundPlayer {
   return {
     get muted() { return muted },
     get context() { return audio?.context ?? null },
+    get restarts() { return restarts },
     unlock() {
-      if (started) return
+      if (started) {
+        if (audio && !hidden && !muted && audio.stopped?.()) { restarts++; audio.resume() }
+        return
+      }
       started = true
       audio = deps.createAudio()
       audio?.resume()
@@ -84,11 +101,13 @@ export function createSoundPlayer(deps: PlayerDeps): SoundPlayer {
       muted = !muted
       try { deps.storage?.setItem(MUTE_KEY, muted ? '1' : '0') } catch { /* kept for this visit only */ }
       if (!audio) return
-      if (muted) { audio.synth.stopAll(); fx?.stopAll() }
-      else if (fx) fx.play(scoredFor({ kind: 'choice', ship: 1 }, chordNow(), 0))   // the player hears that sound is on
+      if (muted) { audio.synth.stopAll(); fx?.stopAll(); return }
+      if (!hidden) audio.resume()   // left suspended if the page was hidden while muted
+      if (fx) fx.play(scoredFor({ kind: 'choice', ship: 1 }, chordNow(), 0))   // the player hears that sound is on
       else audio.synth.play('click', { pitch: 1, gain: 1, delay: 0 })
     },
-    setHidden(hidden) {
+    setHidden(h) {
+      hidden = h
       if (!audio) return
       if (hidden) audio.suspend()
       else if (!muted) audio.resume()

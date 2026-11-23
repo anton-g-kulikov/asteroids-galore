@@ -10,19 +10,21 @@ function setup(stored: Record<string, string> = {}) {
   const played: { sound: string; pitch: number; gain: number }[] = []
   const log: string[] = []
   let contexts = 0
+  let stopped = false   // the phone has stopped the audio
   const deps: PlayerDeps = {
     storage: { getItem: k => data.get(k) ?? null, setItem: (k, v) => void data.set(k, v) },
     createAudio: () => {
       contexts++
       return {
         synth: { play: (sound, o) => void played.push({ sound, pitch: o.pitch, gain: o.gain }), stopAll: () => void log.push('stopAll') },
-        resume: () => void log.push('resume'),
+        resume: () => { log.push('resume'); stopped = false },
         suspend: () => void log.push('suspend'),
+        stopped: () => stopped,
       }
     },
   }
   const g = createGame(createRecords(null))
-  return { player: createSoundPlayer(deps), played, log, data, g, contexts: () => contexts }
+  return { player: createSoundPlayer(deps), played, log, data, g, contexts: () => contexts, stop: () => { stopped = true } }
 }
 
 const frame = (t: ReturnType<typeof setup>, g: Game = t.g, dt = 1 / 60) => t.player.frame(g, dt)
@@ -199,4 +201,25 @@ test('SFX-S04 story screens sound only with the soundtrack\'s instruments loaded
   log.length = 0
   t.player.story({ kind: 'lamp' }, 1.2)
   expect(log).toEqual([])
+})
+
+test('AUD-08 a tap or key finds the audio stopped by the phone and starts it again, unless the page is hidden or muted; each restart is counted', () => {
+  const t = setup()
+  t.player.unlock(); t.log.length = 0
+  t.player.unlock()
+  expect([t.log, t.player.restarts]).toEqual([[], 0])            // running: nothing to do
+  t.stop()
+  t.player.unlock()
+  expect([t.log, t.player.restarts]).toEqual([['resume'], 1])
+  t.player.unlock()
+  expect(t.player.restarts).toBe(1)                               // running again
+  t.stop(); t.player.setHidden(true); t.log.length = 0
+  t.player.unlock()
+  expect(t.log).toEqual([])                                       // hidden: the page coming back resumes it
+  t.player.setHidden(false); t.player.toggleMute(); t.stop(); t.log.length = 0
+  t.player.unlock()
+  expect(t.log).toEqual([])                                       // muted: it stays quiet
+  t.player.toggleMute()
+  expect(t.log).toContain('resume')                               // switching the sound on starts it again
+  expect(t.player.restarts).toBe(1)
 })

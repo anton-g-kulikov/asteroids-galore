@@ -6,6 +6,7 @@ import { createWebAudio, hasWebAudio } from './audio/webAudio'
 import { drawFpsButton, drawFpsReading, onFpsButton, showsFpsButton } from './fps/fpsButton'
 import { createFpsSwitch, createFrameMeter } from './fps/meter'
 import { createRunFrames } from './fps/runFrames'
+import { createRunSound, type PlaybackStats } from './audio/runSound'
 import { createConductor } from './music/conductor'
 import { drawMusicButton, onMusicButton, showsMusicButton } from './music/musicButton'
 import { startCloud } from './cloud'
@@ -68,6 +69,11 @@ function loadMusic() {
 const fps = createFpsSwitch(store)
 const frames = createFrameMeter()
 const runFrames = createRunFrames()   // the frame rate each run was flown at, saved with it
+// how the sound held up over each run: the browser's count of gaps in it, and stops a tap had to undo
+const runSound = createRunSound({
+  stats: () => (sound.context as (AudioContext & { playbackStats?: PlaybackStats }) | null)?.playbackStats ?? null,
+  restarts: () => sound.restarts,
+})
 let lastState = game.state
 document.addEventListener('visibilitychange', () => sound.setHidden(document.visibilityState === 'hidden'))
 window.addEventListener('pagehide', () => sound.setHidden(true))
@@ -108,7 +114,7 @@ let runCount = 0
 let sharePointer: number | null = null
 
 function runEnded() {
-  const run = lastRun = { ...runSummary(game), ...runFrames.result() }
+  const run = lastRun = { ...runSummary(game), ...runFrames.result(), ...runSound.result() }
   const mine = ++runCount
   lastRunId = null
   game.shareReady = false
@@ -243,6 +249,7 @@ function frame(now: number) {
   if (raw < 1) {                                 // a frame actually drawn; a long gap is the tab coming back, not a stutter
     frames.frame(raw)
     runFrames.frame(raw, game.state === 'launch' || game.state === 'play')
+    runSound.frame(raw)
   }
   let dt = Math.min(0.25, raw)                   // clamp: no jumps after tab switch
   last = now
@@ -253,7 +260,7 @@ function frame(now: number) {
   if (storyMode.holdsGame) owed = 0
   while (owed >= STEP - 1e-9) { owed -= STEP; step() }
   storyMode.afterSteps()
-  if (game.state === 'launch' && lastState !== 'launch' && game.level === 1) runFrames.start()   // a run's first fly-in
+  if (game.state === 'launch' && lastState !== 'launch' && game.level === 1) { runFrames.start(); runSound.start() }   // a run's first fly-in
   lastState = game.state
   game.shareNote = Math.max(0, game.shareNote - dt)
   updater?.tick(game.state)

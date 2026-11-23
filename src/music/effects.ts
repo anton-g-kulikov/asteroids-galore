@@ -2,6 +2,7 @@ import * as Tone from 'tone'
 import type { EffectsOut } from '../audio/player'
 import { createSlots, type FxNote, type FxPlan } from '../audio/scored'
 import { INSTRUMENTS } from './score'
+import { useGameContext } from './toneContext'
 
 // The sound effects, v2, played with Tone.js: separate copies of the
 // soundtrack's instruments, with the music's settings and the sketch's levels,
@@ -11,7 +12,7 @@ import { INSTRUMENTS } from './score'
 
 /** `context` is the one the sound effects and the music share. */
 export function createEffects(context: AudioContext): EffectsOut {
-  Tone.setContext(context)
+  useGameContext(context)
   const out = new Tone.Gain(0.5).toDestination()              // the game's sound level, apart from the music
   const verb = new Tone.Reverb({ decay: 2.2, preDelay: 0.02, wet: 1 }).connect(out)
   const wire = <T extends Tone.ToneAudioNode>(node: T, send = 0.2): T => { node.connect(out); node.connect(new Tone.Gain(send).connect(verb)); return node }
